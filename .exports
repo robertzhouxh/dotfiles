@@ -79,7 +79,7 @@ export HOMEBREW_NO_AUTO_UPDATE=true
 # change file descriptor limit
 #sysctl -w net.ipv4.ip_local_port_range="500 65535"
 # echo 1000000 > /proc/sys/fs/nr_open
-ulimit -n 100000
+#ulimit -n 100000
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
 export CFLAGS="-I/usr/local/opt/openssl/include/"
