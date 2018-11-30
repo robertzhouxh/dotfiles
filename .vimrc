@@ -6,7 +6,7 @@ let g:plug_timeout = 100
 
 " ================================ Plugins to be installed =======================================
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+"Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'bronson/vim-trailing-whitespace'
 Plug 'rking/ag.vim'
 Plug 'kien/ctrlp.vim'
@@ -220,13 +220,13 @@ endif
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
 " git submodule update --init --recursive
 " let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsExpandTrigger       = '<C-j>'
-let g:UltiSnipsJumpForwardTrigger  = '<C-j>'
-let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
-let g:UltiSnipsSnippetDirectories  = ['UltiSnips']
-let g:UltiSnipsSnippetsDir         = '~/.vim/UltiSnips'
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
+"  let g:UltiSnipsExpandTrigger       = '<C-j>'
+"  let g:UltiSnipsJumpForwardTrigger  = '<C-j>'
+"  let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
+"  let g:UltiSnipsSnippetDirectories  = ['UltiSnips']
+"  let g:UltiSnipsSnippetsDir         = '~/.vim/UltiSnips'
+"  " If you want :UltiSnipsEdit to split your window.
+"  let g:UltiSnipsEditSplit="vertical"
 
 " ctrlp.vim
 if executable('ag')
