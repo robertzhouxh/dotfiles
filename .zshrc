@@ -29,4 +29,4 @@ for file in ~/.{path,exports,aliases,functions,extra}; do
 done;
 unset file;
 
-ulimit -n 1048576
+#ulimit -n 1048576

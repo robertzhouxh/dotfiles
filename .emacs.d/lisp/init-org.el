@@ -152,20 +152,20 @@
 (eval-after-load "org"
   '(require 'ox-md nil t))
 
-;; export to html5 ===> https://gist.github.com/kinjo/509761
-(add-to-list 'load-path "~/.emacs.d/vendor/org-html5presentation.el")
-(defun org-export-get-headline-id (headline info)
-  "Return a unique ID for HEADLINE.
-INFO is a plist holding contextual information."
-  (let ((numbered (org-export-numbered-headline-p headline info)))
-    (concat
-     (if numbered "sec-" "unnumbered-")
-     (mapconcat #'number-to-string
-               (if numbered
-                   (org-export-get-headline-number headline info)
-                 (cdr (assq headline (plist-get info :unnumbered-headline-id)))) "-"))))
-(require 'ox)
-(require 'ox-html5presentation)
+; ;; export to html5 ===> https://gist.github.com/kinjo/509761
+; (add-to-list 'load-path "~/.emacs.d/vendor/org-html5presentation.el")
+; (defun org-export-get-headline-id (headline info)
+;   "Return a unique ID for HEADLINE.
+; INFO is a plist holding contextual information."
+;   (let ((numbered (org-export-numbered-headline-p headline info)))
+;     (concat
+;      (if numbered "sec-" "unnumbered-")
+;      (mapconcat #'number-to-string
+;                (if numbered
+;                    (org-export-get-headline-number headline info)
+;                  (cdr (assq headline (plist-get info :unnumbered-headline-id)))) "-"))))
+; (require 'ox)
+; (require 'ox-html5presentation)
 
 (provide 'init-org)
 ;;; init-org.el ends here
