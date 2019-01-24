@@ -24,7 +24,7 @@
 ;                    (font-spec :family "Microsoft Yahei")))
 
 ;; font size
-(set-face-attribute 'default nil :height 140)
+(set-face-attribute 'default nil :height 180)
 
   ; Set default font
   ;(set-face-attribute 'default nil
