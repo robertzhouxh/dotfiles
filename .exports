@@ -39,7 +39,7 @@ if [ -d "$HOME/bin" ]; then
     PATH="$HOME/bin:$PATH"
 fi
 
-#PATH="/usr/local/bin:$PATH"
+PATH="/usr/local/bin:$PATH"
 PATH="/usr/local/sbin:$PATH"
 # use Unix Style cmd for mac-osx
 
