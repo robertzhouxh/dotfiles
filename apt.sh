@@ -90,8 +90,10 @@ apps=(
     python-pip
     python-dev
 
-    ## for ag
+    ## for ag ---> helm-ag
     silversearcher-ag
+    ## for global ---> ,t
+    exuberant-ctags
 
     ## for erlang: refer: https://packages.erlang-solutions.com/erlang/
     #libwxbase3.0-0
