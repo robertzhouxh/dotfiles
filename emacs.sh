@@ -4,6 +4,12 @@ sudo -v
 
 echo -e "\033[40;32m install the emacs ... \033[0m"
 #brew install emacs --HEAD --use-git-head --with-cocoa --with-gnutls --with-rsvg --with-imagemagick
+# wget http://mirrors.syringanetworks.net/gnu/emacs/emacs-26.1.tar.gz
+# tar -xzvf emacs-26.1.tar.gz
+# ./configure --without-x --with-gnutls=no
+# make
+# sudo make install
+
 echo -e "\033[40;32m emacs installed \033[0m"
 
 # refer  spf13-vim bootstrap.sh`
