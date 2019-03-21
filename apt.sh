@@ -244,78 +244,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   sh -c "$(wget https://raw.githubusercontent.com/popcorn-official/popcorn-desktop/development/make_popcorn.sh -O -)"
 fi;
 
-echo ""
-echo ""
-read -p "install the awesome albert just like dash alfred in maxosx, are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sudo add-apt-repository ppa:nilarimogard/webupd8
-  sudo apt update
-  sudo apt install -y albert
-fi;
-
-echo ""
-echo ""
-read -p "install the awesome theme: [materia-theme, flatabulous-theme, Flat-Plat-Blue], are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-sudo apt-get install -y libxml2-utils libglib2.0-dev gtk2-engines-murrine gnome-themes-standard
-sudo apt install -y gnome-tweak-tool gnome-shell-extensions
-
-sudo add-apt-repository ppa:dyatlov-igor/materia-theme
-sudo apt update
-sudo apt install -y materia-gtk-theme
-
-sudo add-apt-repository ppa:noobslab/themes
-sudo apt-get update
-sudo apt-get install -y flatabulous-theme
-
-wget https://github.com/peterychuang/Flat-Plat-Blue/archive/3.26.0-2.tar.gz
-tar zxvf 3.26.0-2
-cd Flat-Plat-Blue-3.26.0-2/
-sudo ./install.sh
-cd ..
-fi;
-
-echo ""
-echo ""
-read -p "install the awesome icon: [flat-remix, ultra-flat-icons], are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-sudo add-apt-repository ppa:daniruiz/flat-remix
-sudo apt-get update
-sudo apt-get install -y flat-remix
-
-sudo add-apt-repository ppa:noobslab/icons
-sudo apt-get update
-sudo apt-get install -y ultra-flat-icons
-fi;
-
-
-echo ""
-echo ""
-read -p "install the awesome bottom app start docky like macosx bottom Dock, are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-sudo add-apt-repository ppa:ricotz/docky
-sudo apt-get update
-sudo apt-get install -y docky
-echo "now, the left sidebar can be adjust in the appreance system setting to set hide and resolation to 0"
-fi;
-
-echo ""
-echo ""
 read -p "install the awesome mpv player, are you sure? (y/n) " -n 1;
 if [[ $REPLY =~ ^[Yy]$ ]]; then
 sudo add-apt-repository ppa:mc3man/mpv-tests
 sudo apt update
 sudo apt install mpv
 fi;
-
-echo ""
-echo ""
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-cecho "!!! now, you can run ===> [ gnome-tweak-tool or unity-tweak-tool ] ===> in the terminal to change the theme and icon :-)" $green
-cecho "!!! [ System Settings -> Text Entry ] add rime and use [shift + command] to switch the input source:-)" $green
-cecho "!!! [ System Settings -> keyboard] adjust speed to fast :-)" $green
-cecho "!!! [ open the keyboard shortcuts menu in Ubuntu1604 Top -> Devices -> Keyboard -> custom...-> keyboard menu -> + ===> " $green
-cecho "Alt => Alt, Shift => Shift, Alt => Win, <- to Left, -> to Right ... ] :-)" $green
 
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

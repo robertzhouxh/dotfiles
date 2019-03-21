@@ -74,9 +74,9 @@ cd $CURRENT_DIR
 
 
 echo -e "\033[40;32m Step5: copy some cool theme into ~/.vim/colors \033[0m"
-sudo mkdir -p ~/.vim/colors
-sudo cp -rf $CURRENT_DIR/.vim/plugged/colour-schemes/vim/colors/* ~/.vim/colors/
-sudo cp -rf $CURRENT_DIR/.vim/plugged/dracula-theme/vim/colors/* ~/.vim/colors/
+#sudo mkdir -p ~/.vim/colors
+#sudo cp -rf $CURRENT_DIR/.vim/plugged/colour-schemes/vim/colors/* ~/.vim/colors/
+#sudo cp -rf $CURRENT_DIR/.vim/plugged/dracula-theme/vim/colors/* ~/.vim/colors/
 
 
 echo -e "\033[40;32m VIM Install Done! \033[0m"
