@@ -66,6 +66,8 @@
             (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
             (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
 
+
+(autoload 'vc-git-root "vc-git")
 (defun gtags-reindex ()
   "Kick off gtags reindexing."
   (interactive)
@@ -122,20 +124,20 @@
 ;;---------------------------------------------------------------
 ;; Erlang
 ;;---------------------------------------------------------------
-(let* ((emacs-version "3.1")
+(let* ((emacs-version "3.0.1")
        (tools-path
-         (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
+         (concat "/usr/lib/erlang/lib/tools-" emacs-version "/emacs")))
   (when (file-exists-p tools-path)
     (setq load-path (cons tools-path load-path))
-    (setq erlang-root-dir "/usr/local/lib/erlang")
-    (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
+    (setq erlang-root-dir "/usr/lib/erlang")
+    (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
     (require 'erlang-start)
     (defvar inferior-erlang-prompt-timeout t)))
 
 ;; get erlang man page
 (defun get-erl-man ()
   (interactive)
-  (let* ((man-path "/usr/local/lib/erlang/man")
+  (let* ((man-path "/usr/lib/erlang/man")
          (man-args (format "-M %s %s" man-path (current-word))))
     (man man-args)))
 
