@@ -90,6 +90,9 @@ apps=(
     python-pip
     python-dev
 
+    ## for ag
+    silversearcher-ag
+
     ## for erlang: refer: https://packages.erlang-solutions.com/erlang/
     #libwxbase3.0-0
     #libwxbase3.0-0v5
