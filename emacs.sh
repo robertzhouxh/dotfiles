@@ -12,6 +12,7 @@ echo -e "\033[40;32m install the emacs ... \033[0m"
 
 echo -e "\033[40;32m emacs installed \033[0m"
 
+rm -rf ~/.emacs
 # refer  spf13-vim bootstrap.sh`
 # BASEDIR=$(dirname $0)
 # cd $BASEDIR
