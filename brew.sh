@@ -333,4 +333,7 @@ net.inet.ip.portrange.first=1024
 net.inet.ip.portrange.last=65535
 EOF
 
+cecho "Install Color Scheme for Gnome Terminal and Pantheon Terminal" $green
+bash -c  "$(curl -sLo- https://git.io/vQgMr)"
+
 cecho "Done!!! you can deploy vim( ./vim.sh ) or emacs( ./emacs.sh ) to bring you into cool coding environment!!!" $green
