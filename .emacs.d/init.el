@@ -12,7 +12,7 @@
 (add-to-list 'load-path vendor-dir)
 (add-to-list 'exec-path "/usr/local/bin")
 (add-to-list 'exec-path "/usr/bin")
-(add-to-list 'exec-path "/Applications/iTerm.app/Contents/MacOS/")
+;(add-to-list 'exec-path "/Applications/iTerm.app/Contents/MacOS/")
 (add-to-list 'custom-theme-load-path (expand-file-name "themes" user-emacs-directory))
 
 (let ((files (directory-files-and-attributes "~/.emacs.d/lisp" t)))
