@@ -137,7 +137,7 @@
 ;; get erlang man page
 (defun get-erl-man ()
   (interactive)
-  (let* ((man-path "/usr/lib/erlang/man")
+  (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
          (man-args (format "-M %s %s" man-path (current-word))))
     (man man-args)))
 
