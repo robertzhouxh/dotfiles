@@ -124,7 +124,26 @@
 ;;---------------------------------------------------------------
 ;; Erlang
 ;;---------------------------------------------------------------
-(let* ((emacs-version "3.0.1")
+
+;; wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+;; sudo dpkg -i erlang-solutions_1.0_all.deb
+;; sudo apt-get update
+;; sudo apt-get install erlang
+
+;; Install Erlang Docs And Man Pages
+;;    wget http://erlang.org/download/otp_doc_man_21.3.tar.gz
+;;    $ manpath
+;;    /usr/local/share/man:/usr/share/man:/usr/X11/man:/usr/local/git/share/man
+;;    Copy man pages to man path:
+;;    $ tar xfz xxx.tar.gz
+;;    $ ls man
+;;    man1 man3 man4 man6 man7
+;;    $ sudo cp -r man/* /usr/local/share/man/
+;;    Test:
+;;    $ man erl
+;;    Updated: Erlang's man pages may not need to download, since there is already a copy at /usr/local/lib/erlang/man. Just copy them into manpath.
+
+(let* ((emacs-version "3.1")
        (tools-path
          (concat "/usr/lib/erlang/lib/tools-" emacs-version "/emacs")))
   (when (file-exists-p tools-path)
@@ -137,7 +156,8 @@
 ;; get erlang man page
 (defun get-erl-man ()
   (interactive)
-  (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
+  ;;(let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
+  (let* ((man-path "/usr/local/share/man/")
          (man-args (format "-M %s %s" man-path (current-word))))
     (man man-args)))
 

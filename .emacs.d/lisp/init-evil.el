@@ -29,6 +29,8 @@
     "k"  'get-erl-man'
     "l"  'whitespace-mode       ;; Show invisible characters
     "L"  (lambda () (interactive) (get-lua-man))
+    "m"  'eshell-here
+    "M"  'eshell-x
     "nn" 'air-narrow-dwim       ;; Narrow to region and enter normal mode
     "nw" 'widen
     "o"  'delete-other-windows  ;; C-w o
@@ -47,8 +49,6 @@
     "S"  'delete-trailing-whitespace
     "t"  'gtags-reindex
     "T"  'gtags-find-tag
-    "u"  'eshell-here
-    "U"  'eshell-x
     "w"  'save-buffer
     "x"  'helm-M-x
     "y"  'yank-to-x-clipboard

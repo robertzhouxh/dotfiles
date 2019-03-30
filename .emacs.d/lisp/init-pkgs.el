@@ -38,18 +38,15 @@
 (use-package comment-dwim-2 :ensure t)
 ;(use-package multiple-cursors
 ;             :ensure t
-;             :bind (("C-c C-. *"   . mc/mark-all-dwim)
-;                    ("C-c C-. C-." . mc/mark-all-like-this-dwim)
-;                    ("C-c C-. n"   . mc/mark-next-like-this)
-;                    ("C-c C-. p"   . mc/mark-previous-like-this)
-;                    ("C-c C-. a"   . mc/mark-all-like-this)
-;                    ("C-c C-. N"   . mc/mark-next-symbol-like-this)
-;                    ("C-c C-. P"   . mc/mark-previous-symbol-like-this)
-;                    ("C-c C-. A"   . mc/mark-all-symbols-like-this)
-;                    ("C-c C-. f"   . mc/mark-all-like-this-in-defun)
-;                    ("C-c C-. l"   . mc/edit-lines)
-;                    ("C-c C-. e"   . mc/edit-ends-of-lines)
-;                    ("C-M-<mouse-1>" . mc/add-cursor-on-click)))
+;             :init
+;             (progn
+;               ;; these need to be defined here - if they're lazily loaded with
+;               ;; :bind they don't work.
+;               (global-set-key (kbd "C-c .") 'mc/mark-next-like-this)
+;               (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+;               (global-set-key (kbd "C-c ,") 'mc/mark-previous-like-this)
+;               (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+;               (global-set-key (kbd "C-c C-l") 'c/mark-all-like-this)))
 (use-package helm
              :ensure t
              :diminish helm-mode
