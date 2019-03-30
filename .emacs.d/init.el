@@ -75,6 +75,7 @@
 (require 'init-plantform)
 (require 'init-pkgs)
 (require 'init-evil)
+(require 'init-evil-eshell)
 (require 'init-org)
 (require 'init-languages)
 (require 'init-maps)
