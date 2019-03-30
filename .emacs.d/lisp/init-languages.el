@@ -143,6 +143,7 @@
 ;;    $ man erl
 ;;    Updated: Erlang's man pages may not need to download, since there is already a copy at /usr/local/lib/erlang/man. Just copy them into manpath.
 
+;; "/usr/local/lib/erlang/lib/tools-" for mac
 (let* ((emacs-version "3.1")
        (tools-path
          (concat "/usr/lib/erlang/lib/tools-" emacs-version "/emacs")))
