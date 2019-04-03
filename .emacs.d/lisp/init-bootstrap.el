@@ -41,7 +41,7 @@
 
 (setq backup-directory-alist (list (cons "." backup-dir)))
 (setq make-backup-files nil)
-(setq default-directory "~/githubs")
+(setq default-directory "~/")
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
