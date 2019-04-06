@@ -120,9 +120,6 @@
   (evil-define-key 'normal global-map (kbd "C-S-p") 'helm-projectile-switch-project)
   (evil-define-key 'insert global-map (kbd "s-d")   'eval-last-sexp)
   (evil-define-key 'normal global-map (kbd "s-d")   'eval-defun)
-
-  (evil-define-key 'normal global-map "gl" 'air-transpose-word-forward)
-  (evil-define-key 'normal global-map "gh" 'air-transpose-word-backward)
   (evil-define-key 'normal global-map (kbd "z d")   'dictionary-lookup-definition)
 
   (defun minibuffer-keyboard-quit ()
