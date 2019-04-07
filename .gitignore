@@ -30,6 +30,7 @@ Thumbs.db
 .emacs.d/eshell/
 .emacs.d/recentf
 .emacs.d/themes/
+.emacs.d/transient/
 .emacs.d/cider-history
 fonts-master/
 

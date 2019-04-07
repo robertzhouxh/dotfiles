@@ -322,5 +322,11 @@ directory to make multiple eshell windows easier."
   (save-some-buffers t) ;; Do not prompt for confirmation.
   )
 
+(defun jc/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+  Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
 (provide 'init-utils)
 ;;; init-utils.el ends here

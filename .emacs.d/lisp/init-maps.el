@@ -3,6 +3,9 @@
 ;;; Commentary:
 ;;; Provide global maps that aren't specific to any mode or package.
 
+;; C-x C-+ or C-x-+ 字体放大
+;; C-x C--  字体缩小
+
 ;;; Code:
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
@@ -26,7 +29,12 @@
 (global-set-key (kbd "M-p") 'hold-line-scroll-up )
 (global-set-key (kbd "M-n") 'hold-line-scroll-down )
 
+(global-set-key (kbd "M-o m")   'async-shell-command)
+(global-set-key (kbd "C-M-g")   'goto-line)
+(global-set-key (kbd "C-h")     'backward-delete-char)
+(global-set-key (kbd "M-r")     'rename-file)
 (global-set-key (kbd "C-x s") 'save-all)
+(key-chord-define-global "JJ" 'jc/switch-to-previous-buffer)
 
 ;; Automatically save all file-visiting buffers when Emacs loses focus.
 (add-hook 'focus-out-hook 'save-all)

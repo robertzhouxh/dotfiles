@@ -212,21 +212,14 @@
              :ensure t
              :config
              (key-chord-mode 1))
-(defun jc/switch-to-previous-buffer ()
-    "Switch to previously open buffer.
-  Repeated invocations toggle between the two most recently open buffers."
-    (interactive)
-    (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-(key-chord-define-global "JJ" 'jc/switch-to-previous-buffer)
-
 (use-package ace-window
-    :ensure t
-    :chords ("jk" . ace-window)
-    :config
-    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+             :ensure t
+             :chords ("jk" . ace-window)
+             :config
+             (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 (use-package google-this :ensure t)
-
+(use-package logview :ensure t)
+(use-package hydra :ensure t)
 ;; reffer to http://jwintz.me/blog/2014/02/16/helm-dash-makes-you-efficient/
 ;(use-package helm-dash
 ;             :ensure t
@@ -361,24 +354,51 @@
     (bpr-spawn "global -uv")))
 
 (use-package dumb-jump
-  :ensure t
-  :diminish dumb-jump-mode
-  :bind (
-         ("C-M-o" . dumb-jump-go-other-window)
-         ("C-M-g" . dumb-jump-go)
-         ("C-M-p" . dumb-jump-back)
-         ("C-M-q" . dumb-jump-quick-look))
-  :config
-  (setq dumb-jump-selector 'helm)
-  (setq dumb-jump-prefer-searcher 'ag))
+             :ensure t
+             :diminish dumb-jump-mode
+             :bind (
+                    ("C-M-o" . dumb-jump-go-other-window)
+                    ("C-M-g" . dumb-jump-go)
+                    ("C-M-p" . dumb-jump-back)
+                    ("C-M-q" . dumb-jump-quick-look))
+             :config
+             (setq dumb-jump-selector 'helm)
+             (setq dumb-jump-prefer-searcher 'ag))
 
 ;; ------------------------------
 ;; UI Schemes
 ;; ------------------------------
-(use-package darktooth-theme
-  :ensure t
-  ;:disabled t
-  :config
-  (load-theme 'darktooth t))
+;;(use-package darktooth-theme
+;;  :ensure t
+;;  :config
+;;  (load-theme 'darktooth t))
+
+;(use-package kaolin-themes
+;             :ensure t
+;             :config
+;             (load-theme 'kaolin-dark t)
+;             (kaolin-treemacs-theme))
+
+(use-package all-the-icons :ensure t)
+(use-package doom-themes
+             :ensure t
+             :defer t)
+(use-package doom-modeline
+             :ensure t
+             :defer t
+             :config
+             (setq doom-modeline-icon nil)
+             (setq doom-modeline-height 22)
+             ;;(setq doom-modeline-github nil)
+             (doom-modeline-def-modeline
+               'gs
+               ;; Left mode line segments
+               '(bar workspace-number window-number "  " matches buffer-info buffer-position selection-info)
+               ;; Right mode line segments
+               '(major-mode misc-info minor-modes input-method buffer-encoding major-mode process vcs checker))
+             (doom-modeline-set-modeline 'gs t)
+             :hook (after-init . doom-modeline-init))
+
+(load-theme 'doom-molokai t)
 
 (provide 'init-pkgs)
