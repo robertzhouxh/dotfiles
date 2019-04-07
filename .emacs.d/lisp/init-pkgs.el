@@ -333,7 +333,7 @@
             (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
 
 
-(autoload 'vc-git-root "vc-git")
+;;(autoload 'vc-git-root "vc-git")
 (defun gtags-reindex ()
   "Kick off gtags reindexing."
   (interactive)
@@ -389,13 +389,15 @@
              :config
              (setq doom-modeline-icon nil)
              (setq doom-modeline-height 22)
-             ;;(setq doom-modeline-github nil)
+             (setq doom-modeline-vcs-max-length 12)
+             (setq auto-revert-check-vc-info t)
+             (setq doom-modeline-github nil)
              (doom-modeline-def-modeline
                'gs
                ;; Left mode line segments
                '(bar workspace-number window-number "  " matches buffer-info buffer-position selection-info)
                ;; Right mode line segments
-               '(major-mode misc-info minor-modes input-method buffer-encoding major-mode process vcs checker))
+               '(major-mode buffer-encoding vcs checker))
              (doom-modeline-set-modeline 'gs t)
              :hook (after-init . doom-modeline-init))
 
