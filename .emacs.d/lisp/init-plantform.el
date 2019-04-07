@@ -2,7 +2,6 @@
 ;;; ;;; Commentary:
 ;;; ;;; Code:
 
-
 (when (system-is-mac)
   ;; refer to: http://azaleasays.com/2013/07/05/setting-up-mac-os-x-and-iterm2-for-emacs/
   ;; Switch the Cmd and Meta keys
@@ -11,34 +10,8 @@
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier nil)
 
-
-  ;; -----------------------------------------------------------------------------
-  ;; setting font for mac system
-  ;; -----------------------------------------------------------------------------
-
-  ;; from 谷歌的哥们: http://icodeilife.com/cs.html#sec-4-1
-  ;; Chinese Font
-;(dolist (charset '(kana han symbol cjk-misc bopomofo))
-;  (set-fontset-font (frame-parameter nil 'font)
-;                    charset
-;                    (font-spec :family "Microsoft Yahei")))
-
-;; font size
-(set-face-attribute 'default nil :height 110)
-
-  ; Set default font
-  ;(set-face-attribute 'default nil
-  ;                    :family "Source Code Pro"
-  ;                    :height 140
-  ;                    :weight 'normal
-  ;                    :width 'normal)
-  ;(set-frame-font "Monaco:pixelsize=13")
-  ;(dolist (charset '(han kana symbol cjk-misc bopomofo))
-  ;  (set-fontset-font (frame-parameter nil 'font)
-  ;                    charset
-  ;                    (font-spec :family "Hiragino Sans GB" :size 13)
-  ;                    ))
-
+  ;; font size
+  (set-face-attribute 'default nil :height 110)
 
   (if (executable-find "gls")
     (progn
@@ -64,7 +37,6 @@
   (setq interprogram-cut-function 'paste-to-osx
         interprogram-paste-function 'copy-from-osx)
 
-
   ;; Trash.
   (defun move-file-to-trash (file)
     "Use `trash' to move FILE to the system trash.
@@ -79,9 +51,7 @@
       When using Homebrew, install it using \"brew install trash\"."
       (call-process (executable-find "trash")
                     nil 0 nil
-                    file))
-      )
-
+                    file)))
 
 (when (system-is-linux)
   (defun yank-to-x-clipboard ()
@@ -91,8 +61,9 @@
         (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
         (message "Yanked region to clipboard!")
         (deactivate-mark))
-      (message "No region active; can't yank to clipboard!")))
-  )
+      (message "No region active; can't yank to clipboard!"))))
 
+;; hide some minal-mode
+(gds/cleanup)
 
 (provide 'init-plantform)

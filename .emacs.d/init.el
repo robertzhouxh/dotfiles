@@ -7,13 +7,12 @@
 
 (defvar vendor-dir (expand-file-name "vendor" user-emacs-directory))
 (defvar backup-dir "~/.emacs.d/backups/")
+
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (add-to-list 'load-path vendor-dir)
 (add-to-list 'exec-path "/usr/local/bin")
 (add-to-list 'exec-path "/usr/bin")
-;(add-to-list 'exec-path "/Applications/iTerm.app/Contents/MacOS/")
-(add-to-list 'custom-theme-load-path (expand-file-name "themes" user-emacs-directory))
 
 (let ((files (directory-files-and-attributes "~/.emacs.d/lisp" t)))
   (dolist (file files)
@@ -27,13 +26,8 @@
   (normal-top-level-add-subdirs-to-load-path))
 
 ;;; Standard package repositories
-
 (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
                          ("melpa" . "http://elpa.emacs-china.org/melpa/")))
-;(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-;                         ("marmalade" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-;                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-
 
 ;;; Pin some packages to specific repositories.
 ;(setq package-pinned-packages '((gtags . "marmalade")))
@@ -52,22 +46,6 @@
 
 (eval-when-compile
   (require 'use-package))
-
-;(use-package proxy-mode
-;  :init
-;  (define-globalized-minor-mode global-proxy-mode proxy-mode proxy-mode)
-;  (setq proxy-mode-http-proxy "http://127.0.0.1:8123")
-;  (setq proxy-mode-socks-proxy '("Default server" "127.0.0.1" 1080 5))
-;
-;  (setq proxy-mode-url-proxy '(("http"  . "127.0.0.1:8123")
-;                               ("https" . "127.0.0.1:8123")
-;                               ("ftp"   . "127.0.0.1:8123")
-;                               ;; don't use `localhost', avoid robe server (For Ruby) can't response.
-;                               ("no_proxy" . "127.0.0.1")
-;                               ("no_proxy" . "^.*\\(baidu\\|sina)\\.com")))
-;
-;  (setq url-gateway-local-host-regexp
-;        (concat "\\`" (regexp-opt '("localhost" "127.0.0.1")) "\\'")))
 
 ;;; My own configurations, which are bundled in my dotfiles.
 (require 'init-bootstrap)

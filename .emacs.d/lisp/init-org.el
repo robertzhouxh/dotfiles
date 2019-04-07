@@ -1,22 +1,11 @@
 ;;; init-org.el --- Set up Org Mode
 ;;; Commentary:
-;; reffer to: http://www.zmonster.me/2015/07/15/org-mode-planning.html
-
-;; reffer to: https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/
-
-(setq auto-mode-alist
-      (cons '("\\.org$" . org-mode) auto-mode-alist))
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cb" 'org-iswitchb)
-
+(setq auto-mode-alist (cons '("\\.org$" . org-mode) auto-mode-alist))
 (setq org-todo-keywords
       '((sequence "TODO(t)" "DOING(i@/!)" "|" "DONE(d!)" "ABORT(a@)")
         (sequence "PROJECT(p)" "STARTED(s)" "WAITING(w)" "MAYBE(m)" "|")
         (sequence "REPORT(r)" "BUG(b)" "KNOWNCLAUSE(k)" "|" "FIXED(f)")
         (sequence "|" "CANCELED(c)" "DEFERRED(e)")))
-
 (setq org-todo-keyword-faces
  '(("TODO" . "red")
    ("DONE" . "green")
@@ -48,7 +37,6 @@
 (setq org-agenda-files (list "~/Dropbox/org/personal.org"
                              "~/Dropbox/org/groupon.org"))
 
-;; reffer to https://thraxys.wordpress.com/2016/01/14/pimp-up-your-org-agenda/
 (use-package org-evil :ensure t)
 (use-package org-bullets
     :init
@@ -59,7 +47,6 @@
 (add-to-list 'ispell-skip-region-alist '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
 (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_SRC" . "#\\+END_SRC"))
 (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_EXAMPLE" . "#\\+END_EXAMPLE"))
-
 
 ;; ==================== table =====================
 ; C-c |
@@ -82,12 +69,9 @@
 
 ; C-c ^         对当前列排序
 
-
 ;; ==================== Code blocks =====================
 ;; cd .emacs.d/elpa/org-20161102
 ;; rm *.elc
-;(setq org-plantuml-jar-path (expand-file-name "plantuml.jar" vendor-dir))
-;(setq org-ditaa-jar-path (expand-file-name "ditaa0_9.jar" vendor-dir))
 (setq org-plantuml-jar-path "~/.emacs.d/vendor/plantuml.jar")
 (setq org-ditaa-jar-path "~/.emacs.d/vendor/ditaa0_9.jar")
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
@@ -114,23 +98,7 @@
 (setq org-confirm-babel-evaluate nil)
 
 ;; Export org-mode to Google I/O HTML5 slide.
-(use-package ox-ioslide
-             :ensure t
-             :defer t
-             :config
-             (require 'ox-ioslide-helper))
-
-
-;; ---------------------------------------------------
-;; for blog
-;; ---------------------------------------------------
-;; support display the online image in org-mode of emacs
-;; (require 'uimage)
-(use-package uimage
-             :ensure t
-             :defer t
-             )
-
+(use-package uimage :ensure t :defer t)
 (use-package htmlize
              :ensure t
              :defer t
@@ -140,32 +108,6 @@
                          htmlize-many-files-dired
                          htmlize-region))
 
-
-; cd .emacs.d ; cd elpa ; cd org-20161102 ; rm *.elc
-; https://www.websequencediagrams.com/examples.html
-(use-package wsd-mode
-             :ensure t
-             :commands (wsd-mode)
-             :config
-             (add-hook 'wsd-mode-hook 'company-mode))
-
-(eval-after-load "org"
-  '(require 'ox-md nil t))
-
-; ;; export to html5 ===> https://gist.github.com/kinjo/509761
-; (add-to-list 'load-path "~/.emacs.d/vendor/org-html5presentation.el")
-; (defun org-export-get-headline-id (headline info)
-;   "Return a unique ID for HEADLINE.
-; INFO is a plist holding contextual information."
-;   (let ((numbered (org-export-numbered-headline-p headline info)))
-;     (concat
-;      (if numbered "sec-" "unnumbered-")
-;      (mapconcat #'number-to-string
-;                (if numbered
-;                    (org-export-get-headline-number headline info)
-;                  (cdr (assq headline (plist-get info :unnumbered-headline-id)))) "-"))))
-; (require 'ox)
-; (require 'ox-html5presentation)
+(eval-after-load "org" '(require 'ox-md nil t))
 
 (provide 'init-org)
-;;; init-org.el ends here

@@ -4,101 +4,6 @@
 ;; Basic programming languages
 
 ;;; Code:
-
-;; --------------------------------------------------------------------
-;; generate the tag files
-;; --------------------------------------------------------------------
-;; scheme-1
-;; (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
-;; global、gtags、gtags-cscope三个命令。global是查询，gtags是生成索引文件，gtags-cscope是与cscope一样的界面
-;; 查询使用的命令是global和gtags-cscope。前者是命令行界面，后者是与cscope兼容的ncurses界面
-;; helm-ggtags
-;(if
-;    (executable-find "global")
-;    (progn
-;      (use-package bpr :ensure t)
-;      (use-package helm-gtags
-;        :diminish helm-gtags-mode
-;        :init
-;        (add-hook 'dired-mode-hook 'helm-gtags-mode)
-;        (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-;        (add-hook 'c-mode-hook 'helm-gtags-mode)
-;        (add-hook 'c++-mode-hook 'helm-gtags-mode)
-;        (add-hook 'asm-mode-hook 'helm-gtags-mode)
-;        (add-hook 'go-mode-hook (lambda () (helm-gtags-mode)))
-;        (add-hook 'python-mode-hook (lambda () (helm-gtags-mode)))
-;        (add-hook 'ruby-mode-hook (lambda () (helm-gtags-mode)))
-;        (add-hook 'lua-mode-hook (lambda () (helm-gtags-mode)))
-;        (add-hook 'js-mode-hook (lambda () (helm-gtags-mode)))
-;        (add-hook 'erlang-mode-hook (lambda () (helm-gtags-mode)))
-;        :config
-;        ;(custom-set-variables
-;        ; '(helm-gtags-prefix-key "C-t")
-;        ; '(helm-gtags-suggested-key-mapping t))
-;        (setq
-;         helm-gtags-ignore-case t
-;         helm-gtags-auto-update t
-;         helm-gtags-use-input-at-cursor t
-;         helm-gtags-pulse-at-cursor t
-;         helm-gtags-prefix-key "\C-cg"
-;         helm-gtags-suggested-key-mapping t
-;         )
-;         (define-key helm-gtags-mode-map (kbd "C-]") 'helm-gtags-dwim)
-;         (define-key helm-gtags-mode-map (kbd "C-t") 'helm-gtags-pop-stack)
-;        ))
-;  (message "%s: GNU GLOBAL not found in exec-path. helm-gtags will not be used." 'please check))
-
-;; scheme-2
-;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
-;; gtags --gtagslabel=pygments --debug
-;; or use ensure t
-
-;; scheme-2
-;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
-;; gtags --gtagslabel=pygments --debug
-;; (use-package gtags :ensure t)
-(require 'gtags)
-(use-package bpr :ensure t)
-
-;; Bind some useful keys in the gtags select buffer that evil overrides.
-(add-hook 'gtags-select-mode-hook
-          (lambda ()
-            (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
-            (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
-
-
-(autoload 'vc-git-root "vc-git")
-(defun gtags-reindex ()
-  "Kick off gtags reindexing."
-  (interactive)
-  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-         (gtags-filename (expand-file-name "GTAGS" root-path)))
-    (if (file-exists-p gtags-filename)
-      (gtags-index-update root-path)
-      (gtags-index-initial root-path))))
-
-(defun gtags-index-initial (path)
-  "Generate initial GTAGS files for PATH."
-  (let ((bpr-process-directory path))
-    (bpr-spawn "gtags")))
-
-(defun gtags-index-update (path)
-  "Update GTAGS in PATH."
-  (let ((bpr-process-directory path))
-    (bpr-spawn "global -uv")))
-
-;-------------------------------------------------------
-(use-package dumb-jump
-             :ensure nil
-             :bind (("M-g o" . dumb-jump-go-other-window)
-                    ("M-g j" . dumb-jump-go)
-                    ("M-g ." . dumb-jump-back)
-                    ("M-g i" . dumb-jump-go-prompt)
-                    ("M-g x" . dumb-jump-go-prefer-external)
-                    ("M-g z" . dumb-jump-go-prefer-external-other-window))
-             :config (setq dumb-jump-selector 'helm) ;; (setq dumb-jump-selector 'ivy)
-             )
-
 ;;--------------------------------------------------------------
 ;; sh-mode
 ;;--------------------------------------------------------------
@@ -182,31 +87,6 @@
 (add-to-list 'auto-mode-alist '("\\.erl$" . erlang-mode)) ;; User customizations file
 (add-to-list 'auto-mode-alist '("\\.hrl" . erlang-mode)) ;; User customizations file
 
-;;;----------------------------------------------------------------------------
-;;; lua
-;;;----------------------------------------------------------------------------
-(use-package lua-mode
-             :ensure t
-             :defer t
-             :mode "\\.lua\\'"
-             :init
-             (add-hook 'lua-mode-hook
-                       (lambda ()
-                         (setq lua-indent-level 4)
-                         (auto-complete-mode)
-                         (hs-minor-mode)
-                         (turn-on-font-lock)
-                         )
-                       )
-             )
-
-;; get lua man page
-(defun get-lua-man ()
-  (interactive)
-  (let* ((man-path "/usr/local/Cellar/lua/5.2.4_4/share/man")
-         (man-args (format "-M %s %s" man-path (current-word))))
-    (man man-args)))
-
 ;;----------------------------------------------------------------------------
 ;; lisp: C-x C-e 执行光标下lisp
 ;; 或者 l执行整个buffer ==> ,e
@@ -266,35 +146,6 @@
  (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
  (setq gofmt-command "goimports")
  (add-hook 'before-save-hook 'gofmt-before-save))
-
-;;----------------------------------------------------------------------------
-;; es6
-;;----------------------------------------------------------------------------
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
-(use-package js2-mode
-             :config (setq js2-basic-offset 2))
-
-;; force web-mode’s content type as jsx for .js and .jsx files
-(use-package web-mode :ensure t)
-
-(defun my-web-mode-hook ()
-  "Hooks for Web mode. Adjust indents"
-  (setq web-mode-enable-current-column-highlight t)
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 2))
-
-(add-hook 'web-mode-hook  'my-web-mode-hook)
-
-(setq web-mode-content-types-alist
-  '(("jsx" . "\\.js[x]?\\'")))
-
-(defadvice web-mode-highlight-part (around tweak-jsx activate)
-  (if (equal web-mode-content-type "jsx")
-    (let ((web-mode-enable-part-face nil))
-      ad-do-it)
-    ad-do-it))
 
 ;;----------------------------------------------------------------------------
 ;; clojure

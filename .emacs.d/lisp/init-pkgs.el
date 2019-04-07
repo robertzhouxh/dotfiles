@@ -36,17 +36,6 @@
              :init
              (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 (use-package comment-dwim-2 :ensure t)
-;(use-package multiple-cursors
-;             :ensure t
-;             :init
-;             (progn
-;               ;; these need to be defined here - if they're lazily loaded with
-;               ;; :bind they don't work.
-;               (global-set-key (kbd "C-c .") 'mc/mark-next-like-this)
-;               (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-;               (global-set-key (kbd "C-c ,") 'mc/mark-previous-like-this)
-;               (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-;               (global-set-key (kbd "C-c C-l") 'c/mark-all-like-this)))
 (use-package helm
              :ensure t
              :diminish helm-mode
@@ -81,12 +70,6 @@
              :ensure t
              :config
              (setq-default highlight-symbol-idle-delay 1.5))
-
-(use-package hl-todo                    ; Highlight TODO and similar keywords
-             :ensure nil
-             :hook ((prog-mode . hl-todo-mode)
-                    (yaml-mode . hl-todo-mode)))
-
 (use-package flycheck
              :ensure t
              :defer t
@@ -104,7 +87,6 @@
              (flycheck-add-mode 'javascript-eslint 'js-mode)
              ;; To verify just do C-h v flycheck-eslintrc
              (setq flycheck-eslintrc "~/.eslintrc"))
-
 (use-package ag
              :ensure t
              :defer t
@@ -122,7 +104,6 @@
              (setq helm-ag-base-command "ag --nocolor --nogroup --ignore-case"
                    helm-ag-command-option "--all-text"
                    helm-ag-insert-at-point 'symbol))
-
 (use-package yasnippet
              :ensure t
              :defer t
@@ -134,8 +115,6 @@
                (add-to-list 'yas-snippet-dirs (concat user-emacs-directory "snippets"))
                ;; refer https://github.com/AndreaCrotti/yasnippet-snippets
                ))
-
-;(use-package hippie-expand
 (use-package hippie-exp-ext
              :ensure t
              :defer t
@@ -148,7 +127,6 @@
                       try-expand-dabbrev-from-kill))
              :bind
              ("M-/" . hippie-expand))
-
 (use-package magit
              :ensure t
              :defer t
@@ -183,7 +161,6 @@
                         (if magit-blame-mode
                           (evil-emacs-state 1)
                           (evil-normal-state 1))))
-
 (use-package git-gutter
              :ensure t
              :diminish git-gutter+-mode
@@ -200,7 +177,6 @@
                (set-face-foreground 'git-gutter:deleted "#FA8072")
                (set-face-foreground 'git-gutter:modified "#b18cce")
                ))
-
 (use-package projectile
              :defer t
              :ensure t
@@ -208,12 +184,10 @@
              :config
              (projectile-global-mode)
              (setq projectile-enable-caching t))
-
 (use-package helm-projectile
              :defer t
              :commands (helm-projectile helm-projectile-switch-project)
              :ensure t)
-
 (use-package company
              :ensure t
              :diminish 'company-mode
@@ -226,7 +200,6 @@
              (define-key company-active-map [tab] 'company-complete)
              (define-key company-active-map (kbd "C-n") 'company-select-next)
              (define-key company-active-map (kbd "C-p") 'company-select-previous))
-
 (use-package paredit
              :ensure t
              :diminish paredit-mode
@@ -290,27 +263,102 @@
 ;                 (dolist (docset esk-dash-docsets)
 ;                   (esk-helm-dash-install docset))
 ;                 )))
-;; UI
-;(use-package moe-theme                     ; Theme
-;  :ensure t
-;  :config
-;  (load-theme 'moe-dark t))
 
-(use-package darktooth-theme               ; Theme
+;; --------------------------------------------------------------------
+;; jump to definations 
+;; --------------------------------------------------------------------
+;; scheme-1
+;; (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+;; global、gtags、gtags-cscope三个命令。global是查询，gtags是生成索引文件，gtags-cscope是与cscope一样的界面
+;; 查询使用的命令是global和gtags-cscope。前者是命令行界面，后者是与cscope兼容的ncurses界面
+;; helm-ggtags
+;(if
+;    (executable-find "global")
+;    (progn
+;      (use-package bpr :ensure t)
+;      (use-package helm-gtags
+;        :diminish helm-gtags-mode
+;        :init
+;        (add-hook 'dired-mode-hook 'helm-gtags-mode)
+;        (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+;        (add-hook 'c-mode-hook 'helm-gtags-mode)
+;        (add-hook 'c++-mode-hook 'helm-gtags-mode)
+;        (add-hook 'asm-mode-hook 'helm-gtags-mode)
+;        (add-hook 'go-mode-hook (lambda () (helm-gtags-mode)))
+;        (add-hook 'python-mode-hook (lambda () (helm-gtags-mode)))
+;        (add-hook 'ruby-mode-hook (lambda () (helm-gtags-mode)))
+;        (add-hook 'lua-mode-hook (lambda () (helm-gtags-mode)))
+;        (add-hook 'js-mode-hook (lambda () (helm-gtags-mode)))
+;        (add-hook 'erlang-mode-hook (lambda () (helm-gtags-mode)))
+;        :config
+;        ;(custom-set-variables
+;        ; '(helm-gtags-prefix-key "C-t")
+;        ; '(helm-gtags-suggested-key-mapping t))
+;        (setq
+;         helm-gtags-ignore-case t
+;         helm-gtags-auto-update t
+;         helm-gtags-use-input-at-cursor t
+;         helm-gtags-pulse-at-cursor t
+;         helm-gtags-prefix-key "\C-cg"
+;         helm-gtags-suggested-key-mapping t
+;         )
+;         (define-key helm-gtags-mode-map (kbd "C-]") 'helm-gtags-dwim)
+;         (define-key helm-gtags-mode-map (kbd "C-t") 'helm-gtags-pop-stack)
+;        ))
+;  (message "%s: GNU GLOBAL not found in exec-path. helm-gtags will not be used." 'please check))
+
+;; scheme-2
+;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
+;; gtags --gtagslabel=pygments --debug
+;; (use-package gtags :ensure t)
+(require 'gtags)
+(use-package bpr :ensure t)
+
+;; Bind some useful keys in the gtags select buffer that evil overrides.
+(add-hook 'gtags-select-mode-hook
+          (lambda ()
+            (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
+            (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
+
+
+(autoload 'vc-git-root "vc-git")
+(defun gtags-reindex ()
+  "Kick off gtags reindexing."
+  (interactive)
+  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
+         (gtags-filename (expand-file-name "GTAGS" root-path)))
+    (if (file-exists-p gtags-filename)
+      (gtags-index-update root-path)
+      (gtags-index-initial root-path))))
+
+(defun gtags-index-initial (path)
+  "Generate initial GTAGS files for PATH."
+  (let ((bpr-process-directory path))
+    (bpr-spawn "gtags")))
+
+(defun gtags-index-update (path)
+  "Update GTAGS in PATH."
+  (let ((bpr-process-directory path))
+    (bpr-spawn "global -uv")))
+
+(use-package dumb-jump
+             :ensure nil
+             :bind (("M-g o" . dumb-jump-go-other-window)
+                    ("M-g j" . dumb-jump-go)
+                    ("M-g ." . dumb-jump-back)
+                    ("M-g i" . dumb-jump-go-prompt)
+                    ("M-g x" . dumb-jump-go-prefer-external)
+                    ("M-g z" . dumb-jump-go-prefer-external-other-window))
+             :config (setq dumb-jump-selector 'helm) ;; (setq dumb-jump-selector 'ivy)
+             )
+
+;; ------------------------------
+;; UI Schemes
+;; ------------------------------
+(use-package darktooth-theme
   :ensure t
   ;:disabled t
   :config
   (load-theme 'darktooth t))
-;(use-package solarized-theme
-;             :ensure t
-;             :disabled t
-;             :init
-;             (load-theme 'solarized-light 'no-confirm))
-;
-;(use-package monokai-theme
-;             :ensure t
-;             :disabled t
-;             :init (load-theme 'monokai 'no-confirm))
-;(load-theme 'wombat t)
 
 (provide 'init-pkgs)
