@@ -381,11 +381,11 @@
 ;;  :config
 ;;  (load-theme 'darktooth t))
 
-;(use-package kaolin-themes
-;             :ensure t
-;             :config
-;             (load-theme 'kaolin-dark t)
-;             (kaolin-treemacs-theme))
+(use-package kaolin-themes
+             :ensure t
+             :config
+             (load-theme 'kaolin-dark t)
+             (kaolin-treemacs-theme))
 
 (use-package all-the-icons :ensure t)
 (use-package doom-themes
@@ -409,6 +409,6 @@
              (doom-modeline-set-modeline 'gs t)
              :hook (after-init . doom-modeline-init))
 
-(load-theme 'doom-molokai t)
+;;(load-theme 'doom-molokai t)
 
 (provide 'init-pkgs)
