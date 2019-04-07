@@ -34,7 +34,8 @@
 (global-set-key (kbd "C-h")     'backward-delete-char)
 (global-set-key (kbd "M-r")     'rename-file)
 (global-set-key (kbd "C-x s") 'save-all)
-(key-chord-define-global "JJ" 'jc/switch-to-previous-buffer)
+(key-chord-define-global "jj" 'evil-normal-state)
+(key-chord-define-global "jk" 'jc/switch-to-previous-buffer)
 
 ;; Automatically save all file-visiting buffers when Emacs loses focus.
 (add-hook 'focus-out-hook 'save-all)

@@ -207,19 +207,27 @@
              (add-hook 'erlang-mode-hook 'paredit-mode)
              (add-hook 'go-mode-hook 'paredit-mode)
              (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
+
+(use-package swiper
+  :ensure t
+  :bind (("C-s" . swiper)))
+
 ;;jj. It makes evil mode being turned off much more palatable.
 (use-package use-package-chords
              :ensure t
              :config
              (key-chord-mode 1))
-(use-package ace-window
-             :ensure t
-             :chords ("jk" . ace-window)
-             :config
-             (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 (use-package google-this :ensure t)
 (use-package logview :ensure t)
 (use-package hydra :ensure t)
+(use-package ace-window
+             :functions hydra-frame-window/body
+             :bind
+             ("C-M-o" . hydra-frame-window/body)
+             :custom
+             (aw-keys '(?j ?k ?l ?i ?o ?h ?y ?u ?p))
+             :custom-face
+             (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c"))))
 ;; reffer to http://jwintz.me/blog/2014/02/16/helm-dash-makes-you-efficient/
 ;(use-package helm-dash
 ;             :ensure t
