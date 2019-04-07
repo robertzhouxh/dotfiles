@@ -29,8 +29,8 @@
 (global-set-key (kbd "M-p") 'hold-line-scroll-up )
 (global-set-key (kbd "M-n") 'hold-line-scroll-down )
 
-(global-set-key (kbd "M-o m")   'async-shell-command)
-(global-set-key (kbd "C-M-g")   'goto-line)
+(global-set-key (kbd "M-y")   'async-shell-command)
+(global-set-key (kbd "M-g")   'goto-line)
 (global-set-key (kbd "C-h")     'backward-delete-char)
 (global-set-key (kbd "M-r")     'rename-file)
 (global-set-key (kbd "C-x s") 'save-all)
