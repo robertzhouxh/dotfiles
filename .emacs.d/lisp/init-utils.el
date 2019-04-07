@@ -315,28 +315,12 @@ directory to make multiple eshell windows easier."
   (eshell-send-input)
   (delete-window))
 
-(defun gds/cleanup ()
-  "Diminish all the clutter in my modeline."
+;; Automatically save on loss of focus.
+(defun save-all ()
+  "Save all file-visiting buffers without prompting."
   (interactive)
-  (size-indication-mode 0)
-  (setq display-time-mail-file t)
-  (setq display-time-load-average-threshold 4.0)
-  (diminish 'yas-minor-mode)
-  (diminish 'paredit-mode)
-  (diminish 'projectile-mode)
-  (diminish 'whitespace-mode)
-  (diminish 'eldoc-mode)
-  (diminish 'volatile-highlights-mode)
-  (diminish 'flyspell-mode)
-  (diminish 'git-gutter-mode)
-  ;; (diminish 'auto-complete-mode)
-  (diminish 'abbrev-mode)
-  (diminish 'orgstruct-mode)
-  (diminish 'auto-fill-function)
-  ;; (diminish 'ruby-block-mode)
-  (diminish 'skewer-mode)
-  (diminish 'which-key-mode)
-  (diminish 'undo-tree-mode))
+  (save-some-buffers t) ;; Do not prompt for confirmation.
+  )
 
 (provide 'init-utils)
 ;;; init-utils.el ends here

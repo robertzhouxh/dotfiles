@@ -26,5 +26,10 @@
 (global-set-key (kbd "M-p") 'hold-line-scroll-up )
 (global-set-key (kbd "M-n") 'hold-line-scroll-down )
 
+(global-set-key (kbd "C-x s") 'save-all)
+
+;; Automatically save all file-visiting buffers when Emacs loses focus.
+(add-hook 'focus-out-hook 'save-all)
+
 (provide 'init-maps)
 ;;; init-maps.el ends here

@@ -6,6 +6,12 @@
 (setq user-full-name "robert zhou")
 (setq user-mail-address "robertzhouxh@gmail.com")
 
+
+(setq gc-cons-threshold (* 64 1000 1000))
+(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 32 1000 1000))))
+(add-hook 'focus-out-hook 'garbage-collect)
+(run-with-idle-timer 5 t 'garbage-collect)
+
 ;; start
 (setq inhibit-splash-screen t
       initial-scratch-message nil
@@ -40,7 +46,6 @@
   (scroll-bar-mode -1))
 
 (setq backup-directory-alist (list (cons "." backup-dir)))
-(setq make-backup-files nil)
 (setq default-directory "~/")
 (setq make-backup-files nil)
 (setq auto-save-default nil)
@@ -49,7 +54,6 @@
 (setq large-file-warning-threshold nil)
 (setq split-width-threshold 0)
 (setq split-height-threshold nil)
-(setq gc-cons-threshold 100000000) ;; This makes my Emacs startup time ~35% faster.
 
 ;; No need for ~ files when editing
 (setq create-lockfiles nil)

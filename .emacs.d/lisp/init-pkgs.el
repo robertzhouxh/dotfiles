@@ -207,6 +207,25 @@
              (add-hook 'erlang-mode-hook 'paredit-mode)
              (add-hook 'go-mode-hook 'paredit-mode)
              (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
+;;jj. It makes evil mode being turned off much more palatable.
+(use-package use-package-chords
+             :ensure t
+             :config
+             (key-chord-mode 1))
+(defun jc/switch-to-previous-buffer ()
+    "Switch to previously open buffer.
+  Repeated invocations toggle between the two most recently open buffers."
+    (interactive)
+    (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+(key-chord-define-global "JJ" 'jc/switch-to-previous-buffer)
+
+(use-package ace-window
+    :ensure t
+    :chords ("jk" . ace-window)
+    :config
+    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+(use-package google-this :ensure t)
 
 ;; reffer to http://jwintz.me/blog/2014/02/16/helm-dash-makes-you-efficient/
 ;(use-package helm-dash
@@ -342,15 +361,16 @@
     (bpr-spawn "global -uv")))
 
 (use-package dumb-jump
-             :ensure nil
-             :bind (("M-g o" . dumb-jump-go-other-window)
-                    ("M-g j" . dumb-jump-go)
-                    ("M-g ." . dumb-jump-back)
-                    ("M-g i" . dumb-jump-go-prompt)
-                    ("M-g x" . dumb-jump-go-prefer-external)
-                    ("M-g z" . dumb-jump-go-prefer-external-other-window))
-             :config (setq dumb-jump-selector 'helm) ;; (setq dumb-jump-selector 'ivy)
-             )
+  :ensure t
+  :diminish dumb-jump-mode
+  :bind (
+         ("C-M-o" . dumb-jump-go-other-window)
+         ("C-M-g" . dumb-jump-go)
+         ("C-M-p" . dumb-jump-back)
+         ("C-M-q" . dumb-jump-quick-look))
+  :config
+  (setq dumb-jump-selector 'helm)
+  (setq dumb-jump-prefer-searcher 'ag))
 
 ;; ------------------------------
 ;; UI Schemes

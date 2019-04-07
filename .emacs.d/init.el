@@ -42,7 +42,8 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-(setq use-package-always-ensure t)
+;; (setq use-package-always-ensure t)
+(setq package-enable-at-startup nil)
 
 (eval-when-compile
   (require 'use-package))

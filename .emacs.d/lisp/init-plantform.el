@@ -5,10 +5,9 @@
 (when (system-is-mac)
   ;; refer to: http://azaleasays.com/2013/07/05/setting-up-mac-os-x-and-iterm2-for-emacs/
   ;; Switch the Cmd and Meta keys
-  (setq mac-option-key-is-meta nil)
-  (setq mac-command-key-is-meta t)
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier nil)
+  ;; On  I use ⌘ as meta and prefer ⌥ to do nothing 
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'none)
 
   ;; font size
   (set-face-attribute 'default nil :height 110)
@@ -62,8 +61,5 @@
         (message "Yanked region to clipboard!")
         (deactivate-mark))
       (message "No region active; can't yank to clipboard!"))))
-
-;; hide some minal-mode
-(gds/cleanup)
 
 (provide 'init-plantform)

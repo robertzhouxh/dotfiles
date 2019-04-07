@@ -39,6 +39,7 @@
 
 (use-package org-evil :ensure t)
 (use-package org-bullets
+    :ensure t
     :init
     (setq org-bullets-bullet-list
           '("✡" "✽" "✲" "✱" "✻" "✼" "✽" "✾" "✿" "❀" "❁" "❂" "❃" "❄" "❅" "❆" "❇"))
