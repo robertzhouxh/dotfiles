@@ -227,7 +227,7 @@
              :custom
              (aw-keys '(?j ?k ?l ?i ?o ?h ?y ?u ?p))
              :custom-face
-             (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c"))))
+             (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c")))))
 ;; reffer to http://jwintz.me/blog/2014/02/16/helm-dash-makes-you-efficient/
 ;(use-package helm-dash
 ;             :ensure t
