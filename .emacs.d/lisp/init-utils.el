@@ -336,5 +336,39 @@ directory to make multiple eshell windows easier."
   `(cl-letf (((symbol-function 'warn) #'ignore))
      ,@body))
 
+;; Recompile elpa. This will solve the Evaluation of this sh code block is disabled issue.
+(defun x/recompile-elpa ()
+  "Recompile packages in elpa directory. Useful if you switch
+Emacs versions."
+  (interactive)
+  (byte-recompile-directory package-user-dir nil t))
+
+(defun cleanup-and-save-buffer()
+  "Save the buffer and cleanup whitespace."
+  (interactive)
+  (progn
+    (whitespace-cleanup)
+    (save-buffer)))
+
+(defun x/delete-current-buffer-file ()
+  "Removes file connected to current buffer and kills buffer."
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+      (when (yes-or-no-p "Are you sure you want to delete this file? ")
+        (delete-file filename t)
+        (kill-buffer buffer)
+        (x/drop-project-cache)
+        (message "File '%s' successfully removed" filename)))))
+
+(defun x/drop-project-cache ()
+  "invalidate projectile cache if it is currently active"
+  (when (and (featurep 'projectile)
+             (projectile-project-p))
+    (call-interactively #'projectile-invalidate-cache)))
+
 (provide 'init-utils)
 ;;; init-utils.el ends here

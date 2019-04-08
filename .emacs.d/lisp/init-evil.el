@@ -21,6 +21,9 @@
     "hs" 'helm-projectile-ag
     "hp" 'helm-projectile
     "hd" 'helm-dash-at-point
+    "hf" 'helm-find-files'
+    "hm" 'helm-mini'
+    "j"  'json-reformat-region'
     "k"  'get-erl-man'
     "l"  'whitespace-mode       ;; Show invisible characters
     "L"  (lambda () (interactive) (get-lua-man))
@@ -60,16 +63,16 @@
   "Configure evil mode."
   ;; Use Emacs state in these additional modes.
   (dolist (mode '(ag-mode
-                   flycheck-error-list-mode
-                   git-rebase-mode
-                   term-mode))
+		  flycheck-error-list-mode
+		  git-rebase-mode
+		  term-mode))
     (add-to-list 'evil-emacs-state-modes mode))
 
   (delete 'term-mode evil-insert-state-modes)
 
   ;; Use insert state in these additional modes.
   (dolist (mode '(twittering-edit-mode
-                   magit-log-edit-mode))
+		  magit-log-edit-mode))
     (add-to-list 'evil-insert-state-modes mode))
 
   (defun minibuffer-keyboard-quit ()
@@ -78,18 +81,18 @@
     then it takes a second \\[keyboard-quit] to abort the minibuffer."
     (interactive)
     (if (and delete-selection-mode transient-mark-mode mark-active)
-      (setq deactivate-mark  t)
+	(setq deactivate-mark  t)
       (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
       (abort-recursive-edit)))
 
-    ;; Make escape quit everything, whenever possible.
-    (define-key evil-normal-state-map [escape] 'keyboard-quit)
-    (define-key evil-visual-state-map [escape] 'keyboard-quit)
-    (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit))
+  ;; Make escape quit everything, whenever possible.
+  (define-key evil-normal-state-map [escape] 'keyboard-quit)
+  (define-key evil-visual-state-map [escape] 'keyboard-quit)
+  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit))
 
 (defun air--apply-evil-other-package-configs ()
   "Apply evil-dependent settings specific to other packages."
@@ -106,32 +109,37 @@
     (search-backward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-min) t)
     (move-beginning-of-line nil))
 
-  ;; PHP
-  (evil-define-key 'normal php-mode-map (kbd "]n") 'next-conflict-marker)
-  (evil-define-key 'normal php-mode-map (kbd "[n") 'previous-conflict-marker)
-  (evil-define-key 'visual php-mode-map (kbd "]n") 'next-conflict-marker)
-  (evil-define-key 'visual php-mode-map (kbd "[n") 'previous-conflict-marker)
+  (evil-define-key 'normal prog-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'normal prog-mode-map (kbd "[n") 'previous-conflict-marker)
+  (evil-define-key 'visual prog-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'visual prog-mode-map (kbd "[n") 'previous-conflict-marker)
   )
 
 (use-package evil
-             :ensure t
-             :init
-             (setq evil-want-C-u-scroll t)
-             :commands (evil-mode evil-define-key)
-             :config
-             (add-hook 'evil-mode-hook 'air--config-evil)
-             (evil-mode 1)
-             (use-package evil-leader
-                          :ensure t
-                          :config
-                          (global-evil-leader-mode)
-                          (air--config-evil-leader))
-             (use-package evil-surround
-                          :ensure t
-                          :config
-                          (global-evil-surround-mode))
-             (use-package evil-indent-textobject
-                          :ensure t)
-             (air--apply-evil-other-package-configs))
+  :ensure t
+  :init
+  (setq evil-want-C-u-scroll t)
+  (setq-default evil-escape-key-sequence "jk")
+  :commands (evil-mode evil-define-key)
+  :config
+  (progn
+    (define-key evil-motion-state-map "/" 'swiper)
+    (add-hook 'evil-mode-hook 'air--config-evil)
+    (evil-mode 1))
+  (use-package evil-leader
+    :ensure t
+    :config
+    (global-evil-leader-mode)
+    (air--config-evil-leader))
+
+  (use-package evil-surround
+    :init
+    (progn
+      (global-evil-surround-mode 1)
+      ;; `s' for surround instead of `substitute'
+      (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
+      (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)))
+  
+  (air--apply-evil-other-package-configs))
 
 (provide 'init-evil)
