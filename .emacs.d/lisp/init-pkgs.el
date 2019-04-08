@@ -252,51 +252,19 @@
              (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 (use-package swiper :ensure t :bind (("C-s" . swiper)))
 
-;;jj. It makes evil mode being turned off much more palatable.
 (use-package key-chord
   :ensure t
   :config
   (progn
-    (key-chord-define-global "jj" 'ibuffer)
+    (key-chord-define-global "jb" 'ibuffer)
     (key-chord-define-global "j0" 'delete-window)
     (key-chord-define-global "j1" 'delete-other-windows)
     (key-chord-define-global "jz" 'magit-dispatch-popup)
-    (key-chord-define-global "jk" 'transpose-frame)
-    (key-chord-define-global "kk" 'gh/kill-current-buffer)
+    (key-chord-define-global "kb" 'gh/kill-current-buffer)
     (key-chord-mode 1)))
 
 (use-package logview :ensure t)
 (use-package hydra :ensure t)
-;;(use-package eshell
-;;             :ensure t
-;;             :config
-;;             (require 'f)
-;;             (setq eshell-visual-commands
-;;                   '("less" "tmux" "htop" "top" "bash" "zsh" "fish"))
-;;             (setq eshell-visual-subcommands
-;;                   '(("git" "log" "l" "diff" "show")))
-;;             ;; Prompt with a bit of help from http://www.emacswiki.org/emacs/EshellPrompt
-;;             (defmacro with-face (str &rest properties)
-;;               `(propertize ,str 'face (list ,@properties)))
-;;             (defun eshell/abbr-pwd ()
-;;               (let ((home (getenv "HOME"))
-;;                     (path (eshell/pwd)))
-;;                 (cond
-;;                   ((string-equal home path) "~")
-;;                   ((f-ancestor-of? home path) (concat "~/" (f-relative path home)))
-;;                   (path))))
-;;             (defun eshell/my-prompt ()
-;;               (let ((header-bg "#161616"))
-;;                 (concat
-;;                   (with-face (eshell/abbr-pwd) :foreground "#008700")
-;;                   (if (= (user-uid) 0)
-;;                     (with-face "#" :foreground "red")
-;;                     (with-face "$" :foreground "#2345ba"))
-;;                   " ")))
-;;             (setq eshell-prompt-function 'eshell/my-prompt)
-;;             (setq eshell-highlight-prompt nil)
-;;             (setq eshell-prompt-regexp "^[^#$\n]+[#$] ")
-;;             (setq eshell-cmpl-cycle-completions nil))
 (use-package eshell
              :ensure t
              :config
@@ -334,6 +302,25 @@
              (setq eshell-prompt-regexp "^[^#$\n]+[#$] ")
              (setq eshell-cmpl-cycle-completions nil))
 
+;; TODO: robertzhouxh download the stuff from: https://github.com/Kapeli/feeds
+;; or  counsel-dash-install-docset
+(use-package helm-dash
+             :ensure t
+             :init
+             (setq helm-dash-docsets-path "~/.emacs.d/docsets/")
+             (global-set-key (kbd "C-c d") 'helm-dash-at-point)
+             (defun erlang-doc ()
+               (setq helm-dash-docsets '("Erlang")))
+             (defun go-doc ()
+               (setq helm-dash-docsets '("Go")))
+             (defun c-doc ()
+               (setq helm-dash-docsets '("C")))
+             (defun c++-doc ()
+               (setq helm-dash-docsets '("Erlang" "Go" "C" "C++")))
+             (add-hook 'erlang-mode-hook 'erlang-doc)
+             (add-hook 'go-mode-hook 'go-doc)
+             (add-hook 'c-mode-hook 'c-doc)
+             (add-hook 'c++-mode-hook 'c++-doc))
 ;; --------------------------------------------------------------------
 ;; jump to definations
 ;; --------------------------------------------------------------------
