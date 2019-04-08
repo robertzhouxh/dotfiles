@@ -123,6 +123,9 @@
   (interactive)
   (string-equal system-type "gnu/linux"))
 
+(defun x/system-is-mac ()
+  (eq system-type 'darwin))
+
 (defun hold-line-scroll-up ()
   "Scroll the page with the cursor in the same line"
   (interactive)

@@ -8,36 +8,34 @@
 (electric-indent-mode 1)
 (global-auto-revert-mode t)
 
-(setq user-full-name "robert zhou")
-(setq user-mail-address "robertzhouxh@gmail.com")
-(setq exec-path-from-shell-check-startup-files nil)
-
 (setq
- delete-old-versions -1
- version-control t
- vc-make-backup-files t
- vc-follow-symlinks t
- inhibit-startup-screen t
- ring-bell-function 'ignore
- select-enable-clipboard t
- coding-system-for-read 'utf-8
- coding-system-for-write 'utf-8
- sentence-end-double-space nil
- default-fill-column 80
- initial-scratch-message ""
- save-interprogram-paste-before-kill t
- help-window-select t
- make-backup-files nil
- default-directory "~/"
- large-file-warning-threshold nil
- split-width-threshold 0
- split-height-threshold nil
- create-lockfiles nil
- indent-tabs-mode nil
- tab-width 4
- backup-directory-alist `((".*" . ,temporary-file-directory))
- auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
- gc-cons-threshold (* 64 1000 1000))
+  user-mail-address "robertzhouxh@gmail.com"
+  user-full-name "robert zhou"
+  delete-old-versions -1
+  version-control t
+  vc-make-backup-files t
+  vc-follow-symlinks t
+  inhibit-startup-screen t
+  ring-bell-function 'ignore
+  select-enable-clipboard t
+  coding-system-for-read 'utf-8
+  coding-system-for-write 'utf-8
+  sentence-end-double-space nil
+  default-fill-column 80
+  initial-scratch-message ""
+  save-interprogram-paste-before-kill t
+  help-window-select t
+  make-backup-files nil
+  default-directory "~/"
+  large-file-warning-threshold nil
+  split-width-threshold 0
+  split-height-threshold nil
+  create-lockfiles nil
+  indent-tabs-mode nil
+  tab-width 4
+  backup-directory-alist `((".*" . ,temporary-file-directory))
+  auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
+  gc-cons-threshold (* 64 1000 1000))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (prefer-coding-system 'utf-8)

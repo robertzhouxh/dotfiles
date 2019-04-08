@@ -6,10 +6,12 @@
 (use-package diminish
              :ensure t)
 (use-package exec-path-from-shell
-             :ensure t
+             :if (x/system-is-mac)
+             :init
+             (setq exec-path-from-shell-check-startup-files nil)
              :config
-             (exec-path-from-shell-initialize)
-             (exec-path-from-shell-copy-env "GOPATH"))
+             (when (memq window-system '(mac ns))
+               (exec-path-from-shell-initialize)))
 (use-package which-key
              :ensure t
              :diminish which-key-mode
