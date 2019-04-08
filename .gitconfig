@@ -129,6 +129,7 @@
 
 	# Detect copies as well as renames
 	renames = copies
+	tool = ediff
 
 [diff "bin"]
 	# Use `hexdump` to diff binary files
@@ -143,6 +144,7 @@
 
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
+	tool = ediff
 
 [push]
 
@@ -174,3 +176,14 @@
 [url "git://gist.github.com/"]
 
 	insteadOf = "gist:"
+[user]
+	name = robertzhouxh
+	email = robertzhouxh@gmail.com
+[difftool "ediff"]
+	cmd = ~/bin/ediff.sh \"$LOCAL\" \"$REMOTE\"
+[difftool]
+	prompt = false
+[mergetool "ediff"]
+	cmd = ~/bin/ediff_merge.sh \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
+[mergetool]
+	prompt = false

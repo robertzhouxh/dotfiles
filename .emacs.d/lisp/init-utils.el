@@ -328,5 +328,10 @@ directory to make multiple eshell windows easier."
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
+(defmacro ignore-warn (&rest body)
+  (declare (debug t) (indent 0))
+  `(cl-letf (((symbol-function 'warn) #'ignore))
+     ,@body))
+
 (provide 'init-utils)
 ;;; init-utils.el ends here

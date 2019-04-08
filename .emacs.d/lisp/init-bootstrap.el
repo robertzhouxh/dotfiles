@@ -2,9 +2,15 @@
 ;;; Commentary:
 ;;; Code:
 ;; Essential settings.
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(show-paren-mode 1)
+(electric-indent-mode 1)
+(global-auto-revert-mode t)
 
 (setq user-full-name "robert zhou")
 (setq user-mail-address "robertzhouxh@gmail.com")
+(setq exec-path-from-shell-check-startup-files nil)
 
 (setq
  delete-old-versions -1
@@ -33,20 +39,20 @@
  auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
  gc-cons-threshold (* 64 1000 1000))
 
+(defalias 'yes-or-no-p 'y-or-n-p)
 (prefer-coding-system 'utf-8)
+
+;; process git conflict with smerge-mode: smerge-keep-{mine, other, all, base} ...
+(add-hook 'find-file-hook (lambda ()
+                            (save-excursion
+                              (goto-char (point-min))
+                              (when (re-search-forward "^<<<<<<< " nil t)
+                                (smerge-mode 1))))
+          t)
+
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 32 1000 1000))))
 (add-hook 'focus-out-hook 'garbage-collect)
 (run-with-idle-timer 5 t 'garbage-collect)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(show-paren-mode 1)
-(electric-indent-mode 1)
-(global-auto-revert-mode t)
-(unless (display-graphic-p)
-  (setq-default linum-format "%d "))
-(when (boundp 'scroll-bar-mode)
-  (scroll-bar-mode -1))
-(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;; essential libs
 (use-package s        :ensure t :defer t)

@@ -58,6 +58,11 @@
 (require 'init-languages)
 (require 'init-maps)
 
+;; start the emacsserver that listens to emacsclient
+(server-start)
+
+;;; essential libs
+
 (provide 'init)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

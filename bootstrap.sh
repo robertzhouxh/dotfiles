@@ -52,6 +52,9 @@ else
     echo -e "\033[40;32m unsupported system, exit \033[0m"
 fi
 
-echo ""
+echo "cp ediff.sh ediff_merge.sh  ~/bin/"
+cp ediff.sh ediff_merge.sh ~/bin/
+chmod +x ~/bin/ediff.sh ~/bin/ediff_merge.sh
+
 echo -e "\033[40;32m All done, HAPPY HACKING :-) \033[0m"
 echo ""

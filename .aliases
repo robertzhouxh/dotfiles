@@ -178,12 +178,14 @@ alias testdb="ssh -i ~/.ssh/id_rsa -o ServerAliveInterval=10 root@testdb"
 # for emacs ggtags
 export GTAGSCONF=/usr/local/share/gtags/gtags.conf
 export GTAGSLABEL=ctags
-# alias emacs="~/githubs/dotfiles/emacs_client.sh -t"
-# alias em="emacs"
-# alias emd="emacs -e '(kill-emacs)'"
 
 # for dockers
 alias drmai='docker rmi $(docker images -a)'
 alias drdefault='eval "$(docker-machine env default)"'
 alias drit="docker exec -it"
+
+# for emacs quick start
+alias ed='emacs --daemon'
+alias ec='emacsclient -c '
+alias et='emacsclient -t '
 
