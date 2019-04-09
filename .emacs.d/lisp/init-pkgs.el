@@ -60,10 +60,8 @@
                          helm-google-suggest-use-curl-p t
                          )
                        (helm-autoresize-mode 1)
-                       (define-key helm-map (kbd "C-b") 'helm-keyboard-quit)
-                       (define-key helm-map (kbd "C-p") 'helm-keyboard-quit)
-                       (define-key helm-map (kbd "C-j") 'helm-next-line)
-                       (define-key helm-map (kbd "C-k") 'helm-previous-line)
+                       ;;(define-key helm-map (kbd "C-j") 'helm-next-line)
+                       ;;(define-key helm-map (kbd "C-k") 'helm-previous-line)
                        ))
 (use-package highlight-symbol
              :defer t
@@ -241,8 +239,9 @@
              (setq company-idle-delay 0.2)
              (setq company-selection-wrap-around t)
              (define-key company-active-map [tab] 'company-complete)
-             (define-key company-active-map (kbd "C-n") 'company-select-next)
-             (define-key company-active-map (kbd "C-p") 'company-select-previous))
+             ;(define-key company-active-map (kbd "C-n") 'company-select-next)
+             ;(define-key company-active-map (kbd "C-p") 'company-select-previous)
+             )
 (use-package paredit
              :ensure t
              :diminish paredit-mode
