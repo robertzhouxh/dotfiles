@@ -133,13 +133,14 @@
     (air--config-evil-leader))
 
   (use-package evil-surround
+    :ensure t
     :init
     (progn
       (global-evil-surround-mode 1)
       ;; `s' for surround instead of `substitute'
       (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
       (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)))
-  
+
   (air--apply-evil-other-package-configs))
 
 (provide 'init-evil)
