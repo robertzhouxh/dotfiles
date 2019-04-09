@@ -50,70 +50,7 @@
     "w"  'save-buffer
     "x"  'helm-M-x
     "y"  'yank-to-x-clipboard
-    )
-
-  (defun magit-blame-toggle ()
-    "Toggle magit-blame-mode on and off interactively."
-    (interactive)
-    (if (and (boundp 'magit-blame-mode) magit-blame-mode)
-      (magit-blame-quit)
-      (call-interactively 'magit-blame))))
-
-(defun air--config-evil ()
-  "Configure evil mode."
-  ;; Use Emacs state in these additional modes.
-  (dolist (mode '(ag-mode
-		  flycheck-error-list-mode
-		  git-rebase-mode
-		  term-mode))
-    (add-to-list 'evil-emacs-state-modes mode))
-
-  (delete 'term-mode evil-insert-state-modes)
-
-  ;; Use insert state in these additional modes.
-  (dolist (mode '(twittering-edit-mode
-		  magit-log-edit-mode))
-    (add-to-list 'evil-insert-state-modes mode))
-
-  (defun minibuffer-keyboard-quit ()
-    "Abort recursive edit.
-    In Delete Selection mode, if the mark is active, just deactivate it;
-    then it takes a second \\[keyboard-quit] to abort the minibuffer."
-    (interactive)
-    (if (and delete-selection-mode transient-mark-mode mark-active)
-	(setq deactivate-mark  t)
-      (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
-      (abort-recursive-edit)))
-
-  ;; Make escape quit everything, whenever possible.
-  (define-key evil-normal-state-map [escape] 'keyboard-quit)
-  (define-key evil-visual-state-map [escape] 'keyboard-quit)
-  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit))
-
-(defun air--apply-evil-other-package-configs ()
-  "Apply evil-dependent settings specific to other packages."
-
-  (defun next-conflict-marker ()
-    (interactive)
-    (evil-next-visual-line)
-    (if (not (search-forward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-max) t))
-      (evil-previous-visual-line))
-    (move-beginning-of-line nil))
-
-  (defun previous-conflict-marker ()
-    (interactive)
-    (search-backward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-min) t)
-    (move-beginning-of-line nil))
-
-  (evil-define-key 'normal prog-mode-map (kbd "]n") 'next-conflict-marker)
-  (evil-define-key 'normal prog-mode-map (kbd "[n") 'previous-conflict-marker)
-  (evil-define-key 'visual prog-mode-map (kbd "]n") 'next-conflict-marker)
-  (evil-define-key 'visual prog-mode-map (kbd "[n") 'previous-conflict-marker)
-  )
+    ))
 
 (use-package evil
   :ensure t
@@ -121,11 +58,29 @@
   (setq evil-want-C-u-scroll t)
   (setq-default evil-escape-key-sequence "jk")
   :commands (evil-mode evil-define-key)
+  ;; While I'm still getting used to Evil, I'll eschew certain
+  ;; advanced features, and fall-back on my Emacs.  Setting to `nil'
+  ;; falls back to Emacs defaults.
+  :bind (:map evil-insert-state-map
+		  ("C-a" . nil)
+                  ("C-e" . nil)
+                  ("C-d" . nil)
+                  ("C-k" . nil)
+                  ("C-t" . nil)
+                  ("M-." . nil)
+                  ("M-," . nil))
   :config
   (progn
     (define-key evil-motion-state-map "/" 'swiper)
-    (add-hook 'evil-mode-hook 'air--config-evil)
-    (evil-mode 1))
+    (evil-mode 1)
+    ;; Let's not bother with Evil in *every* mode...
+    (dolist (mode '(ag-mode
+		    flycheck-error-list-mode
+		    git-rebase-mode))
+      (add-to-list 'evil-emacs-state-modes mode))
+    ;; Start in insert mode for small buffers
+    (dolist (mode '(text-mode))
+      (add-to-list 'evil-insert-state-modes mode)))
   (use-package evil-leader
     :ensure t
     :config

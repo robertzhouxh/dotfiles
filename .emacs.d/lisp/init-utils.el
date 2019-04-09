@@ -370,5 +370,36 @@ Emacs versions."
              (projectile-project-p))
     (call-interactively #'projectile-invalidate-cache)))
 
+(defun magit-blame-toggle ()
+    "Toggle magit-blame-mode on and off interactively."
+    (interactive)
+    (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+      (magit-blame-quit)
+      (call-interactively 'magit-blame)))
+
+
+(defun air--apply-evil-other-package-configs ()
+  "Apply evil-dependent settings specific to other packages."
+
+  (defun next-conflict-marker ()
+    (interactive)
+    (evil-next-visual-line)
+    (if (not (search-forward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-max) t))
+      (evil-previous-visual-line))
+    (move-beginning-of-line nil))
+
+  (defun previous-conflict-marker ()
+    (interactive)
+    (search-backward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-min) t)
+    (move-beginning-of-line nil))
+
+  (evil-define-key 'normal prog-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'normal prog-mode-map (kbd "[n") 'previous-conflict-marker)
+  (evil-define-key 'visual prog-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'visual prog-mode-map (kbd "[n") 'previous-conflict-marker)
+  )
+
+
+
 (provide 'init-utils)
 ;;; init-utils.el ends here
