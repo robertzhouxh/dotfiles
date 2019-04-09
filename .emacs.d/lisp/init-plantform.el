@@ -10,7 +10,7 @@
         mac-option-modifier 'none)
 
   ;; font size
-  (set-face-attribute 'default nil :height 110)
+  (set-face-attribute 'default nil :height 140)
 
   (if (executable-find "gls")
     (progn
