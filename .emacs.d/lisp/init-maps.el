@@ -37,7 +37,12 @@
 (global-set-key (kbd "C-h")     'backward-delete-char)
 (global-set-key (kbd "M-r")     'rename-file)
 (global-set-key (kbd "C-x s") 'save-all)
-(global-set-key (kbd "C-t") 'x/hydra-window)
+
+(global-set-key (kbd "C-]") 'helm-gtags-find-tag)
+(global-set-key (kbd "C-t") 'helm-gtags-pop-stack)
+
+
+;;(global-set-key (kbd "C-t") 'x/hydra-window)
 
 ;; 如果用过 magit , 对 magit-status 下按 c 等出现的可选菜单应该有印象, hydra 正是把这个能力扩展了. hydra 也在快速进化变强,
 (global-set-key
