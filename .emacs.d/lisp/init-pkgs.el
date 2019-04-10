@@ -125,55 +125,35 @@
                       try-expand-dabbrev-from-kill))
              :bind
              ("M-/" . hippie-expand))
-;; (use-package magit
-;;              :ensure t
-;;              :defer t
-;;              :init
-;;              (setq magit-popup-show-common-commands nil)
-;;              (setq magit-log-arguments '("--graph"
-;;                                          "--decorate"
-;;                                          "--color"))
-;;              :config
-;;              (progn
-;;                (defadvice magit-status (around magit-fullscreen activate)
-;;                           (window-configuration-to-register :magit-fullscreen)
-;;                           ad-do-it
-;;                           (delete-other-windows))
-
-;;                (defun magit-quit-session ()
-;;                  "Restores the previous window configuration and kills the magit buffer"
-;;                  (interactive)
-;;                  (kill-buffer)
-;;                  (jump-to-register :magit-fullscreen))
-
-;;                (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-
-;;              ;; removes 1.4.0 warning in arguably cleaner way
-;;              (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
-;;              (defadvice magit-blame-mode (after switch-to-emacs-state activate)
-;;                         (if magit-blame-mode
-;;                           (evil-emacs-state 1)
-;;                           (evil-normal-state 1))))
 (use-package magit
-  :ensure t
-  :defer t
-  :init
-  (use-package evil-magit :ensure t)
-  :config
-  (progn
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))
+             :ensure t
+             :defer t
+             :init
+             (setq magit-popup-show-common-commands nil)
+             (setq magit-log-arguments '("--graph"
+                                         "--decorate"
+                                         "--color"))
+             :config
+             (progn
+               (defadvice magit-status (around magit-fullscreen activate)
+                          (window-configuration-to-register :magit-fullscreen)
+                          ad-do-it
+                          (delete-other-windows))
 
-    (defun magit-quit-session ()
-      "Restores the previous window configuration and kills the magit buffer"
-      (interactive)
-      (kill-buffer)
-      (jump-to-register :magit-fullscreen))
+               (defun magit-quit-session ()
+                 "Restores the previous window configuration and kills the magit buffer"
+                 (interactive)
+                 (kill-buffer)
+                 (jump-to-register :magit-fullscreen))
 
-    (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-  )
+               (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+
+             ;; removes 1.4.0 warning in arguably cleaner way
+             (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
+             (defadvice magit-blame-mode (after switch-to-emacs-state activate)
+                        (if magit-blame-mode
+                          (evil-emacs-state 1)
+                          (evil-normal-state 1))))
 
 (use-package git-gutter
 	     :ensure t

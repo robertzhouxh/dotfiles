@@ -55,6 +55,8 @@
 (use-package evil
   :ensure t
   :init
+  ;; TODO: robertzhouxh !!!  (setq evil-want-C-u-scroll t) needs to happen before evil is loaded.
+  (setq evil-want-C-u-scroll t)
   (evil-define-key 'normal global-map (kbd "C-]")     'gtags-find-tag-from-here)
   (evil-define-key 'normal global-map (kbd "C-t")     'gtags-pop-stack)
   (evil-add-hjkl-bindings occur-mode-map 'emacs
@@ -107,7 +109,6 @@
       ;; `s' for surround instead of `substitute'
       (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
       (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)))
-
   (air--apply-evil-other-package-configs))
 
 (provide 'init-evil)
