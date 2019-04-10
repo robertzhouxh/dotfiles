@@ -55,8 +55,15 @@
 (use-package evil
   :ensure t
   :init
-  (setq evil-want-C-u-scroll t)
-  (setq-default evil-escape-key-sequence "jk")
+  (evil-define-key 'normal global-map (kbd "C-]")     'gtags-find-tag-from-here)
+  (evil-define-key 'normal global-map (kbd "C-t")     'gtags-pop-stack)
+  (evil-add-hjkl-bindings occur-mode-map 'emacs
+                          (kbd "/")       'evil-search-forward
+                          (kbd "n")       'evil-search-next
+                          (kbd "N")       'evil-search-previous
+                          (kbd "C-d")     'evil-scroll-down
+                          (kbd "C-u")     'evil-scroll-up
+                          (kbd "C-w C-w") 'other-window)
   :commands (evil-mode evil-define-key)
   ;; While I'm still getting used to Evil, I'll eschew certain
   ;; advanced features, and fall-back on my Emacs.  Setting to `nil'

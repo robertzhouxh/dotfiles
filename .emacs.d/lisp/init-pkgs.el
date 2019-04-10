@@ -396,53 +396,32 @@
 ;; scheme-2
 ;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
 ;; gtags --gtagslabel=pygments --debug
-;; (use-package gtags :ensure t)
-(require 'gtags)
+(use-package gtags :ensure t)
 (use-package bpr :ensure t)
-
 ;; Bind some useful keys in the gtags select buffer that evil overrides.
 (add-hook 'gtags-select-mode-hook
           (lambda ()
             (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
             (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
 
+(defun gtags-reindex ()
+  "Kick off gtags reindexing."
+  (interactive)
+  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
+         (gtags-filename (expand-file-name "GTAGS" root-path)))
+    (if (file-exists-p gtags-filename)
+        (gtags-index-update root-path)
+      (gtags-index-initial root-path))))
 
-;;(autoload 'vc-git-root "vc-git")
-;;(defun gtags-reindex ()
-;;  "Kick off gtags reindexing."
-;;  (interactive)
-;;  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-;;         (gtags-filename (expand-file-name "GTAGS" root-path)))
-;;    (if (file-exists-p gtags-filename)
-;;      (gtags-index-update root-path)
-;;      (gtags-index-initial root-path))))
-;;
-;;(defun gtags-index-initial (path)
-;;  "Generate initial GTAGS files for PATH."
-;;  (let ((bpr-process-directory path))
-;;    (bpr-spawn "gtags")))
-;;
-;;(defun gtags-index-update (path)
-;;  "Update GTAGS in PATH."
-;;  (let ((bpr-process-directory path))
-;;    (bpr-spawn "global -uv")))
+(defun gtags-index-initial (path)
+  "Generate initial GTAGS files for PATH."
+  (let ((bpr-process-directory path))
+    (bpr-spawn "gtags")))
 
-(if (executable-find "global")
-    (use-package helm-gtags
-      :ensure t
-      :defer t
-      :init
-      (add-hook 'c++-mode-hook 'helm-gtags-mode)
-      (add-hook 'c-mode-hook 'helm-gtags-mode)
-      (add-hook 'erlang-mode-hook 'helm-gtags-mode)
-      (add-hook 'go-mode-hook 'helm-gtags-mode)
-      :config
-      (diminish 'helm-gtags-mode (my:safe-lighter-icon "" "tags"))
-      (custom-set-variables
-       '(helm-gtags-path-style 'relative)
-       '(helm-gtags-ignore-case t)
-       '(helm-gtags-auto-update t))
-  (fset 'helm-gtags-mode nil)))
+(defun gtags-index-update (path)
+  "Update GTAGS in PATH."
+  (let ((bpr-process-directory path))
+    (bpr-spawn "global -uv")))
 
 (use-package dumb-jump
              :ensure t

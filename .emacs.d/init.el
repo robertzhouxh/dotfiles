@@ -27,10 +27,11 @@
 
 ;;; Standard package repositories
 (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-                         ("melpa" . "http://elpa.emacs-china.org/melpa/")))
+                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")))
 
 ;;; Pin some packages to specific repositories.
-;(setq package-pinned-packages '((gtags . "marmalade")))
+(setq package-pinned-packages '((gtags . "marmalade")))
 
 (package-initialize) ;; You might already have this line
 

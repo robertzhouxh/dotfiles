@@ -10,6 +10,7 @@
         mac-option-modifier 'none)
 
   ;; font size
+  (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend)
   (set-face-attribute 'default nil :height 140)
 
   (if (executable-find "gls")
