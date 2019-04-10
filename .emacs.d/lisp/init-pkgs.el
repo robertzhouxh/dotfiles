@@ -429,6 +429,7 @@
 
 (if (executable-find "global")
     (use-package helm-gtags
+      :ensure t
       :defer t
       :init
       (add-hook 'c++-mode-hook 'helm-gtags-mode)
@@ -437,7 +438,6 @@
       (add-hook 'go-mode-hook 'helm-gtags-mode)
       :config
       (diminish 'helm-gtags-mode (my:safe-lighter-icon "" "tags"))
-      ;;(global-unset-key "\C-t")
       (custom-set-variables
        '(helm-gtags-path-style 'relative)
        '(helm-gtags-ignore-case t)
