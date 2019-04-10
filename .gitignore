@@ -32,6 +32,7 @@ Thumbs.db
 .emacs.d/themes/
 .emacs.d/transient/
 .emacs.d/cider-history
+.emacs.d/tramp
 fonts-master/
 
 htop

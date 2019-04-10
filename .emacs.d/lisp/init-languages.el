@@ -77,15 +77,20 @@
 
 (eval-after-load "erlang" '(define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary))
 
-(add-to-list 'auto-mode-alist '("rebar.config" . erlang-mode)) ;; rebar
-(add-to-list 'auto-mode-alist '("rebar.config.script" . erlang-mode)) ;; rebar
-(add-to-list 'auto-mode-alist '("app.config" . erlang-mode)) ;; embedded node/riak
-(add-to-list 'auto-mode-alist '("\\.conf" . erlang-mode)) ;; embedded node/riak
-(add-to-list 'auto-mode-alist '("\\.schema" . erlang-mode)) ;; embedded node/riak
-(add-to-list 'auto-mode-alist '("\\.src$" . erlang-mode)) ;; User customizations file
-(add-to-list 'auto-mode-alist '("\\.erlang$" . erlang-mode)) ;; User customizations file
-(add-to-list 'auto-mode-alist '("\\.erl$" . erlang-mode)) ;; User customizations file
-(add-to-list 'auto-mode-alist '("\\.hrl" . erlang-mode)) ;; User customizations file
+(setq auto-mode-alist
+      (reverse
+       (append auto-mode-alist
+               '(("\\.rel$"       . erlang-mode)
+                 ("\\.app$"       . erlang-mode)
+                 ("\\.appSrc$"    . erlang-mode)
+                 ("\\.app.src$"   . erlang-mode)
+                 ("\\.hrl$"       . erlang-mode)
+                 ("\\.erl$"       . erlang-mode)
+                 ("\\.yrl$"       . erlang-mode)
+                 ("\\.conf$"      . erlang-mode)
+                 ("rebar.config$" . erlang-mode)
+                 ("relx.config$"  . erlang-mode)
+                 ("sys.config$"   . erlang-mode)))))
 
 ;;----------------------------------------------------------------------------
 ;; lisp: C-x C-e 执行光标下lisp

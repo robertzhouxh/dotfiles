@@ -62,13 +62,15 @@
   ;; advanced features, and fall-back on my Emacs.  Setting to `nil'
   ;; falls back to Emacs defaults.
   :bind (:map evil-insert-state-map
-		  ("C-a" . nil)
-                  ("C-e" . nil)
-                  ("C-d" . nil)
-                  ("C-k" . nil)
-                  ("C-t" . nil)
-                  ("M-." . nil)
-                  ("M-," . nil))
+              ("C-a" . nil)
+              ("C-e" . nil)
+              ("C-d" . nil)
+              ("C-k" . nil)
+              ("C-n" . nil)
+              ("C-p" . nil)
+              ("C-t" . nil)
+              ("M-." . nil)
+              ("M-," . nil))
   :config
   (progn
     (define-key evil-motion-state-map "/" 'swiper)
