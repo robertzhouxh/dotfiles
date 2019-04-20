@@ -301,23 +301,8 @@
 ;; other programming languages
 ;;----------------------------------------------------------------------------
 (use-package markdown-mode
-             :defer t
-             :config
-             (progn
-               (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
-               (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-               (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode)))
-             (add-hook 'markdown-mode-hook
-                       (lambda ()
-                         (set-fill-column 80)
-                         (turn-on-auto-fill)
-                         (flyspell-mode)
-                         (visual-line-mode t)
-                         (writegood-mode t)
-                         (flyspell-mode t)))
-             (setq markdown-command "pandoc --smart -f markdown -t html")
-             ;(setq markdown-css-paths `(,(expand-file-name "markdown.css" vendor-dir)))
-             )
+             :ensure t
+             :mode ("\\.md\\'" . markdown-mode))
 (use-package yaml-mode
              :defer t
              :mode ("\\.yml$" . yaml-mode))
