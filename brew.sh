@@ -170,7 +170,7 @@ apps=(
     emacs
     gas-mask
     google-chrome
-    iterm2
+    #iterm2
     java
     qq
     smcfancontrol
