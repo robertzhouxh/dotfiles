@@ -40,5 +40,6 @@ htop
 GPATH
 GTAGS
 GRTAGS
+get-pip.py
 
 .emacs.d/smex-items

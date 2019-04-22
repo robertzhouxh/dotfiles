@@ -24,18 +24,20 @@ cecho() {
   return
 }
 
-cecho "attension: please make sure you have installed the command line tools use: xcode-select --install" $yellow
-echo ""
-cecho "attension: please make sure you have installed pip: wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py" $yellow
-echo ""
-cecho "attension: please make sure you have installed java: brew cask install java" $yellow
-echo ""
+cecho "attension: make sure you have installed the command line tools use: xcode-select --install" $yellow
+cecho "attension: make sure you have installed pip: wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py" $yellow
+cecho "attension: make sure you have installed java: brew cask install java" $yellow
 
 # install pip
-cecho "installing pip" $green
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-sudo chmod a+w get-pip.py
-sudo -H python get-pip.py
+if hash pip 2>/dev/null; then
+	cecho "pip already installed, just conitnue ..." $green
+else
+	cecho "Installing pip" $yellow
+	cecho "installing pip" $green
+	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+	sudo chmod a+w get-pip.py
+	sudo -H python get-pip.py
+fi
 
 # Homebrew
 # http://brew.sh
@@ -43,7 +45,7 @@ if hash brew 2>/dev/null; then
 	cecho "Homebrew already installed" $green
 else
 	cecho "Installing Homebrew" $yellow
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	brew doctor
 fi
 
@@ -53,7 +55,7 @@ if command brew cask 1>/dev/null; then
 	cecho "Homebrew Cask already installed, just conitnue ..." $green
 else
 	cecho "Installing Homebrew Cask" $yellow
-    brew tap caskroom/cask
+	brew tap caskroom/cask
 	brew install caskroom/cask/brew-cask
 fi
 
@@ -61,7 +63,7 @@ fi
 brew tap homebrew/services
 
 # 使用 brew cu 升级 brew cask 安装的 gui 软件 or brew reinstall someGuiApp
-brew tap buo/cask-upgrade
+# brew tap buo/cask-upgrade
 
 # Install command-line tools using Homebrew.
 # Ask for the administrator password upfront.
@@ -80,20 +82,21 @@ cecho "Install command-line tools ... " $yellow
 
 # Install GNU core utilities (those that come with OS X are outdated).
 # Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
+# TODO: you'll get sed and a bunch of other GNU versions tar, date, etc installed in /usr/local/bin and given the prefix 'g'
 brew install coreutils
-ln -s /usr/local/bin/gsha256sum /usr/local/bin/sha256sum
+# example
+# ln -s /usr/local/bin/gsha256sum /usr/local/bin/sha256sum
 
 # Install some other useful utilities like `sponge`.
 brew install moreutils
 # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
 brew install findutils
-# Install GNU `sed`, overwriting the built-in `sed`.
-brew install gnu-sed --with-default-names
+
+
 # Install Bash 4.
 # Note: don’t forget to add `/usr/local/bin/bash` to `/etc/shells` before
 # running `chsh`.
 brew install bash
-brew tap homebrew/versions
 brew install bash-completion2
 
 # Switch to using brew-installed bash as default shell
@@ -102,31 +105,29 @@ if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
   chsh -s /usr/local/bin/bash
 fi;
 
-# Install `wget` with IRI support.
-brew install wget --with-iri
-brew install homebrew/dupes/grep
-brew install homebrew/dupes/openssh
-brew install macvim 
+brew install wget
+brew install openssl
 
-# gtags for emacs
-sudo -H pip install pygments
-brew install global --with-exuberant-ctags --with-pygments
+read -p "custom command line tools ? [y/n]" -n 1;
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+# gnu tools
+brew install gnu-sed
+brew install gnu-indent
+brew install gnutls
+brew install grep
+brew install gnu-tar
+brew install gawk
 
-# Install other useful binaries.
+# other tools
 brew install graphicsmagick
-brew install p7zip
 brew install tree
-brew install webkit2png
 brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
-
-# custom my command line tools
 brew install curl --force
 brew install git --force
 brew install ctags
 brew install fzf
 brew install trash
 brew install pcre
-brew install openssl
 brew install liquidprompt
 brew install z
 brew install zsh
@@ -135,26 +136,47 @@ brew install graphviz
 brew install htop-osx
 brew install plantuml
 brew install the_silver_searcher
-
-# TODO: 骇客帝国里的屏幕: https://codeburst.io/install-and-setup-cmatrix-on-mac-a2076daee420
 brew install cmatrix
-
-# Terminal proxy to Sock5 Shadowsocks
-brew install polipo
-
-# emacs support library for pdf
-brew install pdf-tools
-
-# cool movies download from youtube
 brew install youtube-dl
+fi;
 
-# library for shadowsocks
-brew install libsodium
+echo ""
+read -p "Shadowsocks client of python version PK G-F-W ? (y/n) " -n 1;
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  brew install polipo
+  brew install libsodium
+  sudo pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
+  SS_CFG="/etc/shadowsocks.json"
+
+  if [ ! -f "$SS_CFG" ]; then
+    echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
+    sudo touch "$SS_CFG"
+  fi;
+
+  sudo chmod a+w "$SS_CFG"
+
+cat > "$SS_CFG" <<EOF
+{
+  "server":["server1","server2"],
+  "server_port":8080,
+  "local_address":"127.0.0.1",
+  "local_port":1080,
+  "password":"password",
+  "timeout":300,
+  "method":"chacha20-ietf-poly1305",
+  "fast_open": false
+}
+EOF
+
+  brew services restart polipo
+  echo "shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start"
+  echo "start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json"
+  echo "brew services start polipo use the cfg  ~/.polipo, default configfile: /usr/local/opt/polipo/homebrew.mxcl.polipo.plist"
+
+fi;
 
 # Remove outdated versions from the cellar.
-cecho "========>> brew cleanup starting !!! <<========" $yellow
 brew cleanup
-cecho "========>> brew install finished !!! <<========" $yellow
 
 # refer: https://github.com/junegunn/fzf
 cecho "fzf deloying ..." $yellow
@@ -162,7 +184,6 @@ cecho "fzf deloying ..." $yellow
 complete -F _fzf_file_completion -o default -o bashdefault doge
 
 apps=(
-    apptivate # a cool app switcher
     alfred
     caffeine
     appcleaner
@@ -192,48 +213,11 @@ select yn in "Yes" "No"; do
 	esac
 done
 
-read -p "Shadowsocks client of python version PK G-F-W ? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  #sudo -H pip install shadowsocks
-  pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
-  echo -e "\033[40;32m deploy the proxy server on your remote vps: server[1,2,3] \033[0m"
-  SS_CFG="/etc/shadowsocks.json"
-  if [ ! -f "$SS_CFG" ]; then
-    echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
-    sudo touch "$SS_CFG"
-  fi
-  sudo chmod a+w "$SS_CFG"
-
-  cat > "$SS_CFG" <<EOF
-  {
-    "server":["server1","server2"],
-    "server_port":8080,
-    "local_address":"127.0.0.1",
-    "local_port":1080,
-    "password":"password",
-    "timeout":300,
-    "method":"chacha20-ietf-poly1305",
-    "fast_open": false
-  }
-  EOF
-  brew services restart polipo
-  echo -e "\033[40;32m you can start the shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start \033[0m"
-  echo -e "\033[40;32m you can start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json \033[0m"
-  echo "now, brew services start polipo use the cfg  ~/.polipo, 建议使用默认的配置文件，/usr/local/opt/polipo/homebrew.mxcl.polipo.plist"
-fi;
 
 read -p "Oh-My-ZSH ? [y/n]" -n 1;
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 fi;
-# sudo touch /etc/sysctl.conf
-# sudo chmod a+w "/etc/sysctl.conf"
-# cat > "/etc/sysctl.conf" <<EOF
-# kern.maxfiles=1048600
-# kern.maxfilesperproc=1048576
-# net.inet.ip.portrange.first=1024
-# net.inet.ip.portrange.last=65535
-# EOF
-cecho "Install Color Scheme for Gnome Terminal and Pantheon Terminal" $green
-bash -c  "$(curl -sLo- https://git.io/vQgMr)"
+
+echo ""
 cecho "Done!!! you can deploy vim( ./vim.sh ) or emacs( ./emacs.sh ) to bring you into cool coding environment!!!" $green

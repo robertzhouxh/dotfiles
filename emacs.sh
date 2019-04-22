@@ -2,6 +2,14 @@
 
 sudo -v
 echo -e "\033[40;32m install the emacs ... \033[0m"
+
+
+# gtags for emacs
+sudo -H pip install pygments
+#brew install global --with-exuberant-ctags --with-pygments
+brew install global
+
+
 # brew cask install emacs
 # wget http://mirrors.syringanetworks.net/gnu/emacs/emacs-26.1.tar.gz
 # tar -xzvf emacs-26.1.tar.gz
