@@ -29,7 +29,6 @@ export LESS_TERMCAP_md="${yellow}";
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X';
 
-
 # ===================== custom your exports here ... ======================
 export GTAGSCONF=/usr/local/share/gtags/gtags.conf
 export GTAGSLABEL=ctags
@@ -47,6 +46,7 @@ PATH="/usr/bin:$PATH"
 if which brew &> /dev/null && brew list | grep coreutils > /dev/null; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 fi
+
 [ -d "/usr/texbin" ]               && PATH="/usr/texbin:$PATH"
 [ -d "/usr/local/share/npm/bin" ]  && PATH="/usr/local/share/npm/bin:$PATH"
 
@@ -58,26 +58,12 @@ export LESS_TERMCAP_se=$(printf '\e[0m') # leave standout mode
 export LESS_TERMCAP_so=$(printf '\e[01;33m') # enter standout mode – yellow
 export LESS_TERMCAP_ue=$(printf '\e[0m') # leave underline mode
 export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode – cyan
-# go
-# export PATH=$PATH:/usr/local/opt/go/libexec/bin
-export GOROOT=/usr/local/opt/go/libexec
 
-# !!!!必须这样写, 把通用部分的路径放倒最后
-# export GOPATH=$HOME/molmc/intoyunDocker/uiot/webserver/jnu:$HOME/molmc/intoyunDocker/uiot/consummer/jnuWorker:$HOME/go-workspace
+# go
+export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
-
-# proxy settings
-# export http_proxy='http://127.0.0.1:8118'
-# export https_proxy='http://127.0.0.1:8118'
-
-export HOMEBREW_NO_AUTO_UPDATE=true
-
-# change file descriptor limit
-#sysctl -w net.ipv4.ip_local_port_range="500 65535"
-# echo 1000000 > /proc/sys/fs/nr_open
-#ulimit -n 100000
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
 export CFLAGS="-I/usr/local/opt/openssl/include/"
