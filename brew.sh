@@ -174,6 +174,7 @@ EOF
 fi;
 
 # Remove outdated versions from the cellar.
+sudo rm get-pip.py 
 brew cleanup
 
 # refer: https://github.com/junegunn/fzf
