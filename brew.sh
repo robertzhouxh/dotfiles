@@ -62,9 +62,6 @@ fi
 # 使用 brew services start|stop|restart SERVICE_NAME 这样的命令来操作一切终端服务了 <=> LaunchRocket
 brew tap homebrew/services
 
-# 使用 brew cu 升级 brew cask 安装的 gui 软件 or brew reinstall someGuiApp
-# brew tap buo/cask-upgrade
-
 # Install command-line tools using Homebrew.
 # Ask for the administrator password upfront.
 # sudo -v

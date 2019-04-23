@@ -35,12 +35,4 @@ fi
 echo -e "\033[40;32m Step2: Setting up symlinks \033[0m"
 lnif "$CURRENT_DIR/.emacs.d" "$HOME/.emacs.d"
 
-echo -e "\033[40;32m step 3: Install the emacs plugins with cask \033[0m"
-echo -e "\033[40;32m It will take a long time, just be patient! ... \033[0m"
-echo -e "\033[40;32m cd $HOME/.emacs.d \033[0m"
-cd $HOME/.emacs.d
-
-# echo -e "\033[40;32m install the plugins, this will take a long time ... \033[0m"
-# cask install
-cd $CURRENT_DIR
 echo -e "\033[40;32m Done, Happy hacking With The Awesome Emacs \033[0m"
