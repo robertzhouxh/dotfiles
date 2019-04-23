@@ -10,7 +10,7 @@ sudo -H pip install pygments
 brew install global
 
 
-# brew cask install emacs
+brew cask install emacs
 # wget http://mirrors.syringanetworks.net/gnu/emacs/emacs-26.1.tar.gz
 # tar -xzvf emacs-26.1.tar.gz
 # ./configure --without-x --with-gnutls=no

@@ -7,7 +7,7 @@ echo -e "\033[40;32m install the macvim ... \033[0m"
 #if [ `uname -s` = "Linux" ]; then
 #  sudo apt-get install vim
 #elif [ `uname -s` = "Darwin" ]; then
-#  brew install macvim --HEAD --with-cscope --with-lua --with-override-system-vim --with-luajit
+#  brew cask install macvim 
 #else
 #  echo -e "\033[40;32m unsupported system, exit \033[0m"
 #fi

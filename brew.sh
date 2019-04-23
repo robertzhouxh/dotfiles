@@ -189,7 +189,7 @@ apps=(
     caffeine
     appcleaner
     cheatsheet
-    emacs
+    #emacs
     gas-mask
     google-chrome
     #iterm2
