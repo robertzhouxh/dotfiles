@@ -7,6 +7,7 @@
              :ensure t)
 (use-package exec-path-from-shell
              :if (x/system-is-mac)
+             :ensure t
              :init
              (setq exec-path-from-shell-check-startup-files nil)
              :config
@@ -446,7 +447,7 @@
              (doom-modeline-def-modeline
                'gs
                ;; Left mode line segments
-               '(bar workspace-number window-number "  " matches buffer-info buffer-position selection-info)
+               '(bar window-number "  " matches buffer-info buffer-position selection-info)
                ;; Right mode line segments
                '(major-mode buffer-encoding vcs checker))
              (doom-modeline-set-modeline 'gs t)

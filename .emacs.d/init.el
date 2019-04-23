@@ -26,11 +26,12 @@
   (normal-top-level-add-subdirs-to-load-path))
 
 ;;; Standard package repositories
-(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
+;;(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+;;                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
+;;                         ("marmalade" . "http://marmalade-repo.org/packages/")))
+(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
                          ("marmalade" . "http://marmalade-repo.org/packages/")))
-
-;;; Pin some packages to specific repositories.
 (setq package-pinned-packages '((gtags . "marmalade")))
 
 (package-initialize) ;; You might already have this line
