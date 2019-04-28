@@ -89,7 +89,23 @@
    (quote
     (em-unix em-term highlight-indentation dockerfile-mode docker geiser racket-mode ansible markdown-mode web-mode js2-mode go-eldoc company-go paredit color-identifiers-mode ac-slime slime lua-mode bpr yasnippet yaml-mode wsd-mode which-key use-package uimage rainbow-mode rainbow-delimiters ox-ioslide org-page org-evil org-bullets multiple-cursors magit json-reformat hippie-exp-ext highlight-symbol helm-projectile helm-descbinds helm-ag git-gutter flycheck exec-path-from-shell evil-surround evil-leader evil-indent-textobject dired-k diminish company comment-dwim-2 ag)))
  '(pos-tip-background-color "#36473A")
- '(pos-tip-foreground-color "#FFFFC8"))
+ '(pos-tip-foreground-color "#FFFFC8")
+ '(safe-local-variable-values
+   (quote
+    ((eval setq inferior-erlang-machine-options
+	   (let*
+	       ((d
+		 (dir-locals-find-file "."))
+		(p
+		 (file-name-directory
+		  (if
+		      (stringp d)
+		      d
+		    (car d)))))
+	     (list "-pa"
+		   (expand-file-name "ebin" p)
+		   "-env" "ERL_LIBS"
+		   (expand-file-name "lib" p))))))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
