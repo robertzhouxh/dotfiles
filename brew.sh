@@ -117,6 +117,7 @@ brew install gnu-tar
 brew install gawk
 
 # other tools
+brew install make
 brew install graphicsmagick
 brew install tree
 brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
@@ -174,7 +175,7 @@ EOF
 fi;
 
 # Remove outdated versions from the cellar.
-sudo rm get-pip.py 
+sudo rm get-pip.py
 brew cleanup
 
 # refer: https://github.com/junegunn/fzf

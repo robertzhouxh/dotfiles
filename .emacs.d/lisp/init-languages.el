@@ -88,6 +88,8 @@
                  ("\\.erl$"       . erlang-mode)
                  ("\\.yrl$"       . erlang-mode)
                  ("\\.conf$"      . erlang-mode)
+                 ("\\..config$"   . erlang-mode)
+                 ("\\..schema"    . erlang-mode)
                  ("rebar.config$" . erlang-mode)
                  ("relx.config$"  . erlang-mode)
                  ("sys.config$"   . erlang-mode)))))

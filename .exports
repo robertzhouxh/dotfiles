@@ -69,5 +69,7 @@ export LDFLAGS="-L/usr/local/opt/openssl/lib"
 export CFLAGS="-I/usr/local/opt/openssl/include/"
 export CPPFLAGS="-I/usr/local/opt/openssl/include/"
 
+# use gnu make as the default make tool
+PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 # homebrew no update
 export HOMEBREW_NO_AUTO_UPDATE=1
