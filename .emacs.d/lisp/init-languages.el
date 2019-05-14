@@ -145,14 +145,14 @@
              (add-hook 'go-mode-hook 'go-eldoc-setup))
 
 (use-package go-mode
- :config
- (bind-keys :map go-mode-map
-  ("C-," . godef-jump)
-  ("C-;" . pop-tag-mark)
-  )
- (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
- (setq gofmt-command "goimports")
- (add-hook 'before-save-hook 'gofmt-before-save))
+             :config
+             (bind-keys :map go-mode-map
+                        ("C-," . godef-jump)
+                        ("C-;" . pop-tag-mark)
+                        )
+             (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
+             (setq gofmt-command "goimports")
+             (add-hook 'before-save-hook 'gofmt-before-save))
 
 ;;----------------------------------------------------------------------------
 ;; clojure
@@ -305,6 +305,9 @@
 (use-package markdown-mode
              :ensure t
              :mode ("\\.md\\'" . markdown-mode))
+(use-package dockerfile-mode
+             :ensure t
+             :mode "\\Dockerfile\\'")
 (use-package yaml-mode
              :defer t
              :mode ("\\.yml$" . yaml-mode))
