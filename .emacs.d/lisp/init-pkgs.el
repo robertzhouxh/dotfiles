@@ -280,50 +280,6 @@
              (setq eshell-highlight-prompt nil)
              (setq eshell-prompt-regexp "^[^#$\n]+[#$] ")
              (setq eshell-cmpl-cycle-completions nil))
-
-;; TODO: robertzhouxh download the stuff from: https://github.com/Kapeli/feeds
-;; or install offical doc: helm-dash-install-docset
-;; or install user doc: helm-dash-install-user-docset
-;; 建议：命令行fq， 然后https://github.com/Kapeli/feeds 得到xml，
-;;      从xml里某个link下载需要的文档tar.gz 然后解压缩,
-(use-package helm-dash
-             :ensure t
-             :init
-             (setq helm-dash-docsets-path "~/.emacs.d/docsets/")
-             (global-set-key (kbd "C-c d") 'helm-dash-at-point)
-             (defun erlang-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("Erlang" "MongoDB")))
-             (defun go-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("Go" "MongoDB")))
-             (defun bash-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("Bash")))
-             (defun c-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("C")))
-             (defun c++-doc ()
-               (interactive)
-               (setq-local helm-dash-docsets '("C" "C++")))
-             (add-hook 'erlang-mode-hook 'erlang-doc)
-             (add-hook 'go-mode-hook 'go-doc)
-             (add-hook 'bash-mode-hook 'bash-doc)
-             (add-hook 'c-mode-hook 'c-doc)
-             (add-hook 'c++-mode-hook 'c++-doc)
-             :config
-             (progn
-               (defun eww-split (url)
-                 (interactive)
-                 (select-window (split-window-right))
-                 (eww url))
-               (setq helm-dash-browser-func 'eww-split)
-               ;(setq helm-dash-browser-func 'eww)
-               (add-hook 'prog-mode-hook
-                         (lambda ()
-                           (interactive)
-                           (setq helm-current-buffer (current-buffer))))
-               ))
 (use-package tramp
              :ensure t
              :defer t
