@@ -62,7 +62,7 @@ export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode – cyan
 # go
 export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"

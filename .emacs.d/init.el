@@ -113,3 +113,5 @@
  ;; If there is more than one, they won't work right.
  '(aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c"))))
  '(doom-modeline-bar ((t (:background "#6272a4")))))
+
+(provide 'dired+)

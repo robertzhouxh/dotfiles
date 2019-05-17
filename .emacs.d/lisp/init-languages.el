@@ -131,20 +131,8 @@
 ;; go get -u github.com/golang/lint/golint
 ;; go get -u github.com/nsf/gocode
 ;;----------------------------------------------------------------------------
-(use-package company-go
-             :ensure t
-             :defer t
-             :init
-             (with-eval-after-load 'company
-                                   (add-to-list 'company-backends 'company-go)))
-
-(use-package go-eldoc
-             :ensure t
-             :defer
-             :init
-             (add-hook 'go-mode-hook 'go-eldoc-setup))
-
 (use-package go-mode
+             :ensure t
              :config
              (bind-keys :map go-mode-map
                         ("C-," . godef-jump)
@@ -153,6 +141,32 @@
              (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
              (setq gofmt-command "goimports")
              (add-hook 'before-save-hook 'gofmt-before-save))
+
+(use-package company-go
+             :ensure t
+             :after go-mode
+             :config
+             (add-hook 'go-mode-hook 'company-mode)
+             (add-hook 'go-mode-hook (lambda ()
+                                       (set (make-local-variable 'company-backends) '(company-go))
+                                       (company-mode)))
+             (setq company-tooltip-align-annotations t))
+;;; Color customization
+(custom-set-faces
+  '(company-preview
+     ((t (:foreground "darkgray" :underline t))))
+  '(company-preview-common
+     ((t (:inherit company-preview))))
+  '(company-tooltip
+     ((t (:background "lightgray" :foreground "black"))))
+  '(company-tooltip-selection
+     ((t (:background "steelblue" :foreground "white"))))
+  '(company-tooltip-common
+     ((((type x)) (:inherit company-tooltip :weight bold))
+      (t (:inherit company-tooltip))))
+  '(company-tooltip-common-selection
+     ((((type x)) (:inherit company-tooltip-selection :weight bold))
+      (t (:inherit company-tooltip-selection)))))
 
 ;;----------------------------------------------------------------------------
 ;; clojure
@@ -302,6 +316,23 @@
 ;;----------------------------------------------------------------------------
 ;; other programming languages
 ;;----------------------------------------------------------------------------
+(use-package web-mode
+             :ensure t
+             :mode (("\\.phtml\\'" . web-mode)
+                    ("\\.erb\\'" . web-mode)
+                    ("\\.mustache\\'" . web-mode)
+                    ("\\.djhtml\\'" . web-mode)
+                    ("\\.tmpl\\'" . web-mode)
+                    ("\\.html\\'" . web-mode))
+             :config
+             (setq web-mode-markup-indent-offset 4)
+             (setq web-mode-enable-current-column-highlight t)
+             (setq web-mode-enable-current-element-highlight t))
+(use-package lua-mode
+             :ensure t
+             :mode (("\\.lua\\'" . lua-mode))
+             :config
+             (add-hook 'lua-mode-hook #'company-mode))
 (use-package markdown-mode
              :ensure t
              :mode ("\\.md\\'" . markdown-mode))

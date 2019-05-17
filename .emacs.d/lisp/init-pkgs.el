@@ -6,13 +6,18 @@
 (use-package diminish
              :ensure t)
 (use-package exec-path-from-shell
-             :if (x/system-is-mac)
              :ensure t
-             :init
-             (setq exec-path-from-shell-check-startup-files nil)
+             :if (memq window-system '(mac ns))
+             ;:if (x/system-is-mac)
              :config
-             (when (memq window-system '(mac ns))
-               (exec-path-from-shell-initialize)))
+             (exec-path-from-shell-initialize)
+             (exec-path-from-shell-copy-env "GOROOT")
+             (exec-path-from-shell-copy-env "GOPATH")
+             (exec-path-from-shell-copy-env "NPMBIN")
+             (exec-path-from-shell-copy-env "LC_ALL")
+             (exec-path-from-shell-copy-env "LANG")
+             (exec-path-from-shell-copy-env "LC_TYPE"))
+
 (use-package which-key
              :ensure t
              :diminish which-key-mode
@@ -61,9 +66,8 @@
                          helm-google-suggest-use-curl-p t
                          )
                        (helm-autoresize-mode 1)
-                       ;;(define-key helm-map (kbd "C-j") 'helm-next-line)
-                       ;;(define-key helm-map (kbd "C-k") 'helm-previous-line)
-                       ))
+                       (define-key helm-map (kbd "C-j") 'helm-next-line)
+                       (define-key helm-map (kbd "C-k") 'helm-previous-line)))
 (use-package highlight-symbol
              :defer t
              :ensure t
@@ -180,32 +184,32 @@
 ;;              (projectile-global-mode)
 ;;              (setq projectile-enable-caching t))
 (use-package projectile
-  :commands (projectile-ack
-             projectile-ag
-             projectile-compile-project
-             projectile-dired
-             projectile-find-dir
-             projectile-find-file
-             projectile-find-tag
-             projectile-test-project
-             projectile-grep
-             projectile-invalidate-cache
-             projectile-kill-buffers
-             projectile-multi-occur
-             projectile-project-p
-             projectile-project-root
-             projectile-recentf
-             projectile-regenerate-tags
-             projectile-replace
-             projectile-replace-regexp
-             projectile-run-async-shell-command-in-root
-             projectile-run-shell-command-in-root
-             projectile-switch-project
-             projectile-switch-to-buffer
-             projectile-vc)
-  :ensure ag
-  :config
-  (projectile-global-mode))
+             :commands (projectile-ack
+                         projectile-ag
+                         projectile-compile-project
+                         projectile-dired
+                         projectile-find-dir
+                         projectile-find-file
+                         projectile-find-tag
+                         projectile-test-project
+                         projectile-grep
+                         projectile-invalidate-cache
+                         projectile-kill-buffers
+                         projectile-multi-occur
+                         projectile-project-p
+                         projectile-project-root
+                         projectile-recentf
+                         projectile-regenerate-tags
+                         projectile-replace
+                         projectile-replace-regexp
+                         projectile-run-async-shell-command-in-root
+                         projectile-run-shell-command-in-root
+                         projectile-switch-project
+                         projectile-switch-to-buffer
+                         projectile-vc)
+             :ensure ag
+             :config
+             (projectile-global-mode))
 (use-package helm-projectile
              :defer t
              :commands (helm-projectile helm-projectile-switch-project)
@@ -220,9 +224,8 @@
              (setq company-idle-delay 0.2)
              (setq company-selection-wrap-around t)
              (define-key company-active-map [tab] 'company-complete)
-             ;(define-key company-active-map (kbd "C-n") 'company-select-next)
-             ;(define-key company-active-map (kbd "C-p") 'company-select-previous)
-             )
+             (define-key company-active-map (kbd "C-j") 'company-select-next)
+             (define-key company-active-map (kbd "C-k") 'company-select-previous))
 (use-package paredit
              :ensure t
              :diminish paredit-mode
@@ -231,18 +234,16 @@
              (add-hook 'go-mode-hook 'paredit-mode)
              (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 (use-package swiper :ensure t :bind (("C-s" . swiper)))
-
 (use-package key-chord
-  :ensure t
-  :config
-  (progn
-    (key-chord-define-global "jb" 'ibuffer)
-    (key-chord-define-global "j0" 'delete-window)
-    (key-chord-define-global "j1" 'delete-other-windows)
-    (key-chord-define-global "jz" 'magit-dispatch-popup)
-    (key-chord-define-global "kb" 'gh/kill-current-buffer)
-    (key-chord-mode 1)))
-
+             :ensure t
+             :config
+             (progn
+               (key-chord-define-global "jb" 'ibuffer)
+               (key-chord-define-global "j0" 'delete-window)
+               (key-chord-define-global "j1" 'delete-other-windows)
+               (key-chord-define-global "jz" 'magit-dispatch-popup)
+               (key-chord-define-global "kb" 'gh/kill-current-buffer)
+               (key-chord-mode 1)))
 (use-package logview :ensure t)
 (use-package hydra :ensure t)
 (use-package eshell
@@ -251,10 +252,8 @@
              (require 'f)
              (setq eshell-visual-commands
                    '("less" "tmux" "htop" "top" "bash" "zsh" "fish"))
-
              (setq eshell-visual-subcommands
                    '(("git" "log" "l" "diff" "show")))
-
              ;; Prompt with a bit of help from http://www.emacswiki.org/emacs/EshellPrompt
              (defmacro with-face (str &rest properties)
                `(propertize ,str 'face (list ,@properties)))
