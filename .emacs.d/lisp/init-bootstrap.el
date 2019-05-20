@@ -33,9 +33,7 @@
   create-lockfiles nil
   indent-tabs-mode nil
   tab-width 4
-  backup-directory-alist `((".*" . ,temporary-file-directory))
-  auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
-  gc-cons-threshold (* 64 1000 1000))
+  backup-directory-alist `((".*" . ,temporary-file-directory)))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (prefer-coding-system 'utf-8)
@@ -50,7 +48,7 @@
 
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 32 1000 1000))))
 (add-hook 'focus-out-hook 'garbage-collect)
-(run-with-idle-timer 5 t 'garbage-collect)
+(run-with-idle-timer 10 t 'garbage-collect)
 
 ;;; essential libs
 (use-package s        :ensure t :defer t)

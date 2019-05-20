@@ -10,12 +10,13 @@
     ":"  'eval-expression
     "aa" 'align-regexp
     "a=" 'my-align-single-equals
-    "b"   'projectile-switch-to-buffer
+    "b"  'ido-switch-buffer
     "B"  'magit-blame-toggle
     "c"  'comment-dwim
     "d"  'kill-this-buffer
     "D"  'delete-window
     "E"  'sudo-edit-current-file
+    "f"  'ido-find-file
     "g"  'magit-status
     "hb" 'fontify-and-browse    ;; HTML-ize the buffer and browse the result
     "hs" 'helm-projectile-ag
@@ -26,7 +27,6 @@
     "j"  'json-reformat-region'
     "k"  'get-erl-man'
     "l"  'whitespace-mode       ;; Show invisible characters
-    "L"  (lambda () (interactive) (get-lua-man))
     "m"  'eshell-here
     "M"  'eshell-x
     "nn" 'air-narrow-dwim       ;; Narrow to region and enter normal mode
@@ -36,6 +36,7 @@
     "p"  'helm-show-kill-ring
     "P"  'projectile-find-file-other-window
     "s"  'ag-project            ;; Ag search from project's root
+    "S"  'ag
     ;"rs" 'cider-start-http-server
     ;"rs" 'cider-jack-in
     ;"rr" 'cider-refresh
@@ -44,7 +45,7 @@
     ;"rn" 'cider-repl-set-ns
     ;"rx" 'cider-eval-last-sexp
     ;"R"  (lambda () (interactive) (font-lock-fontify-buffer) (redraw-display))
-    "S"  'delete-trailing-whitespace
+    "/"  'delete-trailing-whitespace
     "t"  'gtags-reindex
     "T"  'gtags-find-tag
     "w"  'save-buffer
@@ -53,62 +54,53 @@
     ))
 
 (use-package evil
-  :ensure t
-  :init
-  ;; TODO: robertzhouxh !!!  (setq evil-want-C-u-scroll t) needs to happen before evil is loaded.
-  (setq evil-want-C-u-scroll t)
-  (evil-define-key 'normal global-map (kbd "C-]")     'gtags-find-tag-from-here)
-  (evil-define-key 'normal global-map (kbd "C-t")     'gtags-pop-stack)
-  (evil-add-hjkl-bindings occur-mode-map 'emacs
-                          (kbd "/")       'evil-search-forward
-                          (kbd "n")       'evil-search-next
-                          (kbd "N")       'evil-search-previous
-                          (kbd "C-d")     'evil-scroll-down
-                          (kbd "C-u")     'evil-scroll-up
-                          (kbd "C-w C-w") 'other-window)
-  :commands (evil-mode evil-define-key)
-  ;; While I'm still getting used to Evil, I'll eschew certain
-  ;; advanced features, and fall-back on my Emacs.  Setting to `nil'
-  ;; falls back to Emacs defaults.
-  :bind
-  (:map evil-normal-state-map
-        ("C-a" . nil)
-        ("C-e" . nil)
-        ("C-d" . nil)
-        ("C-k" . nil)
-        ("C-n" . nil)
-        ("C-p" . nil)
-        ("C-t" . nil)
-        ("C-]" . nil)
-        ("M-." . nil)
-        ("M-," . nil))
-  :config
-  (progn
-    (define-key evil-motion-state-map "/" 'swiper)
-    (setq evil-disable-insert-state-bindings t)
-    (evil-mode 1)
-    ;; Let's not bother with Evil in *every* mode...
-    (dolist (mode '(ag-mode
-		    flycheck-error-list-mode
-		    git-rebase-mode))
-      (add-to-list 'evil-emacs-state-modes mode))
-    ;; Start in insert mode for small buffers
-    (dolist (mode '(text-mode))
-      (add-to-list 'evil-insert-state-modes mode)))
-  (use-package evil-leader
-    :ensure t
-    :config
-    (global-evil-leader-mode)
-    (air--config-evil-leader))
+             :ensure t
+             :init
+             ;; TODO: robertzhouxh !!!  (setq evil-want-C-u-scroll t) needs to happen before evil is loaded.
+             (setq evil-want-C-u-scroll t)
+             (setq evil-search-module 'evil-search)
+             (setq evil-shift-round nil)
+             (setq evil-disable-insert-state-bindings t)
+             :commands (evil-mode evil-define-key)
+             :config
+             (evil-mode 1)
+             (progn
+               (define-key evil-motion-state-map "/" 'swiper)
+               (define-key evil-insert-state-map (kbd "j") 'bw-evil-escape-if-next-char-is-j)
+               ;; esc should always quit: http://stackoverflow.com/a/10166400/61435
+               (define-key evil-normal-state-map [escape] 'keyboard-quit)
+               (define-key evil-visual-state-map [escape] 'keyboard-quit)
+               (define-key minibuffer-local-map [escape] 'abort-recursive-edit)
+               (define-key minibuffer-local-ns-map [escape] 'abort-recursive-edit)
+               (define-key minibuffer-local-completion-map [escape] 'abort-recursive-edit)
+               (define-key minibuffer-local-must-match-map [escape] 'abort-recursive-edit)
+               (define-key minibuffer-local-isearch-map [escape] 'abort-recursive-edit)
 
-  (use-package evil-surround
-    :ensure t
-    :init
-    (progn
-      (global-evil-surround-mode 1)
-      ;; `s' for surround instead of `substitute'
-      (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
-      (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)))
-  (air--apply-evil-other-package-configs))
+               ;; modes to map to different default states
+               (dolist (mode-map '((comint-mode . emacs)
+                                   (term-mode . emacs)
+                                   (eshell-mode . emacs)
+                                   (help-mode . emacs)
+                                   (fundamental-mode . emacs))))
+
+               (use-package evil-leader
+                            :ensure t
+                            :config
+                            (global-evil-leader-mode)
+                            (air--config-evil-leader))
+               (use-package evil-visualstar
+                            :ensure t
+                            :bind (:map evil-visual-state-map
+                                        ("*" . evil-visualstar/begin-search-forward)
+                                        ("#" . evil-visualstar/begin-search-backward)))
+               (use-package evil-surround
+                            :ensure t
+                            :init
+                            (progn
+                              (global-evil-surround-mode 1)
+                              ;; `s' for surround instead of `substitute'
+                              (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
+                              (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)))
+               (air--apply-evil-other-package-configs)))
 
 (provide 'init-evil)

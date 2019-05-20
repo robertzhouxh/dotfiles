@@ -398,7 +398,7 @@
                 (("\\.go$" . "golang header")
                  nil
                  "//---------------------------------------------------------------------\n"
-                 "// @Copyright (c) 2016-2017 MOLMC Enterprise, Inc. (http://intoyun.com)\n"
+                 "// @Copyright (c) 2016-2017 Rosinno Enterprise, Inc. (http://rosinno.com)\n"
                  "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
                  "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
                  "//----------------------------------------------------------------------\n"
