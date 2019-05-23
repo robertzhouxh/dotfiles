@@ -38,12 +38,16 @@
                              "~/Dropbox/org/groupon.org"))
 
 (use-package org-evil :ensure t)
+
+
+;; change a good appearance of todo items
 (use-package org-bullets
-    :ensure t
-    :init
-    (setq org-bullets-bullet-list
-          '("✡" "✽" "✲" "✱" "✻" "✼" "✽" "✾" "✿" "❀" "❁" "❂" "❃" "❄" "❅" "❆" "❇"))
-    (add-hook 'org-mode-hook #'org-bullets-mode))
+             :ensure t
+             :config
+             (progn
+               (setq org-bullets-bullet-list '("☯" "✿" "✚" "◉" "❀"))
+               (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+               ))
 
 (add-to-list 'ispell-skip-region-alist '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
 (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_SRC" . "#\\+END_SRC"))

@@ -104,17 +104,6 @@
 ;;----------------------------------------------------------------------------
 ;; awesome trick cool
 ;;----------------------------------------------------------------------------
-(defun load-local (filename)
-  ;; (let ((file (s-concat (f-expand filename user-emacs-directory) ".el")))
-  (let ((file (s-concat (f-expand filename robertzhouxh/config-dir) ".el")))
-    (if (f-exists? file)
-      (load-file file))))
-
-(defun my/insert-lod ()
-  "Well. This is disappointing."
-  (interactive)
-  (insert "ಠ_ಠ"))
-
 (defun system-is-mac ()
   (interactive)
   (string-equal system-type "darwin"))
@@ -158,19 +147,6 @@
   (interactive)
   (split-window-horizontally)
   (occur "@FIXME:\\|@TODO:\\|@BUG:\\|@NOTE:"))
-
-(defun python/scan-functions ()
-  (interactive)
-  (split-window-horizontally)
-  (occur "def"))
-
-;; Usage: M-x reload-init-file
-;;
-(defun reload-init-file ()
-  "Reload init.el file."
-  (interactive)
-  (load user-init-file)
-  (message "Reloaded init.el OK."))
 
 ;; Usage: M-x open-init-file
 ;;
@@ -378,6 +354,9 @@ Emacs versions."
       (call-interactively 'magit-blame)))
 
 
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; 	find conflic block for git
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (defun air--apply-evil-other-package-configs ()
   "Apply evil-dependent settings specific to other packages."
 
@@ -399,7 +378,79 @@ Emacs versions."
   (evil-define-key 'visual prog-mode-map (kbd "[n") 'previous-conflict-marker)
   )
 
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; 	Insert Src Block
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(use-package ido-completing-read+)
+(defun pkg-insert-src-block (src-code-type)
+  "Insert a `SRC-CODE-TYPE' type source code block in org-mode."
+  (interactive
+    (let ((src-code-types
+            '("emacs-lisp" "python" "C" "sh" "java" "js" "clojure" "C++" "css"
+              "calc" "asymptote" "dot" "gnuplot" "ledger" "lilypond" "mscgen"
+              "octave" "oz" "plantuml" "R" "sass" "screen" "sql" "awk" "ditaa"
+              "haskell" "latex" "lisp" "matlab" "ocaml" "org" "perl" "ruby"
+              "scheme" "sqlite" "html")))
+      (list (ido-completing-read+ "Source code type: " src-code-types))))
+  (progn
+    (newline-and-indent)
+    (insert (format "#+BEGIN_SRC %s\n" src-code-type))
+    (newline-and-indent)
+    (insert "#+END_SRC\n")
+    (previous-line 2)
+    (org-edit-src-code)))
 
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	Close All Buffers
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(defun pkg-close-all-buffers ()
+  (interactive)
+  (mapc 'kill-buffer (buffer-list)))
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; 	Mark Current Word Quickly
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(defun pkg-mark-word ()
+  "Select Current Word"
+  (interactive)
+  (progn
+    (backward-word)
+    (set-mark (point))
+    (forward-word)))
+
+(defun flymake--severity (type)
+  "Get the severity for diagnostic TYPE."
+  (flymake--lookup-type-property type 'severity
+                                 (warning-numeric-level :error)))
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	Reload init file
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(defun reload-init-file ()
+  "Reload init.el file."
+  (interactive)
+  (load user-init-file)
+  (message "Reloaded init.el OK."))
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	Terminal Notifier For Emacs
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(defvar terminal-notifier-path
+  "/usr/local/bin/terminal-notifier")
+
+(defun pkg-send-notification (msg title)
+  "Send notification, MSG and TITLE."
+  (shell-command (concat terminal-notifier-path
+                         " -title " title
+                         " -message " msg))
+  )
+
+(run-at-time
+  "30 min"
+  3600
+  '(lambda ()
+     (pkg-send-notification "'注意休息，已经持续工作半小时！'" "'🚀🚀🚀 Pay Attention!!!'")
+     ))
 
 (provide 'init-utils)
 ;;; init-utils.el ends here

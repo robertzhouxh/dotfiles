@@ -1,9 +1,21 @@
 ;;; init-languages.el --- Set up programming languages
 ;;; Commentary:
 
-;; Basic programming languages
 
-;;; Code:
+(use-package helm-dash
+             :config
+             (progn
+               (setq helm-dash-browser-func 'eww)
+               (setq helm-dash-docsets-path (expand-file-name "~/.emacs.d/docsets"))
+
+               (helm-dash-activate-docset "Go")
+               (helm-dash-activate-docset "Python 3")
+               (helm-dash-activate-docset "CMake")
+               (helm-dash-activate-docset "Bash")
+               (helm-dash-activate-docset "Django")
+               (helm-dash-activate-docset "Redis")
+               (helm-dash-activate-docset "Emacs Lisp")
+               ))
 ;;--------------------------------------------------------------
 ;; sh-mode
 ;;--------------------------------------------------------------
@@ -133,11 +145,10 @@
 ;;----------------------------------------------------------------------------
 (use-package go-mode
              :ensure t
+             :bind (:map go-mode-map
+                         ("M-l" . godef-jump)
+                         ("M-h" . pop-tag-mark))
              :config
-             (bind-keys :map go-mode-map
-                        ("C-," . godef-jump)
-                        ("C-;" . pop-tag-mark)
-                        )
              (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
              (setq gofmt-command "goimports")
              (add-hook 'before-save-hook 'gofmt-before-save))
@@ -316,6 +327,15 @@
 ;;----------------------------------------------------------------------------
 ;; other programming languages
 ;;----------------------------------------------------------------------------
+(use-package web-beautify               ; Pretty format HTML/CSS/JS files
+             :ensure t
+             :init (progn
+                     (with-eval-after-load 'js2-mode
+                                           (bind-key "C-c m f" #'web-beautify-js js2-mode-map))
+                     (with-eval-after-load 'web-mode
+                                           (bind-key "C-c m f" #'web-beautify-html web-mode-map))
+                     (with-eval-after-load 'css-mode
+                                           (bind-key "C-c m f" #'web-beautify-css css-mode-map))))
 (use-package web-mode
              :ensure t
              :mode (("\\.phtml\\'" . web-mode)
@@ -358,212 +378,212 @@
 ;(setq auto-insert-directory "~/.emacs.d/vendor/auto-insert/")
 (setq auto-insert-alist
       (append
-       '(
-         (("\\\\.el\\\\'" . "Emacs Lisp header")
-          "Short description: "
-          ";;; " (file-name-nondirectory (buffer-file-name)) " --- " str "
-;; Copyright (C) " (substring (current-time-string) -4) " by robert zhou " "
-;; Author: robert zhou"
-'(end-of-line 1) " <" (user-login-name) ?@ "robertzhouxh@gmail.com>
-(defconst "
-(substring (file-name-nondirectory (buffer-file-name)) 0 -3)
-"-version \\"$Id: "
-(file-name-nondirectory (buffer-file-name))
-",v 1.1 "
-'(require 'time-stamp)
-(concat (time-stamp-yyyy/mm/dd) " " (time-stamp-hh:mm:ss))
-" matsu Exp matsu $\\")" "
-;; Keywords: "
- '(require 'finder)
- ;;'(setq v1 (apply 'vector (mapcar 'car finder-known-keywords)))
- '(setq v1 (mapcar (lambda (x) (list (symbol-name (car x))))
-                   finder-known-keywords)
-        v2 (mapconcat (lambda (x) (format "%10.0s:  %s" (car x) (cdr x)))
-           finder-known-keywords
-           "\\n"))
- ((let ((minibuffer-help-form v2))
-    (completing-read "Keyword, C-h: " v1 nil t))
-    str ", ") & -2 "
-;;
-;; This program is free software; you can redistribute it and/or modify
-(中略)
-;;; Commentary:
-;; " _ "
-;;; Code:
-;;; " (file-name-nondirectory (buffer-file-name)) " ends here"))
-       auto-insert-alist))
+        '(
+          (("\\\\.el\\\\'" . "Emacs Lisp header")
+           "Short description: "
+           ";;; " (file-name-nondirectory (buffer-file-name)) " --- " str "
+           ;; Copyright (C) " (substring (current-time-string) -4) " by robert zhou " "
+           ;; Author: robert zhou"
+           '(end-of-line 1) " <" (user-login-name) ?@ "robertzhouxh@gmail.com>
+           (defconst "
+                     (substring (file-name-nondirectory (buffer-file-name)) 0 -3)
+                     "-version \\"$Id: "
+                     (file-name-nondirectory (buffer-file-name))
+                     ",v 1.1 "
+                     '(require 'time-stamp)
+                     (concat (time-stamp-yyyy/mm/dd) " " (time-stamp-hh:mm:ss))
+                     " matsu Exp matsu $\\")" "
+           ;; Keywords: "
+           '(require 'finder)
+           ;;'(setq v1 (apply 'vector (mapcar 'car finder-known-keywords)))
+           '(setq v1 (mapcar (lambda (x) (list (symbol-name (car x))))
+                             finder-known-keywords)
+                  v2 (mapconcat (lambda (x) (format "%10.0s:  %s" (car x) (cdr x)))
+                                finder-known-keywords
+                                "\\n"))
+           ((let ((minibuffer-help-form v2))
+              (completing-read "Keyword, C-h: " v1 nil t))
+            str ", ") & -2 "
+           ;;
+           ;; This program is free software; you can redistribute it and/or modify
+           (中略)
+           ;;; Commentary:
+           ;; " _ "
+           ;;; Code:
+           ;;; " (file-name-nondirectory (buffer-file-name)) " ends here"))
+           auto-insert-alist))
 
-(setq auto-insert-alist
-      (append '(
-                (("\\.go$" . "golang header")
-                 nil
-                 "//---------------------------------------------------------------------\n"
-                 "// @Copyright (c) 2016-2017 Rosinno Enterprise, Inc. (http://rosinno.com)\n"
-                 "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-                 "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-                 "//----------------------------------------------------------------------\n"
-                 _
-                 ))
-              auto-insert-alist))
+        (setq auto-insert-alist
+              (append '(
+                        (("\\.go$" . "golang header")
+                         nil
+                         "//---------------------------------------------------------------------\n"
+                         "// @Copyright (c) 2016-2017 Rosinno Enterprise, Inc. (http://rosinno.com)\n"
+                         "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+                         "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                         "//----------------------------------------------------------------------\n"
+                         _
+                         ))
+                      auto-insert-alist))
 
-(setq auto-insert-alist
-      (append '(
-                (("\\.py$" . "python template")
-                 nil
-                 "#!/usr/bin/env python\n"
-                 "\n"
-                 "import sys, os, math\n"
-                 "# import numpy as np\n"
-                 "# import scipy as sp\n"
-                 "# import ROOT\n"
-                 "# import pyfits as pf\n"
-                 "\n"
-                 _
-                 )) auto-insert-alist))
-(setq auto-insert-alist
-      (append '(
-                (("\\.sh$" . "shell script template")
-                 nil
-                 "#!/bin/bash\n"
-                 "\n"
-                 _
-                 )) auto-insert-alist))
+        (setq auto-insert-alist
+              (append '(
+                        (("\\.py$" . "python template")
+                         nil
+                         "#!/usr/bin/env python\n"
+                         "\n"
+                         "import sys, os, math\n"
+                         "# import numpy as np\n"
+                         "# import scipy as sp\n"
+                         "# import ROOT\n"
+                         "# import pyfits as pf\n"
+                         "\n"
+                         _
+                         )) auto-insert-alist))
+        (setq auto-insert-alist
+              (append '(
+                        (("\\.sh$" . "shell script template")
+                         nil
+                         "#!/bin/bash\n"
+                         "\n"
+                         _
+                         )) auto-insert-alist))
 
-(setq auto-insert-alist
-      (append '(
-                (("\\.erl$" . "erlang header")
-                 nil
-                 "%%%-------------------------------------------------------------------\n"
-                 "%%% @Copyright (c) 2019-2020 rosinno Enterprise, Inc. (http://rosinno.com)\n"
-                 "%%% @Author: robertzhouxh <zhouxuehao@rosinno.com>\n"
-                 "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-                 "%%%-------------------------------------------------------------------\n"
-                 _
-                 ))
-              auto-insert-alist))
+        (setq auto-insert-alist
+              (append '(
+                        (("\\.erl$" . "erlang header")
+                         nil
+                         "%%%-------------------------------------------------------------------\n"
+                         "%%% @Copyright (c) 2019-2020 rosinno Enterprise, Inc. (http://rosinno.com)\n"
+                         "%%% @Author: robertzhouxh <zhouxuehao@rosinno.com>\n"
+                         "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                         "%%%-------------------------------------------------------------------\n"
+                         _
+                         ))
+                      auto-insert-alist))
 
-(setq auto-insert-alist
-      (append '(
-                (("\\.org$" . "org header")
-                 nil
-                 "#+HTML_HEAD: <link rel=\"stylesheet\" href=\"http://dakrone.github.io/org.css\" type=\"text/css\" />"
-                 _
-                 ))
-              auto-insert-alist))
-(setq auto-insert-alist
-      (append '(
-                (("\\.h\\'" . "C/C++ header")
-                 nil
-                 '(c++-mode)
-                 '(setq my:skeleton-author (identity user-full-name))
-                 '(setq my:skeleton-mail-address (identity user-mail-address))
-                 '(setq my:skeleton-namespace (read-string "Namespace: " ""))
-                 '(setq my:skeleton-description (read-string "Short Description: " ""))
-                 '(setq my:skeleton-inherit (read-string "Inherits from (space separate for multiple inheritance): " ""))
-                 '(setq my:skeleton-inherit-list (split-string my:skeleton-inherit " " t))
-                 '(setq my:skeleton-inheritance (cond ((null my:skeleton-inherit-list)
-                                                       "")
-                                                      (t
-                                                        (setq my:skeleton-inheritance-concat "")
-                                                        (dolist (element my:skeleton-inherit-list)
-                                                          (setq my:skeleton-inheritance-concat
-                                                                (concat my:skeleton-inheritance-concat
-                                                                        "public " element ", ")))
-                                                        (setq my:skeleton-inheritance-concat
-                                                              (concat " : "
-                                                                      my:skeleton-inheritance-concat))
-                                                        (eval (replace-regexp-in-string ", \\'" "" my:skeleton-inheritance-concat)))))
-                 '(setq my:skeleton-include (cond ((null my:skeleton-inherit-list)
-                                                   "")
-                                                  (t
-                                                    (setq my:skeleton-include "\n")
-                                                    (dolist (element my:skeleton-inherit-list)
-                                                      (setq my:skeleton-include
-                                                            (concat my:skeleton-include
-                                                                    "#include \"" element ".h\"\n")))
-                                                    (eval my:skeleton-include))))
-                 '(setq my:skeleton-namespace-list (split-string my:skeleton-namespace "::"))
-                 '(setq my:skeleton-file-name (file-name-nondirectory (buffer-file-name)))
-                 '(setq my:skeleton-class-name (file-name-sans-extension my:skeleton-file-name))
-                 '(setq my:skeleton-namespace-class
-                        (cond ((string= my:skeleton-namespace "")
-                               my:skeleton-class-name)
-                              (t
-                                (concat my:skeleton-namespace "::" my:skeleton-class-name)
-                                )))
-                 '(setq my:skeleton-namespace-decl
-                        (cond ((string= my:skeleton-namespace "")
-                               ""
-                               )
-                              (t
-                                (setq my:skeleton-namespace-decl-pre "")
-                                (setq my:skeleton-namespace-decl-post "")
-                                (setq my:skeleton-namespace-decl-indent "")
-                                (dolist (namespace-element my:skeleton-namespace-list)
-                                  (setq my:skeleton-namespace-decl-pre
-                                        (concat my:skeleton-namespace-decl-pre
-                                                my:skeleton-namespace-decl-indent
-                                                "namespace " namespace-element " {\n"))
-                                  (setq my:skeleton-namespace-decl-post
-                                        (concat "\n"
-                                                my:skeleton-namespace-decl-indent
-                                                "}"
-                                                my:skeleton-namespace-decl-post))
-                                  (setq my:skeleton-namespace-decl-indent
-                                        (concat my:skeleton-namespace-decl-indent "   "))
-                                  )
-                                (eval (concat my:skeleton-namespace-decl-pre
-                                              my:skeleton-namespace-decl-indent
-                                              "class " my:skeleton-class-name ";"
-                                              my:skeleton-namespace-decl-post))
-                                )))
-                 '(random t)
-                 '(setq my:skeleton-include-guard
-                        (upcase
-                          (format "INCLUDE_GUARD_UUID_%04x%04x_%04x_4%03x_%04x_%06x%06x"
-                                  (random (expt 16 4))
-                                  (random (expt 16 4))
-                                  (random (expt 16 4))
-                                  (random (expt 16 3))
-                                  (+ (random (expt 2 14)) (expt 2 5))
-                                  (random (expt 16 6))
-                                  (random (expt 16 6)))))
-                 "/**" n
-                 "* @file   " my:skeleton-file-name > n
-                 "* @brief  " my:skeleton-description > n
-                 "*" > n
-                 "* @date   Created       : " (format-time-string "%Y-%m-%d %H:%M:%S") > n
-                 "*         Last Modified :" > n
-                 "* @author " my:skeleton-author " <" my:skeleton-mail-address ">" > n
-                 "*" > n
-                 "*    (C) " (format-time-string "%Y") " " my:skeleton-author > n
-                 "*/" > n
-                 n
-                 "#ifndef " my:skeleton-include-guard n
-                 "#define " my:skeleton-include-guard n
-                 my:skeleton-include n
-                 my:skeleton-namespace-decl n
-                 n
-                 "class " my:skeleton-namespace-class my:skeleton-inheritance " {" n
-                 "public:" > n
-                 my:skeleton-class-name "();" n
-                 "virtual ~" my:skeleton-class-name "();" n
-                 n
-                 my:skeleton-class-name "(const " my:skeleton-class-name "& rhs);" n
-                 my:skeleton-class-name "& operator=(const " my:skeleton-class-name "& rhs);" n
-                 n
-                 "protected:" > n
-                 n
-                 "private:" > n
-                 n
-                 "ClassDef(" my:skeleton-class-name ",1) // " my:skeleton-description n
-                 "};" > n
-                 n
-                 "#endif // " my:skeleton-include-guard n
-                 '(delete-trailing-whitespace)
-                 )
-                )
-              auto-insert-alist))
+        (setq auto-insert-alist
+              (append '(
+                        (("\\.org$" . "org header")
+                         nil
+                         "#+HTML_HEAD: <link rel=\"stylesheet\" href=\"http://dakrone.github.io/org.css\" type=\"text/css\" />"
+                         _
+                         ))
+                      auto-insert-alist))
+        (setq auto-insert-alist
+              (append '(
+                        (("\\.h\\'" . "C/C++ header")
+                         nil
+                         '(c++-mode)
+                         '(setq my:skeleton-author (identity user-full-name))
+                         '(setq my:skeleton-mail-address (identity user-mail-address))
+                         '(setq my:skeleton-namespace (read-string "Namespace: " ""))
+                         '(setq my:skeleton-description (read-string "Short Description: " ""))
+                         '(setq my:skeleton-inherit (read-string "Inherits from (space separate for multiple inheritance): " ""))
+                         '(setq my:skeleton-inherit-list (split-string my:skeleton-inherit " " t))
+                         '(setq my:skeleton-inheritance (cond ((null my:skeleton-inherit-list)
+                                                               "")
+                                                              (t
+                                                                (setq my:skeleton-inheritance-concat "")
+                                                                (dolist (element my:skeleton-inherit-list)
+                                                                  (setq my:skeleton-inheritance-concat
+                                                                        (concat my:skeleton-inheritance-concat
+                                                                                "public " element ", ")))
+                                                                (setq my:skeleton-inheritance-concat
+                                                                      (concat " : "
+                                                                              my:skeleton-inheritance-concat))
+                                                                (eval (replace-regexp-in-string ", \\'" "" my:skeleton-inheritance-concat)))))
+                         '(setq my:skeleton-include (cond ((null my:skeleton-inherit-list)
+                                                           "")
+                                                          (t
+                                                            (setq my:skeleton-include "\n")
+                                                            (dolist (element my:skeleton-inherit-list)
+                                                              (setq my:skeleton-include
+                                                                    (concat my:skeleton-include
+                                                                            "#include \"" element ".h\"\n")))
+                                                            (eval my:skeleton-include))))
+                         '(setq my:skeleton-namespace-list (split-string my:skeleton-namespace "::"))
+                         '(setq my:skeleton-file-name (file-name-nondirectory (buffer-file-name)))
+                         '(setq my:skeleton-class-name (file-name-sans-extension my:skeleton-file-name))
+                         '(setq my:skeleton-namespace-class
+                                (cond ((string= my:skeleton-namespace "")
+                                       my:skeleton-class-name)
+                                      (t
+                                        (concat my:skeleton-namespace "::" my:skeleton-class-name)
+                                        )))
+                         '(setq my:skeleton-namespace-decl
+                                (cond ((string= my:skeleton-namespace "")
+                                       ""
+                                       )
+                                      (t
+                                        (setq my:skeleton-namespace-decl-pre "")
+                                        (setq my:skeleton-namespace-decl-post "")
+                                        (setq my:skeleton-namespace-decl-indent "")
+                                        (dolist (namespace-element my:skeleton-namespace-list)
+                                          (setq my:skeleton-namespace-decl-pre
+                                                (concat my:skeleton-namespace-decl-pre
+                                                        my:skeleton-namespace-decl-indent
+                                                        "namespace " namespace-element " {\n"))
+                                          (setq my:skeleton-namespace-decl-post
+                                                (concat "\n"
+                                                        my:skeleton-namespace-decl-indent
+                                                        "}"
+                                                        my:skeleton-namespace-decl-post))
+                                          (setq my:skeleton-namespace-decl-indent
+                                                (concat my:skeleton-namespace-decl-indent "   "))
+                                          )
+                                        (eval (concat my:skeleton-namespace-decl-pre
+                                                      my:skeleton-namespace-decl-indent
+                                                      "class " my:skeleton-class-name ";"
+                                                      my:skeleton-namespace-decl-post))
+                                        )))
+                         '(random t)
+                         '(setq my:skeleton-include-guard
+                                (upcase
+                                  (format "INCLUDE_GUARD_UUID_%04x%04x_%04x_4%03x_%04x_%06x%06x"
+                                          (random (expt 16 4))
+                                          (random (expt 16 4))
+                                          (random (expt 16 4))
+                                          (random (expt 16 3))
+                                          (+ (random (expt 2 14)) (expt 2 5))
+                                          (random (expt 16 6))
+                                          (random (expt 16 6)))))
+                         "/**" n
+                         "* @file   " my:skeleton-file-name > n
+                         "* @brief  " my:skeleton-description > n
+                         "*" > n
+                         "* @date   Created       : " (format-time-string "%Y-%m-%d %H:%M:%S") > n
+                         "*         Last Modified :" > n
+                         "* @author " my:skeleton-author " <" my:skeleton-mail-address ">" > n
+                         "*" > n
+                         "*    (C) " (format-time-string "%Y") " " my:skeleton-author > n
+                         "*/" > n
+                         n
+                         "#ifndef " my:skeleton-include-guard n
+                         "#define " my:skeleton-include-guard n
+                         my:skeleton-include n
+                         my:skeleton-namespace-decl n
+                         n
+                         "class " my:skeleton-namespace-class my:skeleton-inheritance " {" n
+                         "public:" > n
+                         my:skeleton-class-name "();" n
+                         "virtual ~" my:skeleton-class-name "();" n
+                         n
+                         my:skeleton-class-name "(const " my:skeleton-class-name "& rhs);" n
+                         my:skeleton-class-name "& operator=(const " my:skeleton-class-name "& rhs);" n
+                         n
+                         "protected:" > n
+                         n
+                         "private:" > n
+                         n
+                         "ClassDef(" my:skeleton-class-name ",1) // " my:skeleton-description n
+                         "};" > n
+                         n
+                         "#endif // " my:skeleton-include-guard n
+                         '(delete-trailing-whitespace)
+                         )
+                        )
+                      auto-insert-alist))
 
-(provide 'init-languages)
-;;; init-languages.el ends here
+        (provide 'init-languages)
+        ;;; init-languages.el ends here

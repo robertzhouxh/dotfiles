@@ -1,13 +1,9 @@
-;;; init-maps.el -- Provide global key maps
-
-;;; Commentary:
-;;; Provide global maps that aren't specific to any mode or package.
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	Usefule global key bind
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ;; C-x C-+ or C-x-+ 字体放大
 ;; C-x C--  字体缩小
-
-;; Automatically save all file-visiting buffers when Emacs loses focus.
-(add-hook 'focus-out-hook 'save-all)
 
 ;;; Code:
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
@@ -40,6 +36,9 @@
 
 (global-set-key (kbd "C-]") 'helm-gtags-find-tag)
 (global-set-key (kbd "C-t") 'helm-gtags-pop-stack)
+
+
+(global-set-key (kbd "M-@") 'pkg-mark-word)
 
 
 ;;(global-set-key (kbd "C-t") 'x/hydra-window)

@@ -8,17 +8,16 @@
     "."  'avy-goto-char-2
     ","  'other-window
     ":"  'eval-expression
+    "/"  'delete-trailing-whitespace
     "aa" 'align-regexp
     "a=" 'my-align-single-equals
     "b"  'ido-switch-buffer
-    "B"  'magit-blame-toggle
     "c"  'comment-dwim
     "d"  'kill-this-buffer
     "D"  'delete-window
     "E"  'sudo-edit-current-file
     "f"  'ido-find-file
     "g"  'magit-status
-    "hb" 'fontify-and-browse    ;; HTML-ize the buffer and browse the result
     "hs" 'helm-projectile-ag
     "hp" 'helm-projectile
     "hd" 'helm-dash-at-point
@@ -44,13 +43,12 @@
     ;"ru" 'cider-user-ns
     ;"rn" 'cider-repl-set-ns
     ;"rx" 'cider-eval-last-sexp
-    ;"R"  (lambda () (interactive) (font-lock-fontify-buffer) (redraw-display))
-    "/"  'delete-trailing-whitespace
+    "R"  'reload-init-file
     "t"  'gtags-reindex
-    "T"  'gtags-find-tag
-    "w"  'save-buffer
+    "wn" 'next-multiframe-window
+    "wp" 'previous-multiframe-window
+    "ws" 'save-all
     "x"  'helm-M-x
-    "y"  'yank-to-x-clipboard
     ))
 
 (use-package evil

@@ -7,16 +7,16 @@
              :ensure t)
 (use-package exec-path-from-shell
              :ensure t
-             :if (memq window-system '(mac ns))
-             ;:if (x/system-is-mac)
+             ;;:if (memq window-system '(mac ns))
+             :if (x/system-is-mac)
              :config
              (exec-path-from-shell-initialize)
              (exec-path-from-shell-copy-env "GOROOT")
              (exec-path-from-shell-copy-env "GOPATH")
-             (exec-path-from-shell-copy-env "NPMBIN")
-             (exec-path-from-shell-copy-env "LC_ALL")
-             (exec-path-from-shell-copy-env "LANG")
-             (exec-path-from-shell-copy-env "LC_TYPE"))
+             ;;(exec-path-from-shell-copy-env "LC_ALL")
+             ;;(exec-path-from-shell-copy-env "LANG")
+             ;;(exec-path-from-shell-copy-env "LC_TYPE")
+             )
 
 (use-package which-key
              :ensure t
@@ -27,52 +27,72 @@
                ;; for emacs 26+
                (which-key-setup-side-window-right)
                (which-key-mode 1)))
-(use-package helm-descbinds
-             :ensure t
-             :init (helm-descbinds-mode))
+
 (use-package json-reformat :ensure t :defer t)
+
 (use-package rainbow-mode
              :ensure t
              :defer t
              :commands rainbow-mode)
+
 (use-package rainbow-delimiters
              :defer t
              :ensure t
              :init
              (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+
 (use-package hydra
              :ensure t
              :config
              (setq hydra-verbose nil))
+
 (use-package comment-dwim-2 :ensure t)
+
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; Emacs framework for incremental completions and narrowing selections
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;(use-package helm-gtags)
+(use-package helm-descbinds
+             :ensure t
+             :init (helm-descbinds-mode))
+(use-package helm-swoop :ensure t)
 (use-package helm
              :ensure t
              :diminish helm-mode
-             :defer t
-             :commands helm-mode
-             :init (progn
-                     ;; for os-x add the line
-                     (setq helm-man-format-switches "%s")
-                     (require 'helm-config)
-                     (setq helm-split-window-default-side 'other)
-                     (setq helm-split-window-in-side-p t))
-             :config (progn
-                       (setq
-                         helm-move-to-line-cycle-in-source nil
-                         ;helm-split-window-default-side 'left
-                         ;helm-always-two-windows t
-                         helm-candidate-number-limit 200
-                         helm-M-x-requires-pattern 0
-                         helm-google-suggest-use-curl-p t
-                         )
-                       (helm-autoresize-mode 1)
-                       (define-key helm-map (kbd "C-j") 'helm-next-line)
-                       (define-key helm-map (kbd "C-k") 'helm-previous-line)))
-(use-package highlight-symbol
-             :defer t
-             :ensure t
+             :init
+             (progn
+               (setq helm-candidate-number-limit 100)
+               (setq helm-idle-delay 0.0 ; update fast sources immediately (doesn't).
+                     helm-input-idle-delay 0.01  ; this actually updates things
+                     ; reeeelatively quickly.
+                     helm-yas-display-key-on-candidate t
+                     helm-quick-update t
+                     helm-M-x-requires-pattern nil
+                     helm-ff-skip-boring-files t)
+               (helm-mode))
              :config
-             (setq-default highlight-symbol-idle-delay 1.5))
+             (progn
+               (define-key helm-map (kbd "C-j") 'helm-next-line)
+               (define-key helm-map (kbd "C-k") 'helm-previous-line))
+             :bind  (("C-i" . helm-swoop)
+                     ("C-x C-f" . helm-find-files)
+                     ("C-x b" . helm-buffers-list)
+                     ("M-y" . helm-show-kill-ring)
+                     ("M-x" . helm-M-x)))
+
+; Highlight symbols
+(use-package symbol-overlay
+             :ensure t
+             :bind (:map symbol-overlay-mode-map
+                         ("M-h" . symbol-overlay-put)
+                         ("M-n" . symbol-overlay-jump-next)
+                         ("M-p" . symbol-overlay-jump-prev))
+             :hook ((conf-mode . symbol-overlay-mode)
+                    (html-mode . symbol-overlay-mode)
+                    (prog-mode . symbol-overlay-mode)
+                    (yaml-mode . symbol-overlay-mode)))
+
 (use-package flycheck
              :ensure t
              :defer t
@@ -90,6 +110,7 @@
              (flycheck-add-mode 'javascript-eslint 'js-mode)
              ;; To verify just do C-h v flycheck-eslintrc
              (setq flycheck-eslintrc "~/.eslintrc"))
+
 (use-package ag
              :ensure t
              :defer t
@@ -100,6 +121,7 @@
                (bind-key "p" 'compilation-previous-error ag-mode-map)
                (bind-key "N" 'compilation-next-file ag-mode-map)
                (bind-key "P" 'compilation-previous-file ag-mode-map)))
+
 (use-package helm-ag
              :ensure t
              :defer t
@@ -107,6 +129,7 @@
              (setq helm-ag-base-command "ag --nocolor --nogroup --ignore-case"
                    helm-ag-command-option "--all-text"
                    helm-ag-insert-at-point 'symbol))
+
 (use-package yasnippet
              :ensure t
              :defer t
@@ -118,6 +141,7 @@
                (add-to-list 'yas-snippet-dirs (concat user-emacs-directory "snippets"))
                ;; refer https://github.com/AndreaCrotti/yasnippet-snippets
                ))
+
 (use-package hippie-exp-ext
              :ensure t
              :defer t
@@ -130,6 +154,7 @@
                       try-expand-dabbrev-from-kill))
              :bind
              ("M-/" . hippie-expand))
+
 (use-package magit
              :ensure t
              :defer t
@@ -176,13 +201,7 @@
                (set-face-foreground 'git-gutter:deleted "#FA8072")
                (set-face-foreground 'git-gutter:modified "#b18cce")
                ))
-;; (use-package projectile
-;;              :defer t
-;;              :ensure t
-;;              :diminish projectile-mode
-;;              :config
-;;              (projectile-global-mode)
-;;              (setq projectile-enable-caching t))
+
 (use-package projectile
              :commands (projectile-ack
                          projectile-ag
@@ -214,6 +233,7 @@
              :defer t
              :commands (helm-projectile helm-projectile-switch-project)
              :ensure t)
+
 (use-package company
              :ensure t
              :diminish 'company-mode
@@ -226,6 +246,7 @@
              (define-key company-active-map [tab] 'company-complete)
              (define-key company-active-map (kbd "C-j") 'company-select-next)
              (define-key company-active-map (kbd "C-k") 'company-select-previous))
+
 (use-package paredit
              :ensure t
              :diminish paredit-mode
@@ -233,7 +254,9 @@
              (add-hook 'erlang-mode-hook 'paredit-mode)
              (add-hook 'go-mode-hook 'paredit-mode)
              (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
+
 (use-package swiper :ensure t :bind (("C-s" . swiper)))
+
 (use-package key-chord
              :ensure t
              :config
@@ -244,7 +267,7 @@
                (key-chord-define-global "jz" 'magit-dispatch-popup)
                (key-chord-define-global "kb" 'gh/kill-current-buffer)
                (key-chord-mode 1)))
-(use-package logview :ensure t)
+
 (use-package hydra :ensure t)
 (use-package eshell
              :ensure t
@@ -280,12 +303,14 @@
              (setq eshell-highlight-prompt nil)
              (setq eshell-prompt-regexp "^[^#$\n]+[#$] ")
              (setq eshell-cmpl-cycle-completions nil))
+
 (use-package tramp
              :ensure t
              :defer t
              :config
              (setq tramp-default-method "ssh"
                    tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
+
 ;; --------------------------------------------------------------------
 ;; jump to definations
 ;; --------------------------------------------------------------------
