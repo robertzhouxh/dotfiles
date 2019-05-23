@@ -26,7 +26,7 @@
 (global-hl-line-mode nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
-(toggle-frame-fullscreen)
+;;(toggle-frame-fullscreen)
 
 ;; file edit settings
 (setq
