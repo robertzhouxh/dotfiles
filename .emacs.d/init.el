@@ -2,19 +2,44 @@
 ;;; Commentary:
 ;;; Code:
 
-;; === SETUP ===
-(require 'package) ;; You might already have this line
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	Setup pkg repo and install use-package
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(require 'package)
+(setq package-enable-at-startup nil)
+;;(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+;;                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
+;;                         ("marmalade" . "http://marmalade-repo.org/packages/")))
 
+(unless (assoc-default "melpa" package-archives)
+  (add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/") t))
+(unless (assoc-default "org" package-archives)
+  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t))
+(unless (assoc-default "marmalade" package-archives)
+  (add-to-list 'package-archives '("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+(setq package-pinned-packages '((gtags . "marmalade")))
+(package-initialize)
+
+;;; auto install use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+(setq use-package-verbose t)
+(setq use-package-always-ensure t)
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	setup the load path
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (defvar vendor-dir (expand-file-name "vendor" user-emacs-directory))
-(defvar backup-dir "~/.emacs.d/backups/")
+(defvar lisp-dir (expand-file-name "lisp" user-emacs-directory))
 
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(add-to-list 'load-path lisp-dir)
 (add-to-list 'load-path vendor-dir)
-(add-to-list 'exec-path "/usr/local/bin")
-(add-to-list 'exec-path "/usr/bin")
 
-(let ((files (directory-files-and-attributes "~/.emacs.d/lisp" t)))
+(let ((files (directory-files-and-attributes vendor-dir t)))
   (dolist (file files)
     (let ((filename (car file))
           (dir (nth 1 file)))
@@ -25,32 +50,12 @@
 (let ((default-directory "/usr/local/share/emacs/site-lisp/"))
   (normal-top-level-add-subdirs-to-load-path))
 
-;;; Standard package repositories
-;;(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-;;                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
-;;                         ("marmalade" . "http://marmalade-repo.org/packages/")))
-(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-                         ("marmalade" . "http://marmalade-repo.org/packages/")))
-(setq package-pinned-packages '((gtags . "marmalade")))
-
-(package-initialize) ;; You might already have this line
-
+;; proxy?
 ;(setq url-proxy-services `(("http" . "127.0.0.1:8123")
 ;                           ("https" . "127.0.0.1:8123")))
-
-;;; auto install use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-;; (setq use-package-always-ensure t)
-(setq package-enable-at-startup nil)
-
-(eval-when-compile
-  (require 'use-package))
-
-;;; My own configurations, which are bundled in my dotfiles.
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	load my own configurations
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (require 'init-bootstrap)
 (require 'init-utils)
 (require 'init-plantform)

@@ -78,12 +78,13 @@
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
 (require 'ob)
+(require 'ob-shell)
 (org-babel-do-load-languages
  'org-babel-load-languages
  '(
    (emacs-lisp . t)
    (org . t)
-   ;(sh . t)
+   (shell . t)
    (C . t)
    (python . t)
    (awk . t)

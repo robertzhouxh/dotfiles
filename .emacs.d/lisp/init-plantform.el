@@ -3,9 +3,6 @@
 ;;; ;;; Code:
 
 (when (system-is-mac)
-  ;; refer to: http://azaleasays.com/2013/07/05/setting-up-mac-os-x-and-iterm2-for-emacs/
-  ;; Switch the Cmd and Meta keys
-  ;; On  I use ⌘ as meta and prefer ⌥ to do nothing 
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none)
 
@@ -19,23 +16,17 @@
       (setq dired-listing-switches "-lFaGh1v --group-directories-first"))
     (setq dired-listing-switches "-ahlF"))
 
-  (defun copy-from-osx ()
-    "Handle copy/paste intelligently on osx."
-    (let ((pbpaste (purecopy "/usr/bin/pbpaste")))
-      (if (and (eq system-type 'darwin)
-               (file-exists-p pbpaste))
-        (let ((tramp-mode nil)
-              (default-directory "~"))
-          (shell-command-to-string pbpaste)))))
 
-  (defun paste-to-osx (text &optional push)
-    (let ((process-connection-type nil))
-      (let ((proc (start-process "pbcopy" "*Messages*" "/usr/bin/pbcopy")))
-        (process-send-string proc text)
-        (process-send-eof proc))))
-
-  (setq interprogram-cut-function 'paste-to-osx
-        interprogram-paste-function 'copy-from-osx)
+   ;; batter copy and paste support for mac os x
+   (defun copy-from-osx ()
+     (shell-command-to-string "pbpaste"))
+   (defun paste-to-osx (text &optional push)
+     (let ((process-connection-type nil))
+       (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+         (process-send-string proc text)
+         (process-send-eof proc))))
+   (setq interprogram-cut-function 'paste-to-osx)
+   (setq interprogram-paste-function 'copy-from-osx)
 
   ;; Trash.
   (defun move-file-to-trash (file)
