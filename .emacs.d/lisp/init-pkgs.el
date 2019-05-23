@@ -101,6 +101,7 @@
 ;; highlight symbol and search
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; 增量搜索匹配行, 类似于helm-occur，但会即时显示匹配的部分
+(use-package avy :ensure t :config (setq avy-background t))
 (use-package helm-swoop :ensure t)
 ;; substitue the default  C-s(isearch-forward)
 (use-package swiper :ensure t :bind (("C-s" . swiper)))
