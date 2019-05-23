@@ -27,21 +27,14 @@
 
 (global-set-key (kbd "M-p") 'hold-line-scroll-up )
 (global-set-key (kbd "M-n") 'hold-line-scroll-down )
-
 (global-set-key (kbd "M-y")   'async-shell-command)
 (global-set-key (kbd "M-g")   'goto-line)
 (global-set-key (kbd "C-h")     'backward-delete-char)
 (global-set-key (kbd "M-r")     'rename-file)
 (global-set-key (kbd "C-x s") 'save-all)
-
 (global-set-key (kbd "C-]") 'helm-gtags-find-tag)
 (global-set-key (kbd "C-t") 'helm-gtags-pop-stack)
-
-
 (global-set-key (kbd "M-@") 'pkg-mark-word)
-
-
-;;(global-set-key (kbd "C-t") 'x/hydra-window)
 
 ;; 如果用过 magit , 对 magit-status 下按 c 等出现的可选菜单应该有印象, hydra 正是把这个能力扩展了. hydra 也在快速进化变强,
 (global-set-key
@@ -85,6 +78,34 @@
             ("d" delete-region "del" :color blue)
             ("y" kill-ring-save "yank" :color blue)
             ("q" nil "quit")))
+
+
+
+(global-set-key
+  (kbd "C-M-i")
+  (defhydra hydra-vi
+            (:pre
+              (set-cursor-color "#e52b50")
+              :post
+              (set-cursor-color "#ffffff")
+              :color amaranth)
+              "
+              [_i_]ut       Jump to [_n_]ext        Search [_s_]iterally
+              [_t_]oggle            [_p_]revious     ...or [_q_]uery Replace
+              [_e_]cho              [_d_]efinition   ...or [_r_]ename
+              [_s_]ave
+              "
+              ("i" symbol-overlay-put)
+              ("n" symbol-overlay-jump-next)
+              ("p" symbol-overlay-jump-prev)
+              ("w" symbol-overlay-save-symbol)
+              ("t" symbol-overlay-toggle-in-scope)
+              ("e" symbol-overlay-echo-mark)
+              ("d" symbol-overlay-jump-to-definition)
+              ("s" symbol-overlay-isearch-literally)
+              ("q" symbol-overlay-query-replace)
+              ("r" symbol-overlay-rename)
+              ("q" nil "quit")))
 
 (provide 'init-maps)
 ;;; init-maps.el ends here

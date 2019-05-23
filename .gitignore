@@ -41,5 +41,5 @@ GPATH
 GTAGS
 GRTAGS
 get-pip.py
-
+.savehist
 .emacs.d/smex-items

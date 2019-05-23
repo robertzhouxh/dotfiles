@@ -399,16 +399,10 @@
 ;; ------------------------------
 ;; UI Schemes
 ;; ------------------------------
-(use-package darktooth-theme
-  :ensure t
-  :config
-;;  (load-theme 'darktooth t)
-)
-
 (use-package kaolin-themes
              :ensure t
              :config
-             ;;(load-theme 'kaolin-dark t)
+             (load-theme 'kaolin-dark t)
              (kaolin-treemacs-theme))
 
 (use-package all-the-icons :ensure t)
@@ -433,7 +427,7 @@
              (doom-modeline-set-modeline 'gs t)
              :hook (after-init . doom-modeline-init))
 
-(load-theme 'darktooth t)
 ;;(load-theme 'doom-molokai t)
+(load-theme 'doom-vibrant t)
 
 (provide 'init-pkgs)
