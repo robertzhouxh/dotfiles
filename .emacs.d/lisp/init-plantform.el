@@ -2,7 +2,7 @@
 ;;; ;;; Commentary:
 ;;; ;;; Code:
 
-(when (system-is-mac)
+(when (x/system-is-mac)
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none)
 
@@ -55,7 +55,7 @@
                     file))
       (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
-(when (system-is-linux)
+(when (x/system-is-linux)
   (defun yank-to-x-clipboard ()
     (interactive)
     (if (region-active-p)

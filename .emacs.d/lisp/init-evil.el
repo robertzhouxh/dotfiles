@@ -1,41 +1,34 @@
 ;;; init-evil.el -- My evil mode configuration.
 ;;; Commentary:
 ;;; Code:
-(defun air--config-evil-leader ()
+(defun x/config-evil-leader ()
   "Configure evil leader mode."
   (evil-leader/set-leader ",")
   (evil-leader/set-key
     "."  'avy-goto-char-2
-    ","  'other-window
     ":"  'eval-expression
     "/"  'delete-trailing-whitespace
-    "aa" 'align-regexp
-    "a=" 'my-align-single-equals
+    "A"  'align-regexp
     "b"  'ido-switch-buffer
     "c"  'comment-dwim
-    "d"  'kill-this-buffer
-    "D"  'delete-window
-    "E"  'sudo-edit-current-file
-    "f"  'ido-find-file
+    "dw" 'delete-window
+    "db" 'delete-buffer
+    "da" 'x/close-all-buffers
+    "e"  'x/eshell-here
+    "E"  'x/eshell-x
+    "Fn" 'next-multiframe-window
+    "Fp" 'previous-multiframe-window
     "g"  'magit-status
-    "hs" 'helm-projectile-ag
+    "ha" 'helm-projectile-ag
     "hp" 'helm-projectile
     "hd" 'helm-dash-at-point
     "hf" 'helm-find-files'
     "hm" 'helm-mini'
-    "j"  'json-reformat-region'
     "k"  'get-erl-man'
-    "l"  'whitespace-mode       ;; Show invisible characters
-    "m"  'eshell-here
-    "M"  'eshell-x
-    "nn" 'air-narrow-dwim       ;; Narrow to region and enter normal mode
-    "nw" 'widen
-    "o"  'delete-other-windows  ;; C-w o
-    "O"  'other-frame
+    "o"  'other-window
+    "O" 'other-frame
     "p"  'helm-show-kill-ring
     "P"  'projectile-find-file-other-window
-    "s"  'ag-project            ;; Ag search from project's root
-    "S"  'ag
     ;"rs" 'cider-start-http-server
     ;"rs" 'cider-jack-in
     ;"rr" 'cider-refresh
@@ -43,12 +36,12 @@
     ;"ru" 'cider-user-ns
     ;"rn" 'cider-repl-set-ns
     ;"rx" 'cider-eval-last-sexp
-    "R"  'reload-init-file
-    "t"  'gtags-reindex
-    "wn" 'next-multiframe-window
-    "wp" 'previous-multiframe-window
-    "ws" 'save-all
-    "x"  'helm-M-x
+    "r"  'x/open-init-file
+    "R" 'x/reload-init-file
+    "s" 'x/save-all
+    "t" 'gtags-reindex
+    "x" 'helm-M-x
+    "w" 'whitespace-mode          ;; Show invisible characters
     ))
 
 (use-package evil
@@ -85,7 +78,7 @@
                             :ensure t
                             :config
                             (global-evil-leader-mode)
-                            (air--config-evil-leader))
+                            (x/config-evil-leader))
                (use-package evil-visualstar
                             :ensure t
                             :bind (:map evil-visual-state-map
@@ -99,6 +92,6 @@
                               ;; `s' for surround instead of `substitute'
                               (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
                               (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)))
-               (air--apply-evil-other-package-configs)))
+               ))
 
 (provide 'init-evil)
