@@ -34,19 +34,14 @@ export GTAGSCONF=/usr/local/share/gtags/gtags.conf
 export GTAGSLABEL=ctags
 export LD_LIBRARY_PATH=/usr/local/lib
 
-if [ -d "$HOME/bin" ]; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-PATH="/usr/local/bin:$PATH"
-PATH="/usr/local/sbin:$PATH"
-PATH="/usr/bin:$PATH"
 # use Unix Style cmd for mac-osx
-
 if which brew &> /dev/null && brew list | grep coreutils > /dev/null; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 fi
 
+if [ -d "$HOME/bin" ]; then
+    PATH="$HOME/bin:$PATH"
+fi
 [ -d "/usr/texbin" ]               && PATH="/usr/texbin:$PATH"
 [ -d "/usr/local/share/npm/bin" ]  && PATH="/usr/local/share/npm/bin:$PATH"
 
@@ -71,5 +66,6 @@ export CPPFLAGS="-I/usr/local/opt/openssl/include/"
 
 # use gnu make as the default make tool
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
+PATH="/Applications/Emacs.app/Contents/MacOS:$PATH"
 # homebrew no update
 export HOMEBREW_NO_AUTO_UPDATE=1
