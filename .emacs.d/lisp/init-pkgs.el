@@ -357,7 +357,7 @@
 ;; scheme-2
 ;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
 ;; gtags --gtagslabel=pygments --debug
-(use-package gtags :ensure t)
+;;(use-package gtags :ensure t)
 (use-package bpr :ensure t)
 ;; Bind some useful keys in the gtags select buffer that evil overrides.
 (add-hook 'gtags-select-mode-hook
