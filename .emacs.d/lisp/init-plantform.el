@@ -13,12 +13,12 @@
                       :weight 'medium
                       :width 'medium)
 
-  (if (display-graphic-p)
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font)
-                        charset (font-spec :family "Microsoft Yahei"
-                                           :size 14)))
-    )
+  ;(if (display-graphic-p)
+  ;  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+  ;    (set-fontset-font (frame-parameter nil 'font)
+  ;                      charset (font-spec :family "Microsoft Yahei"
+  ;                                         :size 14)))
+  ;  )
 
   ;; Better copy and paste support for mac os x
   (defun copy-from-osx ()

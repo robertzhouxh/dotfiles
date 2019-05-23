@@ -5,15 +5,14 @@
   "Configure evil leader mode."
   (evil-leader/set-leader ",")
   (evil-leader/set-key
-    "."  'avy-goto-char-2
+    ","  'avy-goto-char-2
     ":"  'eval-expression
     "/"  'delete-trailing-whitespace
     "A"  'align-regexp
     "b"  'ido-switch-buffer
     "c"  'comment-dwim
-    "dw" 'delete-window
-    "db" 'delete-buffer
-    "da" 'x/close-all-buffers
+    "d"  'kill-this-buffer
+    "D"  'kill-buffer-and-window
     "e"  'x/eshell-here
     "E"  'x/eshell-x
     "Fn" 'next-multiframe-window
