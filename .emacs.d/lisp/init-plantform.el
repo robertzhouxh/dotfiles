@@ -6,12 +6,13 @@
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none)
 
+  (set-face-attribute 'default nil :height 140)
   ;;coding font for english and chinese
-  (set-face-attribute 'default nil
-                      :family "Source Code Pro for Powerline"
-                      :height 140
-                      :weight 'medium
-                      :width 'medium)
+  ;(set-face-attribute 'default nil
+  ;                    :family "Source Code Pro for Powerline"
+  ;                    :height 140
+  ;                    :weight 'medium
+  ;                    :width 'medium)
 
   ;(if (display-graphic-p)
   ;  (dolist (charset '(kana han symbol cjk-misc bopomofo))

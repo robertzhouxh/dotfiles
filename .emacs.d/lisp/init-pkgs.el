@@ -353,6 +353,7 @@
   :hook (after-init . doom-modeline-init))
 
 ;;(load-theme 'doom-molokai t)
-(load-theme 'doom-vibrant t)
+;;(load-theme 'doom-vibrant t)
+(load-theme 'wombat t)
 
 (provide 'init-pkgs)

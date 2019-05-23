@@ -9,24 +9,23 @@
     ":"  'eval-expression
     "/"  'delete-trailing-whitespace
     "A"  'align-regexp
-    "b"  'ido-switch-buffer
     "c"  'comment-dwim
     "d"  'kill-this-buffer
     "D"  'kill-buffer-and-window
     "e"  'x/eshell-here
     "E"  'x/eshell-x
-    "Fn" 'next-multiframe-window
-    "Fp" 'previous-multiframe-window
+    "f"  'other-frame
     "g"  'magit-status
-    "ha" 'helm-projectile-ag
+    "hs" 'helm-projectile-ag
+    "hb" 'ido-switch-buffer
     "hp" 'helm-projectile
     "hd" 'helm-dash-at-point
     "hf" 'helm-find-files'
-    "hm" 'helm-mini'
-    "k"  'get-erl-man'
+    "hm" 'helm-mini
+    "hk" 'helm-show-kill-ring
+    "k"  'get-erl-man
     "o"  'other-window
-    "O" 'other-frame
-    "p"  'helm-show-kill-ring
+    "O"  'delete-other-windows
     "P"  'projectile-find-file-other-window
     ;"rs" 'cider-start-http-server
     ;"rs" 'cider-jack-in
