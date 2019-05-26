@@ -55,7 +55,6 @@
              (evil-mode 1)
              (progn
                (define-key evil-motion-state-map "/" 'swiper)
-               (define-key evil-insert-state-map (kbd "j") 'bw-evil-escape-if-next-char-is-j)
                ;; esc should always quit: http://stackoverflow.com/a/10166400/61435
                (define-key evil-normal-state-map [escape] 'keyboard-quit)
                (define-key evil-visual-state-map [escape] 'keyboard-quit)
