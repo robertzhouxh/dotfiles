@@ -16,11 +16,11 @@
     "E"  'x/eshell-x
     "f"  'other-frame
     "g"  'magit-status
-    "hs" 'helm-projectile-ag
     "hb" 'ido-switch-buffer
+    "hf" 'helm-find-files'
+    "hs" 'helm-projectile-ag
     "hp" 'helm-projectile
     "hd" 'helm-dash-at-point
-    "hf" 'helm-find-files'
     "hm" 'helm-mini
     "hk" 'helm-show-kill-ring
     "k"  'get-erl-man

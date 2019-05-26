@@ -107,13 +107,14 @@
 (use-package swiper :ensure t :bind (("C-s" . swiper)))
 (use-package symbol-overlay
   :ensure t
-  :bind (:map symbol-overlay-mode-map
-	      ("M-h" . symbol-overlay-put)
-	      ("M-n" . symbol-overlay-jump-next)
-	      ("M-p" . symbol-overlay-jump-prev))
+;  :bind (:map symbol-overlay-mode-map
+;	      ("M-h" . symbol-overlay-put)
+;	      ("M-n" . symbol-overlay-jump-next)
+;	      ("M-p" . symbol-overlay-jump-prev))
   :hook ((conf-mode . symbol-overlay-mode)
 	 (html-mode . symbol-overlay-mode)
 	 (prog-mode . symbol-overlay-mode)
+	 (org-mode . symbol-overlay-mode)
 	 (yaml-mode . symbol-overlay-mode)))
 (use-package ag
   :ensure t
@@ -351,6 +352,13 @@
     '(major-mode buffer-encoding vcs checker))
   (doom-modeline-set-modeline 'gs t)
   :hook (after-init . doom-modeline-init))
+
+(use-package birds-of-paradise-plus-theme :ensure t :defer t)
+(use-package plain-theme :ensure t :defer t)
+(use-package spacemacs-theme :ensure t :defer t)
+(use-package tao-theme :ensure t :defer t)
+(use-package dracula-theme :ensure t :defer t)
+(use-package plan9-theme :ensure t :defer t)
 
 ;;(load-theme 'doom-molokai t)
 ;;(load-theme 'doom-vibrant t)

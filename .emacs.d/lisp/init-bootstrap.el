@@ -35,19 +35,18 @@
   tab-width 4
   default-fill-column 80
   default-directory "~/"
+  select-enable-clipboard t
   inhibit-splash-screen t
   initial-scratch-message nil
   sentence-end-double-space nil
   ring-bell-function 'ignore
   create-lockfiles nil
-  make-backup-files nil
   indent-tabs-mode nil
   make-backup-files nil
-  select-enable-clipboard t
-  auto-save-default t)
-
-(setq-default auto-save-timeout 15) ; 15秒无动作,自动保存
-(setq-default auto-save-interval 100) ; 100个字符间隔, 自动保存
+  auto-save-default nil
+  create-lockfiles nil
+  gc-cons-threshold (* 50 1000 1000)
+  )
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;	setup history of edited file
@@ -61,6 +60,17 @@
       '(kill-ring
         search-ring
 regexp-search-ring))
+
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;fix Tramp mode is much slower than using terminal to ssh
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(setq remote-file-name-inhibit-cache nil)
+(setq vc-ignore-dir-regexp
+         (format "%s\\|%s"
+                       vc-ignore-dir-regexp
+                       tramp-file-name-regexp))
+(setq tramp-verbose 1)
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;; essential libs
