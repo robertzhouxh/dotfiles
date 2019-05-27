@@ -186,4 +186,4 @@ alias det="docker container run -it --rm -v ~/.emacs.d:/root/.emacs.d silex/emac
 alias dew="docker container run -it --rm  -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v ~/.emacs.d:/root/.emacs.d silex/emacs:26.2-alpine"
 alias dcs="docker container stop $(docker ps -a | grep Exited | awk '{print $1 }')"
 alias dcr="docker container rm $(docker ps -a | grep Exited | awk '{print $1 }')"
-alias dir="docker image rmi $(docker images | grep none | awk '{print $3}')"
+alias dirm="docker image rmi $(docker images | grep none | awk '{print $3}')"
