@@ -157,6 +157,7 @@
              :ensure t
              :after go-mode
              :config
+             (setq company-go-gocode-command "/Users/xier/go-workspace/bin/gocode")
              (add-hook 'go-mode-hook 'company-mode)
              (add-hook 'go-mode-hook (lambda ()
                                        (set (make-local-variable 'company-backends) '(company-go))

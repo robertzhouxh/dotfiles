@@ -134,55 +134,41 @@
 	helm-ag-command-option "--all-text"
 	helm-ag-insert-at-point 'symbol))
 
+;(use-package golden-ratio
+;  :ensure t
+;  :diminish golden-ratio-mode
+;  :init
+;  (golden-ratio-mode 1))
+
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; version control
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 (use-package magit
   :ensure t
   :defer t
-  :init
-  (setq magit-popup-show-common-commands nil)
-  (setq magit-log-arguments '("--graph"
-			      "--decorate"
-			      "--color"))
-  :config
+  :config 
   (progn
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))
+    (setq magit-branch-prefer-remote-upstream '("master"))
+    (setq magit-branch-adjust-remote-upstream-alist '(("origin/master" "master")))
+    (setq magit-branch-arguments nil)))
 
-    (defun magit-quit-session ()
-      "Restores the previous window configuration and kills the magit buffer"
-      (interactive)
-      (kill-buffer)
-      (jump-to-register :magit-fullscreen))
-
-    (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-
-  ;; removes 1.4.0 warning in arguably cleaner way
-  (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
-  (defadvice magit-blame-mode (after switch-to-emacs-state activate)
-    (if magit-blame-mode
-	(evil-emacs-state 1)
-      (evil-normal-state 1))))
-
-(use-package git-gutter
-  :ensure t
-  :diminish git-gutter+-mode
-  :defer t
-  :init
-  (global-git-gutter-mode t)
-  :config
-  (progn
-    (setq git-gutter:window-width 2)
-    (setq git-gutter:modified-sign "==")
-    (setq git-gutter:added-sign "++")
-    (setq git-gutter:deleted-sign "--")
-    (set-face-foreground 'git-gutter:added "#daefa3")
-    (set-face-foreground 'git-gutter:deleted "#FA8072")
-    (set-face-foreground 'git-gutter:modified "#b18cce")
-    ))
+;(use-package git-gutter
+;  :ensure t
+;  :diminish git-gutter+-mode
+;  :defer t
+;  :init
+;  (global-git-gutter-mode t)
+;  :config
+;  (progn
+;    (setq git-gutter:window-width 2)
+;    (setq git-gutter:modified-sign "==")
+;    (setq git-gutter:added-sign "++")
+;    (setq git-gutter:deleted-sign "--")
+;    (set-face-foreground 'git-gutter:added "#daefa3")
+;    (set-face-foreground 'git-gutter:deleted "#FA8072")
+;    (set-face-foreground 'git-gutter:modified "#b18cce")
+;    ))
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;  以项目为单位的一些实用功能, Projectile 可以与 Helm 集成

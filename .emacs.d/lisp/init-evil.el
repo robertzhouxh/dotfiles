@@ -5,9 +5,10 @@
   "Configure evil leader mode."
   (evil-leader/set-leader ",")
   (evil-leader/set-key
-    ","  'avy-goto-char-2
+    "#"  'server-edit
+    ","  'other-window
+    "."  'mode-line-other-buffer
     ":"  'eval-expression
-    "/"  'delete-trailing-whitespace
     "A"  'align-regexp
     "c"  'comment-dwim
     "d"  'kill-this-buffer
@@ -16,15 +17,21 @@
     "E"  'x/eshell-x
     "f"  'other-frame
     "g"  'magit-status
+    "G"  'magit-dispatch-popup
     "hb" 'ido-switch-buffer
-    "hf" 'helm-find-files'
+    "hf" 'helm-find-files
     "hs" 'helm-projectile-ag
     "hp" 'helm-projectile
     "hd" 'helm-dash-at-point
     "hm" 'helm-mini
     "hk" 'helm-show-kill-ring
     "k"  'get-erl-man
-    "o"  'other-window
+    "oi" 'org-clock-in
+    "oo" 'org-clock-out
+    "oo" 'org-clock-out
+    "os" 'org-schedule
+    "od" 'org-deadline
+    "or" 'org-clock-report
     "O"  'delete-other-windows
     "P"  'projectile-find-file-other-window
     ;"rs" 'cider-start-http-server
@@ -37,6 +44,7 @@
     "r"  'x/open-init-file
     "R" 'x/reload-init-file
     "s" 'x/save-all
+    "S" 'delete-trailing-whitespace
     "t" 'gtags-reindex
     "x" 'helm-M-x
     "w" 'whitespace-mode          ;; Show invisible characters
