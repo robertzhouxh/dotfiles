@@ -1,7 +1,9 @@
 ;;; init-languages.el --- Set up programming languages
 ;;; Commentary:
 
-
+;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; helm-dash-install-docset ===> GO, Erlang, Mongodb, Redis,...
+;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package helm-dash
              :config
              (progn
