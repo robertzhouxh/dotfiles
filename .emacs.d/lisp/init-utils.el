@@ -170,25 +170,4 @@ directory to make multiple eshell windows easier."
     (previous-line 2)
     (org-edit-src-code)))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;	Terminal Notifier For Emacs
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(defvar terminal-notifier-path
-  "/usr/local/bin/terminal-notifier")
-
-(defun pkg-send-notification (msg title)
-  "Send notification, MSG and TITLE."
-  (shell-command (concat terminal-notifier-path
-                         " -title " title
-                         " -message " msg))
-  )
-
-(run-at-time
-  "30 min"
-  3600
-  '(lambda ()
-     (pkg-send-notification "'注意休息，已经持续工作半小时！'" "'🚀🚀🚀 Pay Attention!!!'")
-     ))
-
 (provide 'init-utils)
-;;; init-utils.el ends here

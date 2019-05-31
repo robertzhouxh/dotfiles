@@ -1,39 +1,16 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;	Usefule global key bind
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-;; C-x C-+ or C-x-+ 字体放大
-;; C-x C--  字体缩小
-
-;;; window
-(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
-(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
-(global-set-key [M-left] 'shrink-window-horizontally)
-(global-set-key [M-right] 'enlarge-window-horizontally)
-(global-set-key [M-up] 'shrink-window)
-(global-set-key [M-down] 'enlarge-window)
-(global-set-key (kbd "C-c <left>")  'windmove-left)
-(global-set-key (kbd "C-c <right>") 'windmove-right)
-(global-set-key (kbd "C-c <up>")    'windmove-up)
-(global-set-key (kbd "C-c <down>")  'windmove-down)
-
-;; find defination  
-(global-set-key (kbd "M-,") 'godef-jump)
-(global-set-key (kbd "M-'") 'pop-tag-mark)
-
-(global-set-key (kbd "M-]") 'dumb-jump-go)
-(global-set-key (kbd "M-t") 'dumb-jump-back)
-
-(global-set-key (kbd "C-]") 'helm-gtags-find-tag)
-(global-set-key (kbd "C-t") 'helm-gtags-pop-stack)
-
-(global-set-key (kbd "M-p") 'hold-line-scroll-up )
-(global-set-key (kbd "M-n") 'hold-line-scroll-down )
-
-(global-set-key (kbd "M-@") 'pkg-mark-word)
-
-;; do shell command
-(global-set-key (kbd "M-y")   'async-shell-command)
+(use-package key-chord
+             :ensure t
+             :config
+             (progn
+               (key-chord-define-global "jb" 'ibuffer)
+               (key-chord-define-global "j0" 'delete-window)
+               (key-chord-define-global "j1" 'delete-other-windows)
+               (key-chord-define-global "jz" 'magit-dispatch-popup)
+               (key-chord-define-global "kb" 'gh/kill-current-buffer)
+               (key-chord-mode 1)))
 
 (use-package hydra :ensure t)
 ;; 如果用过 magit , 对 magit-status 下按 c 等出现的可选菜单应该有印象, hydra 正是把这个能力扩展了. hydra 也在快速进化变强,
@@ -107,16 +84,33 @@
               ("r" symbol-overlay-rename)
               ("q" nil "quit")))
 
-(use-package key-chord
-             :ensure t
-             :config
-             (progn
-               (key-chord-define-global "jb" 'ibuffer)
-               (key-chord-define-global "j0" 'delete-window)
-               (key-chord-define-global "j1" 'delete-other-windows)
-               (key-chord-define-global "jz" 'magit-dispatch-popup)
-               (key-chord-define-global "kb" 'gh/kill-current-buffer)
-               (key-chord-mode 1)))
+;;; window
+
+(eval-after-load "evil-maps"
+                 (dolist (map '(evil-normal-state-map
+                                evil-motion-state-map
+                                evil-insert-state-map
+                                evil-emacs-state-map))
+                   (define-key (eval map) "\C-t" nil)
+                   (define-key (eval map) "\C-]" nil)))
+
+(global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
+(global-set-key (kbd "C-t") 'gtags-pop-stack)
+(global-set-key (kbd "M-.") 'godef-jump)
+(global-set-key (kbd "M-'") 'pop-tag-mark)
+(global-set-key (kbd "M-]") 'dumb-jump-go)
+(global-set-key (kbd "M-t") 'dumb-jump-back)
+(global-set-key (kbd "M-p") 'hold-line-scroll-up )
+(global-set-key (kbd "M-n") 'hold-line-scroll-down )
+(global-set-key (kbd "M-@") 'pkg-mark-word)
+(global-set-key (kbd "M-y") 'async-shell-command)
+(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
+(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
+(global-set-key [M-left] 'shrink-window-horizontally)
+(global-set-key [M-right] 'enlarge-window-horizontally)
+(global-set-key [M-up] 'shrink-window)
+(global-set-key [M-down] 'enlarge-window)
+
 
 (provide 'init-maps)
 ;;; init-maps.el ends here

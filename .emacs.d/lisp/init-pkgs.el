@@ -69,7 +69,6 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Emacs framework for incremental completions and narrowing selections
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;(use-package helm-gtags)
 (use-package helm-descbinds
   :ensure t
   :init (helm-descbinds-mode))
@@ -147,7 +146,7 @@
 (use-package magit
   :ensure t
   :defer t
-  :config 
+  :config
   (progn
     (setq magit-branch-prefer-remote-upstream '("master"))
     (setq magit-branch-adjust-remote-upstream-alist '(("origin/master" "master")))
@@ -227,50 +226,7 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Find defination
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; scheme-1
-;; (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
-;; global、gtags、gtags-cscope三个命令。global是查询，gtags是生成索引文件，gtags-cscope是与cscope一样的界面
-;; 查询使用的命令是global和gtags-cscope。前者是命令行界面，后者是与cscope兼容的ncurses界面
-;; helm-ggtags
-					;(if
-					;    (executable-find "global")
-					;    (progn
-					;      (use-package bpr :ensure t)
-					;      (use-package helm-gtags
-					;        :diminish helm-gtags-mode
-					;        :init
-					;        (add-hook 'dired-mode-hook 'helm-gtags-mode)
-					;        (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-					;        (add-hook 'c-mode-hook 'helm-gtags-mode)
-					;        (add-hook 'c++-mode-hook 'helm-gtags-mode)
-					;        (add-hook 'asm-mode-hook 'helm-gtags-mode)
-					;        (add-hook 'go-mode-hook (lambda () (helm-gtags-mode)))
-					;        (add-hook 'python-mode-hook (lambda () (helm-gtags-mode)))
-					;        (add-hook 'ruby-mode-hook (lambda () (helm-gtags-mode)))
-					;        (add-hook 'lua-mode-hook (lambda () (helm-gtags-mode)))
-					;        (add-hook 'js-mode-hook (lambda () (helm-gtags-mode)))
-					;        (add-hook 'erlang-mode-hook (lambda () (helm-gtags-mode)))
-					;        :config
-					;        ;(custom-set-variables
-					;        ; '(helm-gtags-prefix-key "C-t")
-					;        ; '(helm-gtags-suggested-key-mapping t))
-					;        (setq
-					;         helm-gtags-ignore-case t
-					;         helm-gtags-auto-update t
-					;         helm-gtags-use-input-at-cursor t
-					;         helm-gtags-pulse-at-cursor t
-					;         helm-gtags-prefix-key "\C-cg"
-					;         helm-gtags-suggested-key-mapping t
-					;         )
-					;         (define-key helm-gtags-mode-map (kbd "C-]") 'helm-gtags-dwim)
-					;         (define-key helm-gtags-mode-map (kbd "C-t") 'helm-gtags-pop-stack)
-					;        ))
-					;  (message "%s: GNU GLOBAL not found in exec-path. helm-gtags will not be used." 'please check))
-
-;; scheme-2
-;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
-;; gtags --gtagslabel=pygments --debug
-;;(use-package gtags :ensure t)
+(require 'gtags)
 (use-package bpr :ensure t)
 ;; Bind some useful keys in the gtags select buffer that evil overrides.
 (add-hook 'gtags-select-mode-hook
@@ -300,11 +256,6 @@
 (use-package dumb-jump
   :ensure t
   :diminish dumb-jump-mode
-  :bind (
-	 ("C-M-o" . dumb-jump-go-other-window)
-	 ("C-M-g" . dumb-jump-go)
-	 ("C-M-p" . dumb-jump-back)
-	 ("C-M-q" . dumb-jump-quick-look))
   :config
   (setq dumb-jump-selector 'helm)
   (setq dumb-jump-prefer-searcher 'ag))
