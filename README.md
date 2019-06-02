@@ -85,6 +85,30 @@
     "w" 'whitespace-mode          ;; Show invisible characters
     ))
 ```
+###  global mapping ( init-maps.el)
+
+    ```
+    (global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
+    (global-set-key (kbd "C-t") 'gtags-pop-stack)
+    (global-set-key (kbd "M-,") 'godef-jump)
+    (global-set-key (kbd "M-.") 'pop-tag-mark)
+    (global-set-key (kbd "M-]") 'dumb-jump-go)
+    (global-set-key (kbd "M-t") 'dumb-jump-back)
+    (global-set-key (kbd "M-p") 'hold-line-scroll-up )
+    (global-set-key (kbd "M-n") 'hold-line-scroll-down )
+    (global-set-key (kbd "M-@") 'pkg-mark-word)
+
+    (global-set-key (kbd "M-y") 'async-shell-command)
+    (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
+    (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
+
+    (global-set-key [M-left]  'shrink-window-horizontally)
+    (global-set-key [M-right] 'enlarge-window-horizontally)
+    (global-set-key [M-up]    'shrink-window)
+    (global-set-key [M-down]  'enlarge-window)
+
+    ```
+
 ### emacs 关于跳转
 
 * 常规的gtags: ,t  然后可以用 C-] && C-t 跳转
