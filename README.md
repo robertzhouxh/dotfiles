@@ -101,6 +101,7 @@
 * 插件 key-chord ++ hydra 灵活的定制组合
 * 全局绑定
 
+```
     ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ;; 全局 mapping
     ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -118,9 +119,11 @@
     (global-set-key [M-right] 'enlarge-window-horizontally)
     (global-set-key [M-up]    'shrink-window)
     (global-set-key [M-down]  'enlarge-window)
+```
 
 * 局部绑定
 
+```
     ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ;; 覆盖全局 mapping
     ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -149,6 +152,7 @@
           (define-key map (kbd "M-.") 'godef-jump)
           (define-key map (kbd "M-,") 'pop-tag-mark)
           (define-key map (kbd "C-h f") 'godoc-at-point))
+```
 
 ### emacs 关于跳转
 
