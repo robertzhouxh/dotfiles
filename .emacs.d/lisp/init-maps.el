@@ -56,8 +56,6 @@
             ("y" kill-ring-save "yank" :color blue)
             ("q" nil "quit")))
 
-
-
 (global-set-key
   (kbd "C-M-i")
   (defhydra hydra-vi
@@ -85,7 +83,7 @@
               ("q" nil "quit")))
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; 覆盖全局 mapping
+;; 全局 mapping
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
 (global-set-key (kbd "C-t") 'gtags-pop-stack)
