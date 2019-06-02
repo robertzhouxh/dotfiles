@@ -103,7 +103,7 @@
 (use-package ivy-erlang-complete
   :ensure t
   :custom
-  (ivy-erlang-complete-erlang-root "/usr/local/cellar/erlang/")
+  (ivy-erlang-complete-erlang-root '/usr/local/Cellar/erlang/21.3.5/lib/erlang)
   :config
   :bind
   (
