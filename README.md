@@ -1,178 +1,93 @@
-##  xuehao zhou’s dotfiles
+## 同时支持 MacOSX 和 ubuntu 系统的 dotfiles ( vim, emacs, shadowsocks, polipo, utils, applications... )
 
-* This is a derived work from Mathias's dotfiles. Consider to use his setup directly. See: https://github.com/mathiasbynens/dotfiles.
-* Disclaimer: I have tuned the dotfiles for my own use. Some of the setup may not be good for you.
+* 自动化安装系统基础工具以及应用程序
+* 命令行 shadowsocks 部署以及 polipo 命令行代理
+* 精简版的版的 vim 配置
+* 最适合编写 Golang，Erlang， Clojure 的 emacs 配置
 
-## Chaged to Mathias's dotfiles:
+## 快速安装
 
-### For MacOSX && ubuntu
+   ```bash
+   git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
+   cd dotfiles
+   set -- -f; source bootsrap.sh
 
-* use [liquidprompt](https://github.com/nojhan/liquidprompt) for shell prompt instead of the default.
-* use [z](https://github.com/rupa/z) for shell auto jump instead of autojump.
-* add my awesome vim automatic configuration, you can decide whether use or not in bootsrap.
-* add my awesome emacs automatic configuration, you can decide whether use or not in bootsrap.
-* support both zsh and bash.
-* support both ubuntu and macosx automatic deployment.
-* support proxy shadowsocks in terminal using polipo
+   ./vim.sh
 
-## Attension: get you into colorful world in item2
+   #  ( 建议使用 GUI 的 emacs )
+   ./emacs.sh
+   ```
+## vim 配置参考 .vimrc 文件
+## emacs 配置文件参考 .emacs.d 目录
 
-- iterm2 - Preferences - Profiles - Text - Text Rendering， remove the **Draw bold text in bright colors**, and then you will get the color world!
-- iterm2 - Preferences - Profiles - Terminal - Terminal Emulation - Report Terminal Type: change **xterm** into **xterm-256color**
-- man color - add the followiing export into your .bashrc or .zshrc, here you can add into .exports file
+### 自定义emacs配置
 
     ```
-    export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
-    export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
-    export LESS_TERMCAP_me=$'\E[0m'           # end mode
-    export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
-    export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
-    export LESS_TERMCAP_ue=$'\E[0m'           # end underline
-    export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+        init.el                          配置入口文件
+        vendor                           自定义的加载目录
+        lisp                             主要配置文件目录
+            init-bootstrap.el            启动配置选项
+            init-evil.el                 evil 相关配置
+            init-languages.el            语言相关的配置
+            init-maps.el                 keybindings
+            init-org.el                  org 相关配置
+            init-pkgs.el                 基础插件配置
+            init-plantform.el            跨平台相关配置
+            init-utils.el                工具小函数
+
     ```
-
-    you can also use the zsh && oh-my-zsh plugin: colored-man-pages instead.
-
-## Installation
-
-**Warning:** If you want to give these dotfiles a try, you should first fork this repository, review the code, and remove things you don’t want or need. Don’t blindly use my settings unless you know what that entails. Use at your own risk!
-
-### Quick intallation
-
-建议采用bash
-
-1. DNS:
-```
-# 南京信风
-nameserver 114.114.114.114
-# Google
-nameserver 8.8.8.8
-# V2EX
-nameserver 178.79.131.110
-```
-
-2. Install:
-
-对于 mac 用户请安装依赖
-
-    - xcode-select --install
-    - wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py
-    - brew cask install java
-
-    如果安装 pip 失败请在当前目录下使用下面的脚本安装
-
-        sudo chmod a+w sss/get-pip.py
-        sudo -H python sss/get-pip.py
-
-ubuntu 用户首先要安装依赖 gnu global, ag
-
-    sudo apt-get build-dep global
-    sudo apt-get install libncurses5-dev libncursesw5-dev
-    移駕至 https://www.gnu.org/software/global/download.html
-     ./configure --with-sqlite3
-    make -j4
-    make check
-    sudo make install
-    sudo make installcheck
-
-
-开始安装
-
-```bash
-git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
-cd dotfiles
-set -- -f; source bootsrap.sh
-```
-
-## 安装我的vim配置
-
-./vim.sh
-
-### 常用 vim 配置快捷键
-leader is ","
-
-
-## 安装我的emacs配置
-
-./emacs.sh
-
-注意： 第一次打开emacs 之后需要等待几分钟， emacs 会自动安装好所有的插件！！！
-
-### 常用emacs 快捷键
-
-leader is ","
+### evil 模式配置文件的keybinds( a-b-c...z)
 
 ```
-1.  leader + 以下快捷键
-    ","  'other-window                             // 切换窗口
-    "a=" 'my-align-single-equals                   // 对其==
-    "b"   'projectile-switch-to-buffer             // 切换buffer
-    "c"  'comment-dwim                             // 注册选中的行
-    "d"  'kill-this-buffer                         // 关闭buffer
-    "D"  'delete-window                            // 关闭window
-    "e"  (lambda () (interactive) (get-erl-man))   // 获取erlang 帮助文档
-    "E"  'sudo-edit-current-file                   // sudo 当前文件
-    "g"  'magit-status                             // git 操作
-    "hs"  'helm-projectile-ag                      // 搜索text
-    "hp" 'helm-projectile                          // 查找工程
-    "hd" 'helm-dash-at-point                       // 查找文档
-    "o"  'delete-other-windows                     // 删除另一个window
-    "O"  'other-frame                              // 切换 frame
-    "P"   'projectile-find-file-other-window       // 在另一个窗口中打开搜索到的文件
-    "s"  'ag-project                               // Ag search from project's root
-    "S"  'delete-trailing-whitespace               // 删除行尾空白
-    "t"  'gtags-reindex                            // 建立tags
-    "w"  'save-buffer                              // 保存buf
-    "x"  'helm-M-x                                 // 进入emacs cmdline
+  (evil-leader/set-key
+    "#"  'server-edit
+    ","  'other-window
+    "."  'mode-line-other-buffer
+    ":"  'eval-expression
+    "A"  'align-regexp
+    "c"  'comment-dwim
+    "d"  'kill-this-buffer
+    "D"  'kill-buffer-and-window
+    "e"  'x/eshell-here
+    "E"  'x/eshell-x
+    "f"  'other-frame
+    "g"  'magit-status
+    "G"  'magit-dispatch-popup
+    "hb" 'ido-switch-buffer
+    "hf" 'helm-find-files
+    "hs" 'helm-projectile-ag
+    "hp" 'helm-projectile
+    "hd" 'helm-dash-at-point
+    "hm" 'helm-mini
+    "hk" 'helm-show-kill-ring
+    "k"  'get-erl-man
+    "oi" 'org-clock-in
+    "oo" 'org-clock-out
+    "oo" 'org-clock-out
+    "os" 'org-schedule
+    "od" 'org-deadline
+    "or" 'org-clock-report
+    "O"  'delete-other-windows
+    "P"  'projectile-find-file-other-window
+    ;"rs" 'cider-start-http-server
+    ;"rs" 'cider-jack-in
+    ;"rr" 'cider-refresh
+    ;"re" 'cider-macroexpand-1
+    ;"ru" 'cider-user-ns
+    ;"rn" 'cider-repl-set-ns
+    ;"rx" 'cider-eval-last-sexp
+    "r"  'x/open-init-file
+    "R" 'x/reload-init-file
+    "s" 'x/save-all
+    "S" 'delete-trailing-whitespace
+    "t" 'gtags-reindex
+    "x" 'helm-M-x
+    "w" 'whitespace-mode          ;; Show invisible characters
+    ))
 ```
+### emacs 关于跳转
 
-2. 关于编程时的函数定义跳转， 提供了三种方式(M 代表Meta键， C 代表 Ctr 键)
+* 常规的gtags: ,t  然后可以用 C-] && C-t 跳转
+* 对于任何编程语言: 可以使用 dumb-jump插件, 直接可以用 M-] && M-t 跳转
+* 针对golang语言: M-,&& M-t
 
-
-```
-2.1 常规的ggtags： ,t  生成 TAG 文件， 然后可以用 C-] 跳转到定义处， C-t 跳转回来
-2.2 引入了 dumb-jump, 用户不需要生成 TAG 文件， 直接可以用 M-] 跳转到函数定义处， M-t 跳转回来
-2.3 针对golang语言， 额外提供了精准跳转， 同样不需要生成TAG文件， M-, 跳转到函数定义处， M-t 跳转回来
-```
-
-3. 其他快捷键参考
-
-```
-3.1 分屏
-(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
-(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
-
-3.2 调整分屏的大小
-(global-set-key [M-left] 'shrink-window-horizontally)
-(global-set-key [M-right] 'enlarge-window-horizontally)
-(global-set-key [M-up] 'shrink-window)
-(global-set-key [M-down] 'enlarge-window)
-(global-set-key (kbd "M-t") 'dumb-jump-back)
-
-3.3 光标行不动， 滚屏
-(global-set-key (kbd "M-p") 'hold-line-scroll-up )
-(global-set-key (kbd "M-n") 'hold-line-scroll-down )
-
-3.4 随时生成一个 eshell 来进入shell操作， 不用再去终端里了, 方便
-(global-set-key (kbd "C-!") 'eshell-here)
-(global-set-key (kbd "C-#") 'eshell-x)
-
-```
-### 对不同语言的支持
-
-修改 lisp/init-languages.el
-
-1. Erlang 部分， 自行适配路径， 版本, 主要用来写,网络协议解析, 分布式系统， 软实时消息系统
-2. Golang 部分， 自行安装依赖, 主要用来写一些简单的项目
-    go get github.com/rogpeppe/godef
-    go get -u github.com/golang/lint/golint
-    go get -u github.com/nsf/gocode
-3. Clojure 部分， 主要用来写 DSL
-4. Lua 主要用在 Openresty 的web开发
-4. js/es7 开发前端
-6. c 嵌入式开发
-7. shell + python 用来写一些脚本
-8. 不再使用的语言： c++， java
-
-
-enjoy it!

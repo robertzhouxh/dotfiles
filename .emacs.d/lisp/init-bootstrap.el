@@ -22,7 +22,9 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
+;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
+
 (global-hl-line-mode nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -45,8 +47,22 @@
   make-backup-files nil
   auto-save-default nil
   create-lockfiles nil
+  ;; reduce the frequency of garbage collection by making it happen on
+  ;; each 50MB of allocated data (the default is on every 0.76MB)
   gc-cons-threshold (* 50 1000 1000)
-  )
+  large-file-warning-threshold 100000000)
+
+;; nice scrolling
+;(setq scroll-margin 0
+;      scroll-conservatively 100000
+;      scroll-preserve-screen-position 1)
+
+;; more useful frame title, that show either a file or a
+;; buffer name (if the buffer isn't visiting a file)
+(setq frame-title-format
+      '((:eval (if (buffer-file-name)
+                   (abbreviate-file-name (buffer-file-name))
+		   "%b"))))
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;	setup history of edited file

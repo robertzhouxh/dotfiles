@@ -84,32 +84,34 @@
               ("r" symbol-overlay-rename)
               ("q" nil "quit")))
 
-;;; window
-
 (eval-after-load "evil-maps"
                  (dolist (map '(evil-normal-state-map
                                 evil-motion-state-map
                                 evil-insert-state-map
                                 evil-emacs-state-map))
+                   (define-key (eval map) "\M-." nil)
+                   (define-key (eval map) "\M-," nil)
                    (define-key (eval map) "\C-t" nil)
                    (define-key (eval map) "\C-]" nil)))
 
 (global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
 (global-set-key (kbd "C-t") 'gtags-pop-stack)
-(global-set-key (kbd "M-.") 'godef-jump)
-(global-set-key (kbd "M-'") 'pop-tag-mark)
+(global-set-key (kbd "M-,") 'godef-jump)
+(global-set-key (kbd "M-.") 'pop-tag-mark)
 (global-set-key (kbd "M-]") 'dumb-jump-go)
 (global-set-key (kbd "M-t") 'dumb-jump-back)
 (global-set-key (kbd "M-p") 'hold-line-scroll-up )
 (global-set-key (kbd "M-n") 'hold-line-scroll-down )
 (global-set-key (kbd "M-@") 'pkg-mark-word)
+
 (global-set-key (kbd "M-y") 'async-shell-command)
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
-(global-set-key [M-left] 'shrink-window-horizontally)
+
+(global-set-key [M-left]  'shrink-window-horizontally)
 (global-set-key [M-right] 'enlarge-window-horizontally)
-(global-set-key [M-up] 'shrink-window)
-(global-set-key [M-down] 'enlarge-window)
+(global-set-key [M-up]    'shrink-window)
+(global-set-key [M-down]  'enlarge-window)
 
 
 (provide 'init-maps)

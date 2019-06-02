@@ -99,6 +99,12 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; highlight symbol and search
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(use-package hl-todo
+  :ensure t
+  :config
+  (setq hl-todo-highlight-punctuation ":")
+  (global-hl-todo-mode))
+
 ;; 增量搜索匹配行, 类似于helm-occur，但会即时显示匹配的部分
 (use-package avy :ensure t :config (setq avy-background t))
 (use-package helm-swoop :ensure t)

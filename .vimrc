@@ -51,12 +51,8 @@ set nocursorcolumn              " Do not highlight column (speeds up highlightin
 set nocursorline                " Do not highlight cursor (speeds up highlighting)
 set lazyredraw                  " Wait to redraw
 
-" Enable to copy to clipboard for operations like yank, delete, change and put
-" http://stackoverflow.com/questions/20186975/vim-mac-how-to-copy-to-clipboard-without-pbcopy
-if has('unnamedplus')
-  set clipboard^=unnamed
-  set clipboard^=unnamedplus
-endif
+
+set clipboard^=unnamed,unnamedplus
 
 " This enables us to undo files even if you exit Vim.
 if has('persistent_undo')
@@ -71,64 +67,43 @@ let g:rehash256 = 1
 let g:molokai_original = 1
 colorscheme molokai
 
-if has('unnamedplus')
-  set clipboard^=unnamed
-  set clipboard^=unnamedplus
-endif
-
-
 " ================================ Key Mapping =======================================
-" :help map ===> [n|v|nore|un|]map
-" nore: no recursive
-" map {lhs} {rhs} ===> 表示将{lhs}按键序列映射到{rhs}按键序列
-" Command-Line/Ex Mode
-" normal mode enter (:) and then get into Command-Line namely C-mode
-" normal mode enter (Q) and then get into multi-Command-Line namely Ex-mode
-
-" Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
 
-" This is totally awesome - remap jj to escape in insert mode.  You'll never type jj anyway, so it's great!
+" Hardcore mode, disable arrow keys.
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
+
 inoremap jj <esc>
 nnoremap JJJJ <nop>
-
-map <leader><space>          :FixWhitespace<cr>
-
-" normal no recursive mapping
+nnoremap Y y$
 nnoremap <leader>p           :CtrlP<CR>
 nnoremap <leader>b           :CtrlPBuffer<CR>
 nnoremap <leader>f           :CtrlPMRU<CR>
 nnoremap <leader>n           :NERDTreeToggle<CR>
-
-" Act like D and C
-nnoremap Y y$
-
-
-" Remove the Windows ^M - when the encodings gets messed up
 noremap <Leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
-
-" Fast saving
-map <Leader>w :w<CR>
-imap <Leader>w <ESC>:w<CR>
-vmap <Leader>w <ESC><ESC>:w<CR>
-
-
-" no recursive normal and visual mode mapping
-noremap <silent><leader>/    :nohls<CR> " 去掉搜索高亮
+noremap <silent><leader>/    :nohls<CR>
 noremap <C-h>                <C-w>h
 noremap <C-j>                <C-w>j
 noremap <C-k>                <C-w>k
 noremap <C-l>                <C-w>l
 cnoremap w!!                 %!sudo tee > /dev/null %
+map <leader>tn :tabnew<cr>
+map <leader>to :tabonly<cr>
+map <leader>tc :tabclose<cr>
+map <leader>tm :tabmove
+map <leader>tj :tabnext
+map <leader>tk :tabprevious
+map <leader><space>          :FixWhitespace<cr>
 
-" Close the current buffer (w/o closing the current window)
-map <leader>bd :bdelete<cr>
-map <leader>bda :1,1000 bd!<cr>
 
 " Let 'tl' toggle between this and the last accessed tab
 let g:lasttab = 1
 nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
 au TabLeave * let g:lasttab = tabpagenr()
+
 
 " Opens a new tab with the current buffer's path
 " Super useful when editing files in the same directory
@@ -144,17 +119,32 @@ try
 catch
 endtry
 
+" Return to last edit position when opening files (You want this!)
+autocmd BufReadPost *
+     \ if line("'\"") > 0 && line("'\"") <= line("$") |
+     \   exe "normal! g`\"" |
+     \ endif
+" Remember info about open buffers on close
+set viminfo^=%
 
-" Go crazy!
-if filereadable(expand("~/.vimrc.local"))
-  " In your .vimrc.local, you might like:
-  " set whichwrap+=<,>,h,l,[,] " Wrap arrow keys between lines
-  " autocmd! bufwritepost .vimrc source ~/.vimrc
-  source ~/.vimrc.local
-endif
+func! DeleteTrailingWS()
+  exe "normal mz"
+  %s/\s\+$//ge
+  exe "normal `z"
+endfunc
 
+autocmd BufWrite *.go :call DeleteTrailingWS()
+autocmd BufWrite *.er :call DeleteTrailingWS()
+autocmd BufWrite *.py :call DeleteTrailingWS()
 
 " =========================> plugins config <===============================================
+" Ultisnips has native support for SuperTab. SuperTab does omnicompletion by
+" pressing tab. I like this better than autocompletion, but it's still fast.
+let g:SuperTabDefaultCompletionType = "context"
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+
 " ctrlp.vim
 if executable('ag')
   set grepprg=ag\ --nogroup\ --nocolor
@@ -176,7 +166,7 @@ let g:ctrlp_follow_symlinks=1
 
 " Automatic commands
 if has("autocmd")
-  au BufNewFile,BufRead *.yaml set filetype=yaml.ansible
+  autocmd BufNewFile,BufRead *.yaml set filetype=yaml.ansible
   autocmd BufRead,BufNewFile *.md set filetype=markdown
   autocmd BufRead,BufNewFile *.md set spell
   autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript " Treat .json files as .js
@@ -184,10 +174,10 @@ if has("autocmd")
   autocmd FileType python,c,c++,lua set tabstop=4 shiftwidth=4 expandtab ai
   autocmd FileType ruby,javascript,sh,go,html,css,scss set tabstop=2 shiftwidth=2 softtabstop=2 expandtab ai
   autocmd BufRead,BufNew *.md,*.mkd,*.markdown  set filetype=markdown.mkd
-  autocmd FileType c,cpp,erlang,go,lua,javascript,python,perl autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 endif
 
 " vimgo {{{
+let g:go_bin_path = $HOME."/go-workspace/bin"
 let g:go_fmt_command = "goimports"
 let g:go_autodetect_gopath = 1
 let g:go_list_type = "quickfix"
