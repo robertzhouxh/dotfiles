@@ -16,6 +16,15 @@
   ;;(exec-path-from-shell-copy-env "LANG")
   ;;(exec-path-from-shell-copy-env "LC_TYPE")
   )
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize)
+  :init
+  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOROOT" "GOPATH" "PYTHONPATH"))
+  (setq exec-path-from-shell-check-startup-files nil)
+  (setq exec-path-from-shell-arguments '("-l" ))
+)
+
 (use-package diminish :ensure t)
 (use-package json-reformat :ensure t :defer t)
 (use-package comment-dwim-2 :ensure t)

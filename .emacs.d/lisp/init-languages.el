@@ -36,10 +36,10 @@
     (setq tab-width 4)
     (setq c-basic-offset 4)))
 
-;;---------------------------------------------------------------
-;; Erlang
-;;---------------------------------------------------------------
-
+;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; Erlang Programming << sed ---> gsed >>
+;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; ===> https://stackoverflow.com/questions/30003570/how-to-use-gnu-sed-on-mac-os-x#34815955
 ;; wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
 ;; sudo dpkg -i erlang-solutions_1.0_all.deb
 ;; sudo apt-get update
@@ -57,6 +57,20 @@
 ;;    Test:
 ;;    $ man erl
 ;;    Updated: Erlang's man pages may not need to download, since there is already a copy at /usr/local/lib/erlang/man. Just copy them into manpath.
+
+(setq auto-mode-alist
+      (reverse
+       (append auto-mode-alist
+               '(("\\.rel$"         . erlang-mode)
+                 ("\\.app\\.src$"     . erlang-mode)
+                 ("\\.hrl$"         . erlang-mode)
+                 ("\\.erl$"         . erlang-mode)
+                 ("\\.yrl$"         . erlang-mode)
+                 ("\\.conf$"        . erlang-mode)
+                 ("\\.schema"       . erlang-mode)
+                 ("rebar\\.config$" . erlang-mode)
+		 ("relx\\.config$"  . erlang-mode)
+                 ("sys\\.config$"   . erlang-mode)))))
 
 ;; "/usr/local/lib/erlang/lib/tools-" for mac
 (let* ((emacs-version "3.1")
@@ -85,24 +99,34 @@
   (backward-char 3)
   )
 
-(eval-after-load "erlang" '(define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary))
+;; https://github.com/s-kostyaev/ivy-erlang-complete
+(use-package ivy-erlang-complete
+  :ensure t
+  :custom
+  (ivy-erlang-complete-erlang-root "/usr/local/cellar/erlang/")
+  :config
+  :bind
+  (
+   ("C-c e s" . 'ivy-erlang-complete-find-spec)
+   ("C-c e f" . 'ivy-erlang-complete-find-file)
+   ("C-c e h" . 'ivy-erlang-complete-show-doc-at-point)
+   ("C-c e p" . 'ivy-erlang-complete-set-project-root)
+   ("C-c e a" . 'ivy-erlang-complete-autosetup-project-root)
+   )
+  :init
+  (add-hook 'erlang-mode-hook #'ivy-erlang-complete-init)
+  (add-hook 'after-save-hook #'ivy-erlang-complete-reparse)
+  (add-hook 'erlang-mode-hook #'company-erlang-init)
+)
 
-(setq auto-mode-alist
-      (reverse
-       (append auto-mode-alist
-               '(("\\.rel$"       . erlang-mode)
-                 ("\\.app$"       . erlang-mode)
-                 ("\\.appSrc$"    . erlang-mode)
-                 ("\\.app.src$"   . erlang-mode)
-                 ("\\.hrl$"       . erlang-mode)
-                 ("\\.erl$"       . erlang-mode)
-                 ("\\.yrl$"       . erlang-mode)
-                 ("\\.conf$"      . erlang-mode)
-                 ("\\..config$"   . erlang-mode)
-                 ("\\..schema"    . erlang-mode)
-                 ("rebar.config$" . erlang-mode)
-                 ("relx.config$"  . erlang-mode)
-                 ("sys.config$"   . erlang-mode)))))
+;; 覆盖全局 mapping
+(eval-after-load "erlang"
+  '(progn
+     (define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary)
+     (define-key erlang-mode-map (kbd "M-.") 'ivy-erlang-complete-find-definition)
+     (define-key erlang-mode-map (kbd "M-,") 'xref-pop-marker-stack)
+     (define-key erlang-mode-map (kbd "M-?") 'ivy-erlang-complete-find-references)
+     ))
 
 ;;----------------------------------------------------------------------------
 ;; lisp: C-x C-e 执行光标下lisp
@@ -161,22 +185,6 @@
                                        (set (make-local-variable 'company-backends) '(company-go))
                                        (company-mode)))
              (setq company-tooltip-align-annotations t))
-;;; Color customization
-(custom-set-faces
-  '(company-preview
-     ((t (:foreground "darkgray" :underline t))))
-  '(company-preview-common
-     ((t (:inherit company-preview))))
-  '(company-tooltip
-     ((t (:background "lightgray" :foreground "black"))))
-  '(company-tooltip-selection
-     ((t (:background "steelblue" :foreground "white"))))
-  '(company-tooltip-common
-     ((((type x)) (:inherit company-tooltip :weight bold))
-      (t (:inherit company-tooltip))))
-  '(company-tooltip-common-selection
-     ((((type x)) (:inherit company-tooltip-selection :weight bold))
-      (t (:inherit company-tooltip-selection)))))
 
 ;;----------------------------------------------------------------------------
 ;; clojure

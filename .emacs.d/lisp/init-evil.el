@@ -9,15 +9,26 @@
     ","  'other-window
     "."  'mode-line-other-buffer
     ":"  'eval-expression
-    "A"  'align-regexp
+
+    "a"  'align-regexp
     "c"  'comment-dwim
     "d"  'kill-this-buffer
-    "D"  'kill-buffer-and-window
-    "e"  'x/eshell-here
-    "E"  'x/eshell-x
+
+    "es" 'ivy-erlang-complete-find-spec
+    "ef" 'ivy-erlang-complete-find-file
+    "eh" 'ivy-erlang-complete-show-doc-at-point
+    "ep" 'ivy-erlang-complete-set-project-root
+    "ea" 'ivy-erlang-complete-autosetup-project-root
+    "ek" 'get-erl-man
+
+    "Es" 'x/eshell-here
+    "Ex" 'x/eshell-x
+
     "f"  'other-frame
+
     "g"  'magit-status
     "G"  'magit-dispatch-popup
+
     "hb" 'ido-switch-buffer
     "hf" 'helm-find-files
     "hs" 'helm-projectile-ag
@@ -25,13 +36,14 @@
     "hd" 'helm-dash-at-point
     "hm" 'helm-mini
     "hk" 'helm-show-kill-ring
-    "k"  'get-erl-man
+
     "oi" 'org-clock-in
     "oo" 'org-clock-out
     "oo" 'org-clock-out
     "os" 'org-schedule
     "od" 'org-deadline
     "or" 'org-clock-report
+
     "O"  'delete-other-windows
     "P"  'projectile-find-file-other-window
     ;"rs" 'cider-start-http-server

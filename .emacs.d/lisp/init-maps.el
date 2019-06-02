@@ -1,5 +1,5 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;	Usefule global key bind
+;; Plugin Keybinding Mapping
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package key-chord
              :ensure t
@@ -84,6 +84,27 @@
               ("r" symbol-overlay-rename)
               ("q" nil "quit")))
 
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; 覆盖全局 mapping
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
+(global-set-key (kbd "C-t") 'gtags-pop-stack)
+(global-set-key (kbd "M-]") 'dumb-jump-go)
+(global-set-key (kbd "M-t") 'dumb-jump-back)
+(global-set-key (kbd "M-p") 'hold-line-scroll-up )
+(global-set-key (kbd "M-n") 'hold-line-scroll-down )
+(global-set-key (kbd "M-@") 'pkg-mark-word)
+(global-set-key (kbd "M-y") 'async-shell-command)
+(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
+(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
+(global-set-key [M-left]  'shrink-window-horizontally)
+(global-set-key [M-right] 'enlarge-window-horizontally)
+(global-set-key [M-up]    'shrink-window)
+(global-set-key [M-down]  'enlarge-window)
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; 覆盖全局 mapping
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (eval-after-load "evil-maps"
                  (dolist (map '(evil-normal-state-map
                                 evil-motion-state-map
@@ -94,25 +115,44 @@
                    (define-key (eval map) "\C-t" nil)
                    (define-key (eval map) "\C-]" nil)))
 
-(global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
-(global-set-key (kbd "C-t") 'gtags-pop-stack)
-(global-set-key (kbd "M-,") 'godef-jump)
-(global-set-key (kbd "M-.") 'pop-tag-mark)
-(global-set-key (kbd "M-]") 'dumb-jump-go)
-(global-set-key (kbd "M-t") 'dumb-jump-back)
-(global-set-key (kbd "M-p") 'hold-line-scroll-up )
-(global-set-key (kbd "M-n") 'hold-line-scroll-down )
-(global-set-key (kbd "M-@") 'pkg-mark-word)
+(eval-after-load "erlang"
+  '(progn
+     (define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary)
+     (define-key erlang-mode-map (kbd "M-.") 'ivy-erlang-complete-find-definition)
+     (define-key erlang-mode-map (kbd "M-,") 'xref-pop-marker-stack)
+     (define-key erlang-mode-map (kbd "M-?") 'ivy-erlang-complete-find-references)
+     ))
 
-(global-set-key (kbd "M-y") 'async-shell-command)
-(global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
-(global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
+;; stolen from: https://github.com/bbatsov/prelude/blob/master/modules/prelude-go.el
 
-(global-set-key [M-left]  'shrink-window-horizontally)
-(global-set-key [M-right] 'enlarge-window-horizontally)
-(global-set-key [M-up]    'shrink-window)
-(global-set-key [M-down]  'enlarge-window)
+(with-eval-after-load 'go-mode
+  (defun prelude-go-mode-defaults ()
+    ;; Add to default go-mode key bindings
+    (let ((map go-mode-map))
+      (define-key map (kbd "M-.") 'godef-jump)
+      (define-key map (kbd "M-,") 'pop-tag-mark)
+      (define-key map (kbd "C-h f") 'godoc-at-point))
 
+    ;; Prefer goimports to gofmt if installed
+    (let ((goimports (executable-find "goimports")))
+      (when goimports
+        (setq gofmt-command goimports)))
 
-(provide 'init-maps)
-;;; init-maps.el ends here
+    ;; gofmt on save
+    (add-hook 'before-save-hook 'gofmt-before-save nil t)
+
+    ;; stop whitespace being highlighted
+    ;;(whitespace-toggle-options '(tabs))
+
+    ;; Company mode settings
+    (set (make-local-variable 'company-backends) '(company-go))
+
+    ;; CamelCase aware editing operations
+    (subword-mode +1))
+
+  (setq prelude-go-mode-hook 'prelude-go-mode-defaults)
+  (add-hook 'go-mode-hook (lambda ()
+			    (run-hooks 'prelude-go-mode-hook))))
+
+  (provide 'init-maps)
+  ;;; init-maps.el ends here

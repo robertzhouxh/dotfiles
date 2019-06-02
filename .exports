@@ -57,15 +57,18 @@ export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode – cyan
 # go
 export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
-export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
+PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
 export CFLAGS="-I/usr/local/opt/openssl/include/"
 export CPPFLAGS="-I/usr/local/opt/openssl/include/"
 
-# use gnu make as the default make tool
+# use <<< gnu make >>>  and <<< gnu sed >>>  as the default tool
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/Applications/Emacs.app/Contents/MacOS:$PATH"
+
+export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+
 # homebrew no update
 export HOMEBREW_NO_AUTO_UPDATE=1
