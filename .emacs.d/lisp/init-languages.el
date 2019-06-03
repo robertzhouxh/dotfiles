@@ -119,15 +119,6 @@
   (add-hook 'erlang-mode-hook #'company-erlang-init)
 )
 
-;; 覆盖全局 mapping
-(eval-after-load "erlang"
-  '(progn
-     (define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary)
-     (define-key erlang-mode-map (kbd "M-.") 'ivy-erlang-complete-find-definition)
-     (define-key erlang-mode-map (kbd "M-,") 'xref-pop-marker-stack)
-     (define-key erlang-mode-map (kbd "M-?") 'ivy-erlang-complete-find-references)
-     ))
-
 ;;----------------------------------------------------------------------------
 ;; lisp: C-x C-e 执行光标下lisp
 ;; 或者 l执行整个buffer ==> ,e
