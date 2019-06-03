@@ -3,6 +3,16 @@
 ;;; Code:
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;;	setup the load path
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(defvar vendor-dir (expand-file-name "vendor" user-emacs-directory))
+(defvar lisp-dir (expand-file-name "lisp" user-emacs-directory))
+(add-to-list 'load-path lisp-dir)
+(add-to-list 'load-path vendor-dir)
+(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
+  (normal-top-level-add-subdirs-to-load-path))
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;	Setup pkg repo and install use-package
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (require 'package)
@@ -33,26 +43,6 @@
   (require 'use-package))
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
-
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;	setup the load path
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(defvar vendor-dir (expand-file-name "vendor" user-emacs-directory))
-(defvar lisp-dir (expand-file-name "lisp" user-emacs-directory))
-
-(add-to-list 'load-path lisp-dir)
-(add-to-list 'load-path vendor-dir)
-
-(let ((files (directory-files-and-attributes vendor-dir t)))
-  (dolist (file files)
-    (let ((filename (car file))
-          (dir (nth 1 file)))
-      (when (and dir
-                 (not (string-suffix-p "." filename)))
-        (add-to-list 'load-path (car file))))))
-
-(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
-  (normal-top-level-add-subdirs-to-load-path))
 
 ;; proxy?
 ;(setq url-proxy-services `(("http" . "127.0.0.1:8123")

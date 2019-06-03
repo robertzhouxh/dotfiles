@@ -5,17 +5,17 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Basic plugins
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package exec-path-from-shell
-  :ensure t
-  :if (x/system-is-mac)
-  :config
-  (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-env "GOROOT")
-  (exec-path-from-shell-copy-env "GOPATH")
-  ;;(exec-path-from-shell-copy-env "LC_ALL")
-  ;;(exec-path-from-shell-copy-env "LANG")
-  ;;(exec-path-from-shell-copy-env "LC_TYPE")
-  )
+;(use-package exec-path-from-shell
+;  :ensure t
+;  :if (x/system-is-mac)
+;  :config
+;  (exec-path-from-shell-initialize)
+;  (exec-path-from-shell-copy-env "GOROOT")
+;  (exec-path-from-shell-copy-env "GOPATH")
+;  ;;(exec-path-from-shell-copy-env "LC_ALL")
+;  ;;(exec-path-from-shell-copy-env "LANG")
+;  ;;(exec-path-from-shell-copy-env "LC_TYPE")
+;  )
 (use-package exec-path-from-shell
   :config
   (exec-path-from-shell-initialize)
@@ -31,7 +31,6 @@
 (use-package which-key
   :ensure t
   :diminish which-key-mode
-  :defer 10
   :config
   (progn
     ;; for emacs 26+
@@ -48,7 +47,7 @@
 
 (use-package flycheck
   :ensure t
-  :defer 5
+  :defer t
   :config
   (global-flycheck-mode 1))
 
@@ -241,8 +240,10 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Find defination
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(require 'gtags)
+;;(require 'gtags)
+(use-package gtags :load-path "vendor")
 (use-package bpr :ensure t)
+
 ;; Bind some useful keys in the gtags select buffer that evil overrides.
 (add-hook 'gtags-select-mode-hook
 	  (lambda ()
