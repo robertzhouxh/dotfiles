@@ -160,3 +160,9 @@
 * 对于任何编程语言: 可以使用 dumb-jump插件, 直接可以用 M-] && M-t 模糊跳转
 * 针对golang, erlang 语言: M-,&& M-t 精准跳转
 
+
+## bash && zsh
+
+- z 指令快速跳转到之前访问过的目录 eg: $ z xdir
+- .aliases 文件定义自定义命令
+- .exports 文件设置系统环境变量

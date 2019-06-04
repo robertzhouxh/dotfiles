@@ -39,7 +39,7 @@
 
     "oi" 'org-clock-in
     "oo" 'org-clock-out
-    "oo" 'org-clock-out
+    "oc" 'org-clock-cancel
     "os" 'org-schedule
     "od" 'org-deadline
     "or" 'org-clock-report
