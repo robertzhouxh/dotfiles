@@ -101,10 +101,17 @@
                             :bind (:map evil-visual-state-map
                                         ("*" . evil-visualstar/begin-search-forward)
                                         ("#" . evil-visualstar/begin-search-backward)))
-               (use-package evil-surround
-                            :ensure t
-                            :init
-                            (progn
+	       ;; Multiple cursors in Evil
+	       (use-package evil-mc
+			    :ensure t
+			    :after evil-mode
+			    :init
+			    (global-evil-mc-mode 1))
+
+	       (use-package evil-surround
+			    :ensure t
+			    :init
+			    (progn
                               (global-evil-surround-mode 1)
                               ;; `s' for surround instead of `substitute'
                               (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)

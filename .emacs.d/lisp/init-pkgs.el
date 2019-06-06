@@ -41,8 +41,8 @@
   :ensure t
   :diminish paredit-mode
   :init
-  (add-hook 'erlang-mode-hook 'paredit-mode)
-  (add-hook 'go-mode-hook 'paredit-mode)
+  ;(add-hook 'erlang-mode-hook 'paredit-mode)
+  ;(add-hook 'go-mode-hook 'paredit-mode)
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
 (use-package flycheck
@@ -240,8 +240,10 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Find defination
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;(require 'gtags)
-(use-package gtags :load-path "vendor")
+(use-package gtags
+	     :ensure nil
+	     :load-path "vendor")
+
 (use-package bpr :ensure t)
 
 ;; Bind some useful keys in the gtags select buffer that evil overrides.
@@ -306,10 +308,6 @@
   (doom-modeline-set-modeline 'gs t)
   :hook (after-init . doom-modeline-init))
 
-(use-package birds-of-paradise-plus-theme :ensure t :defer t)
-(use-package plain-theme :ensure t :defer t)
-(use-package spacemacs-theme :ensure t :defer t)
-(use-package tao-theme :ensure t :defer t)
 (use-package dracula-theme :ensure t :defer t)
 (use-package plan9-theme :ensure t :defer t)
 
