@@ -197,6 +197,7 @@ apps=(
     smcfancontrol
     thunder
     vlc
+    licecap
 )
 cecho "Install My Favorate Apps with brew cask install xxx" $yellow
 for item in ${apps[@]}; do

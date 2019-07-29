@@ -44,6 +44,9 @@
       org-src-fontify-natively t
       org-confirm-babel-evaluate nil
       org-support-shift-select 'always)
+
+(setq org-image-actual-width '(400))
+
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
