@@ -156,15 +156,22 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; version control
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+;;;; magit
 (use-package magit
   :ensure t
   :defer t
+  :bind (("C-x g" . magit-status))
   :config
   (progn
-    (setq magit-branch-prefer-remote-upstream '("master"))
-    (setq magit-branch-adjust-remote-upstream-alist '(("origin/master" "master")))
-    (setq magit-branch-arguments nil)))
+    (defun inkel/magit-log-edit-mode-hook ()
+      (setq fill-column 72)
+      (flyspell-mode t)
+      (turn-on-auto-fill))
+    (add-hook 'magit-log-edit-mode-hook 'inkel/magit-log-edit-mode-hook)
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))))
 
 ;(use-package git-gutter
 ;  :ensure t
@@ -310,6 +317,7 @@
 
 (use-package dracula-theme :ensure t :defer t)
 (use-package plan9-theme :ensure t :defer t)
+(use-package tao-theme :ensure t :defer t)
 
 ;;(load-theme 'doom-molokai t)
 ;;(load-theme 'doom-vibrant t)
