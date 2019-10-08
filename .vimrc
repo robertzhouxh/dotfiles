@@ -4,10 +4,27 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'bronson/vim-trailing-whitespace'
 Plug 'kien/ctrlp.vim'
 Plug 'vim-scripts/DrawIt'
-Plug 'fatih/vim-go'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'SirVer/ultisnips'
+
+" Golang support
+Plug 'fatih/vim-go'
+
+" Erlang Support
+Plug 'vim-erlang/vim-erlang-tags'
+Plug 'vim-erlang/vim-erlang-runtime'
+Plug 'vim-erlang/vim-erlang-omnicomplete'
+Plug 'vim-erlang/vim-erlang-compiler'
+
+" ui
+Plug 'morhetz/gruvbox'
+Plug 'mhinz/vim-janah'
+Plug 'nanotech/jellybeans.vim'
 Plug 'tomasr/molokai'
+Plug 'jpo/vim-railscasts-theme'
+Plug 'tpope/vim-vividchalk'
+Plug 'joshdick/onedark.vim'
+
 
 "Load local plugins
 if filereadable(expand("~/.vim/vimrc.bundles.local"))
