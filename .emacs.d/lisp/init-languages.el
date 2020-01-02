@@ -191,8 +191,8 @@
     :ensure t
     :hook (go-mode . go-guru-hl-identifier-mode)
     )
-  (use-package go-rename
-    :ensure t)
+  ;; (use-package go-rename
+  ;;   :ensure t)
   )
 
 ;;
