@@ -7,6 +7,9 @@ Plug 'vim-scripts/DrawIt'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'SirVer/ultisnips'
 
+"Perform all your vim insert mode completions with Tab
+Plug 'ervandew/supertab'
+
 " Golang support
 Plug 'fatih/vim-go'
 
