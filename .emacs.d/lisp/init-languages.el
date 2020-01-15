@@ -396,45 +396,8 @@
 (load "autoinsert")
 (auto-insert-mode)
 (setq auto-insert t)
-(setq auto-insert-query t)
+;;(setq auto-insert-query t)
 (add-hook 'find-file-hooks 'auto-insert)
-					;(setq auto-insert-directory "~/.emacs.d/vendor/auto-insert/")
-(setq auto-insert-alist
-      (append
-       '(
-	 (("\\\\.el\\\\'" . "Emacs Lisp header")
-	  "Short description: "
-	  ";;; " (file-name-nondirectory (buffer-file-name)) " --- " str "
-	   ;; Copyright (C) " (substring (current-time-string) -4) " by robert zhou " "
-	   ;; Author: robert zhou"
-	  '(end-of-line 1) " <" (user-login-name) ?@ "robertzhouxh@gmail.com>
-	   (defconst "
-	  (substring (file-name-nondirectory (buffer-file-name)) 0 -3)
-	  "-version \\"$Id: "
-		     (file-name-nondirectory (buffer-file-name))
-		     ",v 1.1 "
-		     '(require 'time-stamp)
-		     (concat (time-stamp-yyyy/mm/dd) " " (time-stamp-hh:mm:ss))
-		     " matsu Exp matsu $\\")" "
-	   ;; Keywords: "
-	  '(require 'finder)
-	  ;;'(setq v1 (apply 'vector (mapcar 'car finder-known-keywords)))
-	  '(setq v1 (mapcar (lambda (x) (list (symbol-name (car x))))
-			    finder-known-keywords)
-		 v2 (mapconcat (lambda (x) (format "%10.0s:  %s" (car x) (cdr x)))
-			       finder-known-keywords
-			       "\\n"))
-	  ((let ((minibuffer-help-form v2))
-	     (completing-read "Keyword, C-h: " v1 nil t))
-	   str ", ") & -2 "
-	   ;;
-	   ;; This program is free software; you can redistribute it and/or modify
-	   (中略)
-	   ;;; Commentary:
-	   ;; " _ "
-	   ;;; Code:
-	   ;;; " (file-name-nondirectory (buffer-file-name)) " ends here"))
-       auto-insert-alist))
 
 (setq auto-insert-alist
       (append '(

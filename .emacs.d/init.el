@@ -17,17 +17,17 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (require 'package)
 (setq package-enable-at-startup nil)
-;;(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-;;                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
-;;                         ("marmalade" . "http://marmalade-repo.org/packages/")))
+(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")))
 
-(unless (assoc-default "melpa" package-archives)
-  (add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/") t))
-(unless (assoc-default "org" package-archives)
-  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t))
-(unless (assoc-default "marmalade" package-archives)
-  (add-to-list 'package-archives '("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
-(setq package-pinned-packages '((gtags . "marmalade")))
+;(unless (assoc-default "melpa" package-archives)
+;  (add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/") t))
+;(unless (assoc-default "org" package-archives)
+;  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t))
+;(unless (assoc-default "marmalade" package-archives)
+;  (add-to-list 'package-archives '("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+;(setq package-pinned-packages '((gtags . "marmalade")))
 (package-initialize)
 
 ;; config changes made through the customize UI will be stored here
