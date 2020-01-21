@@ -63,7 +63,7 @@
 		 ("sys\\.config$"   . erlang-mode)))))
 
 ;; "/usr/local/lib/erlang/lib/tools-" for mac
-(let* ((emacs-version "3.1")
+(let* ((emacs-version "3.2")
        (tools-path
 	(concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
   (when (file-exists-p tools-path)
@@ -93,7 +93,7 @@
 (use-package ivy-erlang-complete
   :ensure t
   :custom
-  (ivy-erlang-complete-erlang-root '/usr/local/Cellar/erlang/21.3.5/lib/erlang)
+  (ivy-erlang-complete-erlang-root '/usr/local/Cellar/erlang/22.0.7/lib/erlang)
   :config
   :bind
   (

@@ -4,8 +4,6 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'bronson/vim-trailing-whitespace'
 Plug 'kien/ctrlp.vim'
 Plug 'vim-scripts/DrawIt'
-Plug 'AndrewRadev/splitjoin.vim'
-Plug 'SirVer/ultisnips'
 
 "Perform all your vim insert mode completions with Tab
 Plug 'ervandew/supertab'
@@ -20,12 +18,7 @@ Plug 'vim-erlang/vim-erlang-omnicomplete'
 Plug 'vim-erlang/vim-erlang-compiler'
 
 " ui
-Plug 'morhetz/gruvbox'
-Plug 'mhinz/vim-janah'
-Plug 'nanotech/jellybeans.vim'
 Plug 'tomasr/molokai'
-Plug 'jpo/vim-railscasts-theme'
-Plug 'tpope/vim-vividchalk'
 Plug 'joshdick/onedark.vim'
 
 
@@ -153,18 +146,7 @@ func! DeleteTrailingWS()
   exe "normal `z"
 endfunc
 
-autocmd BufWrite *.go :call DeleteTrailingWS()
-autocmd BufWrite *.er :call DeleteTrailingWS()
-autocmd BufWrite *.py :call DeleteTrailingWS()
-
 " =========================> plugins config <===============================================
-" Ultisnips has native support for SuperTab. SuperTab does omnicompletion by
-" pressing tab. I like this better than autocompletion, but it's still fast.
-let g:SuperTabDefaultCompletionType = "context"
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-
 " ctrlp.vim
 if executable('ag')
   set grepprg=ag\ --nogroup\ --nocolor
@@ -183,18 +165,6 @@ let g:ctrlp_max_height=15
 let g:ctrlp_match_window = 'order:ttb,max:20'
 let g:ctrlp_mruf_max=500
 let g:ctrlp_follow_symlinks=1
-
-" Automatic commands
-if has("autocmd")
-  autocmd BufNewFile,BufRead *.yaml set filetype=yaml.ansible
-  autocmd BufRead,BufNewFile *.md set filetype=markdown
-  autocmd BufRead,BufNewFile *.md set spell
-  autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript " Treat .json files as .js
-  autocmd BufNewFile,BufRead *.md setlocal filetype=markdown " Treat .md files as Markdown
-  autocmd FileType python,c,c++,lua set tabstop=4 shiftwidth=4 expandtab ai
-  autocmd FileType ruby,javascript,sh,go,html,css,scss set tabstop=2 shiftwidth=2 softtabstop=2 expandtab ai
-  autocmd BufRead,BufNew *.md,*.mkd,*.markdown  set filetype=markdown.mkd
-endif
 
 " vimgo {{{
 let g:go_bin_path = $HOME."/go-workspace/bin"
