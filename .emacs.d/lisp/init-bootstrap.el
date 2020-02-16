@@ -40,7 +40,6 @@
   inhibit-splash-screen t
   initial-scratch-message nil
   sentence-end-double-space nil
-  ring-bell-function 'ignore
   create-lockfiles nil
   indent-tabs-mode nil
   make-backup-files nil
@@ -51,10 +50,20 @@
   gc-cons-threshold (* 50 1000 1000)
   large-file-warning-threshold 100000000)
 
+;; Don't beep at me
+(setq visible-bell t)
+
+;; Turn off the blinking cursor
+(blink-cursor-mode -1)
+
+;; Don't create backups
+(setq make-backup-files nil)
+(set-fringe-mode '(6 . 0))
+
 ;; nice scrolling
-;(setq scroll-margin 0
-;      scroll-conservatively 100000
-;      scroll-preserve-screen-position 1)
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
 
 ;; more useful frame title, that show either a file or a
 ;; buffer name (if the buffer isn't visiting a file)

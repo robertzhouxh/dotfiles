@@ -239,39 +239,14 @@
 ;; UI Schemes + Modeline
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;(use-package all-the-icons :ensure t)
-;(use-package kaolin-themes
-;  :ensure t
-;  :config
-;  (load-theme 'kaolin-dark t)
-;  (kaolin-treemacs-theme))
-;(use-package doom-themes
-;  :ensure t
-;  :defer t)
-;(use-package doom-modeline
-;  :ensure t
-;  :defer t
-;  :config
-;  (setq doom-modeline-icon nil)
-;  (setq doom-modeline-height 22)
-;  (setq doom-modeline-vcs-max-length 12)
-;  (setq auto-revert-check-vc-info t)
-;  (setq doom-modeline-github nil)
-;  (doom-modeline-def-modeline
-;    'gs
-;    ;; Left mode line segments
-;    '(bar window-number "  " matches buffer-info buffer-position selection-info)
-;    ;; Right mode line segments
-;    '(major-mode buffer-encoding vcs checker))
-;  (doom-modeline-set-modeline 'gs t)
-;  :hook (after-init . doom-modeline-init))
-;
-;(use-package dracula-theme :ensure t :defer t)
-;(use-package plan9-theme :ensure t :defer t)
-;(use-package tao-theme :ensure t :defer t)
-
-;;(load-theme 'doom-molokai t)
-;;(load-theme 'doom-vibrant t)
-(load-theme 'wombat t)
+(use-package poet-theme
+	     :ensure t
+	     :config
+	     (load-theme 'poet-dark t)
+	     (add-hook 'text-mode-hook
+		       (lambda ()
+			 (variable-pitch-mode 1))))
+;(load-theme 'wombat t)
 (set-cursor-color "#00ff00")
 
 (provide 'init-pkgs)
