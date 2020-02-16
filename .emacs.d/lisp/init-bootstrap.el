@@ -24,8 +24,7 @@
 (toggle-scroll-bar -1)
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
-
-(global-hl-line-mode nil)
+(global-hl-line-mode -1)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 ;;(toggle-frame-fullscreen)
@@ -74,8 +73,8 @@
 (setq savehist-save-minibuffer-history 1)
 (setq savehist-additional-variables
       '(kill-ring
-        search-ring
-regexp-search-ring))
+	 search-ring
+	 regexp-search-ring))
 
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

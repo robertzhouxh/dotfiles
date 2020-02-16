@@ -33,7 +33,7 @@
   :ensure t
   :diminish paredit-mode
   :init
-  ;(add-hook 'erlang-mode-hook 'paredit-mode)
+  (add-hook 'erlang-mode-hook 'paredit-mode)
   ;(add-hook 'go-mode-hook 'paredit-mode)
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
@@ -62,8 +62,8 @@
   (setq company-idle-delay 0.2)
   (setq company-selection-wrap-around t)
   (define-key company-active-map [tab] 'company-complete)
-  (define-key company-active-map (kbd "C-j") 'company-select-next)
-  (define-key company-active-map (kbd "C-k") 'company-select-previous))
+  (define-key company-active-map (kbd "C-p") 'company-select-next)
+  (define-key company-active-map (kbd "C-n") 'company-select-previous))
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Emacs framework for incremental completions and narrowing selections
@@ -87,8 +87,8 @@
     (helm-mode))
   :config
   (progn
-    (define-key helm-map (kbd "C-j") 'helm-next-line)
-    (define-key helm-map (kbd "C-k") 'helm-previous-line))
+    (define-key helm-map (kbd "C-n") 'helm-next-line)
+    (define-key helm-map (kbd "C-p") 'helm-previous-line))
   :bind  (("C-i" . helm-swoop)
 	  ("C-x C-f" . helm-find-files)
 	  ("C-x b" . helm-buffers-list)
@@ -98,11 +98,11 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; highlight symbol and search
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package hl-todo
-  :ensure t
-  :config
-  (setq hl-todo-highlight-punctuation ":")
-  (global-hl-todo-mode))
+;;(use-package hl-todo
+;;  :ensure t
+;;  :config
+;;  (setq hl-todo-highlight-punctuation ":")
+;;  (global-hl-todo-mode))
 
 ;; 增量搜索匹配行, 类似于helm-occur，但会即时显示匹配的部分
 (use-package avy :ensure t :config (setq avy-background t))
@@ -197,36 +197,36 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Find defination
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package gtags
-	     :ensure nil
-	     :load-path "vendor")
-
-(use-package bpr :ensure t)
-
-;; Bind some useful keys in the gtags select buffer that evil overrides.
-(add-hook 'gtags-select-mode-hook
-	  (lambda ()
-	    (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
-	    (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
-
-(defun gtags-reindex ()
-  "Kick off gtags reindexing."
-  (interactive)
-  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-	 (gtags-filename (expand-file-name "GTAGS" root-path)))
-    (if (file-exists-p gtags-filename)
-	(gtags-index-update root-path)
-      (gtags-index-initial root-path))))
-
-(defun gtags-index-initial (path)
-  "Generate initial GTAGS files for PATH."
-  (let ((bpr-process-directory path))
-    (bpr-spawn "gtags")))
-
-(defun gtags-index-update (path)
-  "Update GTAGS in PATH."
-  (let ((bpr-process-directory path))
-    (bpr-spawn "global -uv")))
+;(use-package gtags
+;	     :ensure nil
+;	     :load-path "vendor")
+;
+;(use-package bpr :ensure t)
+;
+;;; Bind some useful keys in the gtags select buffer that evil overrides.
+;(add-hook 'gtags-select-mode-hook
+;	  (lambda ()
+;	    (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
+;	    (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
+;
+;(defun gtags-reindex ()
+;  "Kick off gtags reindexing."
+;  (interactive)
+;  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
+;	 (gtags-filename (expand-file-name "GTAGS" root-path)))
+;    (if (file-exists-p gtags-filename)
+;	(gtags-index-update root-path)
+;      (gtags-index-initial root-path))))
+;
+;(defun gtags-index-initial (path)
+;  "Generate initial GTAGS files for PATH."
+;  (let ((bpr-process-directory path))
+;    (bpr-spawn "gtags")))
+;
+;(defun gtags-index-update (path)
+;  "Update GTAGS in PATH."
+;  (let ((bpr-process-directory path))
+;    (bpr-spawn "global -uv")))
 
 (use-package dumb-jump
   :ensure t
@@ -238,39 +238,40 @@
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; UI Schemes + Modeline
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package all-the-icons :ensure t)
-(use-package kaolin-themes
-  :ensure t
-  :config
-  (load-theme 'kaolin-dark t)
-  (kaolin-treemacs-theme))
-(use-package doom-themes
-  :ensure t
-  :defer t)
-(use-package doom-modeline
-  :ensure t
-  :defer t
-  :config
-  (setq doom-modeline-icon nil)
-  (setq doom-modeline-height 22)
-  (setq doom-modeline-vcs-max-length 12)
-  (setq auto-revert-check-vc-info t)
-  (setq doom-modeline-github nil)
-  (doom-modeline-def-modeline
-    'gs
-    ;; Left mode line segments
-    '(bar window-number "  " matches buffer-info buffer-position selection-info)
-    ;; Right mode line segments
-    '(major-mode buffer-encoding vcs checker))
-  (doom-modeline-set-modeline 'gs t)
-  :hook (after-init . doom-modeline-init))
-
-(use-package dracula-theme :ensure t :defer t)
-(use-package plan9-theme :ensure t :defer t)
-(use-package tao-theme :ensure t :defer t)
+;(use-package all-the-icons :ensure t)
+;(use-package kaolin-themes
+;  :ensure t
+;  :config
+;  (load-theme 'kaolin-dark t)
+;  (kaolin-treemacs-theme))
+;(use-package doom-themes
+;  :ensure t
+;  :defer t)
+;(use-package doom-modeline
+;  :ensure t
+;  :defer t
+;  :config
+;  (setq doom-modeline-icon nil)
+;  (setq doom-modeline-height 22)
+;  (setq doom-modeline-vcs-max-length 12)
+;  (setq auto-revert-check-vc-info t)
+;  (setq doom-modeline-github nil)
+;  (doom-modeline-def-modeline
+;    'gs
+;    ;; Left mode line segments
+;    '(bar window-number "  " matches buffer-info buffer-position selection-info)
+;    ;; Right mode line segments
+;    '(major-mode buffer-encoding vcs checker))
+;  (doom-modeline-set-modeline 'gs t)
+;  :hook (after-init . doom-modeline-init))
+;
+;(use-package dracula-theme :ensure t :defer t)
+;(use-package plan9-theme :ensure t :defer t)
+;(use-package tao-theme :ensure t :defer t)
 
 ;;(load-theme 'doom-molokai t)
 ;;(load-theme 'doom-vibrant t)
 (load-theme 'wombat t)
+(set-cursor-color "#00ff00")
 
 (provide 'init-pkgs)
