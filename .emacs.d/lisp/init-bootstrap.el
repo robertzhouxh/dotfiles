@@ -54,16 +54,16 @@
 (setq visible-bell t)
 
 ;; Turn off the blinking cursor
-(blink-cursor-mode -1)
+;;(blink-cursor-mode -1)
 
 ;; Don't create backups
 (setq make-backup-files nil)
 (set-fringe-mode '(6 . 0))
 
 ;; nice scrolling
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1)
+;(setq scroll-margin 0
+;      scroll-conservatively 100000
+;      scroll-preserve-screen-position 1)
 
 ;; more useful frame title, that show either a file or a
 ;; buffer name (if the buffer isn't visiting a file)
