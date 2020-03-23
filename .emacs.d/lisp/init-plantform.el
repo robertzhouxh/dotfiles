@@ -6,7 +6,7 @@
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none)
 
-  (set-face-attribute 'default nil :height 140)
+  (set-face-attribute 'default nil :height 160)
   ;;coding font for english and chinese
   ;(set-face-attribute 'default nil
   ;                    :family "Source Code Pro for Powerline"

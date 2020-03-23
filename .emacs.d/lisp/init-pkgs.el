@@ -145,35 +145,41 @@
 (use-package magit
   :ensure t
   :defer t
-  :bind (("C-x g" . magit-status))
+  :config
+  (setq magit-display-buffer-function
+      (lambda (buffer)
+        (display-buffer
+         buffer (if (and (derived-mode-p 'magit-mode)
+                         (memq (with-current-buffer buffer major-mode)
+                               '(magit-process-mode
+                                 ;;magit-revision-mode
+                                 magit-diff-mode
+                                 magit-stash-mode
+                                 magit-status-mode)))
+                    nil
+                  '(display-buffer-same-window)))))
+  ;(setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
+  (add-hook 'magit-mode-hook
+            (lambda ()
+              (define-key magit-mode-map (kbd ",o") 'delete-other-windows)))
+  (add-hook 'git-commit-mode-hook 'evil-insert-state))
+
+(use-package git-gutter
+  :ensure t
+  :diminish git-gutter+-mode
+  :defer t
+  :init
+  (global-git-gutter-mode t)
   :config
   (progn
-    (defun inkel/magit-log-edit-mode-hook ()
-      (setq fill-column 72)
-      (flyspell-mode t)
-      (turn-on-auto-fill))
-    (add-hook 'magit-log-edit-mode-hook 'inkel/magit-log-edit-mode-hook)
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))))
-
-;(use-package git-gutter
-;  :ensure t
-;  :diminish git-gutter+-mode
-;  :defer t
-;  :init
-;  (global-git-gutter-mode t)
-;  :config
-;  (progn
-;    (setq git-gutter:window-width 2)
-;    (setq git-gutter:modified-sign "==")
-;    (setq git-gutter:added-sign "++")
-;    (setq git-gutter:deleted-sign "--")
-;    (set-face-foreground 'git-gutter:added "#daefa3")
-;    (set-face-foreground 'git-gutter:deleted "#FA8072")
-;    (set-face-foreground 'git-gutter:modified "#b18cce")
-;    ))
+    (setq git-gutter:window-width 2)
+    (setq git-gutter:modified-sign "==")
+    (setq git-gutter:added-sign "++")
+    (setq git-gutter:deleted-sign "--")
+    (set-face-foreground 'git-gutter:added "#daefa3")
+    (set-face-foreground 'git-gutter:deleted "#FA8072")
+    (set-face-foreground 'git-gutter:modified "#b18cce")
+    ))
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;  以项目为单位的一些实用功能, Projectile 可以与 Helm 集成

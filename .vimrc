@@ -4,6 +4,7 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'bronson/vim-trailing-whitespace'
 Plug 'kien/ctrlp.vim'
 Plug 'vim-scripts/DrawIt'
+Plug 'gabesoft/vim-ags'
 
 "Perform all your vim insert mode completions with Tab
 Plug 'ervandew/supertab'
@@ -16,6 +17,7 @@ Plug 'vim-erlang/vim-erlang-tags'
 Plug 'vim-erlang/vim-erlang-runtime'
 Plug 'vim-erlang/vim-erlang-omnicomplete'
 Plug 'vim-erlang/vim-erlang-compiler'
+Plug 'vim-erlang/vim-erlang-skeletons'
 
 " ui
 Plug 'tomasr/molokai'
@@ -179,3 +181,14 @@ let g:go_highlight_function_calls = 1
 let g:go_highlight_extra_types = 1
 let g:go_highlight_generate_tags = 1"
 " }}}
+"
+"  vim-ag {{{
+" Search for the word under cursor
+nnoremap <Leader>s :Ags<Space><C-R>=expand('<cword>')<CR><CR>
+" Search for the visually selected text
+vnoremap <Leader>s y:Ags<Space><C-R>='"' . escape(@", '"*?()[]{}.') . '"'<CR><CR>
+" Run Ags
+nnoremap <Leader>a :Ags<Space>
+" Quit Ags
+nnoremap <Leader><Leader>a :AgsQuit<CR>
+"  }}}
