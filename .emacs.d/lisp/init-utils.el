@@ -84,17 +84,17 @@
 ;;----------------------------------------------------------------------------
 ;; manage window
 ;;----------------------------------------------------------------------------
-(defun x-split-window-right ()
-  "Split window with another buffer."
-  (interactive)
-  (select-window (split-window-right))
-  (switch-to-buffer (other-buffer)))
-
-(defun x-split-window-below ()
-  "Split window with another buffer."
-  (interactive)
-  (select-window (split-window-below))
-  (switch-to-buffer (other-buffer)))
+;(defun x-split-window-right ()
+;  "Split window with another buffer."
+;  (interactive)
+;  (select-window (split-window-right))
+;  (switch-to-buffer (other-buffer)))
+;
+;(defun x-split-window-below ()
+;  "Split window with another buffer."
+;  (interactive)
+;  (select-window (split-window-below))
+;  (switch-to-buffer (other-buffer)))
 
 (defun revert-all-buffers ()
   (interactive)
@@ -103,18 +103,18 @@
                          (when (buffer-file-name)
                            (revert-buffer t t t)))))
 
-(defun vsplit-last-buffer ()
-  (interactive)
-  (split-window-vertically)
-  (other-window 1 nil)
-  (switch-to-next-buffer)
-  )
-(defun hsplit-last-buffer ()
-  (interactive)
-  (split-window-horizontally)
-  (other-window 1 nil)
-  (switch-to-next-buffer)
-  )
+;(defun vsplit-last-buffer ()
+;  (interactive)
+;  (split-window-vertically)
+;  (other-window 1 nil)
+;  (switch-to-next-buffer)
+;  )
+;(defun hsplit-last-buffer ()
+;  (interactive)
+;  (split-window-horizontally)
+;  (other-window 1 nil)
+;  (switch-to-next-buffer)
+;  )
 
 ;; spawn shell
 (defun x/eshell-here ()

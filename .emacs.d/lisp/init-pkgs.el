@@ -245,14 +245,14 @@
 ;; UI Schemes + Modeline
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;(use-package all-the-icons :ensure t)
-(use-package poet-theme
-	     :ensure t
-	     :config
-	     (load-theme 'poet-dark t)
-	     (add-hook 'text-mode-hook
-		       (lambda ()
-			 (variable-pitch-mode 1))))
-;(load-theme 'wombat t)
+;(use-package poet-theme
+;	     :ensure t
+;	     :config
+;	     (load-theme 'poet-dark t)
+;	     (add-hook 'text-mode-hook
+;		       (lambda ()
+;			 (variable-pitch-mode 1))))
+(load-theme 'wombat t)
 (set-cursor-color "#00ff00")
 
 (provide 'init-pkgs)

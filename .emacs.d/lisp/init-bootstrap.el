@@ -50,6 +50,9 @@
   gc-cons-threshold (* 50 1000 1000)
   large-file-warning-threshold 100000000)
 
+;; 设置默认为左右分屏
+(setq split-width-threshold 1)
+
 ;; Don't beep at me
 (setq visible-bell t)
 
