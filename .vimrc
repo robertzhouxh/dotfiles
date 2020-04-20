@@ -2,12 +2,6 @@ call plug#begin('~/.vim/plugged')
 " ================================ Plugins to be installed =======================================
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'bronson/vim-trailing-whitespace'
-Plug 'kien/ctrlp.vim'
-Plug 'vim-scripts/DrawIt'
-Plug 'gabesoft/vim-ags'
-
-"Perform all your vim insert mode completions with Tab
-Plug 'ervandew/supertab'
 
 " Golang support
 Plug 'fatih/vim-go'
@@ -21,8 +15,6 @@ Plug 'vim-erlang/vim-erlang-skeletons'
 
 " ui
 Plug 'tomasr/molokai'
-Plug 'joshdick/onedark.vim'
-
 
 "Load local plugins
 if filereadable(expand("~/.vim/vimrc.bundles.local"))
@@ -64,8 +56,6 @@ set completeopt=menu,menuone    " Show popup menu, even if there is one entry
 set pumheight=10                " Completion window max size
 set nocursorcolumn              " Do not highlight column (speeds up highlighting)
 set nocursorline                " Do not highlight cursor (speeds up highlighting)
-set lazyredraw                  " Wait to redraw
-
 
 set clipboard^=unnamed,unnamedplus
 
@@ -113,35 +103,6 @@ map <leader>tj :tabnext
 map <leader>tk :tabprevious
 map <leader><space>          :FixWhitespace<cr>
 
-
-" Let 'tl' toggle between this and the last accessed tab
-let g:lasttab = 1
-nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
-au TabLeave * let g:lasttab = tabpagenr()
-
-
-" Opens a new tab with the current buffer's path
-" Super useful when editing files in the same directory
-map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
-
-" Switch CWD to the directory of the open buffer
-map <leader>cd :cd %:p:h<cr>:pwd<cr>
-
-" Specify the behavior when switching between buffers
-try
-  set switchbuf=useopen,usetab,newtab
-  set stal=2
-catch
-endtry
-
-" Return to last edit position when opening files (You want this!)
-autocmd BufReadPost *
-     \ if line("'\"") > 0 && line("'\"") <= line("$") |
-     \   exe "normal! g`\"" |
-     \ endif
-" Remember info about open buffers on close
-set viminfo^=%
-
 func! DeleteTrailingWS()
   exe "normal mz"
   %s/\s\+$//ge
@@ -150,45 +111,5 @@ endfunc
 
 " =========================> plugins config <===============================================
 " ctrlp.vim
-if executable('ag')
-  set grepprg=ag\ --nogroup\ --nocolor
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-endif
-let g:ctrlp_map = '<leader>p'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
-    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
-    \ }
-let g:ctrlp_working_path_mode = 'ra'
-let g:ctrlp_working_path_mode=0
-let g:ctrlp_match_window_bottom=1
-let g:ctrlp_max_height=15
-let g:ctrlp_match_window = 'order:ttb,max:20'
-let g:ctrlp_mruf_max=500
-let g:ctrlp_follow_symlinks=1
-
-" vimgo {{{
-let g:go_bin_path = $HOME."/go-workspace/bin"
-let g:go_fmt_command = "goimports"
-let g:go_autodetect_gopath = 1
-let g:go_list_type = "quickfix"
-
-let g:go_highlight_types = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_function_calls = 1
-let g:go_highlight_extra_types = 1
-let g:go_highlight_generate_tags = 1"
-" }}}
-"
 "  vim-ag {{{
-" Search for the word under cursor
-nnoremap <Leader>s :Ags<Space><C-R>=expand('<cword>')<CR><CR>
-" Search for the visually selected text
-vnoremap <Leader>s y:Ags<Space><C-R>='"' . escape(@", '"*?()[]{}.') . '"'<CR><CR>
-" Run Ags
-nnoremap <Leader>a :Ags<Space>
-" Quit Ags
-nnoremap <Leader><Leader>a :AgsQuit<CR>
 "  }}}
