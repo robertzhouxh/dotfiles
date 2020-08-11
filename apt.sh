@@ -84,7 +84,7 @@ apps=(
 
     # proxychains
     # privoxy
-    polipo
+    # polipo
 
     ## for python
     python-pip
@@ -150,48 +150,48 @@ echo ""
 cecho "Now, install my custom tools ===>" $green
 echo ""
 echo ""
-read -p "do you want to deploy your own G-F-W vps and use shadowsocks client of python version ? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  #apt-get install build-essential
-  #wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16.tar.gz
-  cd sss
-  tar xf libsodium-1.0.16.tar.gz && cd libsodium-1.0.16
-  ./configure && make -j2 && make install
-  ldconfig
-  cd ..
-
-  #sudo apt-get install -y software-properties-common
-  #sudo bash -c "LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php"
-  #sudo apt-get update
-  #sudo apt-get install -y libsodium-dev
-
-  #sudo -H pip install shadowsocks
-  #pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
-  sudo -H pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
-  echo -e "\033[40;32m deploy the proxy server on your remote vps: server[1,2,3] \033[0m"
-  SS_CFG="/etc/shadowsocks.json"
-  if [ ! -f "$SS_CFG" ]; then
-    echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
-    sudo touch "$SS_CFG"
-  fi
-  sudo chmod a+w "$SS_CFG"
-
-cat > "$SS_CFG" <<EOF
-{
-  "server":["server1","server2"],
-  "server_port":8080,
-  "local_address":"127.0.0.1",
-  "local_port":1080,
-  "password":"password",
-  "timeout":300,
-  "method":"chacha20-ietf-poly1305",
-  "fast_open": false
-}
-EOF
-
-  echo -e "\033[40;32m you can start the shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start \033[0m"
-  echo -e "\033[40;32m you can start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json \033[0m"
-fi;
+## read -p "do you want to deploy your own G-F-W vps and use shadowsocks client of python version ? (y/n) " -n 1;
+## if [[ $REPLY =~ ^[Yy]$ ]]; then
+##   #apt-get install build-essential
+##   #wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16.tar.gz
+##   cd sss
+##   tar xf libsodium-1.0.16.tar.gz && cd libsodium-1.0.16
+##   ./configure && make -j2 && make install
+##   ldconfig
+##   cd ..
+##
+##   #sudo apt-get install -y software-properties-common
+##   #sudo bash -c "LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php"
+##   #sudo apt-get update
+##   #sudo apt-get install -y libsodium-dev
+##
+##   #sudo -H pip install shadowsocks
+##   #pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
+##   sudo -H pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
+##   echo -e "\033[40;32m deploy the proxy server on your remote vps: server[1,2,3] \033[0m"
+##   SS_CFG="/etc/shadowsocks.json"
+##   if [ ! -f "$SS_CFG" ]; then
+##     echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
+##     sudo touch "$SS_CFG"
+##   fi
+##   sudo chmod a+w "$SS_CFG"
+##
+## cat > "$SS_CFG" <<EOF
+## {
+##   "server":["server1","server2"],
+##   "server_port":8080,
+##   "local_address":"127.0.0.1",
+##   "local_port":1080,
+##   "password":"password",
+##   "timeout":300,
+##   "method":"chacha20-ietf-poly1305",
+##   "fast_open": false
+## }
+## EOF
+##
+##   echo -e "\033[40;32m you can start the shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start \033[0m"
+##   echo -e "\033[40;32m you can start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json \033[0m"
+## fi;
 
 echo ""
 echo ""
@@ -228,21 +228,21 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   cd -
 fi;
 
-echo ""
-echo ""
-read -p "polipo privoxy (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  if [ -f "/etc/polipo/config" ]; then
-    sudo chmod a+w "/etc/polipo/config"
-
-sudo cat >> /etc/polipo/config <<EOF
-socksParentProxy = "localhost:1080"
-proxyPort = 8123
-socksProxyType = socks5
-EOF
-    sudo chmod a-w "/etc/polipo/config"
-  fi
-fi
+# echo ""
+# echo ""
+# read -p "polipo privoxy (y/n) " -n 1;
+# if [[ $REPLY =~ ^[Yy]$ ]]; then
+#   if [ -f "/etc/polipo/config" ]; then
+#     sudo chmod a+w "/etc/polipo/config"
+#
+# sudo cat >> /etc/polipo/config <<EOF
+# socksParentProxy = "localhost:1080"
+# proxyPort = 8123
+# socksProxyType = socks5
+# EOF
+#     sudo chmod a-w "/etc/polipo/config"
+#   fi
+# fi
 
 read -p "install popcorn time - a very very cool movie player online !!!!!!!!!" -n 1;
 if [[ $REPLY =~ ^[Yy]$ ]]; then

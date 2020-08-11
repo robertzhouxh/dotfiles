@@ -25,19 +25,19 @@ cecho() {
 }
 
 cecho "attension: make sure you have installed the command line tools use: xcode-select --install" $yellow
-cecho "attension: make sure you have installed pip: wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py" $yellow
-cecho "attension: make sure you have installed java: brew cask install java" $yellow
+# cecho "attension: make sure you have installed pip: wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py" $yellow
+# cecho "attension: make sure you have installed java: brew cask install java" $yellow
 
 # install pip
-if hash pip 2>/dev/null; then
-	cecho "pip already installed, just conitnue ..." $green
-else
-	cecho "Installing pip" $yellow
-	cecho "installing pip" $green
-	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-	sudo chmod a+w get-pip.py
-	sudo -H python get-pip.py
-fi
+#if hash pip 2>/dev/null; then
+#	cecho "pip already installed, just conitnue ..." $green
+#else
+#	cecho "Installing pip" $yellow
+#	cecho "installing pip" $green
+#	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+#	sudo chmod a+w get-pip.py
+#	sudo -H python get-pip.py
+#fi
 
 # Homebrew
 # http://brew.sh
@@ -129,53 +129,53 @@ brew install trash
 brew install pcre
 brew install liquidprompt
 brew install z
-brew install zsh
-brew install zsh-completions
+#brew install zsh
+#brew install zsh-completions
 brew install graphviz
-brew install htop-osx
-brew install plantuml
+#brew install htop-osx
+#brew install plantuml
 brew install the_silver_searcher
-brew install cmatrix
+#brew install cmatrix
 brew install youtube-dl
 fi;
 
 echo ""
-read -p "Shadowsocks client of python version PK G-F-W ? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  brew install polipo
-  brew install libsodium
-  sudo pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
-  SS_CFG="/etc/shadowsocks.json"
-
-  if [ ! -f "$SS_CFG" ]; then
-    echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
-    sudo touch "$SS_CFG"
-  fi;
-
-  sudo chmod a+w "$SS_CFG"
-
-cat > "$SS_CFG" <<EOF
-{
-  "server":["server1","server2"],
-  "server_port":8080,
-  "local_address":"127.0.0.1",
-  "local_port":1080,
-  "password":"password",
-  "timeout":300,
-  "method":"chacha20-ietf-poly1305",
-  "fast_open": false
-}
-EOF
-
-  brew services restart polipo
-  echo "shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start"
-  echo "start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json"
-  echo "brew services start polipo use the cfg  ~/.polipo, default configfile: /usr/local/opt/polipo/homebrew.mxcl.polipo.plist"
-
-fi;
+# read -p "Shadowsocks client of python version PK G-F-W ? (y/n) " -n 1;
+# if [[ $REPLY =~ ^[Yy]$ ]]; then
+#   brew install polipo
+#   brew install libsodium
+#   sudo pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
+#   SS_CFG="/etc/shadowsocks.json"
+#
+#   if [ ! -f "$SS_CFG" ]; then
+#     echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
+#     sudo touch "$SS_CFG"
+#   fi;
+#
+#   sudo chmod a+w "$SS_CFG"
+#
+# cat > "$SS_CFG" <<EOF
+# {
+#   "server":["server1","server2"],
+#   "server_port":8080,
+#   "local_address":"127.0.0.1",
+#   "local_port":1080,
+#   "password":"password",
+#   "timeout":300,
+#   "method":"chacha20-ietf-poly1305",
+#   "fast_open": false
+# }
+# EOF
+#
+#   brew services restart polipo
+#   echo "shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start"
+#   echo "start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json"
+#   echo "brew services start polipo use the cfg  ~/.polipo, default configfile: /usr/local/opt/polipo/homebrew.mxcl.polipo.plist"
+#
+# fi;
 
 # Remove outdated versions from the cellar.
-sudo rm get-pip.py
+# sudo rm get-pip.py
 brew cleanup
 
 # refer: https://github.com/junegunn/fzf
@@ -187,17 +187,17 @@ apps=(
     alfred
     caffeine
     appcleaner
-    cheatsheet
+    #cheatsheet
     #emacs
     gas-mask
     google-chrome
     #iterm2
-    java
+    #java
     qq
     smcfancontrol
-    thunder
+    #thunder
     vlc
-    licecap
+    #licecap
 )
 cecho "Install My Favorate Apps with brew cask install xxx" $yellow
 for item in ${apps[@]}; do
@@ -215,10 +215,10 @@ select yn in "Yes" "No"; do
 done
 
 
-read -p "Oh-My-ZSH ? [y/n]" -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-fi;
+#read -p "Oh-My-ZSH ? [y/n]" -n 1;
+#if [[ $REPLY =~ ^[Yy]$ ]]; then
+#  sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+#fi;
 
 echo ""
 cecho "Done!!! you can deploy vim( ./vim.sh ) or emacs( ./emacs.sh ) to bring you into cool coding environment!!!" $green
