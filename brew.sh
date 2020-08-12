@@ -56,8 +56,8 @@ if command brew cask 1>/dev/null; then
 	cecho "Homebrew Cask already installed, just conitnue ..." $green
 else
 	cecho "Installing Homebrew Cask" $yellow
-	brew tap caskroom/cask
-	brew install caskroom/cask/brew-cask
+	brew tap homebrew/cask-cask
+	#brew install caskroom/cask/brew-cask
 fi
 
 # 使用 brew services start|stop|restart SERVICE_NAME 这样的命令来操作一切终端服务了 <=> LaunchRocket
@@ -187,7 +187,7 @@ complete -F _fzf_file_completion -o default -o bashdefault doge
 apps=(
     alfred
     caffeine
-    appcleaner
+    #appcleaner
     #cheatsheet
     #emacs
     gas-mask
