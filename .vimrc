@@ -103,6 +103,14 @@ map <leader>tj :tabnext
 map <leader>tk :tabprevious
 map <leader><space>          :FixWhitespace<cr>
 
+" ==== 系统剪切板复制粘贴 ====
+" v 模式下复制内容到系统剪切板
+vmap <Leader>c "+yy
+" n 模式下复制一行到系统剪切板
+nmap <Leader>c "+yy
+" n 模式下粘贴系统剪切板的内容
+nmap <Leader>v "+p
+
 func! DeleteTrailingWS()
   exe "normal mz"
   %s/\s\+$//ge

@@ -67,9 +67,6 @@ export CPPFLAGS="-I/usr/local/opt/openssl/include/"
 # use <<< gnu make >>>  and <<< gnu sed >>>  as the default tool
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/Applications/Emacs.app/Contents/MacOS:$PATH"
-PATH="/Applications/Gephi.app/Contents/MacOS:$PATH"
-PATH="/Applications/Cytoscape_v3.7.2:$PATH"
-PATH="/Applications/Cytoscape_v3.7.2/Cytoscape.app/Contents/MacOS:$PATH"
 
 export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 
