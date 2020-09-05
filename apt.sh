@@ -244,19 +244,6 @@ fi;
 #   fi
 # fi
 
-read -p "install popcorn time - a very very cool movie player online !!!!!!!!!" -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sh -c "$(wget https://raw.githubusercontent.com/popcorn-official/popcorn-desktop/development/make_popcorn.sh -O -)"
-fi;
-
-read -p "install the awesome mpv player, are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-sudo add-apt-repository ppa:mc3man/mpv-tests
-sudo apt update
-sudo apt install mpv
-fi;
-
-
 echo "~~~~~~~~~~~~~~~!!! Install global with ctags !!!~~~~"
 cd $CURRENT_DIR
 tar zxvf global-6.6.3.tar.gz
@@ -269,12 +256,6 @@ echo "~~~~~~~~~~~~~~~!!! Install global with ctags done!!!~~~"
 echo ""
 echo -e "\033[40;32m change the default shell into: /bin/bash\033[0m"
 sudo chsh -s /bin/bash
-
-cecho "Install Color Scheme for Gnome Terminal and Pantheon Terminal" $green
-bash -c  "$(wget -qO- https://git.io/vQgMr)"
-
-echo ""
-echo ""
 echo "cleanning ..."
 echo ""
 echo ""
