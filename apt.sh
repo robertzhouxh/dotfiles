@@ -226,26 +226,6 @@ fi;
 #   fi
 # fi
 
-echo "~~~~~~~~~~~~~~~!!! Install global with ctags !!!~~~~"
-cd $CURRENT_DIR
-tar zxvf global-6.6.3.tar.gz
-cd global-6.6.3
-./configure --with-exuberant-ctags=/usr/bin/ctags
-make
-sudo make install
-echo "~~~~~~~~~~~~~~~!!! Install global with ctags done!!!~~~"
-=======
->>>>>>> Stashed changes
-
-echo ""
-echo -e "\033[40;32m change the default shell into: /bin/bash\033[0m"
-sudo chsh -s /bin/bash
-<<<<<<< Updated upstream
-=======
-
-echo ""
-echo ""
->>>>>>> Stashed changes
 echo "cleanning ..."
 echo ""
 echo ""
