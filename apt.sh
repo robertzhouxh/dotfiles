@@ -226,7 +226,6 @@ fi;
 #   fi
 # fi
 
-<<<<<<< Updated upstream
 echo "~~~~~~~~~~~~~~~!!! Install global with ctags !!!~~~~"
 cd $CURRENT_DIR
 tar zxvf global-6.6.3.tar.gz
