@@ -56,12 +56,12 @@ cecho "Now time to install my favorate tools ..." $yellow
 
 apps=(
     # Utilities
-    libncurses5-dev
-    libreadline-dev
-    libpcre3-dev
-    zlib1g-dev
-    libssl-dev
-    libssh-dev
+    #libncurses5-dev
+    #libreadline-dev
+    #libpcre3-dev
+    #zlib1g-dev
+    #libssl-dev
+    #libssh-dev
     openssl
     build-essential
     perl
@@ -73,27 +73,27 @@ apps=(
     wget
     curl
     openssh-server
-    libgtk-3-dev
-    libappindicator3-dev
+    #libgtk-3-dev
+    #libappindicator3-dev
 
     # cool terminal util
     # suggest terminator
 
     # cn input
-    ibus-rime
+    #ibus-rime
 
     # proxychains
     # privoxy
     # polipo
 
     ## for python
-    python-pip
-    python-dev
+    #python-pip
+    #python-dev
 
     ## for ag ---> helm-ag
-    silversearcher-ag
+    #silversearcher-ag
     ## for global ---> ,t
-    exuberant-ctags
+    #exuberant-ctags
 
     ## for erlang: refer: https://packages.erlang-solutions.com/erlang/
     #libwxbase3.0-0
@@ -209,24 +209,6 @@ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 fi;
 
-echo ""
-echo ""
-read -p "install the awesome uget to get rid of the netpan, are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-sudo add-apt-repository ppa:plushuang-tw/uget-stable
-sudo apt-get update
-sudo apt-get install -y uget
-fi;
-
-echo ""
-echo ""
-read -p "install the awesome tool htop2.0, are you sure? (y/n) " -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  echo "install htop2.0";
-  git clone https://github.com/hishamhm/htop
-  cd $CURRENT_DIR/htop && ./autogen.sh && ./configure && make && sudo ln -s $CURRENT_DIR/htop/htop /usr/bin/htop
-  cd -
-fi;
 
 # echo ""
 # echo ""
@@ -244,6 +226,7 @@ fi;
 #   fi
 # fi
 
+<<<<<<< Updated upstream
 echo "~~~~~~~~~~~~~~~!!! Install global with ctags !!!~~~~"
 cd $CURRENT_DIR
 tar zxvf global-6.6.3.tar.gz
@@ -252,10 +235,18 @@ cd global-6.6.3
 make
 sudo make install
 echo "~~~~~~~~~~~~~~~!!! Install global with ctags done!!!~~~"
+=======
+>>>>>>> Stashed changes
 
 echo ""
 echo -e "\033[40;32m change the default shell into: /bin/bash\033[0m"
 sudo chsh -s /bin/bash
+<<<<<<< Updated upstream
+=======
+
+echo ""
+echo ""
+>>>>>>> Stashed changes
 echo "cleanning ..."
 echo ""
 echo ""
