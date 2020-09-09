@@ -452,8 +452,13 @@
       (append '(
 		(("\\.org$" . "org header")
 		 nil
-		 "#+HTML_HEAD: <link rel=\"stylesheet\" href=\"http://dakrone.github.io/org.css\" type=\"text/css\" />"
-		 _
+                 "#+LATEX_HEADER: documentclass{article}\n"
+                 "#+LATEX_CLASS_OPTIONS: [a4paper]\n"
+                 "#+LATEX_HEADER: usepackage{xeCJK}\n"
+                 "#+LATEX_HEADER: usepackage{minted}\n"
+                 "#+LATEX_HEADER: usepackage[margin=2cm]{geometry}\n"
+                 "#+LATEX_HEADER: setminted{fontsize=small,baselinestretch=1}\n"
+                 _
 		 ))
 	      auto-insert-alist))
 (setq auto-insert-alist

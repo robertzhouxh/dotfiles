@@ -3,6 +3,8 @@ call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'bronson/vim-trailing-whitespace'
 
+Plug 'vim-scripts/DrawIt'
+
 " Golang support
 Plug 'fatih/vim-go'
 

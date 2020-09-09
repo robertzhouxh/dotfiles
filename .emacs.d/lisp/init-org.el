@@ -63,4 +63,59 @@
 ;; drag the pitcture
 (use-package org-download :ensure t)
 
+(require 'ox-latex)
+(setq org-latex-compiler "xelatex")
+(setq org-latex-pdf-process
+	'("xelatex -8bit -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; org to pdf: https://www.dazhuanlan.com/2020/04/28/5ea7e2f107bf5/?__cf_chl_jschl_tk__=6f188c90740a81954c2e5b9a8af0126fb307da54-1599611250-0-AQ1xpE1-fM1lLvd7fU6OwqbT6nzMD_xb4C7w29Qpai9WCBuTazemqsreaCjpUqIkmyMnMbirmFsuqkD1Z7LzhPMz5OSkKGwv5lVStRZJu1ZvZs4xqC_ycsu3bCn9DTrdLcWnHntDN96EgMyWivRXfDDDKz4b8Xq5RNxqu75BPSrWRYUoLQhgkWyOQp5Xffyt9TaCjdNAWHvGyGDbVr7SpZfD0e-skePdDdbFU-IliebDwXArBnvUraUoXJk9zA5WO-aKPwZzHos_HeXGO1ar8gaoHQ7E48QKBXQCwx9E0gFswBUuMMROTgo64HWpjpKdZg
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+;; 设置编译器
+(require 'ox-latex)
+(setq org-latex-compiler "xelatex")
+(setq org-latex-pdf-process
+	'("xelatex -8bit -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+;; 源代码语法高亮
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(setq org-latex-listings 'minted)
+(add-to-list 'org-latex-minted-langs '(csharp "csharp"))
+(setq org-latex-minted-options
+      '(
+	("linenos=true")
+;;	("mathescape=true")
+;;        ("numbersep=5pt")
+;;        ("gobble=2")
+	("frame=lines")
+;;        ("framesep=2mm")
+	))
+
+;; -----------------------------------------------------------------------------
+;; setting font for mac system
+;; -----------------------------------------------------------------------------
+;; Setting English Font
+(defun s-font()
+  (interactive)
+  ;; font config for org table showing.
+  (set-face-attribute
+   'default nil :font "Monaco 12")
+;; Chinese Font 配制中文字体
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font (frame-parameter nil 'font)
+		    charset
+		    (font-spec :family "Microsoft YaHei" :size 14))))
+;; tune rescale so that Chinese character width = 2 * English character width
+;;(setq face-font-rescale-alist '(("Monaco" . 1.0) ("Microsoft YaHei" . 1.23)))
+(add-to-list 'after-make-frame-functions
+	     (lambda (new-frame)
+	       (select-frame new-frame)
+	       (if window-system
+		   (s-font))))
+(if window-system
+    (s-font))
+;; 导出的快捷键是 C-x C-e l o 。 如果在导出的过程中，出现一些package不存在的提示，可以用如下命令安装：
+;;sudo tlmgr install <package name>
+
 (provide 'init-org)
