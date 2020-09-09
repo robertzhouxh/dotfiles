@@ -452,12 +452,12 @@
       (append '(
 		(("\\.org$" . "org header")
 		 nil
-                 "#+LATEX_HEADER: documentclass{article}\n"
+                 "#+LATEX_HEADER: \documentclass{article}\n"
                  "#+LATEX_CLASS_OPTIONS: [a4paper]\n"
-                 "#+LATEX_HEADER: usepackage{xeCJK}\n"
-                 "#+LATEX_HEADER: usepackage{minted}\n"
-                 "#+LATEX_HEADER: usepackage[margin=2cm]{geometry}\n"
-                 "#+LATEX_HEADER: setminted{fontsize=small,baselinestretch=1}\n"
+                 "#+LATEX_HEADER: \usepackage{xeCJK}\n"
+                 "#+LATEX_HEADER: \usepackage{minted}\n"
+                 "#+LATEX_HEADER: \usepackage[margin=2cm]{geometry}\n"
+                 "#+LATEX_HEADER: \setminted{fontsize=\small,baselinestretch=1}\n"
                  _
 		 ))
 	      auto-insert-alist))
