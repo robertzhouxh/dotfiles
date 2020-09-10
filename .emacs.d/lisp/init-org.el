@@ -69,7 +69,12 @@
 (use-package org-download :ensure t)
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;sudo tlmgr install cjk
+;; brew tap phinze/cask
+;; brew install brew-cask
+;; brew cask install basictex
+;; sudo tlmgr install cjk
+;; sudo tlmgr update --self --all
+;; sudo tlmgr install ctex environ trimspaces zhnumber
 
 ; 防止内容溢出页面
 ; #+ATTR_LATEX: :environment longtable :align l|lp{3cm}r|l
@@ -82,6 +87,7 @@
 ; #+LATEX_HEADER: usepackage{minted}
 ; #+LATEX_HEADER: usepackage[margin=2cm]{geometry}
 ; #+LATEX_HEADER: setminted{fontsize=small,baselinestretch=1}
+;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ;; -----------------------------------------------------------------------------
 ;; setting font for mac system
@@ -114,8 +120,16 @@
 ;; use minted to hightlight the source code
 (add-to-list 'org-latex-packages-alist '("" "minted"))
 (setq org-latex-listings 'minted)
-
 (add-to-list 'org-latex-minted-langs '(csharp "csharp"))
+(setq org-latex-minted-options
+      '(
+	("linenos=true")
+;;	("mathescape=true")
+;;        ("numbersep=5pt")
+;;        ("gobble=2")
+        ("frame=lines")
+;;        ("framesep=2mm")
+	))
 
 (setq org-latex-pdf-process
       '("xelatex -8bit -shell-escape -interaction nonstopmode -output-directory %o %f"))
