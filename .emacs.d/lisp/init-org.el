@@ -69,21 +69,17 @@
 (use-package org-download :ensure t)
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; brew tap phinze/cask
-;; brew install brew-cask
-;; brew cask install basictex
-;; sudo tlmgr install cjk
 ;; sudo tlmgr update --self --all
-;; sudo tlmgr install ctex environ trimspaces zhnumber
-
-; 防止内容溢出页面
-; #+ATTR_LATEX: :environment longtable :align l|lp{3cm}r|l
-; | ..... | ..... |
-; | ..... | ..... |
+;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
 
 ; #+LATEX_HEADER: \documentclass{article}
 ; #+LATEX_HEADER: \usepackage{xeCJK}
 ; #+LATEX_HEADER: \usepackage{minted}
+
+;; or use this title
+;#+LATEX_HEADER: \documentclass{article}
+;#+LATEX_HEADER: \usepackage{ctex}
+;#+LATEX_HEADER: \usepackage{minted}
 
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
