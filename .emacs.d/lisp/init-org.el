@@ -81,12 +81,10 @@
 ; | ..... | ..... |
 ; | ..... | ..... |
 
-; #+LATEX_HEADER: documentclass{article}
-; #+LATEX_CLASS_OPTIONS: [a4paper]
-; #+LATEX_HEADER: usepackage{xeCJK}
-; #+LATEX_HEADER: usepackage{minted}
-; #+LATEX_HEADER: usepackage[margin=2cm]{geometry}
-; #+LATEX_HEADER: setminted{fontsize=small,baselinestretch=1}
+; #+LATEX_HEADER: \documentclass{article}
+; #+LATEX_HEADER: \usepackage{xeCJK}
+; #+LATEX_HEADER: \usepackage{minted}
+
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ;; -----------------------------------------------------------------------------
