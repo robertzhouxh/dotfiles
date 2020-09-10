@@ -90,6 +90,8 @@ brew install moreutils
 # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
 brew install findutils
 
+# for emacs org-pdf
+ brew install Pygments
 
 # Install Bash 4.
 # Note: don’t forget to add `/usr/local/bin/bash` to `/etc/shells` before
