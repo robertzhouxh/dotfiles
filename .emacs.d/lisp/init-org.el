@@ -115,15 +115,17 @@
 (add-to-list 'org-latex-packages-alist '("" "minted"))
 (setq org-latex-listings 'minted)
 (add-to-list 'org-latex-minted-langs '(csharp "csharp"))
+(add-to-list 'org-latex-minted-langs '(bash "bash"))
+(add-to-list 'org-latex-minted-langs '(golang "golang"))
+
 (setq org-latex-minted-options
-      '(
-	("linenos=true")
-;;	("mathescape=true")
-;;        ("numbersep=5pt")
-;;        ("gobble=2")
-        ("frame=lines")
-;;        ("framesep=2mm")
-	))
+      '(("frame" "lines")
+        ("framesep=2mm")
+        ("linenos=true")
+        ("baselinestretch=1.2")
+        ("fontsize=\\footnotesize")
+        ("breaklines")
+        ))
 
 (setq org-latex-pdf-process
       '("xelatex -8bit -shell-escape -interaction nonstopmode -output-directory %o %f"))
