@@ -50,6 +50,10 @@
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
 ;; 参考org 依赖安装：https://orgmode.org/worg/org-dependencies.html
+;; http://nickgeorge.net/programming/latex_setup/
+;; pip install pygments
+;; sudo tlmgr install minted
+
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; export html with highlight code
 ;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
