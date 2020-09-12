@@ -10,13 +10,6 @@
   (exec-path-from-shell-copy-env "GOROOT")
   (exec-path-from-shell-copy-env "GOPATH")
   )
-(use-package linum
-	     :init
-	     (progn
-	       (global-linum-mode t)
-	       (setq linum-format "%4d  ")
-	       (set-face-background 'linum nil)
-	       ))
 (use-package diminish)
 (use-package json-reformat)
 (use-package comment-dwim-2)

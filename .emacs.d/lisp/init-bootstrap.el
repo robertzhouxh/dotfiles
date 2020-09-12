@@ -12,6 +12,7 @@
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark))
 
+
 ;; useful mode settings
 (display-time-mode 1)
 (column-number-mode 1)
