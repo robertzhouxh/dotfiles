@@ -29,6 +29,36 @@
     (which-key-setup-side-window-right)
     (which-key-mode 1)))
 
+;; File explorer sidebar
+(use-package treemacs
+	     :bind
+	     (("C-c t" . treemacs)
+	      ("s-a" . treemacs)))
+
+;; Cycle through buffers’ history
+(use-package buffer-flip
+  :bind
+  (("H-f" . buffer-flip)
+   :map buffer-flip-map
+   ("H-f" . buffer-flip-forward)
+   ("H-F" . buffer-flip-backward)
+   ("C-g" . buffer-flip-abort)))
+
+;;; Improved in buffer search
+(use-package ctrlf
+  :config
+  (ctrlf-mode 1))
+
+(use-package avy
+  :bind
+  (("H-." . avy-goto-char-timer)
+   ("H-," . avy-goto-line)))
+
+(use-package multiple-cursors
+  :bind
+  (("C-c n" . mc/mark-next-like-this)
+   ("C-c p" . mc/mark-previous-like-this)))
+
 (use-package paredit
   :ensure t
   :diminish paredit-mode
@@ -164,6 +194,15 @@
               (define-key magit-mode-map (kbd ",o") 'delete-other-windows)))
   (add-hook 'git-commit-mode-hook 'evil-insert-state))
 
+(use-package git-commit
+  :hook (git-commit-mode . my-american-dict))
+
+(use-package git-messenger
+  :bind ("C-x G" . git-messenger:popup-message)
+  :config
+  (setq git-messenger:show-detail t
+	git-messenger:use-magit-popup t))
+
 (use-package git-gutter
   :ensure t
   :diminish git-gutter+-mode
@@ -181,58 +220,20 @@
     (set-face-foreground 'git-gutter:modified "#b18cce")
     ))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;  以项目为单位的一些实用功能, Projectile 可以与 Helm 集成
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package projectile
   :ensure t
   :config
   (projectile-global-mode))
 (use-package helm-projectile :ensure t :defer t)
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Remote SSH
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package tramp
   :ensure t
   :defer t
   :config
   (setq tramp-default-method "ssh"
 	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
-
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; Find defination
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;(use-package gtags
-;	     :ensure nil
-;	     :load-path "vendor")
-;
-;(use-package bpr :ensure t)
-;
-;;; Bind some useful keys in the gtags select buffer that evil overrides.
-;(add-hook 'gtags-select-mode-hook
-;	  (lambda ()
-;	    (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
-;	    (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
-;
-;(defun gtags-reindex ()
-;  "Kick off gtags reindexing."
-;  (interactive)
-;  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-;	 (gtags-filename (expand-file-name "GTAGS" root-path)))
-;    (if (file-exists-p gtags-filename)
-;	(gtags-index-update root-path)
-;      (gtags-index-initial root-path))))
-;
-;(defun gtags-index-initial (path)
-;  "Generate initial GTAGS files for PATH."
-;  (let ((bpr-process-directory path))
-;    (bpr-spawn "gtags")))
-;
-;(defun gtags-index-update (path)
-;  "Update GTAGS in PATH."
-;  (let ((bpr-process-directory path))
-;    (bpr-spawn "global -uv")))
 
 (use-package dumb-jump
   :ensure t
@@ -241,17 +242,22 @@
   (setq dumb-jump-selector 'helm)
   (setq dumb-jump-prefer-searcher 'ag))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; UI Schemes + Modeline
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;(use-package all-the-icons :ensure t)
-;(use-package poet-theme
-;	     :ensure t
-;	     :config
-;	     (load-theme 'poet-dark t)
-;	     (add-hook 'text-mode-hook
-;		       (lambda ()
-;			 (variable-pitch-mode 1))))
+;; UI
+(setq my-font-list '("Fantasque Sans Mono" "Go mono" "IBM 3270"
+                     "Inconsolata" "Iosevka" "Monofur" "Monoid" "mononoki"))
+
+(defun my-set-frame-font (font-name size &optional frames)
+  "Set font to one of the fonts from `my-font-list'
+Argument FRAMES has the same meaning as for `set-frame-font'"
+  (interactive
+   (list (ivy-read "Font name: " my-font-list)
+         (read-number "Font size: ")))
+  (set-frame-font
+   (format "%s:pixelsize=%d:antialias=true:autohint=true" font-name size)
+   nil frames))
+
+(global-set-key (kbd "C-c F") #'my-set-frame-font)
+
 (load-theme 'wombat t)
 (set-cursor-color "#00ff00")
 

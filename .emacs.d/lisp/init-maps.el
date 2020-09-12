@@ -127,20 +127,8 @@
   (defun prelude-go-mode-defaults ()
     ;; Add to default go-mode key bindings
     (let ((map go-mode-map))
-      (define-key map (kbd "M-.") 'godef-jump)
-      (define-key map (kbd "M-,") 'pop-tag-mark)
-      (define-key map (kbd "C-h f") 'godoc-at-point))
-
-    ;; Prefer goimports to gofmt if installed
-    (let ((goimports (executable-find "goimports")))
-      (when goimports
-        (setq gofmt-command goimports)))
-
-    ;; gofmt on save
-    (add-hook 'before-save-hook 'gofmt-before-save nil t)
-
-    ;; stop whitespace being highlighted
-    ;;(whitespace-toggle-options '(tabs))
+      (define-key map (kbd "M-.") #'lsp-find-definition)
+      )
 
     ;; Company mode settings
     (set (make-local-variable 'company-backends) '(company-go))
@@ -148,9 +136,21 @@
     ;; CamelCase aware editing operations
     (subword-mode +1))
 
-  (setq prelude-go-mode-hook 'prelude-go-mode-defaults)
   (add-hook 'go-mode-hook (lambda ()
-			    (run-hooks 'prelude-go-mode-hook))))
+			    (run-hooks #'prelude-go-mode-defaults))))
+
+
+;(defun my-c-c++-mode-hook-fn ()
+;  (set (make-local-variable 'company-backends) '(company-rtags))
+;  (company-mode)
+;  (local-set-key (kbd "M-.") #'rtags-find-symbol-at-point)
+;  (local-set-key (kbd "M-,") #'rtags-location-stack-back)
+;  (local-set-key "\C-i" #'company-indent-or-complete-common)
+;  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+;  (local-set-key "\C-\M-i" #'company-indent-or-complete-common))
+;
+;(add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
+;(add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
   (provide 'init-maps)
   ;;; init-maps.el ends here

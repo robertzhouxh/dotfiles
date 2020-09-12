@@ -145,24 +145,25 @@
 ;; export GO111MODULE=on
 ;; go get golang.org/x/tools/gopls@latest
 ;; go get golang.org/x/tools/cmd/goimports
-
 ;;----------------------------------------------------------------------------
 
-
-
-(use-package lsp-mode
-  :ensure t
-  :commands (lsp lsp-deferred)
-  :hook (go-mode . lsp-deferred))
-
-;; Set up before-save hooks to format buffer and add/delete imports.
-;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
+(defun lsp-go-install-save-hooks()
   (add-hook 'before-save-hook #'lsp-format-buffer t t)
   (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
-;; Optional - provides fancier overlays.
+(use-package go-mode
+  :ensure t
+  :mode (("\\.go\\'" . go-mode))
+  :init
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks))
+
+;; Language Server
+(use-package lsp-mode
+  :ensure t
+  :hook
+  (go-mode . lsp-deferred)
+  :commands (lsp lsp-deferred))
+
 (use-package lsp-ui
   :ensure t
   :commands lsp-ui-mode)
