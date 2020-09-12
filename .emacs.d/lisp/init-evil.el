@@ -13,7 +13,14 @@
     ":"  'eval-expression
 
     "a"  'align-regexp
+
+    "bf" 'buffer-flip-forward
+    "bb" 'buffer-flip-backend
+    "bo" 'buffer-flip-other-window
+    "ba" 'buffer-flip-abort
+
     "c"  'comment-dwim
+
     "d"  'kill-this-buffer
 
     "es" 'ivy-erlang-complete-find-spec

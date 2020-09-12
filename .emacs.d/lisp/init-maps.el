@@ -2,6 +2,13 @@
 (use-package key-chord
              :config
              (progn
+
+               (key-chord-define-global "bn" 'buffer-flip-forward)
+               (key-chord-define-global "bp" 'buffer-flip-backward)
+               (key-chord-define-global "bf" 'buffer-flip)
+               (key-chord-define-global "bo" 'buffer-flip-other-window)
+               (key-chord-define-global "ba" 'buffer-flip-abort)
+
                (key-chord-define-global "jb" 'ibuffer)
                (key-chord-define-global "j0" 'delete-window)
                (key-chord-define-global "j1" 'delete-other-windows)

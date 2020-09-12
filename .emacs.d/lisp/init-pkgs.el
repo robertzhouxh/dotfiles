@@ -21,27 +21,8 @@
     (which-key-setup-side-window-right)
     (which-key-mode 1)))
 
-;; File explorer sidebar
-(use-package treemacs
-	     :bind
-	     (("C-c t" . treemacs)
-	      ("s-a" . treemacs)))
-
 ;; Cycle through buffers’ history
-(use-package buffer-flip
-  :bind
-  (("H-f" . buffer-flip)
-   :map buffer-flip-map
-   ("H-f" . buffer-flip-forward)
-   ("H-F" . buffer-flip-backward)
-   ("C-g" . buffer-flip-abort)))
-
-;;; Improved in buffer search
-(use-package ctrlf :config (ctrlf-mode 1))
-(use-package avy
-  :bind
-  (("H-." . avy-goto-char-timer)
-   ("H-," . avy-goto-line)))
+(use-package buffer-flip )
 
 (use-package multiple-cursors
   :bind
@@ -124,7 +105,7 @@
 	helm-ag-command-option "--all-text"
 	helm-ag-insert-at-point 'symbol))
 
-;;;; magit
+;; magit
 (use-package magit
   :defer t
   :config
@@ -181,15 +162,15 @@
   (setq tramp-default-method "ssh"
 	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
 
+;; Jump
 (use-package dumb-jump
   :diminish dumb-jump-mode
   :config
   (setq dumb-jump-selector 'helm)
   (setq dumb-jump-prefer-searcher 'ag))
 
-;; UI
+;; Font
 (setq my-font-list '("monaco" "menlo" "Source Code Pro"))
-
 (defun my-set-frame-font (font-name size &optional frames)
   "Set font to one of the fonts from `my-font-list'
 Argument FRAMES has the same meaning as for `set-frame-font'"
@@ -202,6 +183,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 
 (global-set-key (kbd "C-c F") #'my-set-frame-font)
 
+;; UI
 (load-theme 'wombat t)
 (set-cursor-color "#00ff00")
 
