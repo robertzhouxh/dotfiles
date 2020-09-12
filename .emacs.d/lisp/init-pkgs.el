@@ -188,8 +188,7 @@
   (setq dumb-jump-prefer-searcher 'ag))
 
 ;; UI
-(setq my-font-list '("Fantasque Sans Mono" "Go mono" "IBM 3270"
-                     "Inconsolata" "Iosevka" "Monofur" "Monoid" "mononoki"))
+(setq my-font-list '("monaco" "menlo" "Source Code Pro"))
 
 (defun my-set-frame-font (font-name size &optional frames)
   "Set font to one of the fonts from `my-font-list'
