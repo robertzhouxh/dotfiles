@@ -69,24 +69,25 @@ export CPPFLAGS="-I/usr/local/opt/openssl/include/"
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/Applications/Emacs.app/Contents/MacOS:$PATH"
 
-export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 
 # homebrew no update
 export HOMEBREW_NO_AUTO_UPDATE=1
 
 
-export PATH="$HOME/.pyenv/bin:$PATH"
-export PATH=$PYENV_ROOT/shims:$PATH
+PATH="$HOME/.pyenv/bin:$PATH"
+PATH=$PYENV_ROOT/shims:$PATH
 
 export CPPFLAGS="-I/usr/local/opt/openjdk/include"
-export PATH="/usr/local/opt/openjdk/bin:$PATH"
+PATH="/usr/local/opt/openjdk/bin:$PATH"
 
-export PATH="$HOME/.pyenv/bin:$PATH"
+#export PATH="$HOME/.pyenv/bin:$PATH"
 #eval "$(pyenv init -)"
 #eval "$(pyenv virtualenv-init -)"
-
-
 
 export GUILE_LOAD_PATH="/usr/local/share/guile/site/3.0"
 export GUILE_LOAD_COMPILED_PATH="/usr/local/lib/guile/3.0/site-ccache"
 export GUILE_SYSTEM_EXTENSIONS_PATH="/usr/local/lib/guile/3.0/extensions"
+
+# latex
+export PATH=$PATH:/Library/TeX/texbin
