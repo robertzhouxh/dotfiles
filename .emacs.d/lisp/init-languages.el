@@ -142,71 +142,30 @@
 
 ;;----------------------------------------------------------------------------
 ;; Golang
-;; go get github.com/rogpeppe/godef
-;; go get -u github.com/golang/lint/golint
-;; go get -u github.com/nsf/gocode
-;; c-x c-s 保存
-;; c-x c-e 下载
+;; export GO111MODULE=on
+;; go get golang.org/x/tools/gopls@latest
+;; go get golang.org/x/tools/cmd/goimports
+
 ;;----------------------------------------------------------------------------
-;;(use-package go-mode
-;;             :ensure t
-;;             :bind (:map go-mode-map
-;;                         ("M-l" . godef-jump)
-;;                         ("M-h" . pop-tag-mark))
-;;             :config
-;;             (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
-;;             (setq gofmt-command "goimports")
-;;             (add-hook 'before-save-hook 'gofmt-before-save))
-;;
-;;(use-package company-go
-;;             :ensure t
-;;             :after go-mode
-;;             :config
-;;             (setq company-go-gocode-command "/Users/xier/go-workspace/bin/gocode")
-;;             (add-hook 'go-mode-hook 'company-mode)
-;;             (add-hook 'go-mode-hook (lambda ()
-;;                                       (set (make-local-variable 'company-backends) '(company-go))
-;;                                       (company-mode)))
-;;             (setq company-tooltip-align-annotations t))
 
-;;; Code:
-(use-package go-mode
+
+
+(use-package lsp-mode
   :ensure t
-  :mode (("\\.go\\'" . go-mode))
-  :hook ((before-save . gofmt-before-save))
-  :config
-  (setq gofmt-command "goimports")
-  (use-package company-go
-    :ensure t
-    :config
-    (add-hook 'go-mode-hook (lambda()
-			      (add-to-list (make-local-variable 'company-backends)
-					   '(company-go company-files company-yasnippet company-capf))))
-    )
-  (use-package go-eldoc
-    :ensure t
-    :hook (go-mode . go-eldoc-setup)
-    )
-  (use-package go-guru
-    :ensure t
-    :hook (go-mode . go-guru-hl-identifier-mode)
-    )
-  ;; (use-package go-rename
-  ;;   :ensure t)
-  )
+  :commands (lsp lsp-deferred)
+  :hook (go-mode . lsp-deferred))
 
-;;
-;; for guru setup scope
-;;
-(defun my/go-guru-set-current-package-as-main ()
-  "GoGuru requires the scope to be set to a go package which
-     contains a main, this function will make the current package the
-     active go guru scope, assuming it contains a main"
-  (interactive)
-  (let* ((filename (buffer-file-name))
-	 (gopath-src-path (concat (file-name-as-directory (go-guess-gopath)) "src"))
-	 (relative-package-path (directory-file-name (file-name-directory (file-relative-name filename gopath-src-path)))))
-    (setq go-guru-scope relative-package-path)))
+;; Set up before-save hooks to format buffer and add/delete imports.
+;; Make sure you don't have other gofmt/goimports hooks enabled.
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+
+;; Optional - provides fancier overlays.
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
 
 ;;----------------------------------------------------------------------------
 ;; clojure
