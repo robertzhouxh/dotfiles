@@ -2,26 +2,25 @@
 ;;; Commentary:
 ;;; Code:
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Basic plugins
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package exec-path-from-shell
-  :ensure t
   :if (x/system-is-mac)
   :config
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "GOROOT")
   (exec-path-from-shell-copy-env "GOPATH")
-  ;;(exec-path-from-shell-copy-env "LC_ALL")
-  ;;(exec-path-from-shell-copy-env "LANG")
-  ;;(exec-path-from-shell-copy-env "LC_TYPE")
   )
-
-(use-package diminish :ensure t)
-(use-package json-reformat :ensure t :defer t)
-(use-package comment-dwim-2 :ensure t)
+(use-package linum
+	     :init
+	     (progn
+	       (global-linum-mode t)
+	       (setq linum-format "%4d  ")
+	       (set-face-background 'linum nil)
+	       ))
+(use-package diminish)
+(use-package json-reformat)
+(use-package comment-dwim-2)
 (use-package which-key
-  :ensure t
   :diminish which-key-mode
   :config
   (progn
@@ -45,10 +44,7 @@
    ("C-g" . buffer-flip-abort)))
 
 ;;; Improved in buffer search
-(use-package ctrlf
-  :config
-  (ctrlf-mode 1))
-
+(use-package ctrlf :config (ctrlf-mode 1))
 (use-package avy
   :bind
   (("H-." . avy-goto-char-timer)
@@ -60,7 +56,6 @@
    ("C-c p" . mc/mark-previous-like-this)))
 
 (use-package paredit
-  :ensure t
   :diminish paredit-mode
   :init
   (add-hook 'erlang-mode-hook 'paredit-mode)
@@ -68,14 +63,10 @@
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
 (use-package flycheck
-  :ensure t
-  :defer t
   :config
   (global-flycheck-mode 1))
 
 (use-package yasnippet
-  :ensure t
-  :defer t
   :init
   (yas-global-mode)
   :config
@@ -83,9 +74,7 @@
     (add-to-list 'yas-snippet-dirs (concat user-emacs-directory "snippets"))))
 
 (use-package company
-  :ensure t
   :diminish 'company-mode
-  :defer t
   :init
   (global-company-mode)
   :config
@@ -95,14 +84,10 @@
   (define-key company-active-map (kbd "C-p") 'company-select-next)
   (define-key company-active-map (kbd "C-n") 'company-select-previous))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Emacs framework for incremental completions and narrowing selections
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package helm-descbinds
-  :ensure t
   :init (helm-descbinds-mode))
 (use-package helm
-  :ensure t
   :diminish helm-mode
   :init
   (progn
@@ -125,33 +110,12 @@
 	  ("M-y" . helm-show-kill-ring)
 	  ("M-x" . helm-M-x)))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; highlight symbol and search
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;(use-package hl-todo
-;;  :ensure t
-;;  :config
-;;  (setq hl-todo-highlight-punctuation ":")
-;;  (global-hl-todo-mode))
-
-;; 增量搜索匹配行, 类似于helm-occur，但会即时显示匹配的部分
-(use-package avy :ensure t :config (setq avy-background t))
-(use-package helm-swoop :ensure t)
+(use-package avy :config (setq avy-background t))
+(use-package helm-swoop)
 ;; substitue the default  C-s(isearch-forward)
-(use-package swiper :ensure t :bind (("C-s" . swiper)))
-(use-package symbol-overlay
-  :ensure t
-;  :bind (:map symbol-overlay-mode-map
-;	      ("M-h" . symbol-overlay-put)
-;	      ("M-n" . symbol-overlay-jump-next)
-;	      ("M-p" . symbol-overlay-jump-prev))
-  :hook ((conf-mode . symbol-overlay-mode)
-	 (html-mode . symbol-overlay-mode)
-	 (prog-mode . symbol-overlay-mode)
-	 (org-mode . symbol-overlay-mode)
-	 (yaml-mode . symbol-overlay-mode)))
+(use-package swiper :bind (("C-s" . swiper)))
 (use-package ag
-  :ensure t
   :defer t
   :config
   (progn
@@ -161,19 +125,14 @@
     (bind-key "N" 'compilation-next-file ag-mode-map)
     (bind-key "P" 'compilation-previous-file ag-mode-map)))
 (use-package helm-ag
-  :ensure t
   :defer t
   :init
   (setq helm-ag-base-command "ag --nocolor --nogroup --ignore-case"
 	helm-ag-command-option "--all-text"
 	helm-ag-insert-at-point 'symbol))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; version control
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;;; magit
 (use-package magit
-  :ensure t
   :defer t
   :config
   (setq magit-display-buffer-function
@@ -194,9 +153,7 @@
               (define-key magit-mode-map (kbd ",o") 'delete-other-windows)))
   (add-hook 'git-commit-mode-hook 'evil-insert-state))
 
-(use-package git-commit
-  :hook (git-commit-mode . my-american-dict))
-
+(use-package git-commit :hook (git-commit-mode . my-american-dict))
 (use-package git-messenger
   :bind ("C-x G" . git-messenger:popup-message)
   :config
@@ -204,7 +161,6 @@
 	git-messenger:use-magit-popup t))
 
 (use-package git-gutter
-  :ensure t
   :diminish git-gutter+-mode
   :defer t
   :init
@@ -222,21 +178,17 @@
 
 ;;  以项目为单位的一些实用功能, Projectile 可以与 Helm 集成
 (use-package projectile
-  :ensure t
   :config
   (projectile-global-mode))
-(use-package helm-projectile :ensure t :defer t)
+(use-package helm-projectile)
 
 ;; Remote SSH
 (use-package tramp
-  :ensure t
-  :defer t
   :config
   (setq tramp-default-method "ssh"
 	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
 
 (use-package dumb-jump
-  :ensure t
   :diminish dumb-jump-mode
   :config
   (setq dumb-jump-selector 'helm)

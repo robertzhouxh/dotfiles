@@ -2,9 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-;;----------------------------------------------------------------------------
-;; awesome trick cool
-;;----------------------------------------------------------------------------
 (defun x/recompile-elpa ()
   "Recompile packages in elpa directory. Useful if you switch Emacs versions."
   (interactive)
@@ -81,41 +78,13 @@
     (skip-chars-forward "-_A-Za-z0-9")
     (set-mark pt)))
 
-;;----------------------------------------------------------------------------
 ;; manage window
-;;----------------------------------------------------------------------------
-;(defun x-split-window-right ()
-;  "Split window with another buffer."
-;  (interactive)
-;  (select-window (split-window-right))
-;  (switch-to-buffer (other-buffer)))
-;
-;(defun x-split-window-below ()
-;  "Split window with another buffer."
-;  (interactive)
-;  (select-window (split-window-below))
-;  (switch-to-buffer (other-buffer)))
-
 (defun revert-all-buffers ()
   (interactive)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
                          (when (buffer-file-name)
                            (revert-buffer t t t)))))
-
-;(defun vsplit-last-buffer ()
-;  (interactive)
-;  (split-window-vertically)
-;  (other-window 1 nil)
-;  (switch-to-next-buffer)
-;  )
-;(defun hsplit-last-buffer ()
-;  (interactive)
-;  (split-window-horizontally)
-;  (other-window 1 nil)
-;  (switch-to-next-buffer)
-;  )
-
 ;; spawn shell
 (defun x/eshell-here ()
   "Opens up a new shell in the directory associated with the
@@ -148,9 +117,7 @@ directory to make multiple eshell windows easier."
              (projectile-project-p))
     (call-interactively #'projectile-invalidate-cache)))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; 	Insert Src Block
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; Insert Src Block
 (use-package ido-completing-read+)
 (defun pkg-insert-src-block (src-code-type)
   "Insert a `SRC-CODE-TYPE' type source code block in org-mode."

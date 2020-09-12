@@ -1,6 +1,8 @@
 ;;; init-evil.el -- My evil mode configuration.
 ;;; Commentary:
 ;;; Code:
+
+;; customize my keybinds
 (defun x/config-evil-leader ()
   "Configure evil leader mode."
   (evil-leader/set-leader ",")
@@ -63,9 +65,7 @@
     ))
 
 (use-package evil
-             :ensure t
              :init
-             ;; TODO: robertzhouxh !!!  (setq evil-want-C-u-scroll t) needs to happen before evil is loaded.
              (setq evil-want-C-u-scroll t)
              (setq evil-search-module 'evil-search)
              (setq evil-shift-round nil)
@@ -91,12 +91,10 @@
                                    (help-mode . emacs)
                                    (fundamental-mode . emacs))))
                (use-package evil-leader
-                            :ensure t
                             :config
                             (global-evil-leader-mode)
                             (x/config-evil-leader))
                (use-package evil-visualstar
-                            :ensure t
                             :bind (:map evil-visual-state-map
                                         ("*" . evil-visualstar/begin-search-forward)
                                         ("#" . evil-visualstar/begin-search-backward)))

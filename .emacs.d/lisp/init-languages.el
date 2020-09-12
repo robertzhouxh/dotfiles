@@ -1,34 +1,31 @@
-;;; init-languages.el --- Set up programming languages
+;;; init-languages.el
 ;;; Commentary:
 
-;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;; helm-dash-install-docset ===> GO, Erlang, Mongodb, Redis,...
-;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package helm-dash
-  :config
-  (progn
-    (setq helm-dash-browser-func 'eww)
-    (setq helm-dash-docsets-path (expand-file-name "~/.emacs.d/docsets"))
-    (helm-dash-activate-docset "Go")
-    (helm-dash-activate-docset "Erlang")
-    (helm-dash-activate-docset "Python 3")
-    (helm-dash-activate-docset "Emacs Lisp")
-    ))
+;;---------------------------------------------------------
+;; Golang
+;; export GO111MODULE=on
+;; go get golang.org/x/tools/gopls@latest
+;; go get golang.org/x/tools/cmd/goimports
+;;---------------------------------------------------------
 
-;;--------------------------------------------------------------
-;; cc-mode
-;;--------------------------------------------------------------
-(use-package cc-mode
-  :config
-  (progn
-    (add-hook 'c-mode-hook (lambda () (c-set-style "bsd")))
-    (add-hook 'java-mode-hook (lambda () (c-set-style "bsd")))
-    (setq tab-width 4)
-    (setq c-basic-offset 4)))
+(defun lsp-go-install-save-hooks()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
 
-;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(use-package go-mode
+  :mode (("\\.go\\'" . go-mode))
+  :init
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks))
+
+;; Language Server
+(use-package lsp-mode
+  :hook
+  (go-mode . lsp-deferred)
+  :commands (lsp lsp-deferred))
+(use-package lsp-ui :commands lsp-ui-mode)
+
+;;---------------------------------------------------------------
 ;; Erlang Programming << sed ---> gsed >>
-;;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; ===> https://stackoverflow.com/questions/30003570/how-to-use-gnu-sed-on-mac-os-x#34815955
 ;; wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
 ;; sudo dpkg -i erlang-solutions_1.0_all.deb
@@ -47,6 +44,7 @@
 ;;    Test:
 ;;    $ man erl
 ;;    Updated: Erlang's man pages may not need to download, since there is already a copy at /usr/local/lib/erlang/man. Just copy them into manpath.
+;;---------------------------------------------------------------
 
 (setq auto-mode-alist
       (reverse
@@ -91,7 +89,6 @@
 
 ;; https://github.com/s-kostyaev/ivy-erlang-complete
 (use-package ivy-erlang-complete
-  :ensure t
   :custom
   (ivy-erlang-complete-erlang-root '/usr/local/Cellar/erlang/22.3.2/lib/erlang)
   :config
@@ -109,218 +106,20 @@
   (add-hook 'erlang-mode-hook #'company-erlang-init)
   )
 
-;;----------------------------------------------------------------------------
-;; lisp: C-x C-e 执行光标下lisp
-;; 或者 l执行整个buffer ==> ,e
-;;----------------------------------------------------------------------------
-(use-package slime
-  :defer t
+;; cc-mode
+(use-package cc-mode
   :config
   (progn
-    (use-package ac-slime :ensure t)
-    (setq inferior-lisp-program "sbcl")
-    (slime-setup)
-    (add-hook 'slime-mode-hook 'set-up-slime-ac)
-    (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-    (add-hook 'slime-mode-hook
-	      (lambda ()
-		(unless (slime-connected-p)
-		  (save-excursion (slime)))))
-    (slime-setup '(slime-fancy slime-asdf))
-    (slime-setup '(slime-repl slime-fancy slime-banner))
-    (setq slime-protocol-version 'ignore
-	  slime-net-coding-system 'utf-8-unix
-	  ;;slime-complete-symbol*-fancy t
-	  slime-complete-symbol-function 'slime-fuzzy-complete-symbol))
-  :ensure t)
+    (add-hook 'c-mode-hook (lambda () (c-set-style "bsd")))
+    (add-hook 'java-mode-hook (lambda () (c-set-style "bsd")))
+    (setq tab-width 4)
+    (setq c-basic-offset 4)))
 
-(use-package color-identifiers-mode
-  :ensure t
-  :init
-  (add-hook 'emacs-lisp-mode-hook 'color-identifiers-mode)
-  :diminish color-identifiers-mode)
-
-;;----------------------------------------------------------------------------
-;; Golang
-;; export GO111MODULE=on
-;; go get golang.org/x/tools/gopls@latest
-;; go get golang.org/x/tools/cmd/goimports
-;;----------------------------------------------------------------------------
-
-(defun lsp-go-install-save-hooks()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-
-(use-package go-mode
-  :ensure t
-  :mode (("\\.go\\'" . go-mode))
-  :init
-  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks))
-
-;; Language Server
-(use-package lsp-mode
-  :ensure t
-  :hook
-  (go-mode . lsp-deferred)
-  :commands (lsp lsp-deferred))
-
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
-
-;;----------------------------------------------------------------------------
-;; clojure
-;; M-x cider-jack-in 打开一个repl 的session，你编写的Clojure代码之后会在这里运行。
-
-;; C-c C-k 编译Clojure代码，如果编译出错 C-c C-f来定位错误的地方然后修正。
-;; C-c C-, 可以用来运行测试文件，结果会输出到打开的repl session。
-
-;; C-c M-n 用来切换repl session的namespace， 如果你正在编写一个clojure文件，可以
-;; 使用这个快捷键来一边开发，一边测试。
-
-;; C-c C-o 可以用来清初repl session的无用信息。
-;; C-c C-d 可以用来查看函数的doc。
-
-;; M-. 可以查看函数的源代码。
-;; M-, 用来查看第三方库
-;;----------------------------------------------------------------------------
-(use-package clj-refactor :ensure t)
-(use-package clojure-mode
-  :ensure t
-  :config
-  (add-hook 'clojure-mode-hook #'paredit-mode)
-  (add-hook 'clojure-mode-hook #'subword-mode)
-  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
-
-(use-package cider
-  :config
-  (setq nrepl-popup-stacktraces nil)
-  (add-hook 'cider-mode-hook 'eldoc-mode)
-  (add-hook 'cider-mode-hook #'rainbow-delimiters-mode)
-  ;; Replace return key with newline-and-indent when in cider mode.
-  (add-hook 'cider-mode-hook '(lambda () (local-set-key (kbd "RET") 'newline-and-indent)))
-  (add-hook 'cider-mode-hook #'company-mode)
-  (add-hook 'cider-repl-mode-hook 'subword-mode)
-  (add-hook 'cider-repl-mode-hook 'paredit-mode)
-  (add-hook 'cider-repl-mode-hook #'company-mode)
-  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
-  :custom
-  ;; nice pretty printing
-  (cider-repl-use-pretty-printing t)
-  ;; nicer font lock in REPL
-  (cider-repl-use-clojure-font-lock t)
-  ;; result prefix for the REPL
-  (cider-repl-result-prefix "; => ")
-  ;; never ending REPL history
-  (cider-repl-wrap-history t)
-  ;; looong history
-  (cider-repl-history-size 5000)
-  ;; persistent history
-  (cider-repl-history-file "~/.emacs.d/cider-history")
-  ;; error buffer not popping up
-  (cider-show-error-buffer nil)
-  ;; go right to the REPL buffer when it's finished connecting
-  (cider-repl-pop-to-buffer-on-connect t))
-
-(use-package clojure-mode-extra-font-locking
-  :ensure t
-  :config
-  ;; syntax hilighting for midje
-  (add-hook 'clojure-mode-hook
-	    (lambda ()
-	      (setq inferior-lisp-program "lein repl")
-	      (font-lock-add-keywords
-	       nil
-	       '(("(\\(facts?\\)"
-		  (1 font-lock-keyword-face))
-		 ("(\\(background?\\)"
-		  (1 font-lock-keyword-face))))
-	      (define-clojure-indent (fact 1))
-	      (define-clojure-indent (facts 1)))))
-
-					; key bindings
-					; these help me out with the way I usually develop web apps
-(defun cider-start-http-server ()
-  (interactive)
-  (cider-load-current-buffer)
-  (let ((ns (cider-current-ns)))
-    (cider-repl-set-ns ns)
-    (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
-    (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
-
-(defun cider-refresh ()
-  (interactive)
-  (cider-interactive-eval (format "(user/reset)")))
-
-(defun cider-user-ns ()
-  (interactive)
-  (cider-repl-set-ns "user"))
-
-(eval-after-load 'cider
-  '(progn
-     (define-key clojure-mode-map (kbd "C-c C-v") 'cider-start-http-server)
-     (define-key clojure-mode-map (kbd "C-M-r") 'cider-refresh)
-     (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
-     (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
-
-(require 'clj-refactor)
-(defun cljr-mode-hook ()
-  (clj-refactor-mode 1)
-  (yas-minor-mode 1) ; for adding require/use/import statements
-  ;; This choice of keybinding leaves cider-macroexpand-2 unbound
-  (cljr-add-keybindings-with-prefix "C-c C-m")
-  (define-key clojure-mode-map (kbd "C-c M-RET") 'cider-macroexpand-1))
-(add-hook 'clojure-mode-hook #'cljr-mode-hook)
-
-(defun my/set-cljs-repl-figwheel ()
-  (setq cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))"))
-
-(defun my/cider-figwheel-repl ()
-  (interactive)
-  (save-some-buffers)
-  (with-current-buffer (cider-current-repl-buffer)
-    (goto-char (point-max))
-    (insert "(require 'figwheel-sidecar.repl-api)
-	     (figwheel-sidecar.repl-api/start-figwheel!)
-	     (figwheel-sidecar.repl-api/cljs-repl)")
-    (cider-repl-return)))
-
-(global-set-key (kbd "C-c C-f") #'my/cider-figwheel-repl)
-
-(defun my/set-cljs-repl-rhino ()
-  (setq cider-cljs-lein-repl "rhino"))
-
-(defun my/start-cider-repl-with-profile (profile)
-  (interactive "sEnter profile name: ")
-  (letrec ((lein-params (concat "with-profile +" profile " repl :headless")))
-    (message "lein-params set to: %s" lein-params)
-    (set-variable 'cider-lein-parameters lein-params)
-    (cider-jack-in)
-    (set-variable 'cider-lein-parameters "repl :headless")))
-
-(require 'clojure-mode)
-(define-clojure-indent
-  (defroutes 'defun)
-  (GET 2)
-  (POST 2)
-  (PUT 2)
-  (DELETE 2)
-  (HEAD 2)
-  (ANY 2)
-  (OPTIONS 2)
-  (PATCH 2)
-  (rfn 2)
-  (let-routes 1)
-  (context 2))
-
-;;----------------------------------------------------------------------------
 ;; other programming languages
-;;----------------------------------------------------------------------------
 (use-package sh-script
   :defer t
   :config (setq sh-basic-offset 4))
 (use-package web-mode
-  :ensure t
   :mode (("\\.phtml\\'" . web-mode)
 	 ("\\.erb\\'" . web-mode)
 	 ("\\.mustache\\'" . web-mode)
@@ -332,22 +131,15 @@
   (setq web-mode-enable-current-column-highlight t)
   (setq web-mode-enable-current-element-highlight t))
 (use-package lua-mode
-  :ensure t
   :mode (("\\.lua\\'" . lua-mode))
   :config
   (add-hook 'lua-mode-hook #'company-mode))
-(use-package markdown-mode
-  :ensure t
-  :mode ("\\.md\\'" . markdown-mode))
-(use-package dockerfile-mode
-  :ensure t
-  :mode "\\Dockerfile\\'")
-(use-package yaml-mode
-  :defer t
-  :mode ("\\.yml$" . yaml-mode))
-(use-package ansible
-  :defer t
-  :init (add-hook 'yaml-mode-hook '(lambda () (ansible 1))))
+(use-package markdown-mode)
+(use-package dockerfile-mode)
+(use-package yaml-mode)
+(use-package json-mode)
+(use-package protobuf-mode)
+
 
 ;;----------------------------------------------------------------------------
 ;; auto insert
@@ -524,4 +316,4 @@
 	      auto-insert-alist))
 
 (provide 'init-languages)
-	;;; init-languages.el ends here
+;;; init-languages.el ends here

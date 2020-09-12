@@ -1,8 +1,5 @@
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; Plugin Keybinding Mapping
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package key-chord
-             :ensure t
              :config
              (progn
                (key-chord-define-global "jb" 'ibuffer)
@@ -12,8 +9,8 @@
                (key-chord-define-global "kb" 'gh/kill-current-buffer)
                (key-chord-mode 1)))
 
-(use-package hydra :ensure t)
-;; 如果用过 magit , 对 magit-status 下按 c 等出现的可选菜单应该有印象, hydra 正是把这个能力扩展了. hydra 也在快速进化变强,
+(use-package hydra)
+;; magit-status 下按 c 等出现的可选菜单一样
 (global-set-key
   (kbd "C-M-w")
   (defhydra hydra-window ()
@@ -82,9 +79,7 @@
               ("r" symbol-overlay-rename)
               ("q" nil "quit")))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; 全局 mapping
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
 (global-set-key (kbd "C-t") 'gtags-pop-stack)
 (global-set-key (kbd "M-]") 'dumb-jump-go)
@@ -100,9 +95,7 @@
 (global-set-key [M-up]    'shrink-window)
 (global-set-key [M-down]  'enlarge-window)
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; 覆盖全局 mapping
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (eval-after-load "evil-maps"
                  (dolist (map '(evil-normal-state-map
                                 evil-motion-state-map
@@ -122,7 +115,6 @@
      ))
 
 ;; stolen from: https://github.com/bbatsov/prelude/blob/master/modules/prelude-go.el
-
 (with-eval-after-load 'go-mode
   (defun prelude-go-mode-defaults ()
     ;; Add to default go-mode key bindings
@@ -138,7 +130,6 @@
 
   (add-hook 'go-mode-hook (lambda ()
 			    (run-hooks #'prelude-go-mode-defaults))))
-
 
 ;(defun my-c-c++-mode-hook-fn ()
 ;  (set (make-local-variable 'company-backends) '(company-rtags))

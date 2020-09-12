@@ -39,9 +39,7 @@
 ;(setq url-proxy-services `(("http" . "127.0.0.1:8123")
 ;                           ("https" . "127.0.0.1:8123")))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;	load my own configurations
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; load my own configurations
 (require 'init-bootstrap)
 (require 'init-utils)
 (require 'init-plantform)

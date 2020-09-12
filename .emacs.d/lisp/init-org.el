@@ -1,25 +1,25 @@
 ;;; init-org.el --- Set up Org Mode
 ;;; Commentary:
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; org basic settings
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package org-evil :ensure t)
-
-(setf org-todo-keyword-faces '(("TODO" . (:foreground "white" :background "#95A5A6"   :weight bold))
-                               ("HAND" . (:foreground "white" :background "#2E8B57"  :weight bold))
-                               ("DONE" . (:foreground "white" :background "#3498DB" :weight bold))))
+(use-package org-evil)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "INPROGRESS(i)" "WAITING(w)" "REVIEW(r)" "|" "DONE(d)" "CANCELED(c)")))
+(setq org-todo-keyword-faces
+      '(("TODO" . org-warning)
+        ("INPROGRESS" . "yellow")
+        ("WAITING" . "purple")
+        ("REVIEW" . "orange")
+        ("DONE" . "green")
+        ("CANCELED" .  "red")))
 (use-package org-bullets
-             :ensure t
              :config
              (progn
                (setq org-bullets-bullet-list '("☯" "✿" "✚" "◉" "❀"))
                ;;(setq org-bullets-bullet-list '("☰" "☷" "☯" "☭"))
                (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; code: cd .emacs.d/elpa/org-20161102 && rm *.elc || 执行 x/recompile-elpa
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (require 'ob)
 (require 'ob-shell)
 (org-babel-do-load-languages
@@ -49,26 +49,31 @@
 
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
-;; 参考org 依赖安装：https://orgmode.org/worg/org-dependencies.html
-;; http://nickgeorge.net/programming/latex_setup/
-;; pip install pygments
-;; sudo tlmgr install minted
-
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;; export html with highlight code
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 (use-package htmlize
-             :ensure t
              :defer t
              :commands (htmlize-buffer
                          htmlize-file
                          htmlize-many-files
                          htmlize-many-files-dired
                          htmlize-region))
-;; drag the pitcture
-(use-package org-download :ensure t)
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; drag the pitcture to the cursor's positon
+(use-package org-download)
+
+;; --------------------------------------------------------------
+;; org -> latex -> pdf
+;; --------------------------------------------------------------
+;; latex supporting deps
+;; https://orgmode.org/worg/org-dependencies.html
+
+;; brew cask install basictex --verbose # verbose flag so I can see what is happening.
+;; which pdflatex
+;; export PATH=$PATH:/Library/TeX/texbin
+
+;; pip install pygments
+;; sudo tlmgr install minted
+
 ;; sudo tlmgr update --self --all
 ;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
 
@@ -80,12 +85,9 @@
 ;#+LATEX_HEADER: \documentclass{article}
 ;#+LATEX_HEADER: \usepackage{ctex}
 ;#+LATEX_HEADER: \usepackage{minted}
+;; --------------------------------------------------------------
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-;; -----------------------------------------------------------------------------
 ;; setting font for mac system
-;; -----------------------------------------------------------------------------
 ;; Setting English Font
 (defun s-font()
   (interactive)

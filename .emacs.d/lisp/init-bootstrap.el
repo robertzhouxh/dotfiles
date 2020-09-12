@@ -2,9 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;	setup coding system and window property
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; setup coding system and window property
 (prefer-coding-system 'utf-8)
 (setenv "LANG" "en_US.UTF-8")
 (setenv	"LC_ALL" "en_US.UTF-8")
@@ -50,7 +48,6 @@
   gc-cons-threshold (* 50 1000 1000)
   large-file-warning-threshold 100000000)
 
-;; 设置默认为左右分屏
 (setq split-width-threshold 1)
 
 ;; Don't beep at me
@@ -75,9 +72,7 @@
                    (abbreviate-file-name (buffer-file-name))
 		   "%b"))))
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;	setup history of edited file
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; setup history of edited file
 (savehist-mode 1)
 (setq savehist-file "~/.emacs.d/.savehist")
 (setq history-length t)
@@ -88,10 +83,7 @@
 	 search-ring
 	 regexp-search-ring))
 
-
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;fix Tramp mode is much slower than using terminal to ssh
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;; fix Tramp mode is much slower than using terminal to ssh
 (setq remote-file-name-inhibit-cache nil)
 (setq vc-ignore-dir-regexp
          (format "%s\\|%s"
@@ -99,15 +91,12 @@
                        tramp-file-name-regexp))
 (setq tramp-verbose 1)
 
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-;;; essential libs
-;; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-(use-package s        :ensure t :defer t)
-;(use-package cl       :ensure t :defer t)
-(use-package ht       :ensure t :defer t)
-(use-package git      :ensure t :defer t)
-(use-package dash     :ensure t :defer t)
-(use-package mustache :ensure t :defer t)
-(use-package popup    :ensure t :defer t)
+;; essential libs
+(use-package s        )
+(use-package ht       )
+(use-package git      )
+(use-package dash     )
+(use-package mustache )
+(use-package popup    )
 
 (provide 'init-bootstrap)
