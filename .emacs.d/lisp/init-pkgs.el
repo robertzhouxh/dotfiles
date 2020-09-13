@@ -166,7 +166,8 @@
 (use-package dumb-jump
   :diminish dumb-jump-mode
   :config
-  (setq dumb-jump-selector 'helm)
+  ;(setq dumb-jump-selector 'helm)
+  (setq dumb-jump-selector 'ivy)
   (setq dumb-jump-prefer-searcher 'ag))
 
 ;; Font
