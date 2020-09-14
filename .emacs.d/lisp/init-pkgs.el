@@ -127,7 +127,6 @@
               (define-key magit-mode-map (kbd ",o") 'delete-other-windows)))
   (add-hook 'git-commit-mode-hook 'evil-insert-state))
 
-(use-package git-commit :hook (git-commit-mode . my-american-dict))
 (use-package git-messenger
   :bind ("C-x G" . git-messenger:popup-message)
   :config
