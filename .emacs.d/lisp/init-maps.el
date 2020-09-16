@@ -1,23 +1,5 @@
 ;; Plugin Keybinding Mapping
-(use-package key-chord
-             :config
-             (progn
 
-               (key-chord-define-global "bn" 'buffer-flip-forward)
-               (key-chord-define-global "bp" 'buffer-flip-backward)
-               (key-chord-define-global "bf" 'buffer-flip)
-               (key-chord-define-global "bo" 'buffer-flip-other-window)
-               (key-chord-define-global "ba" 'buffer-flip-abort)
-
-               (key-chord-define-global "jb" 'ibuffer)
-               (key-chord-define-global "j0" 'delete-window)
-               (key-chord-define-global "j1" 'delete-other-windows)
-               (key-chord-define-global "jz" 'magit-dispatch-popup)
-               (key-chord-define-global "kb" 'gh/kill-current-buffer)
-               (key-chord-mode 1)))
-
-(use-package hydra)
-;; magit-status 下按 c 等出现的可选菜单一样
 (global-set-key
   (kbd "C-M-w")
   (defhydra hydra-window ()
@@ -39,52 +21,52 @@
             ("o" delete-other-windows "1" :color blue)
             ("i" ace-maximize-window "a1" :color blue)
             ("q" nil "cancel")))
-
-(global-set-key
-  (kbd "C-M-o")
-  (defhydra hydra-vi
-            (:pre
-              (set-cursor-color "#e52b50")
-              :post
-              (set-cursor-color "#ffffff")
-              :color amaranth)
-            "vi"
-            ("l" forward-char)
-            ("h" backward-char)
-            ("j" next-line)
-            ("k" previous-line)
-            ("m" set-mark-command "mark")
-            ("a" move-beginning-of-line "beg")
-            ("e" move-end-of-line "end")
-            ("d" delete-region "del" :color blue)
-            ("y" kill-ring-save "yank" :color blue)
-            ("q" nil "quit")))
-
-(global-set-key
-  (kbd "C-M-i")
-  (defhydra hydra-vi
-            (:pre
-              (set-cursor-color "#e52b50")
-              :post
-              (set-cursor-color "#ffffff")
-              :color amaranth)
-              "
-              [_i_]ut       Jump to [_n_]ext        Search [_s_]iterally
-              [_t_]oggle            [_p_]revious     ...or [_q_]uery Replace
-              [_e_]cho              [_d_]efinition   ...or [_r_]ename
-              [_s_]ave
-              "
-              ("i" symbol-overlay-put)
-              ("n" symbol-overlay-jump-next)
-              ("p" symbol-overlay-jump-prev)
-              ("w" symbol-overlay-save-symbol)
-              ("t" symbol-overlay-toggle-in-scope)
-              ("e" symbol-overlay-echo-mark)
-              ("d" symbol-overlay-jump-to-definition)
-              ("s" symbol-overlay-isearch-literally)
-              ("q" symbol-overlay-query-replace)
-              ("r" symbol-overlay-rename)
-              ("q" nil "quit")))
+;
+;(global-set-key
+;  (kbd "C-M-o")
+;  (defhydra hydra-vi
+;            (:pre
+;              (set-cursor-color "#e52b50")
+;              :post
+;              (set-cursor-color "#ffffff")
+;              :color amaranth)
+;            "vi"
+;            ("l" forward-char)
+;            ("h" backward-char)
+;            ("j" next-line)
+;            ("k" previous-line)
+;            ("m" set-mark-command "mark")
+;            ("a" move-beginning-of-line "beg")
+;            ("e" move-end-of-line "end")
+;            ("d" delete-region "del" :color blue)
+;            ("y" kill-ring-save "yank" :color blue)
+;            ("q" nil "quit")))
+;
+;(global-set-key
+;  (kbd "C-M-i")
+;  (defhydra hydra-vi
+;            (:pre
+;              (set-cursor-color "#e52b50")
+;              :post
+;              (set-cursor-color "#ffffff")
+;              :color amaranth)
+;              "
+;              [_i_]ut       Jump to [_n_]ext        Search [_s_]iterally
+;              [_t_]oggle            [_p_]revious     ...or [_q_]uery Replace
+;              [_e_]cho              [_d_]efinition   ...or [_r_]ename
+;              [_s_]ave
+;              "
+;              ("i" symbol-overlay-put)
+;              ("n" symbol-overlay-jump-next)
+;              ("p" symbol-overlay-jump-prev)
+;              ("w" symbol-overlay-save-symbol)
+;              ("t" symbol-overlay-toggle-in-scope)
+;              ("e" symbol-overlay-echo-mark)
+;              ("d" symbol-overlay-jump-to-definition)
+;              ("s" symbol-overlay-isearch-literally)
+;              ("q" symbol-overlay-query-replace)
+;              ("r" symbol-overlay-rename)
+;              ("q" nil "quit")))
 
 ;; 全局 mapping
 (global-set-key (kbd "C-]") 'gtags-find-tag-from-here)
@@ -138,17 +120,5 @@
   (add-hook 'go-mode-hook (lambda ()
 			    (run-hooks #'prelude-go-mode-defaults))))
 
-;(defun my-c-c++-mode-hook-fn ()
-;  (set (make-local-variable 'company-backends) '(company-rtags))
-;  (company-mode)
-;  (local-set-key (kbd "M-.") #'rtags-find-symbol-at-point)
-;  (local-set-key (kbd "M-,") #'rtags-location-stack-back)
-;  (local-set-key "\C-i" #'company-indent-or-complete-common)
-;  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-;  (local-set-key "\C-\M-i" #'company-indent-or-complete-common))
-;
-;(add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
-;(add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
-
-  (provide 'init-maps)
-  ;;; init-maps.el ends here
+(provide 'init-maps)
+;;; init-maps.el ends here

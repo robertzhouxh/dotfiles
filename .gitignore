@@ -15,7 +15,7 @@ Thumbs.db
 
 .vim
 
-.emacs.d/.cask
+.emacs.d/.lsp-session-v1
 .emacs.d/abbrev_defs
 .emacs.d/auto-save-list
 .emacs.d/docsets
@@ -33,7 +33,7 @@ Thumbs.db
 .emacs.d/transient/
 .emacs.d/cider-history
 .emacs.d/tramp
-fonts-master/
+.emacs.d/var
 
 htop
 .tmux

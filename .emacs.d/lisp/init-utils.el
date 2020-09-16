@@ -137,4 +137,236 @@ directory to make multiple eshell windows easier."
     (previous-line 2)
     (org-edit-src-code)))
 
+
+
+;; some cool funtions
+
+(defalias 'pr #'point-to-register)
+(defun my-switch-to-register ()
+  "Switch to buffer given by a register named by last character
+of the key binding used to execute this command."
+  (interactive)
+  (let* ((v (this-command-keys-vector))
+         (c (aref v (1- (length v))))
+         (r (get-register c)))
+    (if (and (markerp r) (marker-buffer r))
+        (switch-to-buffer (marker-buffer r))
+      (jump-to-register c))))
+
+(setq my-switch-to-register-map (make-sparse-keymap))
+
+(dolist (character (number-sequence ?a ?z))
+  (define-key my-switch-to-register-map
+    (char-to-string character) #'my-switch-to-register))
+
+(global-set-key (kbd "H-r") my-switch-to-register-map)
+
+
+(setq my-browsers
+      '(("Firefox" . browse-url-firefox)
+        ("Chromium" . browse-url-chromium)
+        ("EWW" . eww-browse-url)))
+
+(defun my-browse-url (&rest args)
+  "Select the prefered browser from a menu before opening the URL."
+  (interactive)
+  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
+    (apply (cdr (assoc browser my-browsers)) args)))
+
+(setq browse-url-browser-function #'my-browse-url)
+
+(defun my-eww-scale-adjust ()
+  "Slightly bigger font but text shorter than text."
+  (interactive)
+  (text-scale-adjust 0)
+  (text-scale-adjust 1)
+  (eww-toggle-fonts)
+  (split-window-right)
+  (eww-toggle-fonts)
+  (other-window 1)
+  (sleep-for 1)
+  (delete-window))
+
+(defalias 'pr #'point-to-register)
+(defun my-switch-to-register ()
+  "Switch to buffer given by a register named by last character
+of the key binding used to execute this command."
+  (interactive)
+  (let* ((v (this-command-keys-vector))
+         (c (aref v (1- (length v))))
+         (r (get-register c)))
+    (if (and (markerp r) (marker-buffer r))
+        (switch-to-buffer (marker-buffer r))
+      (jump-to-register c))))
+
+(setq my-switch-to-register-map (make-sparse-keymap))
+
+(dolist (character (number-sequence ?a ?z))
+  (define-key my-switch-to-register-map
+    (char-to-string character) #'my-switch-to-register))
+
+(global-set-key (kbd "H-r") my-switch-to-register-map)
+
+
+(setq my-browsers
+      '(("Firefox" . browse-url-firefox)
+        ("Chromium" . browse-url-chromium)
+        ("EWW" . eww-browse-url)))
+
+(defun my-browse-url (&rest args)
+  "Select the prefered browser from a menu before opening the URL."
+  (interactive)
+  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
+    (apply (cdr (assoc browser my-browsers)) args)))
+
+(setq browse-url-browser-function #'my-browse-url)
+
+(defun my-eww-scale-adjust ()
+  "Slightly bigger font but text shorter than text."
+  (interactive)
+  (text-scale-adjust 0)
+  (text-scale-adjust 1)
+  (eww-toggle-fonts)
+  (split-window-right)
+  (eww-toggle-fonts)
+  (other-window 1)
+  (sleep-for 1)
+  (delete-window))
+(defalias 'pr #'point-to-register)
+(defun my-switch-to-register ()
+  "Switch to buffer given by a register named by last character
+of the key binding used to execute this command."
+  (interactive)
+  (let* ((v (this-command-keys-vector))
+         (c (aref v (1- (length v))))
+         (r (get-register c)))
+    (if (and (markerp r) (marker-buffer r))
+        (switch-to-buffer (marker-buffer r))
+      (jump-to-register c))))
+
+(setq my-switch-to-register-map (make-sparse-keymap))
+
+(dolist (character (number-sequence ?a ?z))
+  (define-key my-switch-to-register-map
+    (char-to-string character) #'my-switch-to-register))
+
+(global-set-key (kbd "H-r") my-switch-to-register-map)
+
+
+(setq my-browsers
+      '(("Firefox" . browse-url-firefox)
+        ("Chromium" . browse-url-chromium)
+        ("EWW" . eww-browse-url)))
+
+(defun my-browse-url (&rest args)
+  "Select the prefered browser from a menu before opening the URL."
+  (interactive)
+  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
+    (apply (cdr (assoc browser my-browsers)) args)))
+
+(setq browse-url-browser-function #'my-browse-url)
+
+(defun my-eww-scale-adjust ()
+  "Slightly bigger font but text shorter than text."
+  (interactive)
+  (text-scale-adjust 0)
+  (text-scale-adjust 1)
+  (eww-toggle-fonts)
+  (split-window-right)
+  (eww-toggle-fonts)
+  (other-window 1)
+  (sleep-for 1)
+  (delete-window))
+(defalias 'pr #'point-to-register)
+(defun my-switch-to-register ()
+  "Switch to buffer given by a register named by last character
+of the key binding used to execute this command."
+  (interactive)
+  (let* ((v (this-command-keys-vector))
+         (c (aref v (1- (length v))))
+         (r (get-register c)))
+    (if (and (markerp r) (marker-buffer r))
+        (switch-to-buffer (marker-buffer r))
+      (jump-to-register c))))
+
+(setq my-switch-to-register-map (make-sparse-keymap))
+
+(dolist (character (number-sequence ?a ?z))
+  (define-key my-switch-to-register-map
+    (char-to-string character) #'my-switch-to-register))
+
+(global-set-key (kbd "H-r") my-switch-to-register-map)
+
+
+(setq my-browsers
+      '(("Firefox" . browse-url-firefox)
+        ("Chromium" . browse-url-chromium)
+        ("EWW" . eww-browse-url)))
+
+(defun my-browse-url (&rest args)
+  "Select the prefered browser from a menu before opening the URL."
+  (interactive)
+  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
+    (apply (cdr (assoc browser my-browsers)) args)))
+
+(setq browse-url-browser-function #'my-browse-url)
+
+(defun my-eww-scale-adjust ()
+  "Slightly bigger font but text shorter than text."
+  (interactive)
+  (text-scale-adjust 0)
+  (text-scale-adjust 1)
+  (eww-toggle-fonts)
+  (split-window-right)
+  (eww-toggle-fonts)
+  (other-window 1)
+  (sleep-for 1)
+  (delete-window))
+(defalias 'pr #'point-to-register)
+(defun my-switch-to-register ()
+  "Switch to buffer given by a register named by last character
+of the key binding used to execute this command."
+  (interactive)
+  (let* ((v (this-command-keys-vector))
+         (c (aref v (1- (length v))))
+         (r (get-register c)))
+    (if (and (markerp r) (marker-buffer r))
+        (switch-to-buffer (marker-buffer r))
+      (jump-to-register c))))
+
+(setq my-switch-to-register-map (make-sparse-keymap))
+
+(dolist (character (number-sequence ?a ?z))
+  (define-key my-switch-to-register-map
+    (char-to-string character) #'my-switch-to-register))
+
+(global-set-key (kbd "H-r") my-switch-to-register-map)
+
+
+(setq my-browsers
+      '(("Firefox" . browse-url-firefox)
+        ("Chromium" . browse-url-chromium)
+        ("EWW" . eww-browse-url)))
+
+(defun my-browse-url (&rest args)
+  "Select the prefered browser from a menu before opening the URL."
+  (interactive)
+  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
+    (apply (cdr (assoc browser my-browsers)) args)))
+
+(setq browse-url-browser-function #'my-browse-url)
+
+(defun my-eww-scale-adjust ()
+  "Slightly bigger font but text shorter than text."
+  (interactive)
+  (text-scale-adjust 0)
+  (text-scale-adjust 1)
+  (eww-toggle-fonts)
+  (split-window-right)
+  (eww-toggle-fonts)
+  (other-window 1)
+  (sleep-for 1)
+  (delete-window))
+
+
 (provide 'init-utils)

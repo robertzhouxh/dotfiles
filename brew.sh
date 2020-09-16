@@ -63,6 +63,10 @@ fi
 # 使用 brew services start|stop|restart SERVICE_NAME 这样的命令来操作一切终端服务了 <=> LaunchRocket
 brew tap homebrew/services
 
+# awesome font for programming
+brew tap homebrew/cask-fonts
+brew cask install font-source-code-pro
+
 # Install command-line tools using Homebrew.
 # Ask for the administrator password upfront.
 # sudo -v
@@ -137,7 +141,14 @@ brew install z
 brew install graphviz
 #brew install htop-osx
 #brew install plantuml
+
 brew install the_silver_searcher
+# instead of ag
+brew install rg
+
+# c/c++/oc language server
+brew install ccls
+
 #brew install cmatrix
 brew install youtube-dl
 fi;

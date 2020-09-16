@@ -14,14 +14,16 @@
 
     "a"  'align-regexp
 
-    "bf" 'buffer-flip-forward
-    "bb" 'buffer-flip-backend
-    "bo" 'buffer-flip-other-window
-    "ba" 'buffer-flip-abort
+    "bb" 'ivy-switch-buffer
+    "br" 'counsel-recentf
+    "dv" 'counsel-describe-variable
+    "df" 'counsel-describe-function
+    "/"  'counsel-rg
 
     "c"  'comment-dwim
 
     "d"  'kill-this-buffer
+    "D"  'kill-this-window
 
     "es" 'ivy-erlang-complete-find-spec
     "ef" 'ivy-erlang-complete-find-file
@@ -34,41 +36,26 @@
     "Ex" 'x/eshell-x
 
     "f"  'other-frame
+    "F"  'other-window
 
     "g"  'magit-status
     "G"  'magit-dispatch-popup
 
-    "hb" 'ido-switch-buffer
-    "hf" 'helm-find-files
-    "hs" 'helm-projectile-ag
-    "hp" 'helm-projectile
-    "hd" 'helm-dash-at-point
-    "hm" 'helm-mini
-    "hk" 'helm-show-kill-ring
+    "o"  'delete-other-windows
+    "O"  'delete-other-buffers
 
-    "oi" 'org-clock-in
-    "oo" 'org-clock-out
-    "oc" 'org-clock-cancel
-    "os" 'org-schedule
-    "od" 'org-deadline
-    "or" 'org-clock-report
+    "p/" 'counsel-projectile-rg
+    "pf" 'counsel-projectile-find-file
+    "pp" 'counsel-projectile-switch-project
+    "pb" 'counsel-projectile-switch-to-buffer
 
-    "O"  'delete-other-windows
-    "P"  'projectile-find-file-other-window
-    ;"rs" 'cider-start-http-server
-    ;"rs" 'cider-jack-in
-    ;"rr" 'cider-refresh
-    ;"re" 'cider-macroexpand-1
-    ;"ru" 'cider-user-ns
-    ;"rn" 'cider-repl-set-ns
-    ;"rx" 'cider-eval-last-sexp
     "r"  'x/open-init-file
     "R" 'x/reload-init-file
+
     "s" 'x/save-all
     "S" 'delete-trailing-whitespace
-    "t" 'gtags-reindex
-    "x" 'helm-M-x
-    "w" 'whitespace-mode          ;; Show invisible characters
+
+    "w" 'whitespace-mode
     ))
 
 (use-package evil
