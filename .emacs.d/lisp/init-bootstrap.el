@@ -12,7 +12,6 @@
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark))
 
-
 ;; useful mode settings
 (display-time-mode 1)
 (column-number-mode 1)
@@ -21,12 +20,12 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
+
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
 (global-hl-line-mode -1)
 
 (fset 'yes-or-no-p 'y-or-n-p)
-;;(toggle-frame-fullscreen)
 
 ;; file edit settings
 (setq
@@ -43,11 +42,27 @@
   indent-tabs-mode nil
   make-backup-files nil
   auto-save-default nil
-  create-lockfiles nil
-  ;; reduce the frequency of garbage collection by making it happen on
-  ;; each 50MB of allocated data (the default is on every 0.76MB)
-  gc-cons-threshold (* 50 1000 1000)
-  large-file-warning-threshold 100000000)
+  create-lockfiles nil)
+
+;; Garbage Collection Tuning
+(defmacro k-time (&rest body)
+  "Measure and return the time it takes evaluating BODY."
+  `(let ((time (current-time)))
+     ,@body
+     (float-time (time-since time))))
+
+;; When idle for 30sec run the GC no matter what.
+(defvar k-gc-timer
+  (run-with-idle-timer 30 t
+                       (lambda ()
+                         (message "Garbage Collector has run for %.06fsec"
+                                  (k-time (garbage-collect))))))
+
+;; Set garbage collection threshold to 1GB.
+(setq gc-cons-threshold #x40000000)
+;; Set garbage collection to 20% of heap
+(setq gc-cons-percentage 0.2)
+
 
 (setq split-width-threshold 1)
 

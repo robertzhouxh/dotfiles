@@ -18,11 +18,12 @@
 (use-package dockerfile-mode)
 (use-package json-mode)
 (use-package protobuf-mode)
-(use-package yaml-mode)
 (use-package hydra)
 (use-package projectile :config (projectile-global-mode))
 (use-package avy :config (setq avy-background t))
 (use-package flycheck :config (global-flycheck-mode 1))
+(use-package restclient :mode ("\\.restclient\\'" . restclient-mode))
+(use-package company-restclient :config (add-to-list 'company-backends 'company-restclient))
 
 (use-package which-key
   :diminish which-key-mode
@@ -285,6 +286,10 @@
   (setq tramp-default-method "ssh"
 	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
 
+;; Make numbers in source code more noticeable
+(use-package highlight-numbers
+  :config (add-hook 'prog-mode-hook 'highlight-numbers-mode))
+
 ;; Jump
 (use-package dumb-jump
   :diminish dumb-jump-mode
@@ -294,27 +299,54 @@
   (setq dumb-jump-prefer-searcher 'ag))
 
 (use-package ace-window
-    :after hydra
-    :functions hydra-frame-window/body
-    :bind ("C-M-o" . hydra-frame-window/body)
-    :custom (aw-keys '(?j ?k ?l ?i ?o ?h ?y ?u ?p))
-    :custom-face (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c")))))
+  :after hydra
+  :functions hydra-frame-window/body
+  :bind ("C-M-o" . hydra-frame-window/body)
+  :custom (aw-keys '(?j ?k ?l ?i ?o ?h ?y ?u ?p))
+  :custom-face (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c")))))
 
 (use-package key-chord
-             :config
-             (progn
-               (key-chord-define-global "bn" 'buffer-flip-forward)
-               (key-chord-define-global "bp" 'buffer-flip-backward)
-               (key-chord-define-global "bf" 'buffer-flip)
-               (key-chord-define-global "bo" 'buffer-flip-other-window)
-               (key-chord-define-global "ba" 'buffer-flip-abort)
+  :config
+  (progn
+    (key-chord-define-global "bn" 'buffer-flip-forward)
+    (key-chord-define-global "bp" 'buffer-flip-backward)
+    (key-chord-define-global "bf" 'buffer-flip)
+    (key-chord-define-global "bo" 'buffer-flip-other-window)
+    (key-chord-define-global "ba" 'buffer-flip-abort)
 
-               (key-chord-define-global "jb" 'ibuffer)
-               (key-chord-define-global "j0" 'delete-window)
-               (key-chord-define-global "j1" 'delete-other-windows)
-               (key-chord-define-global "jz" 'magit-dispatch-popup)
-               (key-chord-define-global "kb" 'gh/kill-current-buffer)
-               (key-chord-mode 1)))
+    (key-chord-define-global "jb" 'ibuffer)
+    (key-chord-define-global "j0" 'delete-window)
+    (key-chord-define-global "j1" 'delete-other-windows)
+    (key-chord-define-global "jz" 'magit-dispatch-popup)
+    (key-chord-define-global "kb" 'gh/kill-current-buffer)
+    (key-chord-mode 1)))
+
+;; eshell
+(use-package eshell
+  :init
+  (setq eshell-scroll-to-bottom-on-input 'all
+        eshell-error-if-no-glob t
+        eshell-hist-ignoredups t
+        eshell-save-history-on-exit t
+        eshell-prefer-lisp-functions nil
+        eshell-destroy-buffer-when-process-dies t))
+(setq eshell-prompt-function
+      (lambda ()
+        (concat
+         (propertize "┌─[" 'face `(:foreground "green"))
+         (propertize (user-login-name) 'face `(:foreground "red"))
+         (propertize "@" 'face `(:foreground "green"))
+         (propertize (system-name) 'face `(:foreground "lightblue"))
+         (propertize "]──[" 'face `(:foreground "green"))
+         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+         (propertize "]──[" 'face `(:foreground "green"))
+         (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+         (propertize "]\n" 'face `(:foreground "green"))
+         (propertize "└─>" 'face `(:foreground "green"))
+         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+         )))
+
+
 
 ;; Font set
 

@@ -368,5 +368,41 @@ of the key binding used to execute this command."
   (sleep-for 1)
   (delete-window))
 
+(defun sudo ()
+  "Use TRAMP to `sudo' the current buffer"
+  (interactive)
+  (when buffer-file-name
+    (find-alternate-file
+     (concat "/sudo:root@localhost:"
+             buffer-file-name))))
+
+(defun rename-local-var (name)
+  (interactive "sEnter new name: ")
+  (let ((var (word-at-point)))
+    (mark-defun)
+    (replace-string var name nil (region-beginning) (region-end))))
+
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+    current buffer's file. The eshell is renamed to match that
+    directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((height (/ (window-total-height) 3)))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(add-hook 'git-commit-setup-hook
+    '(lambda ()
+        (let ((has-ticket-title (string-match "^[A-Z]+-[0-9]+"
+                                    (magit-get-current-branch)))
+              (words (s-split-words (magit-get-current-branch))))
+          (if has-ticket-title
+              (insert (format "[%s-%s] " (car words) (car (cdr words))))))))
+(bind-key "C-!" 'eshell-here)
+
+;; https://github.com/abrochard/emacs-config/blob/master/configuration.org
 
 (provide 'init-utils)

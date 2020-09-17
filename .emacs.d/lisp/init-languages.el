@@ -8,14 +8,14 @@
 ;; go get golang.org/x/tools/cmd/goimports
 ;;---------------------------------------------------------
 
-;(defun lsp-go-install-save-hooks()
-;  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-;  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-;
-;(use-package go-mode
-;  :mode (("\\.go\\'" . go-mode))
-;  :init
-;  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks))
+(defun lsp-go-install-save-hooks()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+
+(use-package go-mode
+  :mode (("\\.go\\'" . go-mode))
+  :init
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks))
 ;
 ;;; Language Server
 ;(use-package lsp-mode
@@ -222,6 +222,11 @@
   :mode (("\\.lua\\'" . lua-mode))
   :config
   (add-hook 'lua-mode-hook #'company-mode))
+
+(use-package yaml-mode
+  :config
+  (add-hook 'yaml-mode-hook 'flycheck-mode)
+  (add-hook 'yaml-mode-hook 'flyspell-mode))
 
 ;;----------------------------------------------------------------------------
 ;; auto insert
