@@ -85,31 +85,6 @@
     (with-current-buffer buf
                          (when (buffer-file-name)
                            (revert-buffer t t t)))))
-;; spawn shell
-(defun x/eshell-here ()
-  "Opens up a new shell in the directory associated with the
-current buffer's file. The eshell is renamed to match that
-directory to make multiple eshell windows easier."
-  (interactive)
-  (let* ((parent (if (buffer-file-name)
-                     (file-name-directory (buffer-file-name))
-                   default-directory))
-         (height (/ (window-total-height) 3))
-         (name   (car (last (split-string parent "/" t)))))
-    (split-window-vertically (- height))
-    (other-window 1)
-    (eshell "new")
-    (rename-buffer (concat "*eshell: " name "*"))
-
-    (insert (concat "ls"))
-    (eshell-send-input)))
-
-;; exit shell
-(defun x/eshell-x ()
-  (interactive)
-  (insert "exit")
-  (eshell-send-input)
-  (delete-window))
 
 (defun x/drop-project-cache ()
   "invalidate projectile cache if it is currently active"
@@ -138,235 +113,13 @@ directory to make multiple eshell windows easier."
     (org-edit-src-code)))
 
 
+;;; Some Cool Funtions
 
-;; some cool funtions
-
-(defalias 'pr #'point-to-register)
-(defun my-switch-to-register ()
-  "Switch to buffer given by a register named by last character
-of the key binding used to execute this command."
+(defun generate-scratch-buffer ()
+  "Create and switch to a temporary scratch buffer with a random
+     name."
   (interactive)
-  (let* ((v (this-command-keys-vector))
-         (c (aref v (1- (length v))))
-         (r (get-register c)))
-    (if (and (markerp r) (marker-buffer r))
-        (switch-to-buffer (marker-buffer r))
-      (jump-to-register c))))
-
-(setq my-switch-to-register-map (make-sparse-keymap))
-
-(dolist (character (number-sequence ?a ?z))
-  (define-key my-switch-to-register-map
-    (char-to-string character) #'my-switch-to-register))
-
-(global-set-key (kbd "H-r") my-switch-to-register-map)
-
-
-(setq my-browsers
-      '(("Firefox" . browse-url-firefox)
-        ("Chromium" . browse-url-chromium)
-        ("EWW" . eww-browse-url)))
-
-(defun my-browse-url (&rest args)
-  "Select the prefered browser from a menu before opening the URL."
-  (interactive)
-  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
-    (apply (cdr (assoc browser my-browsers)) args)))
-
-(setq browse-url-browser-function #'my-browse-url)
-
-(defun my-eww-scale-adjust ()
-  "Slightly bigger font but text shorter than text."
-  (interactive)
-  (text-scale-adjust 0)
-  (text-scale-adjust 1)
-  (eww-toggle-fonts)
-  (split-window-right)
-  (eww-toggle-fonts)
-  (other-window 1)
-  (sleep-for 1)
-  (delete-window))
-
-(defalias 'pr #'point-to-register)
-(defun my-switch-to-register ()
-  "Switch to buffer given by a register named by last character
-of the key binding used to execute this command."
-  (interactive)
-  (let* ((v (this-command-keys-vector))
-         (c (aref v (1- (length v))))
-         (r (get-register c)))
-    (if (and (markerp r) (marker-buffer r))
-        (switch-to-buffer (marker-buffer r))
-      (jump-to-register c))))
-
-(setq my-switch-to-register-map (make-sparse-keymap))
-
-(dolist (character (number-sequence ?a ?z))
-  (define-key my-switch-to-register-map
-    (char-to-string character) #'my-switch-to-register))
-
-(global-set-key (kbd "H-r") my-switch-to-register-map)
-
-
-(setq my-browsers
-      '(("Firefox" . browse-url-firefox)
-        ("Chromium" . browse-url-chromium)
-        ("EWW" . eww-browse-url)))
-
-(defun my-browse-url (&rest args)
-  "Select the prefered browser from a menu before opening the URL."
-  (interactive)
-  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
-    (apply (cdr (assoc browser my-browsers)) args)))
-
-(setq browse-url-browser-function #'my-browse-url)
-
-(defun my-eww-scale-adjust ()
-  "Slightly bigger font but text shorter than text."
-  (interactive)
-  (text-scale-adjust 0)
-  (text-scale-adjust 1)
-  (eww-toggle-fonts)
-  (split-window-right)
-  (eww-toggle-fonts)
-  (other-window 1)
-  (sleep-for 1)
-  (delete-window))
-(defalias 'pr #'point-to-register)
-(defun my-switch-to-register ()
-  "Switch to buffer given by a register named by last character
-of the key binding used to execute this command."
-  (interactive)
-  (let* ((v (this-command-keys-vector))
-         (c (aref v (1- (length v))))
-         (r (get-register c)))
-    (if (and (markerp r) (marker-buffer r))
-        (switch-to-buffer (marker-buffer r))
-      (jump-to-register c))))
-
-(setq my-switch-to-register-map (make-sparse-keymap))
-
-(dolist (character (number-sequence ?a ?z))
-  (define-key my-switch-to-register-map
-    (char-to-string character) #'my-switch-to-register))
-
-(global-set-key (kbd "H-r") my-switch-to-register-map)
-
-
-(setq my-browsers
-      '(("Firefox" . browse-url-firefox)
-        ("Chromium" . browse-url-chromium)
-        ("EWW" . eww-browse-url)))
-
-(defun my-browse-url (&rest args)
-  "Select the prefered browser from a menu before opening the URL."
-  (interactive)
-  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
-    (apply (cdr (assoc browser my-browsers)) args)))
-
-(setq browse-url-browser-function #'my-browse-url)
-
-(defun my-eww-scale-adjust ()
-  "Slightly bigger font but text shorter than text."
-  (interactive)
-  (text-scale-adjust 0)
-  (text-scale-adjust 1)
-  (eww-toggle-fonts)
-  (split-window-right)
-  (eww-toggle-fonts)
-  (other-window 1)
-  (sleep-for 1)
-  (delete-window))
-(defalias 'pr #'point-to-register)
-(defun my-switch-to-register ()
-  "Switch to buffer given by a register named by last character
-of the key binding used to execute this command."
-  (interactive)
-  (let* ((v (this-command-keys-vector))
-         (c (aref v (1- (length v))))
-         (r (get-register c)))
-    (if (and (markerp r) (marker-buffer r))
-        (switch-to-buffer (marker-buffer r))
-      (jump-to-register c))))
-
-(setq my-switch-to-register-map (make-sparse-keymap))
-
-(dolist (character (number-sequence ?a ?z))
-  (define-key my-switch-to-register-map
-    (char-to-string character) #'my-switch-to-register))
-
-(global-set-key (kbd "H-r") my-switch-to-register-map)
-
-
-(setq my-browsers
-      '(("Firefox" . browse-url-firefox)
-        ("Chromium" . browse-url-chromium)
-        ("EWW" . eww-browse-url)))
-
-(defun my-browse-url (&rest args)
-  "Select the prefered browser from a menu before opening the URL."
-  (interactive)
-  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
-    (apply (cdr (assoc browser my-browsers)) args)))
-
-(setq browse-url-browser-function #'my-browse-url)
-
-(defun my-eww-scale-adjust ()
-  "Slightly bigger font but text shorter than text."
-  (interactive)
-  (text-scale-adjust 0)
-  (text-scale-adjust 1)
-  (eww-toggle-fonts)
-  (split-window-right)
-  (eww-toggle-fonts)
-  (other-window 1)
-  (sleep-for 1)
-  (delete-window))
-(defalias 'pr #'point-to-register)
-(defun my-switch-to-register ()
-  "Switch to buffer given by a register named by last character
-of the key binding used to execute this command."
-  (interactive)
-  (let* ((v (this-command-keys-vector))
-         (c (aref v (1- (length v))))
-         (r (get-register c)))
-    (if (and (markerp r) (marker-buffer r))
-        (switch-to-buffer (marker-buffer r))
-      (jump-to-register c))))
-
-(setq my-switch-to-register-map (make-sparse-keymap))
-
-(dolist (character (number-sequence ?a ?z))
-  (define-key my-switch-to-register-map
-    (char-to-string character) #'my-switch-to-register))
-
-(global-set-key (kbd "H-r") my-switch-to-register-map)
-
-
-(setq my-browsers
-      '(("Firefox" . browse-url-firefox)
-        ("Chromium" . browse-url-chromium)
-        ("EWW" . eww-browse-url)))
-
-(defun my-browse-url (&rest args)
-  "Select the prefered browser from a menu before opening the URL."
-  (interactive)
-  (let ((browser (ivy-read "WWW browser: " my-browsers :require-match t)))
-    (apply (cdr (assoc browser my-browsers)) args)))
-
-(setq browse-url-browser-function #'my-browse-url)
-
-(defun my-eww-scale-adjust ()
-  "Slightly bigger font but text shorter than text."
-  (interactive)
-  (text-scale-adjust 0)
-  (text-scale-adjust 1)
-  (eww-toggle-fonts)
-  (split-window-right)
-  (eww-toggle-fonts)
-  (other-window 1)
-  (sleep-for 1)
-  (delete-window))
+  (switch-to-buffer (make-temp-name "scratch-")))
 
 (defun sudo ()
   "Use TRAMP to `sudo' the current buffer"
@@ -376,11 +129,69 @@ of the key binding used to execute this command."
      (concat "/sudo:root@localhost:"
              buffer-file-name))))
 
+(defun replace-token (token)
+  "Replace JSON web token for requests"
+  (interactive "sEnter the new token: ")
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "Bearer .*\"" nil t)
+      (replace-match (concat "Bearer " token "\"")))))
+
 (defun rename-local-var (name)
   (interactive "sEnter new name: ")
   (let ((var (word-at-point)))
     (mark-defun)
     (replace-string var name nil (region-beginning) (region-end))))
+
+(defun increment-number-at-point ()
+  (interactive)
+  (skip-chars-backward "0-9")
+  (or (looking-at "[0-9]+")
+      (error "No number at point"))
+  (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
+
+(defun decrement-number-at-point ()
+  (interactive)
+  (skip-chars-backward "0-9")
+  (or (looking-at "[0-9]+")
+      (error "No number at point"))
+  (replace-match (number-to-string (- (string-to-number (match-string 0)) 1))))
+
+(defun email-selection ()
+  (interactive)
+  (copy-region-as-kill (region-beginning) (region-end))
+  (let ((tmp-file (concat "/tmp/" (buffer-name (current-buffer))))
+        (recipient (read-string "Enter a recipient: "))
+        (subject (read-string "Enter a subject: ")))
+    (find-file tmp-file)
+    (yank)
+    (save-buffer)
+    (kill-buffer (current-buffer))
+    (shell-command (concat "mutt -s \"" subject "\" " recipient " < " tmp-file))
+    (shell-command (concat "rm -f " tmp-file)))
+  (message "Sent!"))
+
+(defun move-file ()
+  "Write this file to a new location, and delete the old one."
+  (interactive)
+  (let ((old-location (buffer-file-name)))
+    (call-interactively #'write-file)
+    (when old-location
+      (delete-file old-location))))
+
+(defun format-function-parameters ()
+  "Turn the list of function parameters into multiline."
+  (interactive)
+  (beginning-of-line)
+  (search-forward "(" (line-end-position))
+  (newline-and-indent)
+  (while (search-forward "," (line-end-position) t)
+    (newline-and-indent))
+  (end-of-line)
+  (c-hungry-delete-forward)
+  (insert " ")
+  (search-backward ")")
+  (newline-and-indent))
 
 (defun eshell-here ()
   "Opens up a new shell in the directory associated with the
@@ -394,6 +205,8 @@ of the key binding used to execute this command."
     (insert (concat "ls"))
     (eshell-send-input)))
 
+(bind-key "C-!" 'eshell-here)
+
 (add-hook 'git-commit-setup-hook
     '(lambda ()
         (let ((has-ticket-title (string-match "^[A-Z]+-[0-9]+"
@@ -401,8 +214,126 @@ of the key binding used to execute this command."
               (words (s-split-words (magit-get-current-branch))))
           (if has-ticket-title
               (insert (format "[%s-%s] " (car words) (car (cdr words))))))))
-(bind-key "C-!" 'eshell-here)
 
-;; https://github.com/abrochard/emacs-config/blob/master/configuration.org
+(defun what-the-commit ()
+  (interactive)
+  (insert
+   (with-current-buffer
+       (url-retrieve-synchronously "http://whatthecommit.com")
+     (re-search-backward "<p>\\([^<]+\\)\n<\/p>")
+     (match-string 1))))
+
+(defun insta-kill-buffer ()
+  (interactive)
+  (kill-buffer))
+(global-set-key (kbd "C-z") 'insta-kill-buffer)
+
+(defun toggle-presentation ()
+  "Toggle presentation features, like font increase."
+  (interactive)
+  (let ((regular-fontsize 140)
+        (presentation-fontsize 240))
+    (if (equal (face-attribute 'default :height) regular-fontsize)
+        (set-face-attribute 'default nil :height presentation-fontsize)
+      (set-face-attribute 'default nil :height regular-fontsize))))
+
+;;Quick custom function to integrate with the moq tool to generate quick mocks
+(defun moq ()
+  (interactive)
+  (let ((interface (word-at-point))
+        (test-file (concat (downcase (word-at-point)) "_test.go")))
+    (shell-command
+     (concat "moq -out " test-file " . " interface))
+    (find-file test-file)))
+
+;;-------------------------- Esehll -----------------------------
+(use-package eshell
+  :init
+  (setq eshell-scroll-to-bottom-on-input 'all
+        eshell-error-if-no-glob t
+        eshell-hist-ignoredups t
+        eshell-save-history-on-exit t
+        eshell-prefer-lisp-functions nil
+        eshell-destroy-buffer-when-process-dies t))
+
+;; Fancy prompt
+(setq eshell-prompt-function
+      (lambda ()
+        (concat
+         (propertize "┌─[" 'face `(:foreground "green"))
+         (propertize (user-login-name) 'face `(:foreground "red"))
+         (propertize "@" 'face `(:foreground "green"))
+         (propertize (system-name) 'face `(:foreground "lightblue"))
+         (propertize "]──[" 'face `(:foreground "green"))
+         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+         (propertize "]──[" 'face `(:foreground "green"))
+         (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+         (propertize "]\n" 'face `(:foreground "green"))
+         (propertize "└─>" 'face `(:foreground "green"))
+         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+         )))
+
+;; Define visual commands and subcommands
+(setq eshell-visual-commands '("htop" "vi" "screen" "top" "less"
+                               "more" "lynx" "ncftp" "pine" "tin" "trn" "elm"
+                               "vim"))
+
+(setq eshell-visual-subcommands '("git" "log" "diff" "show" "ssh"))
+
+;; Pager setup
+(setenv "PAGER" "cat")
+
+(use-package eshell-autojump)
+
+(defalias 'ff 'find-file)
+(defalias 'd 'dired)
+
+(defun eshell/clear ()
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
+
+;; Git
+(defun eshell/gst (&rest args)
+    (magit-status (pop args) nil)
+    (eshell/echo))   ;; The echo command suppresses output
+
+;; Bargs and Sargs
+(defun eshell/-buffer-as-args (buffer separator command)
+  "Takes the contents of BUFFER, and splits it on SEPARATOR, and
+runs the COMMAND with the contents as arguments. Use an argument
+`%' to substitute the contents at a particular point, otherwise,
+they are appended."
+  (let* ((lines (with-current-buffer buffer
+                  (split-string
+                   (buffer-substring-no-properties (point-min) (point-max))
+                   separator)))
+         (subcmd (if (-contains? command "%")
+                     (-flatten (-replace "%" lines command))
+                   (-concat command lines)))
+         (cmd-str  (string-join subcmd " ")))
+    (message cmd-str)
+    (eshell-command-result cmd-str)))
+
+(defun eshell/bargs (buffer &rest command)
+  "Passes the lines from BUFFER as arguments to COMMAND."
+  (eshell/-buffer-as-args buffer "\n" command))
+
+(defun eshell/sargs (buffer &rest command)
+  "Passes the words from BUFFER as arguments to COMMAND."
+  (eshell/-buffer-as-args buffer nil command))
+
+(defun eshell/close ()
+  (delete-window))
+
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (define-key eshell-mode-map (kbd "C-M-a") 'eshell-previous-prompt)
+            (define-key eshell-mode-map (kbd "C-M-e") 'eshell-next-prompt)))
+
+(defun eshell-pop--kill-and-delete-window ()
+  (unless (one-window-p)
+    (delete-window)))
+
+(add-hook 'eshell-exit-hook 'eshell-pop--kill-and-delete-window)
 
 (provide 'init-utils)

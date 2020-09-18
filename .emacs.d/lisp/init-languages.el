@@ -227,6 +227,12 @@
   :config
   (add-hook 'yaml-mode-hook 'flycheck-mode)
   (add-hook 'yaml-mode-hook 'flyspell-mode))
+(use-package flycheck-yamllint
+  :defer t
+  :init
+  (progn
+    (eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
 
 ;;----------------------------------------------------------------------------
 ;; auto insert

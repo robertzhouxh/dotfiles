@@ -35,9 +35,30 @@
    (ditaa . t)
    ))
 
+(require 'color)
+(if (display-graphic-p)
+    (set-face-attribute 'org-block nil :background
+                        (color-darken-name
+                         (face-attribute 'default :background) 3)))
+
 (setq org-startup-indented t)
 (setq org-plantuml-jar-path "~/.emacs.d/vendor/plantuml.jar")
-(setq org-ditaa-jar-path "~/.emacs.d/vendor/ditaa0_9.jar")
+
+
+;; TODO
+(use-package plantuml-mode)
+;; (setq org-ditaa-jar-path "~/.emacs.d/vendor/ditaa0_9.jar")
+;; Download and hook up plantuml.jar
+;(let ((plantuml-directory (concat user-emacs-directory "vendor/"))
+;      (plantuml-link "https://superb-dca2.dl.sourceforge.net/project/plantuml/plantuml.jar"))
+;  (let ((plantuml-target (concat plantuml-directory "plantuml.jar")))
+;    (if (not (f-exists? plantuml-target))
+;        (progn (message "Downloading plantuml.jar")
+;               (shell-command
+;                (mapconcat 'identity (list "wget" plantuml-link "-O" plantuml-target) " "))
+;               (kill-buffer "*Shell Command Output*")))
+;    (setq org-plantuml-jar-path plantuml-target)))
+
 ;; Let's have pretty source code blocks
 (setq org-edit-src-content-indentation 0
       org-src-tab-acts-natively t
@@ -60,6 +81,8 @@
 
 ;; drag the pitcture to the cursor's positon
 (use-package org-download)
+
+(setq org-startup-with-inline-images t)
 
 ;; --------------------------------------------------------------
 ;; org -> latex -> pdf

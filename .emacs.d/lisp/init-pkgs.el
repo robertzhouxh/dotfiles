@@ -10,7 +10,6 @@
   (exec-path-from-shell-copy-env "GOROOT")
   (exec-path-from-shell-copy-env "GOPATH")
   )
-(use-package diminish)
 (use-package json-reformat)
 (use-package comment-dwim-2)
 (use-package buffer-flip)
@@ -19,11 +18,17 @@
 (use-package json-mode)
 (use-package protobuf-mode)
 (use-package hydra)
+(use-package keychain-environment)
+(use-package kubel)
 (use-package projectile :config (projectile-global-mode))
-(use-package avy :config (setq avy-background t))
 (use-package flycheck :config (global-flycheck-mode 1))
 (use-package restclient :mode ("\\.restclient\\'" . restclient-mode))
 (use-package company-restclient :config (add-to-list 'company-backends 'company-restclient))
+
+(use-package avy
+  :bind (("C-c SPC" . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)))
 
 (use-package which-key
   :diminish which-key-mode
@@ -295,15 +300,27 @@
   :diminish dumb-jump-mode
   :config
   ;(setq dumb-jump-selector 'helm)
+  (setq dumb-jump-aggressive nil)
   (setq dumb-jump-selector 'ivy)
   (setq dumb-jump-prefer-searcher 'ag))
 
-(use-package ace-window
-  :after hydra
-  :functions hydra-frame-window/body
-  :bind ("C-M-o" . hydra-frame-window/body)
-  :custom (aw-keys '(?j ?k ?l ?i ?o ?h ?y ?u ?p))
-  :custom-face (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c")))))
+(use-package win-switch
+  :bind ("C-x o" . win-switch-dispatch)
+  :config
+  (setq win-switch-provide-visual-feedback t)
+  (setq win-switch-feedback-background-color "purple")
+  (setq win-switch-feedback-foreground-color "white")
+  (win-switch-setup-keys-default))
+
+(use-package smooth-scrolling
+  :config
+  (smooth-scrolling-mode 1)
+  (setq smooth-scroll-margin 5))
+
+(use-package keyfreq
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
 
 (use-package key-chord
   :config
@@ -347,6 +364,10 @@
          )))
 
 
+;; Enable dired-x && Use human-readable sizes
+(require 'dired-x)
+(setq dired-listing-switches "-alh")
+
 
 ;; Font set
 
@@ -356,7 +377,15 @@
 ;In Mac, Font Book will open by default.
 ;Ubuntu has font application too. Click on install.
 
-(setq my-font-list '("Source Code Pro" "monaco" "menlo" "Go Mono"))
+;; Use the Hack font from chrissimpkins: https://github.com/source-foundry/Hack
+(if (condition-case nil
+        (x-list-fonts "Hack")
+      (error nil))
+    (progn
+      (add-to-list 'default-frame-alist '(font . "Hack"))
+      (set-face-attribute 'default nil :font "Hack")))
+
+(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono"))
 (defun my-set-frame-font (font-name size &optional frames)
   "Set font to one of the fonts from `my-font-list'
 Argument FRAMES has the same meaning as for `set-frame-font'"
@@ -370,7 +399,15 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 (global-set-key (kbd "C-c F") #'my-set-frame-font)
 
 ;; UI
-(load-theme 'wombat t)
-(set-cursor-color "#00ff00")
+
+;(load-theme 'wombat t)
+;(set-cursor-color "#00ff00")
+(use-package dracula-theme
+  :config (load-theme 'dracula t)
+  (set-face-background 'mode-line "#510370")
+  (set-face-background 'mode-line-inactive "#212020"))
+
+(custom-set-faces
+ '(mode-line ((t (:background "#510370" :foreground "white")))))
 
 (provide 'init-pkgs)

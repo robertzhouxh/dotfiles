@@ -66,6 +66,7 @@ brew tap homebrew/services
 # awesome font for programming
 brew tap homebrew/cask-fonts
 brew cask install font-source-code-pro
+brew cask install font-hack
 
 # Install command-line tools using Homebrew.
 # Ask for the administrator password upfront.
