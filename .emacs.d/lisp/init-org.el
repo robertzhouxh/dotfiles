@@ -42,14 +42,12 @@
                          (face-attribute 'default :background) 3)))
 
 (setq org-startup-indented t)
-(setq org-plantuml-jar-path "~/.emacs.d/vendor/plantuml.jar")
-
 
 ;; TODO
 (use-package plantuml-mode)
-;; (setq org-ditaa-jar-path "~/.emacs.d/vendor/ditaa0_9.jar")
+;;(setq org-plantuml-jar-path "~/.emacs.d/vendor/plantuml.jar")
 ;; Download and hook up plantuml.jar
-;(let ((plantuml-directory (concat user-emacs-directory "vendor/"))
+;(let ((plantuml-directory (concat  config-load-path "vendor/"))
 ;      (plantuml-link "https://superb-dca2.dl.sourceforge.net/project/plantuml/plantuml.jar"))
 ;  (let ((plantuml-target (concat plantuml-directory "plantuml.jar")))
 ;    (if (not (f-exists? plantuml-target))

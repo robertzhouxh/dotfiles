@@ -6,6 +6,18 @@
 
 (defvar vendor-dir (expand-file-name "vendor" user-emacs-directory))
 (defvar lisp-dir (expand-file-name "lisp" user-emacs-directory))
+(defvar config-load-path (file-name-directory (or load-file-name buffer-file-name)))
+
+;; Startup metrics
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
+
 (add-to-list 'load-path lisp-dir)
 (add-to-list 'load-path vendor-dir)
 (let ((default-directory "/usr/local/share/emacs/site-lisp/"))
