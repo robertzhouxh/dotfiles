@@ -1,6 +1,49 @@
 ;;; init-languages.el
 ;;; Commentary:
 
+;; Remote SSH
+;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
+;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file. 
+;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
+;; C-x C-f /sudo::/etc/hosts
+;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
+;; but it’s sometimes useful if you are debugging a docker file or whatever and need a tigher feedback loop.
+(use-package tramp
+  :config
+  (setq tramp-default-method "ssh"
+	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
+
+;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+(push
+ (cons
+  "docker"
+  '((tramp-login-program "docker")
+    (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
+    (tramp-remote-shell "/bin/sh")
+    (tramp-remote-shell-args ("-i") ("-c"))))
+ tramp-methods)
+
+(defadvice tramp-completion-handle-file-name-all-completions
+  (around dotemacs-completion-docker activate)
+  "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
+    a list of active Docker container names, followed by colons."
+  (if (equal (ad-get-arg 1) "/docker:")
+      (let* ((dockernames-raw (shell-command-to-string "docker ps | awk '$NF != \"NAMES\" { print $NF \":\" }'"))
+             (dockernames (cl-remove-if-not
+                           #'(lambda (dockerline) (string-match ":$" dockerline))
+                           (split-string dockernames-raw "\n"))))
+        (setq ad-return-value dockernames))
+    ad-do-it))
+
+; To try this out, we can spin up a quick server like this
+; docker run --rm -p 6379:6379 --name redis_container redis
+; And then look at files inside of it using
+; C-x C-f /docker:redis_container:/
+
+; Inside a docker container on a remote host
+; We can also chain things together! Lets say that we have a docker container named ssb-pub running on a remote host ssb.willschenk.com, we can connect to it using:
+; C-x C-f /ssh:root@ssb.willschenk.com|docker:ssb-pub:/
+
 ;;---------------------------------------------------------
 ;; Golang
 ;; export GO111MODULE=on

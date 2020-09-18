@@ -285,12 +285,6 @@
        ((((background dark)) (:background "#555555555555"))
 	(t (:background "#C847D8FEFFFF"))) :group 'minimap)))
 
-;; Remote SSH
-(use-package tramp
-  :config
-  (setq tramp-default-method "ssh"
-	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
-
 ;; Make numbers in source code more noticeable
 (use-package highlight-numbers
   :config (add-hook 'prog-mode-hook 'highlight-numbers-mode))
