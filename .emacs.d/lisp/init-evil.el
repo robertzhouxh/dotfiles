@@ -7,23 +7,25 @@
   "Configure evil leader mode."
   (evil-leader/set-leader ",")
   (evil-leader/set-key
-    "#"  'server-edit
-    ","  'other-window
-    "."  'mode-line-other-buffer
+    ","  'avy-goto-char-2
     ":"  'eval-expression
+
+    ; C-y => paste the things to minibuffer, then use consel-rg
+    "/"  'counsel-rg
 
     "a"  'align-regexp
 
     "bb" 'ivy-switch-buffer
     "br" 'counsel-recentf
-    "dv" 'counsel-describe-variable
-    "df" 'counsel-describe-function
-    "/"  'counsel-rg
 
     "c"  'comment-dwim
 
-    "d"  'kill-this-buffer
-    "D"  'kill-this-window
+    "db" 'kill-this-buffer
+    "dw" 'delete-window
+    "do" 'delete-other-windows
+    "dt" 'delete-trailing-whitespace
+    "dv" 'counsel-describe-variable
+    "df" 'counsel-describe-function
 
     "es" 'ivy-erlang-complete-find-spec
     "ef" 'ivy-erlang-complete-find-file
@@ -31,29 +33,31 @@
     "ep" 'ivy-erlang-complete-set-project-root
     "ea" 'ivy-erlang-complete-autosetup-project-root
     "ek" 'get-erl-man
+    "es" 'eshell-here
+    "ec" 'eshell/clear
+    "ed" 'eshell/close
 
-    "Es" 'x/eshell-here
-    "Ex" 'x/eshell-x
-
-    "f"  'other-frame
-    "F"  'other-window
+    "ff" 'find-file-other-frame
+    "fp" 'format-function-parameters
 
     "g"  'magit-status
     "G"  'magit-dispatch-popup
 
-    "o"  'delete-other-windows
-    "O"  'delete-other-buffers
+    "of" 'other-frame
+    "ow" 'other-window
 
     "p/" 'counsel-projectile-rg
     "pf" 'counsel-projectile-find-file
     "pp" 'counsel-projectile-switch-project
     "pb" 'counsel-projectile-switch-to-buffer
 
-    "r"  'x/open-init-file
-    "R" 'x/reload-init-file
+    "rb" 'generate-scratch-buffer
+    "ri" 'x/open-init-file
+    "rv" 'rename-local-var
+    "R"  'x/reload-init-file
 
-    "s" 'x/save-all
-    "S" 'delete-trailing-whitespace
+    "sa" 'x/save-all
+    "su" 'sudo
 
     "w" 'whitespace-mode
     ))
