@@ -416,17 +416,9 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   :config
   (load-theme 'chocolate t))
 
-(use-package tao-theme
-  :ensure t
-  :init
-  ;(load-theme 'tao-yang t)
-  (load-theme 'tao-yin t)
-  (setq-default line-spacing 1)
-  (require 'git-gutter)
-  (set-face-attribute 'git-gutter:deleted nil :foreground "red")
-  (set-face-attribute 'git-gutter:modified nil :foreground "light blue")
-  (set-face-attribute 'git-gutter:added nil :foreground "green")
-  )
+(use-package srcery-theme
+  :config
+  (load-theme 'srcery t))
 
 (custom-set-faces
  '(mode-line ((t (:background "#510370" :foreground "white")))))
