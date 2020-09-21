@@ -404,9 +404,29 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 ;(load-theme 'wombat t)
 ;(set-cursor-color "#00ff00")
 (use-package dracula-theme
+  :ensure t
+  :disabled t
   :config (load-theme 'dracula t)
   (set-face-background 'mode-line "#510370")
   (set-face-background 'mode-line-inactive "#212020"))
+
+(use-package chocolate-theme
+  :ensure t
+  :disabled t
+  :config
+  (load-theme 'chocolate t))
+
+(use-package tao-theme
+  :ensure t
+  :init
+  ;(load-theme 'tao-yang t)
+  (load-theme 'tao-yin t)
+  (setq-default line-spacing 1)
+  (require 'git-gutter)
+  (set-face-attribute 'git-gutter:deleted nil :foreground "red")
+  (set-face-attribute 'git-gutter:modified nil :foreground "light blue")
+  (set-face-attribute 'git-gutter:added nil :foreground "green")
+  )
 
 (custom-set-faces
  '(mode-line ((t (:background "#510370" :foreground "white")))))
