@@ -169,7 +169,7 @@
       (reverse
        (append auto-mode-alist
 	       '(("\\.rel$"         . erlang-mode)
-		 ("\\.app\\.src$"     . erlang-mode)
+		 ("\\.app\\.src$"   . erlang-mode)
 		 ("\\.hrl$"         . erlang-mode)
 		 ("\\.erl$"         . erlang-mode)
 		 ("\\.yrl$"         . erlang-mode)

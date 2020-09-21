@@ -72,6 +72,22 @@
 ;(setq url-proxy-services `(("http" . "127.0.0.1:8123")
 ;                           ("https" . "127.0.0.1:8123")))
 
+(defmacro safe-diminish (file mode &optional new-name)
+  "https://github.com/robertzhoxh/dotfiles"
+  `(with-eval-after-load ,file
+     (diminish ,mode ,new-name)))
+
+(safe-diminish "abbrev" 'abbrev-mode)
+(safe-diminish "eldoc" 'eldoc-mode)
+(safe-diminish "flycheck" 'flycheck-mode)
+(safe-diminish "flyspell" 'flyspell-mode)
+(safe-diminish "projectile" 'projectile-mode)
+(safe-diminish "smartparens" 'smartparens-mode)
+(safe-diminish "smooth-scroll" 'smooth-scroll-mode)
+(safe-diminish "undo-tree" 'undo-tree-mode)
+(safe-diminish "volatile-highlights" 'volatile-highlights-mode)
+(safe-diminish "yasnippet" 'yas-minor-mode)
+
 ;; load my own configurations
 (require 'init-bootstrap)
 (require 'init-utils)

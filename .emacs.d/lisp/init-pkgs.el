@@ -20,15 +20,18 @@
 (use-package hydra)
 (use-package keychain-environment)
 (use-package kubel)
-(use-package projectile :config (projectile-global-mode))
-(use-package flycheck :config (global-flycheck-mode 1))
 (use-package restclient :mode ("\\.restclient\\'" . restclient-mode))
 (use-package company-restclient :config (add-to-list 'company-backends 'company-restclient))
-
+(use-package projectile
+	     :diminish
+	     :config (projectile-global-mode))
+(use-package flycheck
+	     :diminish
+	     :config (global-flycheck-mode 1))
 (use-package avy
-  :bind (("C-c SPC" . avy-goto-char-2)
-         ("M-g f" . avy-goto-line)
-         ("M-g w" . avy-goto-word-1)))
+	     :bind (("C-c SPC" . avy-goto-char-2)
+		    ("M-g f" . avy-goto-line)
+		    ("M-g w" . avy-goto-word-1)))
 
 (use-package which-key
   :diminish which-key-mode
@@ -58,6 +61,7 @@
 
 (use-package undo-tree
   :ensure t
+  :diminish
   :config
   (progn
     (global-undo-tree-mode)
@@ -78,6 +82,7 @@
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
 (use-package yasnippet
+  :diminish yas-minor-mode
   :init
   (yas-global-mode)
   :config
@@ -134,7 +139,8 @@
 	git-messenger:use-magit-popup t))
 
 (use-package git-gutter
- :ensure t
+  :diminish
+  :ensure t
   :custom
   (git-gutter:modified-sign "~")
   (git-gutter:added-sign    "+")
@@ -189,6 +195,7 @@
   :config (ivy-mode t))
 (use-package counsel
   :after ivy
+  :diminish counsel-mode
   :demand t
   :ensure t
   :bind
@@ -379,7 +386,7 @@
       (add-to-list 'default-frame-alist '(font . "Hack"))
       (set-face-attribute 'default nil :font "Hack")))
 
-(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono"))
+(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "FiraCode"))
 (defun my-set-frame-font (font-name size &optional frames)
   "Set font to one of the fonts from `my-font-list'
 Argument FRAMES has the same meaning as for `set-frame-font'"
