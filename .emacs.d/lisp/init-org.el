@@ -35,11 +35,11 @@
    (ditaa . t)
    ))
 
-(require 'color)
-(if (display-graphic-p)
-    (set-face-attribute 'org-block nil :background
-                        (color-darken-name
-                         (face-attribute 'default :background) 3)))
+;(require 'color)
+;(if (display-graphic-p)
+;    (set-face-attribute 'org-block nil :background
+;                        (color-darken-name
+;                         (face-attribute 'default :background) 3)))
 
 (setq org-startup-indented t)
 
@@ -64,10 +64,6 @@
       org-confirm-babel-evaluate nil
       org-support-shift-select 'always)
 
-(setq org-image-actual-width '(400))
-
-(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
-
 ;; export html with highlight code
 (use-package htmlize
              :defer t
@@ -77,9 +73,41 @@
                          htmlize-many-files-dired
                          htmlize-region))
 
-;; drag the pitcture to the cursor's positon
-(use-package org-download)
+;; capture the picture for macos
+(defun my-org-screenshot (basename)
+  "Take a screenshot into a time stamped unique-named file in the
+same directory as the org-buffer and insert a link to this file."
+  (interactive "sScreenshot name: ")
+  (if (equal basename "")
+      (setq basename (format-time-string "%Y%m%d_%H%M%S")))
+  (setq filename
+        (concat (file-name-directory (buffer-file-name))
+                "imgs/"
+                (file-name-base (buffer-file-name))
+                "_"
+                basename
+                ".png"))
+  (call-process "screencapture" nil nil nil "-s" filename)
+  (insert "#+CAPTION:")
+  (insert basename)
+  (insert "\n")
+  (insert (concat "[[" filename "]]"))
+  (org-display-inline-images))
 
+;(setq org-image-actual-width '(400))
+;(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+
+;; org -> html
+(setq org-html-doctype "html5")
+(setq org-html-xml-declaration nil)
+(setq org-html-postamble nil)
+;; more beatyfull
+(setq org-html-head "<link rel='stylesheet' href='http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css'>\n<link rel='stylesheet' href='http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap-theme.min.css'>\n<script src='http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js'>\n</script><script src='http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js'></script>")
+
+;;(use-package org-download :ensure t)
+
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+(setq org-image-actual-width '(400))
 (setq org-startup-with-inline-images t)
 
 ;; --------------------------------------------------------------
