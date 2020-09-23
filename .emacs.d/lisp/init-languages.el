@@ -151,6 +151,12 @@
 ;; sudo apt-get update
 ;; sudo apt-get install erlang
 
+;; or
+;; wget http://erlang.org/download/otp_src_22.3.tar.gz
+;; tar zxvf otp_src_22.3.tar.gz
+;; cd otp_src_22.3
+;; ./configure --with-ssl && make && make install
+
 ;; Install Erlang Docs And Man Pages
 ;;    wget http://erlang.org/download/otp_doc_man_21.3.tar.gz
 ;;    $ manpath

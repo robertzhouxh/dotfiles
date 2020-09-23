@@ -56,12 +56,12 @@ cecho "Now time to install my favorate tools ..." $yellow
 
 apps=(
     # Utilities
-    #libncurses5-dev
-    #libreadline-dev
-    #libpcre3-dev
-    #zlib1g-dev
-    #libssl-dev
-    #libssh-dev
+    libncurses5-dev
+    libreadline-dev
+    libpcre3-dev
+    zlib1g-dev
+    libssl-dev
+    libssh-dev
     openssl
     build-essential
     perl
@@ -73,8 +73,8 @@ apps=(
     wget
     curl
     openssh-server
-    #libgtk-3-dev
-    #libappindicator3-dev
+    libgtk-3-dev
+    libappindicator3-dev
 
     # cool terminal util
     # suggest terminator
