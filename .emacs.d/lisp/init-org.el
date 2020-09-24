@@ -110,6 +110,10 @@ same directory as the org-buffer and insert a link to this file."
 (setq org-image-actual-width '(400))
 (setq org-startup-with-inline-images t)
 
+(add-hook 'org-mode-hook
+	  (lambda()
+	    (setq truncate-lines nil))) 
+
 ;; --------------------------------------------------------------
 ;; org -> latex -> pdf
 ;; --------------------------------------------------------------

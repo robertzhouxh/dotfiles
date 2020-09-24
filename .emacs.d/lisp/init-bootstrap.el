@@ -25,6 +25,9 @@
 (global-auto-revert-mode t)
 (global-hl-line-mode -1)
 
+;(global-visual-line-mode 1)
+(set-default 'truncate-lines t)
+
 (fset 'yes-or-no-p 'y-or-n-p)
 
 ;; file edit settings
