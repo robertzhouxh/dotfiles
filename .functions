@@ -169,3 +169,15 @@ function o() {
 function tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
+
+# 每周站会汇报工作时用
+git-standup() {
+    AUTHOR=${AUTHOR:="`git config user.name`"}
+
+    since=yesterday
+    if [[ $(date +%u) == 1 ]] ; then
+        since="2 days ago"
+    fi
+
+    git log --all --since "$since" --oneline --author="$AUTHOR"
+}
