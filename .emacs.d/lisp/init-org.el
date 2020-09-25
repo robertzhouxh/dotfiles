@@ -3,15 +3,77 @@
 
 ;; org basic settings
 (use-package org-evil)
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "INPROGRESS(i)" "WAITING(w)" "REVIEW(r)" "|" "DONE(d)" "CANCELED(c)")))
-(setq org-todo-keyword-faces
-      '(("TODO" . org-warning)
-        ("INPROGRESS" . "yellow")
-        ("WAITING" . "purple")
-        ("REVIEW" . "orange")
-        ("DONE" . "green")
-        ("CANCELED" .  "red")))
+
+(use-package org
+  :ensure org-plus-contrib
+  :bind
+  (("C-c a" . org-agenda)
+   ("C-c c" . org-capture)
+   ("C-c C-v C-c" . jb/org-clear-results))
+  :init
+  (progn
+    (global-unset-key "\C-c\C-v\C-c")
+    (defun jb/org-narrow-to-parent ()
+      "Narrow buffer to the current subtree."
+      (interactive)
+      (widen)
+      (org-up-element)
+      (save-excursion
+        (save-match-data
+          (org-with-limited-levels
+           (narrow-to-region
+            (progn
+              (org-back-to-heading t) (point))
+            (progn (org-end-of-subtree t t)
+                   (when (and (org-at-heading-p) (not (eobp))) (backward-char 1))
+                   (point)))))))
+    (defun jb/org-clear-results ()
+      (interactive)
+      (org-babel-remove-result-one-or-many 't))
+    (defun run-org-block ()
+      (interactive)
+      (save-excursion
+        (goto-char
+         (org-babel-find-named-block
+          (completing-read "Code Block: " (org-babel-src-block-names))))
+        (org-babel-execute-src-block-maybe)))
+    (setq global-company-modes '(not org-mode)))
+  :config
+  (progn
+    (setq truncate-lines nil
+          org-startup-truncated nil
+          word-wrap t)
+    (setq org-agenda-files (list (concat org-directory "/personal/calendar.org")
+                                 (concat org-directory "/work/calendar.org")
+                                 (concat org-directory "/personal/tasks.org")
+                                 (concat org-directory "/work/tasks.org")))
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 '((dot . t)
+                                   (js . t)
+                                   (sql . t)
+				   (awk . t)
+				   (plantuml . t)
+				   (ditaa . t)
+				   (go . t)
+				   (restclient . t)
+				   (shell . t)))
+    (setq org-todo-keywords
+	  '((sequence "TODO(t)" "INPROGRESS(i)" "|" "DONE(d)")
+	    ("WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))
+
+          org-todo-keyword-faces
+          '(("TODO" :foreground "red" :weight bold)
+            ("INPROGRESS" :foreground "blue" :weight bold)
+            ("DONE" :foreground "forest green" :weight bold)
+            ("WAITING" :foreground "orange" :weight bold)
+            ("BLOCKED" :foreground "magenta" :weight bold)
+            ("CANCELLED" :foreground "forest green" :weight bold)))
+    (setq org-default-notes-file (concat org-directory "/notes.org")
+          org-export-html-postamble nil
+          org-hide-leading-stars t
+          org-startup-folded 'overview
+          org-startup-indented t)))
+
 (use-package org-bullets
              :config
              (progn
@@ -19,30 +81,104 @@
                ;;(setq org-bullets-bullet-list '("☰" "☷" "☯" "☭"))
                (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
 
+
+;; ---------------------------------------------------------------------------
+;; restclient config
 ;; code: cd .emacs.d/elpa/org-20161102 && rm *.elc || 执行 x/recompile-elpa
-(require 'ob)
-(require 'ob-shell)
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '(
-   (emacs-lisp . t)
-   (org . t)
-   (shell . t)
-   (C . t)
-   (python . t)
-   (awk . t)
-   (plantuml . t)
-   (ditaa . t)
-   ))
 
-;(require 'color)
-;(if (display-graphic-p)
-;    (set-face-attribute 'org-block nil :background
-;                        (color-darken-name
-;                         (face-attribute 'default :background) 3)))
+;(require 'ob)
+;(require 'ob-shell)
 
-(setq org-startup-indented t)
+(use-package restclient
+  :ensure t
+  :mode
+  ("\\.http\\'" . restclient-mode))
 
+(use-package ob-restclient
+  :ensure t
+  :after org restclient
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (org . t)
+     (shell . t)
+     (C . t)
+     (python . t)
+     (awk . t)
+     (plantuml . t)
+     (ditaa . t)
+     (restclient . t)
+     )))
+
+
+;; generated-curl-command is used to communicate state across several function calls
+(setq generated-curl-command nil)
+
+(defvar org-babel-default-header-args:restclient-curl
+  `((:results . "raw"))
+  "Default arguments for evaluating a restclient block.")
+
+;; Lambda function reified to a named function, stolen from restclient
+(defun gen-restclient-curl-command (method url headers entity)
+  (let ((header-args
+         (apply 'append
+                (mapcar (lambda (header)
+                          (list "-H" (format "%s: %s" (car header) (cdr header))))
+                        headers))))
+    (setq generated-curl-command
+          (concat
+           "#+BEGIN_SRC sh\n"
+           "curl "
+           (mapconcat 'shell-quote-argument
+                      (append '("-i")
+                              header-args
+                              (list (concat "-X" method))
+                              (list url)
+                              (when (> (string-width entity) 0)
+                                (list "-d" entity)))
+                      " ")
+           "\n#+END_SRC"))))
+
+(defun org-babel-execute:restclient-curl (body params)
+  "Execute a block of Restclient code to generate a curl command with org-babel.
+This function is called by `org-babel-execute-src-block'"
+  (message "executing Restclient source code block")
+  (with-temp-buffer
+    (let ((results-buffer (current-buffer))
+          (restclient-same-buffer-response t)
+          (restclient-same-buffer-response-name (buffer-name))
+          (display-buffer-alist
+           (cons
+            '("\\*temp\\*" display-buffer-no-window (allow-no-window . t))
+            display-buffer-alist)))
+
+      (insert (buffer-name))
+      (with-temp-buffer
+        (dolist (p params)
+          (let ((key (car p))
+                (value (cdr p)))
+            (when (eql key :var)
+              (insert (format ":%s = %s\n" (car value) (cdr value))))))
+        (insert body)
+        (goto-char (point-min))
+        (delete-trailing-whitespace)
+        (goto-char (point-min))
+        (restclient-http-parse-current-and-do 'gen-restclient-curl-command))
+      generated-curl-command)))
+
+;; Make it easy to interactively generate curl commands
+(defun jb/gen-curl-command ()
+  (interactive)
+  (let ((info (org-babel-get-src-block-info)))
+    (if (equalp "restclient" (car info))
+        (org-babel-execute-src-block t (cons "restclient-curl"
+                                             (cdr info)))
+        (message "I'm sorry, I can only generate curl commands for a restclient block."))))
+
+
+;; -----------------------------------------------------------------------------------------
 ;; TODO
 (use-package plantuml-mode)
 ;;(setq org-plantuml-jar-path "~/.emacs.d/vendor/plantuml.jar")
@@ -112,7 +248,7 @@ same directory as the org-buffer and insert a link to this file."
 
 (add-hook 'org-mode-hook
 	  (lambda()
-	    (setq truncate-lines nil))) 
+	    (setq truncate-lines nil)))
 
 ;; --------------------------------------------------------------
 ;; org -> latex -> pdf
