@@ -4,6 +4,7 @@
 ;; org basic settings
 (use-package org-evil)
 
+;; https://justinbarclay.me/posts/literate_programming_against_rest_apis/
 (use-package org
   :ensure org-plus-contrib
   :bind
@@ -47,14 +48,16 @@
                                  (concat org-directory "/work/calendar.org")
                                  (concat org-directory "/personal/tasks.org")
                                  (concat org-directory "/work/tasks.org")))
+    (require 'ob-erlang)
     (org-babel-do-load-languages 'org-babel-load-languages
                                  '((dot . t)
+				   (erlang . t)
+				   (emacs-lisp . t)
                                    (js . t)
                                    (sql . t)
 				   (awk . t)
 				   (plantuml . t)
 				   (ditaa . t)
-				   (go . t)
 				   (restclient . t)
 				   (shell . t)))
     (setq org-todo-keywords
