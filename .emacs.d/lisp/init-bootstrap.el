@@ -23,6 +23,7 @@
 
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
+(setq auto-revert-check-vc-info t)
 (global-hl-line-mode -1)
 
 ;(global-visual-line-mode 1)
