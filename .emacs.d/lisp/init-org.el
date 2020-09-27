@@ -89,39 +89,13 @@
 ;; restclient config
 ;; code: cd .emacs.d/elpa/org-20161102 && rm *.elc || 执行 x/recompile-elpa
 
-;(require 'ob)
-;(require 'ob-shell)
-
-(use-package restclient
-  :ensure t
-  :mode
-  ("\\.http\\'" . restclient-mode))
-
-(use-package ob-restclient
-  :ensure t
-  :after org restclient
-  :init
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (emacs-lisp . t)
-     (org . t)
-     (shell . t)
-     (C . t)
-     (python . t)
-     (awk . t)
-     (plantuml . t)
-     (ditaa . t)
-     (restclient . t)
-     )))
-
+(use-package restclient :ensure t :mode ("\\.http\\'" . restclient-mode))
+(use-package ob-restclient :ensure t :after org restclient)
 
 ;; generated-curl-command is used to communicate state across several function calls
 (setq generated-curl-command nil)
 
-(defvar org-babel-default-header-args:restclient-curl
-  `((:results . "raw"))
-  "Default arguments for evaluating a restclient block.")
+(defvar org-babel-default-header-args:restclient-curl `((:results . "raw")) "Default arguments for evaluating a restclient block.")
 
 ;; Lambda function reified to a named function, stolen from restclient
 (defun gen-restclient-curl-command (method url headers entity)
