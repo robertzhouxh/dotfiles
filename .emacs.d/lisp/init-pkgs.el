@@ -19,6 +19,7 @@
 (use-package protobuf-mode)
 (use-package hydra)
 (use-package kubel)
+(use-package nginx-mode :ensure t)
 
 (use-package projectile
   :diminish
