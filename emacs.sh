@@ -24,6 +24,11 @@ lnif() {
     if [ -e "$1" ]; then
         ln -sf "$1" "$2"
     fi
+
+    if [ -e "$1" ]; then
+	mkdir -p ~/.emacs.d
+        ln -sf "$1" "$2"
+    fi
 }
 
 echo -e "\033[40;32m Step1: Backing up current emacs config \033[0m"
