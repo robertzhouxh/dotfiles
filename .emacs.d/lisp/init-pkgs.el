@@ -500,8 +500,16 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   (load-theme 'chocolate t))
 
 (use-package srcery-theme
+  :ensure t
+  :disabled t
   :config
   (load-theme 'srcery t))
+
+(use-package base16-theme
+  :ensure t
+  :config
+  (load-theme 'base16-tomorrow-night t)
+  )
 
 (custom-set-faces
  '(mode-line ((t (:background "#510370" :foreground "white")))))
