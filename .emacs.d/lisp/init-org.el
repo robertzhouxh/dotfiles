@@ -156,9 +156,17 @@ This function is called by `org-babel-execute-src-block'"
 
 
 ;; -----------------------------------------------------------------------------------------
-;; TODO
-(use-package plantuml-mode)
-;;(setq org-plantuml-jar-path "~/.emacs.d/vendor/plantuml.jar")
+;; plantuml-mode
+(use-package plantuml-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar")
+  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar")
+  (setq plantuml-exec-mode '(jar)
+  ))
+(use-package flycheck-plantuml :ensure t :config (flycheck-plantuml-setup))
+
 ;; Download and hook up plantuml.jar
 ;(let ((plantuml-directory (concat  config-load-path "vendor/"))
 ;      (plantuml-link "https://superb-dca2.dl.sourceforge.net/project/plantuml/plantuml.jar"))
