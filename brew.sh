@@ -151,6 +151,8 @@ brew install rg
 # c/c++/oc language server
 brew install ccls
 
+brew install  imagemagick
+
 #brew install cmatrix
 brew install youtube-dl
 fi;

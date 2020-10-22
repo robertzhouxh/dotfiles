@@ -156,16 +156,22 @@ This function is called by `org-babel-execute-src-block'"
 
 
 ;; -----------------------------------------------------------------------------------------
+; brew tap d12frosted/emacs-plus
+; brew install emacs-plus --with-imagemagick@6 --without-spacemacs-icon
+;; plantuml-mode
+;; brew install imagemagick
+
 ;; plantuml-mode
 (use-package plantuml-mode
   :ensure t
   :config
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+  (setq plantuml-default-exec-mode 'jar)
   (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar")
-  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar")
-  (setq plantuml-exec-mode '(jar)
-  ))
-(use-package flycheck-plantuml :ensure t :config (flycheck-plantuml-setup))
+  )
+
+(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar")
+(setq plantuml-default-exec-mode 'jar)
 
 ;; Download and hook up plantuml.jar
 ;(let ((plantuml-directory (concat  config-load-path "vendor/"))
@@ -217,6 +223,13 @@ same directory as the org-buffer and insert a link to this file."
 
 ;(setq org-image-actual-width '(400))
 ;(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+(setq org-image-actual-width nil)
+; eg:
+; #+NAME: fig:moodleviz
+; #+CAPTION: Screenshot from Moodleviz.
+; #+ATTR_ORG: :width 600
+; #+ATTR_LATEX: :width 5in
+; [[file:figures/moodleviz-laps.png]]
 
 ;; org -> html
 (setq org-html-doctype "html5")
