@@ -20,20 +20,8 @@
     ```
 ### Emacs
 
-    ```
-        init.el                          config entry, attension to the order of the file load
-        vendor                           custom load path
-        lisp                             main load path
-            init-bootstrap.el            bootstrap: global settings
-            init-evil.el                 evil config: for vimer to emcaser
-            init-languages.el            programming languages: golang, erlang, c/c++, lua, ....
-            init-maps.el                 keybindings except evil
-            init-org.el                  org: powerful write mode
-            init-pkgs.el                 base plugins
-            init-plantform.el            cross-plateform: macos/linux
-            init-utils.el                util elisp functions
+use emacs org mode to describe the emacs configurations: ==.emacs.d/config.org==
 
-    ```
 ## other explainations
 
 - z: jump to the target dir directly eg: $ z xxxdir
