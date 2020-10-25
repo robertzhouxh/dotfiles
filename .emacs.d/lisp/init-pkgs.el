@@ -20,6 +20,8 @@
 (use-package hydra)
 (use-package kubel)
 (use-package nginx-mode :ensure t)
+(use-package async :ensure t :init (async-bytecomp-package-mode 1))
+(use-package kubel-evil :ensure t)
 
 (use-package projectile
   :diminish

@@ -184,6 +184,24 @@ This function is called by `org-babel-execute-src-block'"
 ;               (kill-buffer "*Shell Command Output*")))
 ;    (setq org-plantuml-jar-path plantuml-target)))
 
+;; optical config
+;(use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
+;(when (executable-find "plantuml")
+;  (let ((executable (executable-find "plantuml")))
+;        (setq plantuml-jar-path
+;       	   (replace-regexp-in-string
+;       		"bin"
+;       		"share/java/plantuml"
+;       		(format "%s%s" executable ".jar")))))
+;(use-package flycheck-plantuml :ensure t)
+
+;; recompiles plantuml diagrams on save
+(defun recompile-plantuml ()
+  (add-hook 'after-save-hook
+       		 (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
+
+(add-hook 'plantuml-mode-hook 'recompile-plantuml)
+
 ;; Let's have pretty source code blocks
 (setq org-edit-src-content-indentation 0
       org-src-tab-acts-natively t

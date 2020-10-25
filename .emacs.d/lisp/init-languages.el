@@ -143,6 +143,14 @@
     (company-lsp-async t)
     (company-lsp-enable-recompletion nil)))
 
+(defun go-run ()
+	   (interactive)
+	   (save-buffer)
+	   (let ((buffer "*go*"))
+		 (start-process "*go*" buffer "go" "run" (buffer-name))
+		 (switch-to-buffer buffer)
+		 (view-mode)))
+
 ;;---------------------------------------------------------------
 ;; Erlang Programming << sed ---> gsed >>
 ;; ===> https://stackoverflow.com/questions/30003570/how-to-use-gnu-sed-on-mac-os-x#34815955

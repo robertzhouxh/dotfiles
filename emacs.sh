@@ -8,16 +8,12 @@ echo -e "\033[40;32m install the emacs ... \033[0m"
 #  sudo -H pip install pygments
 #  #brew install global --with-exuberant-ctags --with-pygments
 #  brew install global
-#  
-#  brew cask install emacs
-#  wget http://mirrors.syringanetworks.net/gnu/emacs/emacs-26.1.tar.gz
-#  tar -xzvf emacs-26.1.tar.gz
-#  cd emacs-26.1
-#  ./configure --without-x --with-gnutls=no
-#  make
-#  sudo make install
-#  cd ..
-#  echo -e "\033[40;32m emacs installed \033[0m"
+
+brew tap daviderestivo/emacs-head
+brew install emacs-head@26
+brew install emacs-head@28 --with-cocoa
+
+
 rm -rf ~/.emacs
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 lnif() {

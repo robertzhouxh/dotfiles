@@ -21,7 +21,7 @@
     "c"  'comment-dwim
 
     "db" 'kill-this-buffer
-    "dw" 'delete-window
+    "D"  'kill-buffer-and-window
     "do" 'delete-other-windows
     "dt" 'delete-trailing-whitespace
     "dv" 'counsel-describe-variable
@@ -39,6 +39,11 @@
 
     "ff" 'find-file-other-frame
     "fp" 'format-function-parameters
+    "fd" 'dired-jump
+    "fe" '(lambda () (interactive) (find-file (expand-file-name "init.el" user-emacs-directory)))
+    "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+    "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
+    "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
 
     "g"  'magit-status
     "G"  'magit-dispatch-popup
@@ -58,6 +63,9 @@
 
     "sa" 'x/save-all
     "su" 'sudo
+
+    "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
+    "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
     "w" 'whitespace-mode
     ))
