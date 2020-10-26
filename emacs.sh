@@ -9,10 +9,14 @@ echo -e "\033[40;32m install the emacs ... \033[0m"
 #  #brew install global --with-exuberant-ctags --with-pygments
 #  brew install global
 
-brew tap daviderestivo/emacs-head
-brew install emacs-head@26
-brew install emacs-head@28 --with-cocoa
+# brew tap daviderestivo/emacs-head
+# brew install emacs-head@26
+# brew install emacs-head@28 --with-cocoa --with-modern-sexy-v1-icon
+# brew uninstall emacs-head
 
+# brew tap d12frosted/emacs-plus
+# brew install emacs-plus@28 --with-modern-sexy-v1-icon
+# brew uninstall emacs-plus
 
 rm -rf ~/.emacs
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
