@@ -155,6 +155,9 @@ brew install  imagemagick
 
 #brew install cmatrix
 brew install youtube-dl
+
+brew install pngpaste
+
 fi;
 
 echo ""
