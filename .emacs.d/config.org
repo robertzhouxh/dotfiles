@@ -1311,10 +1311,9 @@ This function is called by `org-babel-execute-src-block'"
                                              (cdr info)))
         (message "I'm sorry, I can only generate curl commands for a restclient block."))))
 
-;; https://justinbarclay.me/posts/literate_programming_against_rest_apis/
-(use-package org-evil)
 (use-package org
   :ensure org-plus-contrib
+  :mode (("\\.org$" . org-mode))
   :bind
   (("C-c a" . org-agenda)
    ("C-c c" . org-capture)
@@ -1384,6 +1383,13 @@ This function is called by `org-babel-execute-src-block'"
           org-hide-leading-stars t
           org-startup-folded 'overview
           org-startup-indented t)))
+
+(use-package evil-org
+  :after (org)
+  :hook
+  ((org-mode . evil-org-mode)
+   (evil-org-mode . (lambda ()
+              (evil-org-set-key-theme)))))
 
 (use-package org-bullets
              :config
