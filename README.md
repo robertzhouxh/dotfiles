@@ -22,6 +22,12 @@
 
 use emacs org mode to describe the emacs configurations: ==.emacs.d/config.org==
 
+Emacs: Failed to verify signature xxx
+
+1. set package-check-signature to nil, e.g. M-: (setq package-check-signature nil) RET
+2. download the package gnu-elpa-keyring-update and run the function with the same name, e.g. M-x package-install RET gnu-elpa-keyring-update RET.
+3. reset package-check-signature to the default value allow-unsigned，e.g. M-: (setq package-check-signature t) RET
+
 ## other explainations
 
 - z: jump to the target dir directly eg: $ z xxxdir
