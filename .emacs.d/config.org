@@ -1,5 +1,5 @@
 * Introduce
-To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=) 
+To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * basics
 Setting up the basics early, so if the config breaks further along, I'll still have evil also, setting some code block properties that help.
 #+PROPERTY: header-args :results silent
@@ -93,7 +93,7 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (safe-diminish "yasnippet" 'yas-minor-mode)
 
 #+END_SRC
-* bootstrap 
+* bootstrap
 #+BEGIN_SRC emacs-lisp :tangle yes
 
 ;; setup coding system and window property
@@ -214,7 +214,7 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (use-package popup    )
 
 #+END_SRC
-* utils 
+* utils
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun x/recompile-elpa ()
   "Recompile packages in elpa directory. Useful if you switch Emacs versions."
@@ -1134,7 +1134,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
  '(mode-line ((t (:background "#510370" :foreground "white")))))
 
 #+END_SRC
-* evil 
+* evil
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun x/config-evil-leader ()
   "Configure evil leader mode."
@@ -1173,7 +1173,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
     "ff" 'find-file-other-frame
     "fp" 'format-function-parameters
     "fd" 'dired-jump
-    "fe" '(lambda () (interactive) (find-file (expand-file-name "init.el" user-emacs-directory)))
+    "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
     "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
     "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
     "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
@@ -1246,17 +1246,16 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; ---------------------------------------------------------------------------
 (use-package org
-;  :ensure org-plus-contrib
-  :mode (("\\.org$" . org-mode))
+  :mode (("\\.org\\'" . org-mode))
   :bind
   :init
   (setq org-src-tab-acts-natively t
-          org-src-preserve-indentation t
-          org-log-done 'time
-          org-startup-folded "showall"
-          org-startup-indented t
-          org-image-actual-width nil
-          org-startup-with-inline-images t)
+        org-src-preserve-indentation t
+        org-log-done 'time
+        org-startup-folded "showall"
+        org-startup-indented t
+        org-image-actual-width nil
+        org-startup-with-inline-images t)
   (require 'ox-md nil t)
   (custom-set-faces
     '(org-level-1 ((t (:inherit outline-1 :height 1.6 :bold t))))
@@ -1274,8 +1273,8 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
                                  '((dot . t)
 				   (erlang . t)
 				   (emacs-lisp . t)
-                                 (js . t)
-                                 (sql . t)
+                                   (js . t)
+                                   (sql . t)
 				   (awk . t)
 				   (plantuml . t)
 				   (ditaa . t)
@@ -1292,12 +1291,12 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
             ("WAITING" :foreground "orange" :weight bold)
             ("BLOCKED" :foreground "magenta" :weight bold)
             ("CANCELLED" :foreground "forest green" :weight bold)))
-    
+
 ))
 
 (use-package evil-org
   :after (org)
-  :mode (("\\.org$" . org-mode))
+  :mode (("\\.org\\'" . org-mode))
   :hook
   ((org-mode . evil-org-mode)
    (evil-org-mode . (lambda () (evil-org-set-key-theme)))))
@@ -1319,6 +1318,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
                 ;; org-download-screenshot-method "screencapture -i %s"
                 org-download-screenshot-method "pngpaste %s"
                 org-download-screenshot-file (expand-file-name "screenshot.jpg" temporary-file-directory)))
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 ;; -----------------------------------------------------------------------------------------
 ;; brew install imagemagick
@@ -1440,7 +1440,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Remote SSH
 ;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
-;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file. 
+;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
 ;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
 ;; C-x C-f /sudo::/etc/hosts
 ;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
