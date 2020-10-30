@@ -61,7 +61,7 @@ else
 fi
 
 # 使用 brew services start|stop|restart SERVICE_NAME 这样的命令来操作一切终端服务了 <=> LaunchRocket
-brew tap homebrew/services
+#brew tap homebrew/services
 
 # awesome font for programming
 brew tap homebrew/cask-fonts

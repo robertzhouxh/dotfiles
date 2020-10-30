@@ -1249,11 +1249,10 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   :mode (("\\.org\\'" . org-mode))
   :bind
   :init
-  (setq org-src-tab-acts-natively t
-        org-src-preserve-indentation t
+  (setq 
         org-log-done 'time
-        org-startup-folded "showall"
-        org-startup-indented t
+        org-startup-folded t  ; t, 'overview, 'content, 'showall.
+        org-startup-truncated t
         org-image-actual-width nil
         org-startup-with-inline-images t)
   (require 'ox-md nil t)
@@ -1271,15 +1270,23 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
     (require 'ob-erlang)
     (org-babel-do-load-languages 'org-babel-load-languages
                                  '((dot . t)
-				   (erlang . t)
-				   (emacs-lisp . t)
-                                   (js . t)
-                                   (sql . t)
-				   (awk . t)
-				   (plantuml . t)
-				   (ditaa . t)
-				   (restclient . t)
-				   (shell . t)))
+				    (erlang . t)
+				    (emacs-lisp . t)
+                                  (js . t)
+                                  (sql . t)
+				    (awk . t)
+				    (plantuml . t)
+				    (ditaa . t)
+				    (restclient . t)
+				    (shell . t)))
+
+    (setq
+     org-src-fontify-natively t
+    ; org-src-preserve-indentation t
+    ; org-src-ask-before-returning-to-edit-buffer nil
+     org-edit-src-auto-save-idle-delay 0 ; 0: don't auto save.
+    )
+
     (setq org-todo-keywords
 	  '((sequence "TODO(t)" "INPROGRESS(i)" "|" "DONE(d)")
 	    ("WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))
@@ -1292,6 +1299,11 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
             ("BLOCKED" :foreground "magenta" :weight bold)
             ("CANCELLED" :foreground "forest green" :weight bold)))
 
+    (setq org-export-babel-evaluate nil)
+    (setq org-confirm-babel-evaluate nil)
+    (setq org-startup-indented t)
+    (with-eval-after-load 'org-indent (setq org-indent-indentation-per-level 1)) ;Default = 2
+    (org-reload)
 ))
 
 (use-package evil-org
