@@ -1126,15 +1126,13 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 
 (use-package base16-theme
   :ensure t
+  :disabled t
   :config
   (load-theme 'base16-tomorrow-night t)
   )
-  
-(require 'lazycat-theme)
-(lazycat-theme-load-dark)
 
-(custom-set-faces
- '(mode-line ((t (:background "#510370" :foreground "white")))))
+;(custom-set-faces
+; '(mode-line ((t (:background "#510370" :foreground "white")))))
 
 #+END_SRC
 * evil
@@ -1252,7 +1250,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   :mode (("\\.org\\'" . org-mode))
   :bind
   :init
-  (setq 
+  (setq
         org-log-done 'time
         org-startup-folded t  ; t, 'overview, 'content, 'showall.
         org-startup-truncated t
@@ -2038,5 +2036,47 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 
   (add-hook 'go-mode-hook (lambda ()
 			    (run-hooks #'prelude-go-mode-defaults))))
+
+
+;; -------------------------------------------------------------------
+(require 'watch-other-window)
+; watch-other-window-up
+; watch-other-window-down
+; watch-other-window-up-line
+; watch-other-window-down-line
+
+;;https://raw.githubusercontent.com/manateelazycat/cache-path-from-shell/master/cache-path-from-shell.el
+(require 'cache-path-from-shell)
+
+;;https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el
+(require 'color-rg)
+;color-rg-search-input
+;color-rg-search-symbol
+;color-rg-search-project
+;color-rg-search-project-rails
+
+;;https://raw.githubusercontent.com/manateelazycat/awesome-tray/master/awesome-tray.el
+(require 'awesome-tray)
+(awesome-tray-mode 1)
+
+;;https://github.com/manateelazycat/lazycat-theme
+(require 'lazycat-theme)
+(lazycat-theme-load-dark)
+(setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+
+
+(use-package aweshell
+  :ensure nil
+  :load-path "~/.emacs.d/vendor/aweshell")
+
+;aweshell-new
+;aweshell-next
+;aweshell-prev
+;aweshell-clear-buffer
+;aweshell-sudo-toggle
+;aweshell-switch-buffer
+;aweshell-dedicated-toggle
+;aweshell-dedicated-open
+;aweshell-dedicated-close
 
 #+END_SRC
