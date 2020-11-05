@@ -2085,7 +2085,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-eaf.el
 (use-package eaf
   :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
-  :disabled t
+  :if (x/system-is-linux)
   :custom
   (eaf-find-alternate-file-in-dired t)
   :config
