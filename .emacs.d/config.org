@@ -24,8 +24,8 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 
 (add-to-list 'load-path lisp-dir)
 (add-to-list 'load-path vendor-dir)
-(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
-  (normal-top-level-add-subdirs-to-load-path))
+;(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
+;  (normal-top-level-add-subdirs-to-load-path))
 
 ;; Setup pkg repo and install use-package
 (require 'package)
