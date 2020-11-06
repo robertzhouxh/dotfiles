@@ -1073,7 +1073,7 @@ they are appended."
       (add-to-list 'default-frame-alist '(font . "Hack"))
       (set-face-attribute 'default nil :font "Hack")))
 
-(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "FiraCode"))
+(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "Sarasa Mono SC Nerd"))
 (defun my-set-frame-font (font-name size &optional frames)
   "Set font to one of the fonts from `my-font-list'
 Argument FRAMES has the same meaning as for `set-frame-font'"
