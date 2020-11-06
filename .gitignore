@@ -35,6 +35,7 @@ Thumbs.db
 .emacs.d/tramp
 .emacs.d/var
 .emacs.d/config.el
+.emacs.d/eln-cache
 
 htop
 .tmux

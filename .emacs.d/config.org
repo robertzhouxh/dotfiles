@@ -6,11 +6,12 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 * global settings
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; setup the load path
-
-(defvar vendor-dir (expand-file-name "vendor" user-emacs-directory))
-(defvar lisp-dir (expand-file-name "lisp" user-emacs-directory))
-(defvar config-load-path (file-name-directory (or load-file-name buffer-file-name)))
+(defun add-subdirs-to-load-path (dir)
+  "Recursive add directories to `load-path'."
+  (let ((default-directory (file-name-as-directory dir)))
+    (add-to-list 'load-path dir)
+    (normal-top-level-add-subdirs-to-load-path)))
+(add-subdirs-to-load-path "~/.emacs.d/vendor/")
 
 ;; Startup metrics
 (add-hook 'emacs-startup-hook
@@ -21,18 +22,13 @@ Setting up the basics early, so if the config breaks further along, I'll still h
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
 
-
-(add-to-list 'load-path lisp-dir)
-(add-to-list 'load-path vendor-dir)
-;(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
-;  (normal-top-level-add-subdirs-to-load-path))
-
 ;; Setup pkg repo and install use-package
 (require 'package)
 (setq package-enable-at-startup nil)
 (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
                          ("melpa" . "http://elpa.emacs-china.org/melpa/")
-                         ("marmalade" . "http://marmalade-repo.org/packages/")))
+                         ;("marmalade" . "http://marmalade-repo.org/packages/")
+			))
 
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 
@@ -661,16 +657,6 @@ they are appended."
   (progn
     (which-key-mode)
     (which-key-setup-side-window-right)))
-
-(use-package highlight-indent-guides
-  :ensure t
-  :diminish
-  :hook
-  ((prog-mode yaml-mode) . highlight-indent-guides-mode)
-  :custom
-  (highlight-indent-guides-auto-enabled t)
-  (highlight-indent-guides-responsive t)
-  (highlight-indent-guides-method 'character)) ; column
 
 (use-package volatile-highlights
   :ensure t
