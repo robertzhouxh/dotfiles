@@ -18,6 +18,8 @@ echo -e "\033[40;32m install the emacs ... \033[0m"
 # brew install emacs-plus@28 --with-modern-sexy-v1-icon
 # brew uninstall emacs-plus
 
+# GCC-Emacs ---> https://github.com/jimeh/build-emacs-for-macos
+
 rm -rf ~/.emacs
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 lnif() {
