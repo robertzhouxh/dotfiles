@@ -65,6 +65,11 @@ fi
 
 # awesome font for programming
 brew tap homebrew/cask-fonts
+brew tap laishulu/cask-fonts
+
+;;Sarasa Mono SC Nerd
+brew cask install font-sarasa-nerd
+
 brew cask install font-source-code-pro
 brew cask install font-hack
 brew cask install font-fira-code
