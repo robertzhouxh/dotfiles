@@ -1071,7 +1071,6 @@ they are appended."
 (require 'dired-x)
 (setq dired-listing-switches "-alh")
 
-
 ;; Font set
 
 ;Download official fonts https://go.googlesource.com/image/+archive/master/font/gofont/ttfs.tar.gz
@@ -1255,6 +1254,9 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
         org-startup-folded t  ; t, 'overview, 'content, 'showall.
         org-startup-truncated t
         org-image-actual-width nil
+        org-export-babel-evaluate nil
+        org-confirm-babel-evaluate nil
+        org-startup-indented t
         org-startup-with-inline-images t)
   (require 'ox-md nil t)
   (custom-set-faces
@@ -1299,12 +1301,6 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
             ("WAITING" :foreground "orange" :weight bold)
             ("BLOCKED" :foreground "magenta" :weight bold)
             ("CANCELLED" :foreground "forest green" :weight bold)))
-
-    (setq org-export-babel-evaluate nil)
-    (setq org-confirm-babel-evaluate nil)
-    (setq org-startup-indented t)
-    (with-eval-after-load 'org-indent (setq org-indent-indentation-per-level 1)) ;Default = 2
-    (org-reload)
 ))
 
 (use-package evil-org
@@ -2079,6 +2075,15 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 ;aweshell-dedicated-open
 ;aweshell-dedicated-close
 
+(require 'auto-save)
+(auto-save-enable)
+(setq auto-save-silent t)
+(setq auto-save-delete-trailing-whitespace t)  ; automatically delete spaces at the end of the line when saving
+(setq auto-save-disable-predicates
+      '((lambda ()
+      (string-suffix-p
+      "gpg"
+      (file-name-extension (buffer-name)) t))))
 
 ;; wget https://github.com/manateelazycat/emacs-application-framework/archive/master.zip
 ;; unzip master.zip && mv emacs-application-framework-master emacs-application-framework
@@ -2093,15 +2098,15 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   ;; Please use your own github token, it's free generate at https://github.com/settings/tokens/new?scopes=
   ;; Setting token will avoid block off by github API times limit.
   (setq eaf-grip-token "xxx")
-  
+
   ;; You need configuration your own local proxy program first.
   (setq eaf-proxy-type "socks5")
   (setq eaf-proxy-host "127.0.0.1")
   (setq eaf-proxy-port "1080")
-  
+
   ;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
   (setq eaf-browser-continue-where-left-off t)
-  
+
   (eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
   (eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
   (eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
@@ -2116,16 +2121,16 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   (eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
   (eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
   (eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
-  
+
   (eaf-setq eaf-browser-default-zoom (if (> (frame-pixel-width) 3000) "2.5" "1.25"))
   (eaf-setq eaf-browser-aria2-proxy-host "127.0.0.1")
   (eaf-setq eaf-browser-aria2-proxy-port "9888")
   (eaf-setq eaf-terminal-font-size "18")
   (eaf-setq eaf-browser-enable-adblocker "true")
   (eaf-setq eaf-browser-enable-autofill "true")
-  
+
   (eaf-setq eaf-marker-letters "JKHLNMUIOYPFDSAVCRREW")
-  
+
   ;(defun jekyll-start-server ()
   ;  (interactive)
   ;  (eaf-terminal-run-command-in-dir "jekyll serve --livereload" "/home/andy/manateelazycat.github.io"))
