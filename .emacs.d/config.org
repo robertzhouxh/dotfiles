@@ -1122,6 +1122,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
 #+END_SRC
 * evil
 #+BEGIN_SRC emacs-lisp :tangle yes
+; C-y => paste the things to minibuffer, then use consel-rg
 (defun x/config-evil-leader ()
   "Configure evil leader mode."
   (evil-leader/set-leader ",")
@@ -1129,13 +1130,13 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
     ","  'avy-goto-char-2
     ":"  'eval-expression
 
-    ; C-y => paste the things to minibuffer, then use consel-rg
     "/"  'counsel-rg
 
     "a"  'align-regexp
 
     "bb" 'ivy-switch-buffer
     "br" 'counsel-recentf
+    "B"  'magit-blame-toggle
 
     "c"  'comment-dwim
 
@@ -1187,45 +1188,171 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
     "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
     "w" 'whitespace-mode
-    ))
+    )
+
+  (defun magit-blame-toggle ()
+    "Toggle magit-blame-mode on and off interactively."
+    (interactive)
+    (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+        (magit-blame-quit)
+      (call-interactively 'magit-blame)))
+)
+
+(defun air--config-evil ()
+  "Configure evil mode."
+  ;; Use Emacs state in these additional modes.
+  (dolist (mode '(ag-mode
+                  custom-mode
+                  custom-new-theme-mode
+                  dired-mode
+                  eshell-mode
+                  flycheck-error-list-mode
+                  git-rebase-mode
+                  term-mode
+                  deadgrep-mode))
+  (add-to-list 'evil-emacs-state-modes mode))
+
+  (delete 'term-mode evil-insert-state-modes)
+  (delete 'eshell-mode evil-insert-state-modes)
+
+  ;; Use insert state in these additional modes.
+  (dolist (mode '(twittering-edit-mode
+                  magit-log-edit-mode))
+    (add-to-list 'evil-insert-state-modes mode))
+
+  (add-to-list 'evil-buffer-regexps '("\\*Flycheck"))
+
+  (evil-add-hjkl-bindings occur-mode-map 'emacs
+    (kbd "/")       'evil-search-forward
+    (kbd "n")       'evil-search-next
+    (kbd "N")       'evil-search-previous
+    (kbd "C-d")     'evil-scroll-down
+    (kbd "C-u")     'evil-scroll-up
+    (kbd "C-w C-w") 'other-window)
+
+  ;; Global bindings.
+  ;(define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
+  ;(define-key evil-insert-state-map "\C-e" 'end-of-line)
+  ;(define-key evil-visual-state-map "\C-e" 'evil-end-of-line)
+  ;(define-key evil-motion-state-map "\C-e" 'evil-end-of-line)
+  ;(define-key evil-normal-state-map "\C-f" 'evil-forward-char)
+  ;(define-key evil-insert-state-map "\C-f" 'evil-forward-char)
+  ;(define-key evil-insert-state-map "\C-f" 'evil-forward-char)
+  ;(define-key evil-normal-state-map "\C-b" 'evil-backward-char)
+  ;(define-key evil-insert-state-map "\C-b" 'evil-backward-char)
+  ;(define-key evil-visual-state-map "\C-b" 'evil-backward-char)
+  ;(define-key evil-normal-state-map "\C-d" 'evil-delete-char)
+  ;(define-key evil-insert-state-map "\C-d" 'evil-delete-char)
+  ;(define-key evil-visual-state-map "\C-d" 'evil-delete-char)
+  ;(define-key evil-normal-state-map "\C-n" 'evil-next-line)
+  ;(define-key evil-insert-state-map "\C-n" 'evil-next-line)
+  ;(define-key evil-visual-state-map "\C-n" 'evil-next-line)
+  ;(define-key evil-normal-state-map "\C-p" 'evil-previous-line)
+  ;(define-key evil-insert-state-map "\C-p" 'evil-previous-line)
+  ;(define-key evil-visual-state-map "\C-p" 'evil-previous-line)
+  ;(define-key evil-normal-state-map "\C-w" 'evil-delete)
+  ;(define-key evil-insert-state-map "\C-w" 'evil-delete)
+  ;(define-key evil-visual-state-map "\C-w" 'evil-delete)
+
+  (evil-define-key 'normal global-map (kbd "<down>")  'evil-next-visual-line)
+  (evil-define-key 'normal global-map (kbd "<up>")    'evil-previous-visual-line)
+  (evil-define-key 'normal global-map (kbd "-")       'helm-find-files)
+  (evil-define-key 'normal global-map (kbd "C--")     'air-dired-buffer-dir-or-home)
+  (evil-define-key 'normal global-map (kbd "C-`")     (lambda () (interactive) (dired (expand-file-name "~"))))
+  (evil-define-key 'normal global-map (kbd "[i")      'show-first-occurrence)
+  (evil-define-key 'insert global-map (kbd "C-e")     'end-of-line)
+  (evil-define-key 'insert global-map (kbd "C-a")     'beginning-of-line)
+  (evil-define-key 'insert global-map (kbd "C-n")     'next-line)
+  (evil-define-key 'insert global-map (kbd "C-p")     'previous-line)
+  (evil-define-key 'insert global-map (kbd "s-d")     'eval-last-sexp)
+  (evil-define-key 'normal global-map (kbd "s-d")     'eval-defun)
+  (evil-define-key 'normal global-map (kbd "C-=")     'sanityinc/increase-default-font-height)
+  (evil-define-key 'normal global-map (kbd "C--")     'sanityinc/decrease-default-font-height)
+
+  (defun minibuffer-keyboard-quit ()
+    "Abort recursive edit.
+  In Delete Selection mode, if the mark is active, just deactivate it;
+  then it takes a second \\[keyboard-quit] to abort the minibuffer."
+    (interactive)
+    (if (and delete-selection-mode transient-mark-mode mark-active)
+        (setq deactivate-mark  t)
+      (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+      (abort-recursive-edit)))
+
+  ;; Make escape quit everything, whenever possible.
+  (define-key evil-normal-state-map [escape] 'keyboard-escape-quit)
+  (define-key evil-visual-state-map [escape] 'keyboard-quit)
+  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+  ;; My own Ex commands.
+  (evil-ex-define-cmd "om" 'octopress-status))
+
+(defun air--apply-evil-other-package-configs ()
+  "Apply evil-dependent settings specific to other packages."
+
+  (defun next-conflict-marker ()
+    (interactive)
+    (evil-next-visual-line)
+    (if (not (search-forward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-max) t))
+        (evil-previous-visual-line))
+    (move-beginning-of-line nil))
+
+  (defun previous-conflict-marker ()
+    (interactive)
+    (search-backward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-min) t)
+    (move-beginning-of-line nil))
+
+  ;; PHP
+  (evil-define-key 'normal php-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'normal php-mode-map (kbd "[n") 'previous-conflict-marker)
+  (evil-define-key 'visual php-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'visual php-mode-map (kbd "[n") 'previous-conflict-marker)
+
+  ;; Dired
+  (evil-define-key 'normal dired-mode-map (kbd "C-e") 'dired-toggle-read-only))
+
+(defmacro define-evil-or-global-key (key def &optional state)
+  "Define a key KEY with DEF in an Evil map, or in the global map.
+If the Evil map for STATE is defined (or `normal' if STATE is not
+provided) the key will be defined in that map.  Failing that, it will
+be defined globally.
+Note that STATE should be provided as an unquoted symbol.
+This macro provides a way to override Evil mappings in the appropriate
+Evil map in a manner that is compatible with environments where Evil
+is not used."
+  (let* ((evil-map-name (if state
+                            (concat "evil-" (symbol-name state) "-state-map")
+                          "evil-normal-state-map"))
+         (map (if (boundp (intern evil-map-name))
+                  (intern evil-map-name)
+                global-map)))
+    `(define-key ,map ,key ,def)))
 
 (use-package evil
-             :init
-             (setq evil-want-C-u-scroll t)
-             (setq evil-want-fine-undo t)
-             (when evil-want-C-u-scroll
-                (define-key evil-insert-state-map (kbd "C-u") 'evil-scroll-up)
-                (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
-                (define-key evil-visual-state-map (kbd "C-u") 'evil-scroll-up)
-                (define-key evil-motion-state-map (kbd "C-u") 'evil-scroll-up))
-             :config
-             (evil-mode 1)
-             (progn
-               (define-key evil-motion-state-map "/" 'swiper)
-               ;; esc should always quit: http://stackoverflow.com/a/10166400/61435
-               (define-key evil-normal-state-map [escape] 'keyboard-quit)
-               (define-key evil-visual-state-map [escape] 'keyboard-quit)
-               (define-key minibuffer-local-map [escape] 'abort-recursive-edit)
-               (define-key minibuffer-local-ns-map [escape] 'abort-recursive-edit)
-               (define-key minibuffer-local-completion-map [escape] 'abort-recursive-edit)
-               (define-key minibuffer-local-must-match-map [escape] 'abort-recursive-edit)
-               (define-key minibuffer-local-isearch-map [escape] 'abort-recursive-edit)
-
-               ;; modes to map to different default states
-               (dolist (mode-map '((comint-mode . emacs)
-                                   (term-mode . emacs)
-                                   (eshell-mode . emacs)
-                                   (help-mode . emacs)
-                                   (fundamental-mode . emacs))))
-               (use-package evil-leader
-                            :config
-                            (global-evil-leader-mode)
-                            (x/config-evil-leader))
-               (use-package evil-visualstar
-                            :bind (:map evil-visual-state-map
-                                        ("*" . evil-visualstar/begin-search-forward)
-                                        ("#" . evil-visualstar/begin-search-backward)))
-               ))
+  :init
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-fine-undo t)
+  (when evil-want-C-u-scroll
+     (define-key evil-insert-state-map (kbd "C-u") 'evil-scroll-up)
+     (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
+     (define-key evil-visual-state-map (kbd "C-u") 'evil-scroll-up)
+     (define-key evil-motion-state-map (kbd "C-u") 'evil-scroll-up))
+  :commands (evil-mode evil-define-key)
+  :config
+  (add-hook 'evil-mode-hook 'air--config-evil)
+  (evil-mode 1)
+  (use-package evil-leader
+    :config
+    (global-evil-leader-mode)
+    (x/config-evil-leader))
+  (use-package evil-visualstar
+    :bind (:map evil-visual-state-map
+    ("*" . evil-visualstar/begin-search-forward)
+    ("#" . evil-visualstar/begin-search-backward))))
 
 #+END_SRC
 * org
