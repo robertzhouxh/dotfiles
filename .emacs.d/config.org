@@ -568,7 +568,7 @@ they are appended."
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none)
 
-  (set-face-attribute 'default nil :height 140)
+  ;(set-face-attribute 'default nil :height 140)
 
   (defun copy-from-osx ()
     (shell-command-to-string "pbpaste"))
@@ -718,30 +718,6 @@ they are appended."
     (bind-key "N" 'compilation-next-file ag-mode-map)
     (bind-key "P" 'compilation-previous-file ag-mode-map)))
 
-;; magit
-;(use-package magit
-;  :defer t
-;  :config
-;  (setq magit-display-buffer-function
-;      (lambda (buffer)
-;        (display-buffer
-;         buffer (if (and (derived-mode-p 'magit-mode)
-;                         (memq (with-current-buffer buffer major-mode)
-;                               '(magit-process-mode
-;                                 ;;magit-revision-mode
-;                                 magit-diff-mode
-;                                 magit-stash-mode
-;                                 magit-status-mode)))
-;                    nil
-;                  '(display-buffer-same-window)))))
-;  ;(setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
-;  (add-hook 'magit-mode-hook
-;            (lambda ()
-;              (define-key magit-mode-map (kbd ",o") 'delete-other-windows)))
-;  (add-hook 'git-commit-mode-hook 'evil-insert-state))
-
-;; Magit is an Emacs interface to Git.
-;; (It's awesome)
 ;; https://github.com/magit/magit
 (use-package magit
   :commands magit-get-top-dir
@@ -841,41 +817,6 @@ they are appended."
   :config
   (global-git-gutter-mode +1))
 
-
-;; helm 全家桶 pk ivy 全家桶
-;(use-package helm
-;  :diminish helm-mode
-;  :init
-;  (progn
-;    (setq helm-candidate-number-limit 100)
-;    (setq helm-idle-delay 0.0 ; update fast sources immediately (doesn't).
-;	  helm-input-idle-delay 0.01  ; this actually updates things
-;					; reeeelatively quickly.
-;	  helm-yas-display-key-on-candidate t
-;	  helm-quick-update t
-;	  helm-M-x-requires-pattern nil
-;	  helm-ff-skip-boring-files t)
-;    (helm-mode))
-;  :config
-;  (progn
-;    (define-key helm-map (kbd "C-n") 'helm-next-line)
-;    (define-key helm-map (kbd "C-p") 'helm-previous-line))
-;  :bind  (("C-i" . helm-swoop)
-;	  ("C-x C-f" . helm-find-files)
-;	  ("C-x b" . helm-buffers-list)
-;	  ("M-y" . helm-show-kill-ring)
-;	  ("M-x" . helm-M-x)))
-;(use-package helm-descbinds :init (helm-descbinds-mode))
-;(use-package helm-swoop)
-;(use-package helm-projectile)
-;(use-package helm-ag
-;  :defer t
-;  :init
-;  (setq helm-ag-base-command "ag --nocolor --nogroup --ignore-case"
-;    	helm-ag-command-option "--all-text"
-;	helm-ag-insert-at-point 'symbol))
-
-;; ivy 全家桶 pk helm全家桶
 (use-package ivy
   :diminish ivy-mode
   :ensure t
@@ -955,36 +896,6 @@ they are appended."
   :ensure t
   :bind (("\C-s" . swiper)))
 
-
-;; pk sublime
-(use-package minimap
-  :ensure t
-  :commands
-  (minimap-bufname minimap-create minimap-kill)
-  :custom
-  (minimap-major-modes '(prog-mode))
-
-  (minimap-window-location 'right)
-  (minimap-update-delay 0.2)
-  (minimap-minimum-width 20)
-  :bind ("C-M-m" . zxh/toggle-minimap)
-  :preface
-  (defun zxh/toggle-minimap ()
-    "Toggle minimap for current buffer."
-    (interactive)
-    (if (null minimap-bufname)
-    (minimap-create)
-  (minimap-kill)))
-  :config
-  (custom-set-faces
-    '(minimap-active-region-background
-       ((((background dark)) (:background "#555555555555"))
-	(t (:background "#C847D8FEFFFF"))) :group 'minimap)))
-
-;; Make numbers in source code more noticeable
-(use-package highlight-numbers
-  :config (add-hook 'prog-mode-hook 'highlight-numbers-mode))
-
 ;; Jump
 (use-package dumb-jump
   :diminish dumb-jump-mode
@@ -994,23 +905,10 @@ they are appended."
   (setq dumb-jump-selector 'ivy)
   (setq dumb-jump-prefer-searcher 'ag))
 
-(use-package win-switch
-  :bind ("C-x o" . win-switch-dispatch)
-  :config
-  (setq win-switch-provide-visual-feedback t)
-  (setq win-switch-feedback-background-color "purple")
-  (setq win-switch-feedback-foreground-color "white")
-  (win-switch-setup-keys-default))
-
 (use-package smooth-scrolling
   :config
   (smooth-scrolling-mode 1)
   (setq smooth-scroll-margin 5))
-
-(use-package keyfreq
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1))
 
 (use-package key-chord
   :config
@@ -1027,32 +925,6 @@ they are appended."
     (key-chord-define-global "jz" 'magit-dispatch-popup)
     (key-chord-define-global "kb" 'gh/kill-current-buffer)
     (key-chord-mode 1)))
-
-;; eshell
-(use-package eshell
-  :init
-  (setq eshell-scroll-to-bottom-on-input 'all
-        eshell-error-if-no-glob t
-        eshell-hist-ignoredups t
-        eshell-save-history-on-exit t
-        eshell-prefer-lisp-functions nil
-        eshell-destroy-buffer-when-process-dies t))
-(setq eshell-prompt-function
-      (lambda ()
-        (concat
-         (propertize "┌─[" 'face `(:foreground "green"))
-         (propertize (user-login-name) 'face `(:foreground "red"))
-         (propertize "@" 'face `(:foreground "green"))
-         (propertize (system-name) 'face `(:foreground "lightblue"))
-         (propertize "]──[" 'face `(:foreground "green"))
-         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-         (propertize "]──[" 'face `(:foreground "green"))
-         (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-         (propertize "]\n" 'face `(:foreground "green"))
-         (propertize "└─>" 'face `(:foreground "green"))
-         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
-         )))
-
 
 ;; Enable dired-x && Use human-readable sizes
 (require 'dired-x)
@@ -1077,7 +949,7 @@ they are appended."
 (setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "Sarasa Mono SC Nerd"))
 (defun my-set-frame-font (font-name size &optional frames)
   "Set font to one of the fonts from `my-font-list'
-Argument FRAMES has the same meaning as for `set-frame-font'"
+  Argument FRAMES has the same meaning as for `set-frame-font'"
   (interactive
    (list (ivy-read "Font name: " my-font-list)
          (read-number "Font size: ")))
@@ -1097,12 +969,6 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   :config (load-theme 'dracula t)
   (set-face-background 'mode-line "#510370")
   (set-face-background 'mode-line-inactive "#212020"))
-
-(use-package chocolate-theme
-  :ensure t
-  :disabled t
-  :config
-  (load-theme 'chocolate t))
 
 (use-package srcery-theme
   :ensure t
@@ -1232,29 +1098,6 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
     (kbd "C-w C-w") 'other-window)
 
   ;; Global bindings.
-  ;(define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
-  ;(define-key evil-insert-state-map "\C-e" 'end-of-line)
-  ;(define-key evil-visual-state-map "\C-e" 'evil-end-of-line)
-  ;(define-key evil-motion-state-map "\C-e" 'evil-end-of-line)
-  ;(define-key evil-normal-state-map "\C-f" 'evil-forward-char)
-  ;(define-key evil-insert-state-map "\C-f" 'evil-forward-char)
-  ;(define-key evil-insert-state-map "\C-f" 'evil-forward-char)
-  ;(define-key evil-normal-state-map "\C-b" 'evil-backward-char)
-  ;(define-key evil-insert-state-map "\C-b" 'evil-backward-char)
-  ;(define-key evil-visual-state-map "\C-b" 'evil-backward-char)
-  ;(define-key evil-normal-state-map "\C-d" 'evil-delete-char)
-  ;(define-key evil-insert-state-map "\C-d" 'evil-delete-char)
-  ;(define-key evil-visual-state-map "\C-d" 'evil-delete-char)
-  ;(define-key evil-normal-state-map "\C-n" 'evil-next-line)
-  ;(define-key evil-insert-state-map "\C-n" 'evil-next-line)
-  ;(define-key evil-visual-state-map "\C-n" 'evil-next-line)
-  ;(define-key evil-normal-state-map "\C-p" 'evil-previous-line)
-  ;(define-key evil-insert-state-map "\C-p" 'evil-previous-line)
-  ;(define-key evil-visual-state-map "\C-p" 'evil-previous-line)
-  ;(define-key evil-normal-state-map "\C-w" 'evil-delete)
-  ;(define-key evil-insert-state-map "\C-w" 'evil-delete)
-  ;(define-key evil-visual-state-map "\C-w" 'evil-delete)
-
   (evil-define-key 'normal global-map (kbd "<down>")  'evil-next-visual-line)
   (evil-define-key 'normal global-map (kbd "<up>")    'evil-previous-visual-line)
   (evil-define-key 'normal global-map (kbd "-")       'helm-find-files)
@@ -1265,6 +1108,7 @@ Argument FRAMES has the same meaning as for `set-frame-font'"
   (evil-define-key 'insert global-map (kbd "C-a")     'beginning-of-line)
   (evil-define-key 'insert global-map (kbd "C-n")     'next-line)
   (evil-define-key 'insert global-map (kbd "C-p")     'previous-line)
+  (evil-define-key 'insert global-map (kbd "C-w")     'evil-delete)
   (evil-define-key 'insert global-map (kbd "s-d")     'eval-last-sexp)
   (evil-define-key 'normal global-map (kbd "s-d")     'eval-defun)
   (evil-define-key 'normal global-map (kbd "C-=")     'sanityinc/increase-default-font-height)
@@ -1401,7 +1245,7 @@ is not used."
      org-src-fontify-natively t
     ; org-src-preserve-indentation t
     ; org-src-ask-before-returning-to-edit-buffer nil
-     org-edit-src-auto-save-idle-delay 0 ; 0: don't auto save.
+    ; org-edit-src-auto-save-idle-delay 0 ; 0: don't auto save.
     )
 
     (setq org-todo-keywords
@@ -1467,7 +1311,7 @@ is not used."
 
 ;; recompiles plantuml diagrams on save
 (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
-(add-hook 'plantuml-mode-hook 'recompile-plantuml)
+;(add-hook 'plantuml-mode-hook 'recompile-plantuml)
 
 ;; --------------------------------------------------------------
 ;; org -> latex -> pdf
@@ -1858,9 +1702,8 @@ is not used."
 (load "autoinsert")
 (auto-insert-mode)
 (setq auto-insert t)
-;;(setq auto-insert-query t)
+(setq auto-insert-query t)
 (add-hook 'find-file-hooks 'auto-insert)
-
 (setq auto-insert-alist
       (append '(
 		(("\\.go$" . "golang header")
@@ -1873,21 +1716,6 @@ is not used."
 		 _
 		 ))
 	      auto-insert-alist))
-
-(setq auto-insert-alist
-      (append '(
-		(("\\.py$" . "python template")
-		 nil
-		 "#!/usr/bin/env python\n"
-		 "\n"
-		 "import sys, os, math\n"
-		 "# import numpy as np\n"
-		 "# import scipy as sp\n"
-		 "# import ROOT\n"
-		 "# import pyfits as pf\n"
-		 "\n"
-		 _
-		 )) auto-insert-alist))
 (setq auto-insert-alist
       (append '(
 		(("\\.sh$" . "shell script template")
@@ -1908,121 +1736,6 @@ is not used."
 		 "%%%-------------------------------------------------------------------\n"
 		 _
 		 ))
-	      auto-insert-alist))
-
-(setq auto-insert-alist
-      (append '(
-		(("\\.h\\'" . "C/C++ header")
-		 nil
-		 '(c++-mode)
-		 '(setq my:skeleton-author (identity user-full-name))
-		 '(setq my:skeleton-mail-address (identity user-mail-address))
-		 '(setq my:skeleton-namespace (read-string "Namespace: " ""))
-		 '(setq my:skeleton-description (read-string "Short Description: " ""))
-		 '(setq my:skeleton-inherit (read-string "Inherits from (space separate for multiple inheritance): " ""))
-		 '(setq my:skeleton-inherit-list (split-string my:skeleton-inherit " " t))
-		 '(setq my:skeleton-inheritance (cond ((null my:skeleton-inherit-list)
-						       "")
-						      (t
-						       (setq my:skeleton-inheritance-concat "")
-						       (dolist (element my:skeleton-inherit-list)
-							 (setq my:skeleton-inheritance-concat
-							       (concat my:skeleton-inheritance-concat
-								       "public " element ", ")))
-						       (setq my:skeleton-inheritance-concat
-							     (concat " : "
-								     my:skeleton-inheritance-concat))
-						       (eval (replace-regexp-in-string ", \\'" "" my:skeleton-inheritance-concat)))))
-		 '(setq my:skeleton-include (cond ((null my:skeleton-inherit-list)
-						   "")
-						  (t
-						   (setq my:skeleton-include "\n")
-						   (dolist (element my:skeleton-inherit-list)
-						     (setq my:skeleton-include
-							   (concat my:skeleton-include
-								   "#include \"" element ".h\"\n")))
-						   (eval my:skeleton-include))))
-		 '(setq my:skeleton-namespace-list (split-string my:skeleton-namespace "::"))
-		 '(setq my:skeleton-file-name (file-name-nondirectory (buffer-file-name)))
-		 '(setq my:skeleton-class-name (file-name-sans-extension my:skeleton-file-name))
-		 '(setq my:skeleton-namespace-class
-			(cond ((string= my:skeleton-namespace "")
-			       my:skeleton-class-name)
-			      (t
-			       (concat my:skeleton-namespace "::" my:skeleton-class-name)
-			       )))
-		 '(setq my:skeleton-namespace-decl
-			(cond ((string= my:skeleton-namespace "")
-			       ""
-			       )
-			      (t
-			       (setq my:skeleton-namespace-decl-pre "")
-			       (setq my:skeleton-namespace-decl-post "")
-			       (setq my:skeleton-namespace-decl-indent "")
-			       (dolist (namespace-element my:skeleton-namespace-list)
-				 (setq my:skeleton-namespace-decl-pre
-				       (concat my:skeleton-namespace-decl-pre
-					       my:skeleton-namespace-decl-indent
-					       "namespace " namespace-element " {\n"))
-				 (setq my:skeleton-namespace-decl-post
-				       (concat "\n"
-					       my:skeleton-namespace-decl-indent
-					       "}"
-					       my:skeleton-namespace-decl-post))
-				 (setq my:skeleton-namespace-decl-indent
-				       (concat my:skeleton-namespace-decl-indent "   "))
-				 )
-			       (eval (concat my:skeleton-namespace-decl-pre
-					     my:skeleton-namespace-decl-indent
-					     "class " my:skeleton-class-name ";"
-					     my:skeleton-namespace-decl-post))
-			       )))
-		 '(random t)
-		 '(setq my:skeleton-include-guard
-			(upcase
-			 (format "INCLUDE_GUARD_UUID_%04x%04x_%04x_4%03x_%04x_%06x%06x"
-				 (random (expt 16 4))
-				 (random (expt 16 4))
-				 (random (expt 16 4))
-				 (random (expt 16 3))
-				 (+ (random (expt 2 14)) (expt 2 5))
-				 (random (expt 16 6))
-				 (random (expt 16 6)))))
-		 "/**" n
-		 "* @file   " my:skeleton-file-name > n
-		 "* @brief  " my:skeleton-description > n
-		 "*" > n
-		 "* @date   Created       : " (format-time-string "%Y-%m-%d %H:%M:%S") > n
-		 "*         Last Modified :" > n
-		 "* @author " my:skeleton-author " <" my:skeleton-mail-address ">" > n
-		 "*" > n
-		 "*    (C) " (format-time-string "%Y") " " my:skeleton-author > n
-		 "*/" > n
-		 n
-		 "#ifndef " my:skeleton-include-guard n
-		 "#define " my:skeleton-include-guard n
-		 my:skeleton-include n
-		 my:skeleton-namespace-decl n
-		 n
-		 "class " my:skeleton-namespace-class my:skeleton-inheritance " {" n
-		 "public:" > n
-		 my:skeleton-class-name "();" n
-		 "virtual ~" my:skeleton-class-name "();" n
-		 n
-		 my:skeleton-class-name "(const " my:skeleton-class-name "& rhs);" n
-		 my:skeleton-class-name "& operator=(const " my:skeleton-class-name "& rhs);" n
-		 n
-		 "protected:" > n
-		 n
-		 "private:" > n
-		 n
-		 "ClassDef(" my:skeleton-class-name ",1) // " my:skeleton-description n
-		 "};" > n
-		 n
-		 "#endif // " my:skeleton-include-guard n
-		 '(delete-trailing-whitespace)
-		 )
-		)
 	      auto-insert-alist))
 #+END_SRC
 * maps
@@ -2174,11 +1887,33 @@ is not used."
 (lazycat-theme-load-dark)
 (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
 
-
+;; eshell
+;(use-package eshell
+;  :init
+;  (setq eshell-scroll-to-bottom-on-input 'all
+;        eshell-error-if-no-glob t
+;        eshell-hist-ignoredups t
+;        eshell-save-history-on-exit t
+;        eshell-prefer-lisp-functions nil
+;        eshell-destroy-buffer-when-process-dies t))
+;(setq eshell-prompt-function
+;      (lambda ()
+;        (concat
+;         (propertize "┌─[" 'face `(:foreground "green"))
+;         (propertize (user-login-name) 'face `(:foreground "red"))
+;         (propertize "@" 'face `(:foreground "green"))
+;         (propertize (system-name) 'face `(:foreground "lightblue"))
+;         (propertize "]──[" 'face `(:foreground "green"))
+;         (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+;         (propertize "]──[" 'face `(:foreground "green"))
+;         (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+;         (propertize "]\n" 'face `(:foreground "green"))
+;         (propertize "└─>" 'face `(:foreground "green"))
+;         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+;         )))
 (use-package aweshell
   :ensure nil
   :load-path "~/.emacs.d/vendor/aweshell")
-
 ;aweshell-new
 ;aweshell-next
 ;aweshell-prev
@@ -2191,67 +1926,12 @@ is not used."
 
 (require 'auto-save)
 (auto-save-enable)
-(setq auto-save-silent t)
-(setq auto-save-delete-trailing-whitespace t)  ; automatically delete spaces at the end of the line when saving
+(setq auto-save-silent nil)
+(setq auto-save-delete-trailing-whitespace nil)
 (setq auto-save-disable-predicates
       '((lambda ()
       (string-suffix-p
       "gpg"
       (file-name-extension (buffer-name)) t))))
-
-;; wget https://github.com/manateelazycat/emacs-application-framework/archive/master.zip
-;; unzip master.zip && mv emacs-application-framework-master emacs-application-framework
-;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-eaf.el
-(use-package eaf
-  :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
-  :if (x/system-is-linux)
-  :custom
-  (eaf-find-alternate-file-in-dired t)
-  :config
-  ;;; Code:
-  ;; Please use your own github token, it's free generate at https://github.com/settings/tokens/new?scopes=
-  ;; Setting token will avoid block off by github API times limit.
-  (setq eaf-grip-token "xxx")
-
-  ;; You need configuration your own local proxy program first.
-  (setq eaf-proxy-type "socks5")
-  (setq eaf-proxy-host "127.0.0.1")
-  (setq eaf-proxy-port "1080")
-
-  ;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
-  (setq eaf-browser-continue-where-left-off t)
-
-  (eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
-  (eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
-  (eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
-  (eaf-bind-key scroll_down "M-k" eaf-browser-keybinding)
-  (eaf-bind-key scroll_up_page "M-n" eaf-browser-keybinding)
-  (eaf-bind-key scroll_down_page "M-p" eaf-browser-keybinding)
-  (eaf-bind-key open_link "M-h" eaf-browser-keybinding)
-  (eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
-  (eaf-bind-key insert_or_open_link_new_buffer "D" eaf-browser-keybinding)
-  (eaf-bind-key insert_or_open_link_background_buffer "F" eaf-browser-keybinding)
-  (eaf-bind-key watch-other-window-up-line "M-<" eaf-browser-keybinding)
-  (eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
-  (eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
-  (eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
-
-  (eaf-setq eaf-browser-default-zoom (if (> (frame-pixel-width) 3000) "2.5" "1.25"))
-  (eaf-setq eaf-browser-aria2-proxy-host "127.0.0.1")
-  (eaf-setq eaf-browser-aria2-proxy-port "9888")
-  (eaf-setq eaf-terminal-font-size "18")
-  (eaf-setq eaf-browser-enable-adblocker "true")
-  (eaf-setq eaf-browser-enable-autofill "true")
-
-  (eaf-setq eaf-marker-letters "JKHLNMUIOYPFDSAVCRREW")
-
-  ;(defun jekyll-start-server ()
-  ;  (interactive)
-  ;  (eaf-terminal-run-command-in-dir "jekyll serve --livereload" "/home/andy/manateelazycat.github.io"))
-  ;
-  ;(defun jekyll-open-local ()
-  ;  (interactive)
-  ;  (eaf-open-browser "http://127.0.0.1:4000"))
-  )
 
   #+END_SRC
