@@ -1212,7 +1212,7 @@ is not used."
         org-startup-folded t  ; t, 'overview, 'content, 'showall.
         org-startup-truncated t
         org-image-actual-width nil
-        org-export-babel-evaluate nil
+        org-export-babel-evaluate t 
         org-confirm-babel-evaluate nil
         org-startup-indented t
         org-startup-with-inline-images t)
@@ -1295,8 +1295,8 @@ is not used."
   :config
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
   (setq plantuml-default-exec-mode 'jar)
-  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar"))
-(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.15/libexec/plantuml.jar")
+  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.16/libexec/plantuml.jar"))
+(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.16/libexec/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
 ;; optical config
 ;(use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
