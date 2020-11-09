@@ -1295,6 +1295,7 @@ is not used."
   :config
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
   (setq plantuml-default-exec-mode 'jar)
+  (setq plantuml-options "-charset UTF-8")
   (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.16/libexec/plantuml.jar"))
 (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.16/libexec/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
@@ -1312,6 +1313,7 @@ is not used."
 ;; recompiles plantuml diagrams on save
 (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
 ;(add-hook 'plantuml-mode-hook 'recompile-plantuml)
+(add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
 
 ;; --------------------------------------------------------------
 ;; org -> latex -> pdf
