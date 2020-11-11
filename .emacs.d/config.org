@@ -1473,6 +1473,7 @@ is not used."
 ;  :commands (lsp lsp-deferred))
 ;(use-package lsp-ui :commands lsp-ui-mode)
 
+
 (use-package lsp-mode
   :ensure t
   :custom
@@ -1493,6 +1494,8 @@ is not used."
   ("C-c r"   . lsp-rename))
   :config
   ;(require 'lsp-clients)
+  (setq lsp-erlang-server-path "~/githubs/erlang_ls/_build/default/bin/erlang_ls")
+    (add-to-list 'exec-path "~/githubs/erlang_ls/_build/default/bin"))
   (use-package lsp-ui
     :ensure t
     :custom
