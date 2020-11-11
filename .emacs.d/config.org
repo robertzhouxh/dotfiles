@@ -1645,7 +1645,7 @@ is not used."
   :init
   (add-hook 'erlang-mode-hook #'ivy-erlang-complete-init)
   (add-hook 'after-save-hook #'ivy-erlang-complete-reparse)
-  (add-hook 'erlang-mode-hook #'company-erlang-init)
+  ;(add-hook 'erlang-mode-hook #'company-erlang-init)
   )
 
 
