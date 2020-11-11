@@ -1495,7 +1495,7 @@ is not used."
   :config
   ;(require 'lsp-clients)
   (setq lsp-erlang-server-path "~/githubs/erlang_ls/_build/default/bin/erlang_ls")
-    (add-to-list 'exec-path "~/githubs/erlang_ls/_build/default/bin"))
+  (add-to-list 'exec-path "~/githubs/erlang_ls/_build/default/bin")
   (use-package lsp-ui
     :ensure t
     :custom
