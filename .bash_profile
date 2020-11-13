@@ -47,9 +47,6 @@ complete -W "NSGlobalDomain" defaults;
 # Add `killall` tab completion for common apps
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
 
-# # for autojump : https://github.com/wting/autojump
-# [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
-# export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ;} history -a"
 
 # for fzf does not loaded been in .bashrc
 [[ -f ~/.fzf.bash ]] && source ~/.fzf.bash
@@ -59,4 +56,3 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 [[ `uname -s` == "Linux" ]] && . ~/z/z.sh
 [[ `uname -s` == "Darwin" ]] && . /usr/local/share/liquidprompt
 [[ `uname -s` == "Darwin" ]] && . `brew --prefix`/etc/profile.d/z.sh
-

@@ -1,23 +1,5 @@
 #!/usr/bin/env bash
 
-# Make vim the default editor.
-export EDITOR='vim';
-
-# Enable persistent REPL history for `node`.
-export NODE_REPL_HISTORY=~/.node_history;
-# Allow 32³ entries; the default is 1000.
-export NODE_REPL_HISTORY_SIZE='32768';
-# Use sloppy mode by default, matching web browsers.
-export NODE_REPL_MODE='sloppy';
-
-# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
-export PYTHONIOENCODING='UTF-8';
-
-# Increase Bash history size. Allow 32³ entries; the default is 500.
-export HISTSIZE='32768';
-export HISTFILESIZE="${HISTSIZE}";
-# Omit duplicates and commands that begin with a space from history.
-export HISTCONTROL='ignoreboth';
 
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8';
@@ -26,12 +8,8 @@ export LC_ALL='en_US.UTF-8';
 # Highlight section titles in manual pages.
 export LESS_TERMCAP_md="${yellow}";
 
-# Don’t clear the screen after quitting a manual page.
-export MANPAGER='less -X';
 
 # ===================== custom your exports here ... ======================
-export GTAGSCONF=/usr/local/share/gtags/gtags.conf
-export GTAGSLABEL=ctags
 export LD_LIBRARY_PATH=/usr/local/lib
 
 # use Unix Style cmd for mac-osx
@@ -42,52 +20,26 @@ fi
 if [ -d "$HOME/bin" ]; then
     PATH="$HOME/bin:$PATH"
 fi
-[ -d "/usr/texbin" ]               && PATH="/usr/texbin:$PATH"
-[ -d "/usr/local/share/npm/bin" ]  && PATH="/usr/local/share/npm/bin:$PATH"
-
-# man page highlight
-export LESS_TERMCAP_mb=$(printf '\e[01;31m') # enter blinking mode – red
-export LESS_TERMCAP_md=$(printf '\e[01;35m') # enter double-bright mode – bold, magenta
-export LESS_TERMCAP_me=$(printf '\e[0m') # turn off all appearance modes (mb, md, so, us)
-export LESS_TERMCAP_se=$(printf '\e[0m') # leave standout mode
-export LESS_TERMCAP_so=$(printf '\e[01;33m') # enter standout mode – yellow
-export LESS_TERMCAP_ue=$(printf '\e[0m') # leave underline mode
-export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode – cyan
 
 # go
 export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
-export GO111MODULE=on
+export GO111MODULE=off
 PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
 export CFLAGS="-I/usr/local/opt/openssl/include/"
 export CPPFLAGS="-I/usr/local/opt/openssl/include/"
 
-# use <<< gnu make >>>  and <<< gnu sed >>>  as the default tool
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/Applications/Emacs.app/Contents/MacOS:$PATH"
-
 PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 
-# homebrew no update
-export HOMEBREW_NO_AUTO_UPDATE=1
-
-
-PATH="$HOME/.pyenv/bin:$PATH"
-PATH=$PYENV_ROOT/shims:$PATH
 
 export CPPFLAGS="-I/usr/local/opt/openjdk/include"
 PATH="/usr/local/opt/openjdk/bin:$PATH"
 
-#export PATH="$HOME/.pyenv/bin:$PATH"
-#eval "$(pyenv init -)"
-#eval "$(pyenv virtualenv-init -)"
-
-export GUILE_LOAD_PATH="/usr/local/share/guile/site/3.0"
-export GUILE_LOAD_COMPILED_PATH="/usr/local/lib/guile/3.0/site-ccache"
-export GUILE_SYSTEM_EXTENSIONS_PATH="/usr/local/lib/guile/3.0/extensions"
-
-# latex
 export PATH=$PATH:/Library/TeX/texbin
+export NVM_DIR="$HOME/.nvm"
+export HOMEBREW_NO_AUTO_UPDATE=1
