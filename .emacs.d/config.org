@@ -1,4 +1,4 @@
-* Introduce
+ Introduce
 To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * basics
 Setting up the basics early, so if the config breaks further along, I'll still have evil also, setting some code block properties that help.

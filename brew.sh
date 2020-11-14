@@ -28,17 +28,6 @@ cecho "attension: make sure you have installed the command line tools use: xcode
 # cecho "attension: make sure you have installed pip: wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py" $yellow
 # cecho "attension: make sure you have installed java: brew cask install java" $yellow
 
-# install pip
-#if hash pip 2>/dev/null; then
-#	cecho "pip already installed, just conitnue ..." $green
-#else
-#	cecho "Installing pip" $yellow
-#	cecho "installing pip" $green
-#	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-#	sudo chmod a+w get-pip.py
-#	sudo -H python get-pip.py
-#fi
-
 # Homebrew
 # http://brew.sh
 if hash brew 2>/dev/null; then
@@ -67,9 +56,8 @@ fi
 brew tap homebrew/cask-fonts
 brew tap laishulu/cask-fonts
 
-;;Sarasa Mono SC Nerd
+#Sarasa Mono SC Nerd
 brew cask install font-sarasa-nerd
-
 brew cask install font-source-code-pro
 brew cask install font-hack
 brew cask install font-fira-code
@@ -82,10 +70,7 @@ brew cask install font-fira-code
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 cecho "Updating Homebrew" $yellow
-# Make sure we’re using the latest Homebrew.
 #brew update
-
-# Upgrade any already-installed formulae.
 #brew upgrade
 cecho "Install command-line tools ... " $yellow
 
@@ -115,9 +100,6 @@ if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
   echo '/usr/local/bin/bash' | sudo tee -a /etc/shells;
 fi;
 
-#chsh -s /usr/local/bin/bash
-chsh -s /bin/zsh
-
 brew install wget
 brew install openssl
 
@@ -143,72 +125,18 @@ brew install fzf
 brew install trash
 brew install pcre
 brew install liquidprompt
-brew install z
-#brew install zsh
-#brew install zsh-completions
+brew install zsh
+brew install zsh-completions
 brew install graphviz
-#brew install htop-osx
-#brew install plantuml
-
+brew install plantuml
 brew install the_silver_searcher
-# instead of ag
 brew install rg
-
-# c/c++/oc language server
 brew install ccls
-
-brew install  imagemagick
-
-#brew install cmatrix
-brew install youtube-dl
-
+brew install imagemagick
 brew install pngpaste
-
+brew install z
 fi;
-
-echo ""
-# read -p "Shadowsocks client of python version PK G-F-W ? (y/n) " -n 1;
-# if [[ $REPLY =~ ^[Yy]$ ]]; then
-#   brew install polipo
-#   brew install libsodium
-#   sudo pip install --upgrade git+https://github.com/shadowsocks/shadowsocks.git@master
-#   SS_CFG="/etc/shadowsocks.json"
-#
-#   if [ ! -f "$SS_CFG" ]; then
-#     echo "no found shadowsocks config file, touching file: /etc/shadowsocks.json";
-#     sudo touch "$SS_CFG"
-#   fi;
-#
-#   sudo chmod a+w "$SS_CFG"
-#
-# cat > "$SS_CFG" <<EOF
-# {
-#   "server":["server1","server2"],
-#   "server_port":8080,
-#   "local_address":"127.0.0.1",
-#   "local_port":1080,
-#   "password":"password",
-#   "timeout":300,
-#   "method":"chacha20-ietf-poly1305",
-#   "fast_open": false
-# }
-# EOF
-#
-#   brew services restart polipo
-#   echo "shadowsocks server on remote vps: sudo ssserver -c /etc/shadowsocks.json -d start"
-#   echo "start the shadowsocks client on your local laptop: sslocal -c /etc/shadowsocks.json"
-#   echo "brew services start polipo use the cfg  ~/.polipo, default configfile: /usr/local/opt/polipo/homebrew.mxcl.polipo.plist"
-#
-# fi;
-
-# Remove outdated versions from the cellar.
-# sudo rm get-pip.py
 brew cleanup
-
-# refer: https://github.com/junegunn/fzf
-cecho "fzf deloying ..." $yellow
-/usr/local/opt/fzf/install
-complete -F _fzf_file_completion -o default -o bashdefault doge
 
 apps=(
     alfred
@@ -246,17 +174,9 @@ read -p "Oh-My-ZSH ? [y/n]" -n 1;
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
   git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-  # ZSH_THEME=powerlevel10k/powerlevel10k
-
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-  # plugins=(
-  #   git
-  #   #autojump
-  #   zsh-syntax-highlighting
-  #   zsh-autosuggestions
-  # )
 fi;
 
-echo ""
+#chsh -s /usr/local/bin/bash
+chsh -s /bin/zsh
 cecho "Done!!! you can deploy vim( ./vim.sh ) or emacs( ./emacs.sh ) to bring you into cool coding environment!!!" $green

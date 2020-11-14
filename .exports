@@ -8,11 +8,9 @@ export LC_ALL='en_US.UTF-8';
 # Highlight section titles in manual pages.
 export LESS_TERMCAP_md="${yellow}";
 
-
 # ===================== custom your exports here ... ======================
 export LD_LIBRARY_PATH=/usr/local/lib
 
-# use Unix Style cmd for mac-osx
 if which brew &> /dev/null && brew list | grep coreutils > /dev/null; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 fi

@@ -15,7 +15,6 @@ alias dt="cd ~/Desktop"
 alias p="cd ~/projects"
 alias g="git"
 alias h="history"
-alias j="jobs"
 
 # List all files colorized in long format
 alias l="ls -lF ${colorflag}"
