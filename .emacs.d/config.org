@@ -1,4 +1,4 @@
- Introduce
+* Introduce
 To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * basics
 Setting up the basics early, so if the config breaks further along, I'll still have evil also, setting some code block properties that help.
@@ -621,6 +621,7 @@ they are appended."
   :if (x/system-is-mac)
   :config
   (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "PATH")
   (exec-path-from-shell-copy-env "GOROOT")
   (exec-path-from-shell-copy-env "GOPATH")
   )

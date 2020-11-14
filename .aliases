@@ -107,3 +107,5 @@ alias nnoproxy='unset ALL_PROXY'
 # ssh configuration
 export SSH_KEY_PATH="~/.ssh/id_rsa"
 alias ssh='ssh -A'
+alias rm="trash"
+

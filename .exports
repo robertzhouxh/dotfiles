@@ -11,7 +11,8 @@ export LESS_TERMCAP_md="${yellow}";
 # ===================== custom your exports here ... ======================
 export LD_LIBRARY_PATH=/usr/local/lib
 
-if which brew &> /dev/null && brew list | grep coreutils > /dev/null; then
+
+if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 fi
 
@@ -23,7 +24,7 @@ fi
 export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
-export GO111MODULE=off
+export GO111MODULE=auto
 PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
