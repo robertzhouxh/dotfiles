@@ -15,14 +15,8 @@ function doIt() {
           --exclude ".vimrc" \
           --exclude ".vim" \
           --exclude ".emacs.d" \
-          --exclude ".tmux/" \
-          --exclude ".curlrc" \
-          --exclude "sss/" \
           --exclude "brew.sh" \
 	  --exclude "apt.sh" \
-          --exclude "ediff.sh" \
-          --exclude "ediff_merge.sh" \
-          --exclude "get-pip.py" \
           -avh --no-perms . ~;
 	source ~/.bash_profile;
 }

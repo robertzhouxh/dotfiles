@@ -1296,8 +1296,8 @@ is not used."
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
   (setq plantuml-default-exec-mode 'jar)
   (setq plantuml-options "-charset UTF-8")
-  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.16/libexec/plantuml.jar"))
-(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.16/libexec/plantuml.jar")
+  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.6/libexec/plantuml.jar"))
+(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.6/libexec/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
 ;; optical config
 ;(use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
