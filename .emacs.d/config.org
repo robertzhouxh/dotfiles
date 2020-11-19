@@ -1458,109 +1458,56 @@ is not used."
 ;; go get golang.org/x/tools/cmd/goimports
 ;;---------------------------------------------------------
 
-(defun lsp-go-install-save-hooks()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+;(defun lsp-go-install-save-hooks()
+;  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+;  (add-hook 'before-save-hook #'lsp-organize-imports t t))
 
-(use-package go-mode
-  :mode (("\\.go\\'" . go-mode))
-  :init
-  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks))
-;
 ;;; Language Server
 ;(use-package lsp-mode
+;  :ensure t
 ;  :hook
 ;  (go-mode . lsp-deferred)
-;  :commands (lsp lsp-deferred))
-;(use-package lsp-ui :commands lsp-ui-mode)
+;  :commands (lsp lsp-deferred)
+;  :config
+;  (add-to-list 'exec-path "~/githubs/erlang_ls/_build/default/bin")
+;  (setq lsp-erlang-server-path "~/githubs/erlang_ls/_build/default/bin/erlang_ls"))
+;
+;(use-package lsp-ui
+;  :ensure t
+;  :commands lsp-ui-mode)
+;  
+;(use-package company-lsp
+;  :ensure t
+;  :commands company-lsp)
+;
+;(defun go-run ()
+;	   (interactive)
+;	   (save-buffer)
+;	   (let ((buffer "*go*"))
+;		 (start-process "*go*" buffer "go" "run" (buffer-name))
+;		 (switch-to-buffer buffer)
+;		 (view-mode)))
 
-
-(use-package lsp-mode
+(use-package eglot
   :ensure t
-  :custom
-  ;; debug
-  (lsp-print-io nil)
-  (lsp-trace nil)
-  (lsp-print-performance nil)
-  ;; general
-  (lsp-auto-guess-root t)
-  (lsp-document-sync-method 'incremental) ;; always send incremental document
-  (lsp-response-timeout 5)
-  (lsp-prefer-flymake 'flymake)
-  (lsp-enable-completion-at-point nil)
-  :hook
-  (go-mode . lsp)
-  :bind
-  (:map lsp-mode-map
-  ("C-c r"   . lsp-rename))
   :config
-  ;(require 'lsp-clients)
-  (add-to-list 'exec-path "~/githubs/erlang_ls/_build/default/bin")
-  (setq lsp-erlang-server-path "~/githubs/erlang_ls/_build/default/bin/erlang_ls")
-  (use-package lsp-ui
-    :ensure t
-    :custom
-    ;; lsp-ui-doc
-    (lsp-ui-doc-enable t)
-    (lsp-ui-doc-header t)
-    (lsp-ui-doc-include-signature t)
-    (lsp-ui-doc-position 'top) ;; top, bottom, or at-point
-    (lsp-ui-doc-max-width 150)
-    (lsp-ui-doc-max-height 30)
-    (lsp-ui-doc-use-childframe t)
-    (lsp-ui-doc-use-webkit t)
-    ;; lsp-ui-flycheck
-    (lsp-ui-flycheck-enable nil)
-    ;; lsp-ui-sideline
-    (lsp-ui-sideline-enable nil)
-    (lsp-ui-sideline-ignore-duplicate t)
-    (lsp-ui-sideline-show-symbol t)
-    (lsp-ui-sideline-show-hover t)
-    (lsp-ui-sideline-show-diagnostics nil)
-    (lsp-ui-sideline-show-code-actions nil)
-    ;; lsp-ui-imenu
-    (lsp-ui-imenu-enable nil)
-    (lsp-ui-imenu-kind-position 'top)
-    ;; lsp-ui-peek
-    (lsp-ui-peek-enable t)
-    (lsp-ui-peek-peek-height 20)
-    (lsp-ui-peek-list-width 50)
-    (lsp-ui-peek-fontify 'on-demand) ;; never, on-demand, or always
-    :preface
-    (defun ladicle/toggle-lsp-ui-doc ()
-      (interactive)
-      (if lsp-ui-doc-mode
-        (progn
-          (lsp-ui-doc-mode -1)
-          (lsp-ui-doc--hide-frame))
-         (lsp-ui-doc-mode 1)))
-    :bind
-    (:map lsp-mode-map
-    ("C-c C-r" . lsp-ui-peek-find-references)
-    ("C-c C-j" . lsp-ui-peek-find-definitions)
-    ("C-c i"   . lsp-ui-peek-find-implementation)
-    ("C-c m"   . lsp-ui-imenu)
-    ("C-c s"   . lsp-ui-sideline-mode)
-    ("C-c d"   . ladicle/toggle-lsp-ui-doc))
-    :hook
-    (lsp-mode . lsp-ui-mode))
-
-  ;; Lsp completion
-  (use-package company-lsp
-    :ensure t
-    :custom
-    (company-lsp-cache-candidates t) ;; always using cache
-    (company-lsp-async t)
-    (company-lsp-enable-recompletion nil)))
-
-(defun go-run ()
-	   (interactive)
-	   (save-buffer)
-	   (let ((buffer "*go*"))
-		 (start-process "*go*" buffer "go" "run" (buffer-name))
-		 (switch-to-buffer buffer)
-		 (view-mode)))
-
+  (setq eglot-connect-timeout 3)
+  (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
+  (define-key eglot-mode-map (kbd "M-,") 'pop-tag-mark)
+  (define-key eglot-mode-map (kbd "C-c C-d") 'eglot-help-at-point)
+  (define-key eglot-mode-map (kbd "C-c C-r") 'eglot-code-actions)
+  (add-to-list 'eglot-server-programs
+               '(go-mode . ("gopls")))
+  (add-hook 'go-mode-hook 'eglot-ensure)
+  (add-hook 'typescript-mode-hook 'eglot-ensure))
+  
+(use-package go-mode
+  :ensure t
+  :commands go-mode
+  :config
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save))
+  
 ;;---------------------------------------------------------------
 ;; Erlang Programming << sed ---> gsed >>
 ;; ===> https://stackoverflow.com/questions/30003570/how-to-use-gnu-sed-on-mac-os-x#34815955
