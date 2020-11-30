@@ -25,6 +25,7 @@ export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
 export GO111MODULE=auto
+go env -w GOPROXY=goproxy.cn,direct
 PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
 export LDFLAGS="-L/usr/local/opt/openssl/lib"
