@@ -1487,7 +1487,6 @@ is not used."
 ;		 (start-process "*go*" buffer "go" "run" (buffer-name))
 ;		 (switch-to-buffer buffer)
 ;		 (view-mode)))
-
 (use-package eglot
   :ensure t
   :config
@@ -1496,11 +1495,12 @@ is not used."
   (define-key eglot-mode-map (kbd "M-,") 'pop-tag-mark)
   (define-key eglot-mode-map (kbd "C-c C-d") 'eglot-help-at-point)
   (define-key eglot-mode-map (kbd "C-c C-r") 'eglot-code-actions)
-  (add-to-list 'eglot-server-programs
-               '(go-mode . ("gopls")))
+  (add-to-list 'eglot-server-programs '(go-mode . ("gopls")))
+  (add-to-list 'eglot-server-programs '(erlang-mode . ("~/githubs/erlang_ls/_build/default/bin/erlang_ls")))
   (add-hook 'go-mode-hook 'eglot-ensure)
+  (add-hook 'erlang-mode-hook 'eglot-ensure)
   (add-hook 'typescript-mode-hook 'eglot-ensure))
-  
+
 (use-package go-mode
   :ensure t
   :commands go-mode
