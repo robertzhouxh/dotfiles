@@ -135,6 +135,8 @@ brew install ccls
 brew install imagemagick
 brew install pngpaste
 brew install z
+# just abandon thunder
+brew install aria2
 fi;
 brew cleanup
 
