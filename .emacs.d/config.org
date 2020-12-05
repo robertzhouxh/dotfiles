@@ -1565,6 +1565,7 @@ is not used."
   (add-to-list 'nox-server-programs '(erlang-mode . ("~/githubs/erlang_ls/_build/default/bin/erlang_ls")))
   (define-key nox-mode-map (kbd "M-.") 'xref-find-definitions)
   (define-key nox-mode-map (kbd "M-,") 'pop-tag-mark)
+  (define-key nox-mode-map (kbd "M-r") 'xref-find-references)
   )
 
 (use-package go-mode
