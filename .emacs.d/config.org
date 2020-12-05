@@ -1527,48 +1527,45 @@ is not used."
 ;; go get golang.org/x/tools/cmd/goimports
 ;;---------------------------------------------------------
 
-;(defun lsp-go-install-save-hooks()
-;  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-;  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-
-;;; Language Server
-;(use-package lsp-mode
+;(use-package eglot
 ;  :ensure t
-;  :hook
-;  (go-mode . lsp-deferred)
-;  :commands (lsp lsp-deferred)
 ;  :config
-;  (add-to-list 'exec-path "~/githubs/erlang_ls/_build/default/bin")
-;  (setq lsp-erlang-server-path "~/githubs/erlang_ls/_build/default/bin/erlang_ls"))
-;
-;(use-package lsp-ui
-;  :ensure t
-;  :commands lsp-ui-mode)
-;  
-;(use-package company-lsp
-;  :ensure t
-;  :commands company-lsp)
-;
-;(defun go-run ()
-;	   (interactive)
-;	   (save-buffer)
-;	   (let ((buffer "*go*"))
-;		 (start-process "*go*" buffer "go" "run" (buffer-name))
-;		 (switch-to-buffer buffer)
-;		 (view-mode)))
-(use-package eglot
-  :ensure t
+;  (setq eglot-connect-timeout 3)
+;  (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
+;  (define-key eglot-mode-map (kbd "M-,") 'pop-tag-mark)
+;  (define-key eglot-mode-map (kbd "C-c C-d") 'eglot-help-at-point)
+;  (define-key eglot-mode-map (kbd "C-c C-r") 'eglot-code-actions)
+;  (add-to-list 'eglot-server-programs '(go-mode . ("gopls")))
+;  (add-to-list 'eglot-server-programs '(erlang-mode . ("~/githubs/erlang_ls/_build/default/bin/erlang_ls")))
+;  (add-hook 'go-mode-hook 'eglot-ensure)
+;  (add-hook 'erlang-mode-hook 'eglot-ensure)
+;  (add-hook 'typescript-mode-hook 'eglot-ensure))
+
+;; git clone https://github.com/manateelazycat/nox
+(use-package nox
+  :ensure nil
+  :load-path "~/.emacs.d/vendor/nox"
   :config
-  (setq eglot-connect-timeout 3)
-  (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
-  (define-key eglot-mode-map (kbd "M-,") 'pop-tag-mark)
-  (define-key eglot-mode-map (kbd "C-c C-d") 'eglot-help-at-point)
-  (define-key eglot-mode-map (kbd "C-c C-r") 'eglot-code-actions)
-  (add-to-list 'eglot-server-programs '(go-mode . ("gopls")))
-  (add-to-list 'eglot-server-programs '(erlang-mode . ("~/githubs/erlang_ls/_build/default/bin/erlang_ls")))
-  (add-hook 'go-mode-hook 'eglot-ensure)
-  (add-hook 'erlang-mode-hook 'eglot-ensure)
-  (add-hook 'typescript-mode-hook 'eglot-ensure))
+  (dolist (hook (list
+               'js-mode-hook
+               'rust-mode-hook
+               'python-mode-hook
+               'ruby-mode-hook
+               'java-mode-hook
+               'sh-mode-hook
+               'php-mode-hook
+               'c-mode-common-hook
+               'c-mode-hook
+               'csharp-mode-hook
+               'c++-mode-hook
+               'haskell-mode-hook
+               ))
+  (add-hook hook '(lambda () (nox-ensure))))
+  (add-to-list 'nox-server-programs '(go-mode . ("gopls")))
+  (add-to-list 'nox-server-programs '(erlang-mode . ("~/githubs/erlang_ls/_build/default/bin/erlang_ls")))
+  (define-key nox-mode-map (kbd "M-.") 'xref-find-definitions)
+  (define-key nox-mode-map (kbd "M-,") 'pop-tag-mark)
+  )
 
 (use-package go-mode
   :ensure t
