@@ -82,6 +82,10 @@ patch:
 # 重新加载配置
 修改配置，需要重新加载配置文件，新的配置才能生效。可以在输入法托盘图标右键点击 重新部署，或者用快捷键 Ctrl + alt + ~
 
+cd ~/.emacs.d/
+ wget https://github.com/rime/librime/releases/download/1.6.1/rime-1.6.1-osx.zip
+unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
+
  ```
 
 ## to be continued...

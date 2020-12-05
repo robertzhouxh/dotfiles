@@ -1887,4 +1887,15 @@ is not used."
       "gpg"
       (file-name-extension (buffer-name)) t))))
 
+(use-package rime
+  :ensure t
+  :custom
+  (rime-librime-root "~/.emacs.d/librime/dist")
+  (default-input-method "rime")
+  (rime-show-candidate 'posframe)
+  (setq rime-translate-keybindings
+  '("C-f" "C-b" "C-n" "C-p" "C-g" "<left>" "<right>" "<up>" "<down>" "<prior>" "<next>" "<delete>"))
+  )
+
+(use-package posframe :ensure t)
   #+END_SRC
