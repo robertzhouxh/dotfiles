@@ -1933,6 +1933,14 @@ is not used."
 ;         (propertize "└─>" 'face `(:foreground "green"))
 ;         (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
 ;         )))
+
+;; git clone --depth=1 https://github.com/manateelazycat/awesome-tab.git
+(use-package awesome-tab
+  :ensure nil
+  :load-path "~/.emacs.d/vendor/awesome-tab"
+  :config
+  (awesome-tab-mode t))
+
 (use-package aweshell
   :ensure nil
   :load-path "~/.emacs.d/vendor/aweshell")
@@ -1960,6 +1968,7 @@ is not used."
 (use-package rime
   :ensure t
   :config
+  (setq rime-user-data-dir "~/Library/Rime/")
   (setq rime-show-candidate 'posframe)
   ;(setq rime-disable-predicates '(+rime-english-prober))
   (setq rime-posframe-properties
