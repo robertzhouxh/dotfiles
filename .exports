@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-
+export NVM_DIR="$HOME/.nvm"#!/usr/bin/env bash
 
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8';
@@ -8,10 +7,11 @@ export LC_ALL='en_US.UTF-8';
 # Highlight section titles in manual pages.
 export LESS_TERMCAP_md="${yellow}";
 
+
 # ===================== custom your exports here ... ======================
 export LD_LIBRARY_PATH=/usr/local/lib
 
-
+# use Unix Style cmd for mac-osx
 if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
 fi
@@ -25,22 +25,16 @@ export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
 export GO111MODULE=auto
-export GOPROXY=https://goproxy.cn
+
 PATH=$GOROOT/bin:$GOPATH/bin:$PATH
-go env -w GOPROXY=goproxy.cn,direct
-
-export LDFLAGS="-L/usr/local/opt/openssl/lib"
-export CFLAGS="-I/usr/local/opt/openssl/include/"
-export CPPFLAGS="-I/usr/local/opt/openssl/include/"
-
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/Applications/Emacs.app/Contents/MacOS:$PATH"
 PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-
-
-export CPPFLAGS="-I/usr/local/opt/openjdk/include"
 PATH="/usr/local/opt/openjdk/bin:$PATH"
-
+PATH="/usr/local/opt/erlang@22/bin:$PATH"
 export PATH=$PATH:/Library/TeX/texbin
-export NVM_DIR="$HOME/.nvm"
+export CFLAGS="-I/usr/local/opt/openssl/include/"
+export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/openjdk/include -I/usr/local/opt/icu4c/include"
+export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/opt/erlang@22/lib -L/usr/local/opt/icu4c/lib"
 export HOMEBREW_NO_AUTO_UPDATE=1
+
