@@ -1,3 +1,6 @@
-[submodule "y"]
+[submodule "nox"]
 	path = .emacs.d/vendor/nox
 	url = https://github.com/manateelazycat/nox
+[submodule "awesome-tab"]
+	path = .emacs.d/vendor/awesome-tab
+	url = https://github.com/manateelazycat/awesome-tab
