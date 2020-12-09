@@ -1,0 +1,19 @@
+# squirrel.custom.yaml
+
+patch:
+  style/color_scheme: luna               # 选择配色方案
+  style/horizontal: true                 # 候选窗横向显示
+  style/inline_preedit: false            # 关闭内嵌编码，这样就可以显示首行的拼音
+  style/font_point: 20                   # 字号
+
+# 注：预设的配色方案及代码（指定为 style/color_scheme ）
+#   碧水 - aqua
+#   青天 - azure
+#   明月 - luna
+#   墨池 - ink
+#   孤寺 - lost_temple
+#   暗堂 - dark_temple
+#   星际我争霸 - starcraft
+#   谷歌 - google
+#   晒经石 - solarized_rock
+#   简约白 - clean_white
