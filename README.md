@@ -41,6 +41,10 @@ Emacs: Failed to verify signature xxx
 
 brew cask install squirrel
 
+
+#可以直接使用 cd ~/Library && git clone https://github.com/Zheaoli/RimeConfig.git Rime/
+#或者自己按照如下配制
+
 vi ~/Library/Rime/luna_pinyin.custom.yaml
 
 # luna_pinyin.custom.yaml
@@ -67,20 +71,9 @@ patch:
   style/inline_preedit: false            # 关闭内嵌编码，这样就可以显示首行的拼音
   style/font_point: 28                   # 字号
 
-# 注：预设的配色方案及代码（指定为 style/color_scheme ）
-#   碧水 - aqua
-#   青天 - azure
-#   明月 - luna
-#   墨池 - ink
-#   孤寺 - lost_temple
-#   暗堂 - dark_temple
-#   星际我争霸 - starcraft
-#   谷歌 - google
-#   晒经石 - solarized_rock
-#   简约白 - clean_white
-
 # 重新加载配置
 修改配置，需要重新加载配置文件，新的配置才能生效。可以在输入法托盘图标右键点击 重新部署，或者用快捷键 Ctrl + alt + ~
+
 
 cd ~/.emacs.d/
  wget https://github.com/rime/librime/releases/download/1.6.1/rime-1.6.1-osx.zip
