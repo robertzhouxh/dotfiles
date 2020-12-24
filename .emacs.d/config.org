@@ -1801,7 +1801,7 @@ is not used."
 ; watch-other-window-down-line
 
 ;;https://raw.githubusercontent.com/manateelazycat/cache-path-from-shell/master/cache-path-from-shell.el
-;;(require 'cache-path-from-shell)
+;(require 'cache-path-from-shell)
 
 ;;https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el
 (require 'color-rg)
