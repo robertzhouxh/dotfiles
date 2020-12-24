@@ -179,6 +179,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 #  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 fi;
 
-#chsh -s /usr/local/bin/bash
-chsh -s /bin/zsh
+chsh -s /usr/local/bin/bash
+#chsh -s /bin/zsh
 cecho "Done!!! you can deploy vim( ./vim.sh ) or emacs( ./emacs.sh ) to bring you into cool coding environment!!!" $green
