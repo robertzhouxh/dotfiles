@@ -69,8 +69,8 @@ Setting up the basics early, so if the config breaks further along, I'll still h
     (load custom-file))
 
 ;; proxy?
-;(setq url-proxy-services `(("http" . "127.0.0.1:8123")
-;                           ("https" . "127.0.0.1:8123")))
+(setq url-proxy-services `(("http" . "127.0.0.1:8123")
+                           ("https" . "127.0.0.1:8123")))
 
 (defmacro safe-diminish (file mode &optional new-name)
   "https://github.com/robertzhoxh/dotfiles"
@@ -213,19 +213,10 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 #+END_SRC
 * utils
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun x/recompile-elpa ()
-  "Recompile packages in elpa directory. Useful if you switch Emacs versions."
-  (interactive)
-  (byte-recompile-directory package-user-dir nil t))
-
 (defun x/save-all ()
   "Save all file-visiting buffers without prompting."
   (interactive)
   (save-some-buffers t))
-
-(defun x/close-all-buffers ()
-  (interactive)
-  (mapc 'kill-buffer (buffer-list)))
 
 (defun x/open-init-file ()
   (interactive)
@@ -1283,6 +1274,7 @@ is not used."
         org-startup-truncated t
         org-image-actual-width nil
         org-export-babel-evaluate t 
+        org-export-with-sub-superscripts nil ; 下划线不转下标
         org-confirm-babel-evaluate nil
         org-startup-indented t
         org-startup-with-inline-images t)
@@ -1620,7 +1612,7 @@ is not used."
 (defun get-erl-man ()
   (interactive)
   ;;(let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
-  (let* ((man-path "/usr/local/lib/erlang/man")
+  (let* ((man-path " /usr/local/opt/erlang@22/lib/erlang/man")
 	 (man-args (format "-M %s %s" man-path (current-word))))
     (man man-args)))
 
