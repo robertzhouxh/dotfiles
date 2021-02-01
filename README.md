@@ -84,7 +84,7 @@ unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
 ## C4-mode 架构图渲染
 
 ```
-cd `pwd` && ggrep -rl "' !include C4" ./ | gxargs -i echo {} | gxargs gsed -i "s|' !include C4|!include /Users/glodon/.emacs.d/vendor/C4-PlantUM/C4|g"
+cd `pwd` && ggrep -rl "' !include C4" ./ | gxargs -i echo {} | gxargs gsed -i "s|' !include C4|!include /Users/glodon/.emacs.d/vendor/C4-PlantUML/C4|g"
 cd `pwd` && ggrep -rl "!include https" ./ | gxargs -i echo {} | gxargs gsed -i "s|!include https|'!include https|g"
 
 ```
