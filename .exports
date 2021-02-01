@@ -24,14 +24,13 @@ export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
 export GO111MODULE=auto
 
-PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-PATH="/usr/local/opt/openjdk/bin:$PATH"
-PATH="/usr/local/opt/erlang@22/bin:$PATH"
 PATH="/usr/local/sbin:$PATH"
-PATH="/usr/local/opt/erlang@22/bin:$PATH"
-export PATH=$PATH:/Library/TeX/texbin
+PATH="/usr/local/opt/openjdk/bin:$PATH"
+PATH="$HOME/.asdf/installs/erlang/22.3.4/bin/:$PATH"
+PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+export PATH="$PATH:/Library/TeX/texbin"
 
 export CFLAGS="-I/usr/local/opt/openssl/include/"
 export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/openjdk/include -I/usr/local/opt/icu4c/include"
