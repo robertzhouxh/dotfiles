@@ -1,0 +1,68 @@
+#!/usr/local/bin/expect
+
+set connection_enum(1) emq
+set connection_enum(2) redis
+set connection_enum(3) kafka
+set connection_enum(4) client1
+set connection_enum(5) client2
+
+set connection_user(1) paas
+set connection_user(2) paas
+set connection_user(3) paas
+set connection_user(4) paas
+set connection_user(5 paas
+
+set connection_passwd(1) Paasword
+set connection_passwd(2) Paasword
+set connection_passwd(3) Paasword
+set connection_passwd(4) Paasword
+set connection_passwd(5) Paasword
+
+set connection_ip(1) 10.125.41.92
+set connection_ip(2) 10.125.41.73
+set connection_ip(3) 10.125.41.83
+set connection_ip(4) 10.125.41.74
+set connection_ip(5) 10.125.41.119
+
+proc connectionlist {} {
+    global connection_enum
+    for {set i 1} {$i <= [array size connection_enum]} {incr i} {
+        puts "signin \[$i\] for ${connection_enum($i)}"
+    }
+}
+
+proc connecthost { enum } {
+    global connection_passwd
+    global connection_ip
+    global connection_user
+
+    spawn ssh -l UserOfJumerJumperIp
+    expect {
+             "*password*" { send "PaaswordOfJumer\r" }
+           }
+
+    expect "*System restart required*" {send "ssh -l $connection_user($enum) $connection_ip($enum)\r"}
+    expect {
+            "yes/no" {send "yes\r";exp_continue;}
+            "*password:*" { send "$connection_passwd($enum)\r" }
+           }
+    interact
+}
+
+# ----------------------------------------------------------------
+
+global connection_passwd
+global connection_ip
+global connection_user
+global connection_enum
+
+if {[llength $argv] == 0} {
+    puts "choice your login host:"
+    connectionlist
+    expect {
+        "\[1234\]" {
+            set num $expect_out(buffer); #$expect_out(buffer)获取输入值，set进行类型转换
+            connecthost $num;
+        }
+    }
+}
