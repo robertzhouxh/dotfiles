@@ -1,0 +1,66 @@
+#!/usr/bin/expect
+ #author robertzhouxh
+
+ #定义数组
+ #连接枚举
+ set connection_enum() "第一台目标机器别名"
+ set connection_enum() "第二台目标机器别名"
+
+ #用户枚举
+ set connection_user() "第一台目标机器用户名"
+ set connection_user() "第二台目标机器用户名"
+
+ #连接密码
+ set connection_passwd() "第一台目标机器密码"
+ set connection_passwd() "第二台目标机器密码"
+
+ #连接ip，这里说下一般跳板机跟目标机器ssh连接是走的内网，所以配置的是内网ip
+ set connection_ip() "第一台目标机器ip"
+ set connection_ip() "第二台目标机器ip"
+
+ #函数定义必须在使用前面否则会报错
+ #列出可用的host以及枚举
+ proc connectionlist {} {
+     global connection_enum #函数里面如果要用全局变量expect语法里要global进来
+     #[array size connection_enum]命令是求数组connection_enum的长度
+     for {set i } {$i <= [array size connection_enum]} {incr i} { #这是expect语法的for循环和自增
+         puts "signin \[$i\] for $connection_enum($i)" #输出到控制台
+     }
+ }
+
+ #登录host
+ proc connecthost { enum } {
+     global connection_passwd
+     global connection_ip
+     global connection_user
+
+     #我这里登录跳板机是免密的，所以注释掉下面三行，如果不是免密登录跳板机就需要打开注释
+     # spawn ssh -l 跳板机用户名 跳板机ip
+     spawn ssh -l 跳板机ip
+     expect {
+              "*password*" { send "登录跳板机密码\r" }
+            }
+
+     #接收到跳板机登录成功的消息后登录目标机器，这一行expect的内容你的跟我的不一定一样，根据跳板机器返回的信息进行匹配
+     expect "*System restart required*" {send "ssh -l $connection_user($enum) $connection_ip($enum)\r"}
+     expect {
+             "yes/no" {send "yes\r";exp_continue;}
+             "*password:*" { send "$connection_passwd($enum)\r" }
+            }
+     interact
+ }
+
+ if {[llength $argv] == } {
+     puts "choice your login host:"
+     connectionlist
+
+     expect {
+         #正则匹配输入的值，1或2
+         "\[12\]" {
+             set num $expect_out(buffer); #$expect_out(buffer)获取输入值，set进行类型转换
+             connecthost $num;
+         }
+         # "" { connecthost  }
+         # "" { connecthost  }
+     }
+ }
