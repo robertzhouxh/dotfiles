@@ -181,3 +181,8 @@ git-standup() {
 
     git log --all --since "$since" --oneline --author="$AUTHOR"
 }
+
+
+do_ssh() {
+    ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3 $*
+}
