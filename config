@@ -8,9 +8,17 @@
 #  Port 跳板机的端口(如果是非22的需要填写)
 #  User root(如果非root,换成跳板机的用户)
 #  ProxyCommand ssh -q -x -W %h:%p tiaoban
-#
+
+# ssh-server client (/etc/ssh/ssh_config):
+#      ServerAliveInterval 300 # (in seconds)
+#      TCPKeepAlive yes
+
 Host *
     IPQoS=throughput
+    #IdentitiesOnly yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    UseRoaming no
 
 Host github.com
     HostName github.com
@@ -30,31 +38,33 @@ Host redis
     HostName 10.125.41.73
     User paas
     Port 22
+    ProxyCommand ssh -q -x -W %h:%p jumper
 #    IdentitiesOnly yes
 
 Host kafka
     HostName 10.125.41.83
     User paas
     Port 22
+    ProxyCommand ssh -q -x -W %h:%p jumper
 #    IdentitiesOnly yes
 
 Host emq
     HostName 10.125.41.92
     User paas
     Port 22
+    ProxyCommand ssh -q -x -W %h:%p jumper
 #    IdentitiesOnly yes
 
 Host client1
     HostName 10.125.41.74
     User paas
     Port 22
+    ProxyCommand ssh -q -x -W %h:%p jumper
 #    IdentitiesOnly yes
 
 Host client2
     HostName 10.125.41.119
     User paas
     Port 22
+    ProxyCommand ssh -q -x -W %h:%p jumper
 #    IdentitiesOnly yes
-
-
-
