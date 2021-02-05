@@ -6,23 +6,23 @@ set connection_enum(3) kafka
 set connection_enum(4) client1
 set connection_enum(5) client2
 
-set connection_user(1) Username
-set connection_user(2) Username
-set connection_user(3) Username
-set connection_user(4) Username
-set connection_user(5  Username
+set connection_user(1) User  
+set connection_user(2) User 
+set connection_user(3) User 
+set connection_user(4) User 
+set connection_user(5) User 
 
-set connection_passwd(1) Paasword
-set connection_passwd(2) Paasword
-set connection_passwd(3) Paasword
-set connection_passwd(4) Paasword
-set connection_passwd(5) Paasword
+set connection_passwd(1) Password 
+set connection_passwd(2) Password 
+set connection_passwd(3) Password 
+set connection_passwd(4) Password 
+set connection_passwd(5) Password 
 
-set connection_ip(1) Ipaddr
-set connection_ip(2) Ipaddr
-set connection_ip(3) Ipaddr
-set connection_ip(4) Ipaddr
-set connection_ip(5) Ipaddr
+set connection_ip(1) Ip 
+set connection_ip(2) Ip 
+set connection_ip(3) Ip 
+set connection_ip(4) Ip 
+set connection_ip(5) Ip 
 
 proc connectionlist {} {
     global connection_enum
@@ -35,14 +35,14 @@ proc connecthost { enum } {
     global connection_passwd
     global connection_ip
     global connection_user
+    global connection_enum
 
-    spawn ssh -l JumperUser JumperIp
+    spawn ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -l JumperUser JumperIp
     expect {
              "*password*" { send "JumperPassword\r" }
            }
 
-    ## you should change the content *Hwawei Cloud* to adapt your response
-    expect "*Hwawei Cloud*" {send "ssh -l $connection_user($enum) $connection_ip($enum)\r"}
+    expect "*Huawei Cloud*" {send "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -l $connection_user($enum) $connection_ip($enum)\r"}
     expect {
             "yes/no" {send "yes\r";exp_continue;}
             "*password:*" { send "$connection_passwd($enum)\r" }
@@ -51,7 +51,6 @@ proc connecthost { enum } {
 }
 
 # ----------------------------------------------------------------
-
 global connection_passwd
 global connection_ip
 global connection_user
@@ -61,7 +60,7 @@ if {[llength $argv] == 0} {
     puts "choice your login host:"
     connectionlist
     expect {
-        "\[1234\]" {
+        "\[12345\]" {
             set num $expect_out(buffer); #$expect_out(buffer)获取输入值，set进行类型转换
             connecthost $num;
         }
