@@ -36,9 +36,9 @@ proc connecthost { enum } {
     global connection_ip
     global connection_user
 
-    spawn ssh -l UserOfJumerJumperIp
+    spawn ssh -l JumperUser JumperIp
     expect {
-             "*password*" { send "PaaswordOfJumer\r" }
+             "*password*" { send "JumperPassword\r" }
            }
 
     ## you should change the content *Hwawei Cloud* to adapt your response
