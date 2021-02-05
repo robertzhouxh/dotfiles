@@ -107,6 +107,5 @@ alias nnoproxy='unset ALL_PROXY'
 # ssh configuration
 export SSH_KEY_PATH="~/.ssh/id_rsa"
 alias dssh='do_ssh'
-alias jssh='do_ssh -o "ProxyCommand ssh -W %h:%p root@192.168.1.60"'
 alias rm="trash"
 
