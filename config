@@ -19,36 +19,42 @@ Host github.com
 
 Host jumper
     HostName x.x.x.x
-    User x.x.x.x 
+    IPQoS 0
+    User x.x.x.x
     Port 22
 #    IdentitiesOnly yes
 
 Host redis
     HostName 10.125.41.73
+    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host kafka
     HostName 10.125.41.83
+    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host emq
     HostName 10.125.41.92
+    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host client1
     HostName 10.125.41.74
+    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host client2
     HostName 10.125.41.119
+    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
