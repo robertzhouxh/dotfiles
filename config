@@ -8,53 +8,50 @@
 #  Port 跳板机的端口(如果是非22的需要填写)
 #  User root(如果非root,换成跳板机的用户)
 #  ProxyCommand ssh -q -x -W %h:%p tiaoban
+#
+Host *
+    IPQoS=throughput
 
 Host github.com
-   HostName github.com
-   User git
-   # 走 HTTP 代理
-   # ProxyCommand socat - PROXY:127.0.0.1:%h:%p,proxyport=8080
-   # 走 socks5 代理（如 Shadowsocks）
-   ProxyCommand nc -v -x 127.0.0.1:1080 %h %p
+    HostName github.com
+    User git
+    # 走 HTTP 代理
+    # ProxyCommand socat - PROXY:127.0.0.1:%h:%p,proxyport=8080
+    # 走 socks5 代理（如 Shadowsocks）
+    ProxyCommand nc -v -x 127.0.0.1:1080 %h %p
 
 Host jumper
     HostName x.x.x.x
-    IPQoS 0
     User x.x.x.x
     Port 22
 #    IdentitiesOnly yes
 
 Host redis
     HostName 10.125.41.73
-    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host kafka
     HostName 10.125.41.83
-    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host emq
     HostName 10.125.41.92
-    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host client1
     HostName 10.125.41.74
-    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
 
 Host client2
     HostName 10.125.41.119
-    IPQoS 0
     User paas
     Port 22
 #    IdentitiesOnly yes
