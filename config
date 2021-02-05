@@ -18,8 +18,8 @@ Host github.com
    ProxyCommand nc -v -x 127.0.0.1:1080 %h %p
 
 Host jumper
-    HostName 139.9.117.46
-    User paas
+    HostName x.x.x.x
+    User x.x.x.x 
     Port 22
 #    IdentitiesOnly yes
 
