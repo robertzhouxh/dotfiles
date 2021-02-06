@@ -10,13 +10,13 @@ export LC_ALL='en_US.UTF-8';
 export LD_LIBRARY_PATH=/usr/local/lib
 
 # use Unix Style cmd for mac-osx
-if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
-  PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-fi
+# if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
+#   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+# fi
 
-if [ -d "$HOME/bin" ]; then
-    PATH="$HOME/bin:$PATH"
-fi
+# if [ -d "$HOME/bin" ]; then
+#     PATH="$HOME/bin:$PATH"
+# fi
 
 # go
 export GOROOT=/usr/local/opt/go/libexec
@@ -24,6 +24,7 @@ export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/lib/erlang/man:$MANPATH
 export GO111MODULE=auto
 
+PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 PATH="/usr/local/sbin:$PATH"
