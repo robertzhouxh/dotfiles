@@ -1333,8 +1333,8 @@ is not used."
 (use-package org-bullets
              :config
              (progn
-               (setq org-bullets-bullet-list '("☯" "✿" "✚" "◉" "❀"))
-               ;;(setq org-bullets-bullet-list '("☰" "☷" "☯" "☭"))
+               ;;(setq org-bullets-bullet-list '("☯" "✿" "✚" "◉" "❀"))
+               (setq org-bullets-bullet-list '("☰" "☷" "☯" "☭"))
                (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
 
 (use-package org-download
@@ -1349,6 +1349,11 @@ is not used."
                 org-download-screenshot-file (expand-file-name "screenshot.jpg" temporary-file-directory)))
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
+(use-package toc-org
+  :after org
+  :hook
+  (org-mode . toc-org-enable))
+  
 ;; -----------------------------------------------------------------------------------------
 ;; brew install imagemagick
 ;; plantuml-mode
@@ -1358,8 +1363,8 @@ is not used."
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
   (setq plantuml-default-exec-mode 'jar)
   (setq plantuml-options "-charset UTF-8")
-  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.19/libexec/plantuml.jar"))
-(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.19/libexec/plantuml.jar")
+  (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar"))
+(setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
 (setq plantuml-default-exec-mode 'jar)
 ;; optical config
 ;(use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
@@ -1465,6 +1470,8 @@ is not used."
   :load-path "~/.emacs.d/vendor/valign.el"
   :config
   (add-hook 'org-mode-hook #'valign-mode))
+  
+(add-to-list 'org-latex-packages-alist '("" "tabularx"))
 
 #+END_SRC
 * program languages
@@ -1539,7 +1546,7 @@ is not used."
                ))
   (add-hook hook '(lambda () (nox-ensure))))
   (add-to-list 'nox-server-programs '(go-mode . ("gopls")))
-  (add-to-list 'nox-server-programs '(erlang-mode . ("~/githubs/erlang_ls/_build/default/bin/erlang_ls")))
+  (add-to-list 'nox-server-programs '(erlang-mode . ("/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls")))
   (define-key nox-mode-map (kbd "M-.") 'xref-find-definitions)
   (define-key nox-mode-map (kbd "M-,") 'pop-tag-mark)
   (define-key nox-mode-map (kbd "M-r") 'xref-find-references)
