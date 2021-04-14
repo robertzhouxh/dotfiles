@@ -68,9 +68,9 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (if (file-exists-p custom-file)
     (load custom-file))
 
-;; proxy?
-(setq url-proxy-services `(("http" . "127.0.0.1:8123")
-                           ("https" . "127.0.0.1:8123")))
+;;; proxy?
+;(setq url-proxy-services `(("http" . "127.0.0.1:8123")
+;                           ("https" . "127.0.0.1:8123")))
 
 (defmacro safe-diminish (file mode &optional new-name)
   "https://github.com/robertzhoxh/dotfiles"
@@ -463,6 +463,31 @@ Setting up the basics early, so if the config breaks further along, I'll still h
     (shell-command
      (concat "moq -out " test-file " . " interface))
     (find-file test-file)))
+
+;; --------------------------------------------------------------
+;; copy当前文件的路径
+(defun zxh/copy-file-path (&optional @dir-path-only-p)
+  "Copy the current buffer's file path or dired path to `kill-ring'.
+Result is full path."
+  (interactive "P")
+  (let (($fpath
+         (if (string-equal major-mode 'dired-mode)
+             (progn
+               (let (($result (mapconcat 'identity (dired-get-marked-files) "\n")))
+                 (if (equal (length $result) 0)
+                     (progn default-directory )
+                   (progn $result))))
+           (if (buffer-file-name)
+               (buffer-file-name)
+             (expand-file-name default-directory)))))
+    (kill-new
+     (if @dir-path-only-p
+         (progn
+           (message "Directory path copied: 「%s」" (file-name-directory $fpath))
+           (file-name-directory $fpath))
+       (progn
+         (message "File path copied: 「%s」" $fpath)
+         $fpath )))))
 
 ;;-------------------------- Esehll -----------------------------
 (use-package eshell
@@ -1794,6 +1819,46 @@ is not used."
 
 ;; -------------------------------------------------------------------
 
+(defun proxy-socks-show ()
+  "Show SOCKS proxy."
+  (interactive)
+  (when (fboundp 'cadddr)
+    (if (bound-and-true-p socks-noproxy)
+        (message "Current SOCKS%d proxy is %s:%d"
+                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+      (message "No SOCKS proxy"))))
+
+(defun proxy-socks-enable ()
+  "Enable SOCKS proxy."
+  (interactive)
+  (require 'socks)
+  (setq url-gateway-method 'socks
+        socks-noproxy '("localhost")
+        socks-server '("Default server" "127.0.0.1" 1080 5))
+  (setenv "all_proxy" "socks5://127.0.0.1:1080")
+  (proxy-socks-show))
+
+(defun proxy-socks-disable ()
+  "Disable SOCKS proxy."
+  (interactive)
+  (require 'socks)
+  (setq url-gateway-method 'native
+        socks-noproxy nil)
+  (setenv "all_proxy" "")
+  (proxy-socks-show))
+
+(defun proxy-socks-toggle ()
+  "Toggle SOCKS proxy."
+  (interactive)
+  (require 'socks)
+  (if (bound-and-true-p socks-noproxy)
+      (proxy-socks-disable)
+    (proxy-socks-enable)))
+
+(proxy-socks-enable)
+
+(use-package all-the-icons :if (display-graphic-p))
+
 (use-package eaf
   :load-path "~/.emacs.d/vendor/emacs-application-framework"
   :init
@@ -1810,7 +1875,27 @@ is not used."
   (eaf-bind-key take_photo "p" eaf-camera-keybinding)
   (eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
 
-
+(use-package snails
+  :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+  :if (display-graphic-p)
+  :custom-face
+  (snails-content-buffer-face ((t (:background "#111" :height 110))))
+  (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
+  (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
+  ;:init
+  ;(use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
+  :config
+  ;; Functions for specific backends
+  (defun snails-current-project ()
+    (interactive)
+    (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
+  (defun snails-active-recent-buffers ()
+    (interactive)
+    (snails '(snails-backend-buffer snails-backend-recentf)))
+  (defun snails-everywhere ()
+    (interactive)
+    (snails '(snails-backend-everything snails-backend-mdfind))))
+    
 (require 'watch-other-window)
 ; watch-other-window-up
 ; watch-other-window-down
