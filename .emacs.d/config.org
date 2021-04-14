@@ -25,10 +25,12 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 ;; Setup pkg repo and install use-package
 (require 'package)
 (setq package-enable-at-startup nil)
-(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
-                         ;("marmalade" . "http://marmalade-repo.org/packages/")
-			))
+(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+;(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+;                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
+;                         ;("marmalade" . "http://marmalade-repo.org/packages/")
+;			))
 
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 
@@ -1855,7 +1857,7 @@ is not used."
       (proxy-socks-disable)
     (proxy-socks-enable)))
 
-;(proxy-socks-enable)
+(proxy-socks-enable)
 
 (use-package all-the-icons :if (display-graphic-p))
 
