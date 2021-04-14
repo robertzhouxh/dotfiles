@@ -25,10 +25,9 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 ;; Setup pkg repo and install use-package
 (require 'package)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-
+(setq package-archives '(("melpa" . "http://elpa.emacs-china.org/melpa/")
+			 ("org"   . "http://elpa.emacs-china.org/org/")
+			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")))
 (package-initialize)
 (setq use-package-always-ensure nil)
 
