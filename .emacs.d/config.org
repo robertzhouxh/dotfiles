@@ -25,15 +25,9 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 ;; Setup pkg repo and install use-package
 (require 'package)
 (setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-;(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-;                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
-;                         ;("marmalade" . "http://marmalade-repo.org/packages/")
-;			))
-
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-
 
 (package-initialize)
 (setq use-package-always-ensure nil)
@@ -63,6 +57,8 @@ Setting up the basics early, so if the config breaks further along, I'll still h
   (require 'use-package))
 (require 'diminish)
 (require 'bind-key)
+
+
 (setq use-package-always-ensure t)
 
 ;; Use separate custom file
@@ -289,12 +285,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
     (with-current-buffer buf
                          (when (buffer-file-name)
                            (revert-buffer t t t)))))
-
-(defun x/drop-project-cache ()
-  "invalidate projectile cache if it is currently active"
-  (when (and (featurep 'projectile)
-             (projectile-project-p))
-    (call-interactively #'projectile-invalidate-cache)))
 
 ;; Insert Src Block
 (use-package ido-completing-read+)
@@ -579,74 +569,74 @@ they are appended."
 
 (add-hook 'eshell-exit-hook 'eshell-pop--kill-and-delete-window)
 
-;;------------------------------------------------------------
-;;; +rime-probe-english.el -*- lexical-binding: t; -*-
-
-;;
-;; Some functions copied from `pyim', thanks for tumashu@github.com .
-;;
-(defun +rime--char-before-to-string (num)
-  "得到光标前第 `num' 个字符，并将其转换为字符串。"
-  (let* ((point (point))
-         (point-before (- point num)))
-    (when (and (> point-before 0)
-               (char-before point-before))
-      (char-to-string (char-before point-before)))))
-
-(defun +rime--string-match-p (regexp string &optional start)
-  "与 `string-match-p' 类似，如果 REGEXP 和 STRING 是非字符串时，
-不会报错。"
-  (and (stringp regexp)
-       (stringp string)
-       (string-match-p regexp string start)))
-
-(defun +rime--probe-auto-english ()
-  "激活这个探针函数后，使用下面的规则自动切换中英文输入：
-
-1. 当前字符为英文字符（不包括空格）时，输入下一个字符为英文字符
-2. 当前字符为中文字符或输入字符为行首字符时，输入的字符为中文字符
-3. 以单个空格为界，自动切换中文和英文字符
-   即，形如 `我使用 emacs 编辑此函数' 的句子全程自动切换中英输入法
-"
-  (let ((str-before-1 (+rime--char-before-to-string 0))
-        (str-before-2 (+rime--char-before-to-string 1)))
-    (unless (string= (buffer-name) " *temp*")
-      (if (> (point) (save-excursion (back-to-indentation)
-                                     (point)))
-          (or (if (+rime--string-match-p " " str-before-1)
-                  (+rime--string-match-p "\\cc" str-before-2)
-                (not (+rime--string-match-p "\\cc" str-before-1))))))))
-
-(defun +rime--beancount-p ()
-  "当前为`beancount-mode'，且光标在注释或字符串当中。"
-  (when (derived-mode-p 'beancount-mode)
-    (not (or (nth 3 (syntax-ppss))
-             (nth 4 (syntax-ppss))))))
-
-(defun +rime--evil-mode-p ()
-  "检测当前是否在 `evil' 模式下。"
-  (or (evil-normal-state-p)
-      (evil-visual-state-p)
-      (evil-motion-state-p)
-      (evil-operator-state-p)))
-
-(defun +rime-english-prober()
-  "自定义英文输入探针函数，用于在不同mode下使用不同的探针列表"
-  (let ((use-en (or (button-at (point))
-                    (+rime--evil-mode-p))))
-    (if (derived-mode-p 'telega-chat-mode)
-        (setq use-en (or use-en
-                         (+rime--probe-auto-english)))
-      (when (derived-mode-p 'text-mode)
-        (setq use-en (or use-en
-                         (+rime--probe-auto-english))))
-      (when (derived-mode-p 'prog-mode 'conf-mode)
-        (setq use-en (or use-en
-                         (rime--after-alphabet-char-p))))
-      (setq use-en (or use-en
-                       (rime--prog-in-code-p)
-                       (+rime--beancount-p))))
-    use-en))
+; ;;------------------------------------------------------------
+; ;;; +rime-probe-english.el -*- lexical-binding: t; -*-
+;
+; ;;
+; ;; Some functions copied from `pyim', thanks for tumashu@github.com .
+; ;;
+; (defun +rime--char-before-to-string (num)
+;   "得到光标前第 `num' 个字符，并将其转换为字符串。"
+;   (let* ((point (point))
+;          (point-before (- point num)))
+;     (when (and (> point-before 0)
+;                (char-before point-before))
+;       (char-to-string (char-before point-before)))))
+;
+; (defun +rime--string-match-p (regexp string &optional start)
+;   "与 `string-match-p' 类似，如果 REGEXP 和 STRING 是非字符串时，
+; 不会报错。"
+;   (and (stringp regexp)
+;        (stringp string)
+;        (string-match-p regexp string start)))
+;
+; (defun +rime--probe-auto-english ()
+;   "激活这个探针函数后，使用下面的规则自动切换中英文输入：
+;
+; 1. 当前字符为英文字符（不包括空格）时，输入下一个字符为英文字符
+; 2. 当前字符为中文字符或输入字符为行首字符时，输入的字符为中文字符
+; 3. 以单个空格为界，自动切换中文和英文字符
+;    即，形如 `我使用 emacs 编辑此函数' 的句子全程自动切换中英输入法
+; "
+;   (let ((str-before-1 (+rime--char-before-to-string 0))
+;         (str-before-2 (+rime--char-before-to-string 1)))
+;     (unless (string= (buffer-name) " *temp*")
+;       (if (> (point) (save-excursion (back-to-indentation)
+;                                      (point)))
+;           (or (if (+rime--string-match-p " " str-before-1)
+;                   (+rime--string-match-p "\\cc" str-before-2)
+;                 (not (+rime--string-match-p "\\cc" str-before-1))))))))
+;
+; (defun +rime--beancount-p ()
+;   "当前为`beancount-mode'，且光标在注释或字符串当中。"
+;   (when (derived-mode-p 'beancount-mode)
+;     (not (or (nth 3 (syntax-ppss))
+;              (nth 4 (syntax-ppss))))))
+;
+; (defun +rime--evil-mode-p ()
+;   "检测当前是否在 `evil' 模式下。"
+;   (or (evil-normal-state-p)
+;       (evil-visual-state-p)
+;       (evil-motion-state-p)
+;       (evil-operator-state-p)))
+;
+; (defun +rime-english-prober()
+;   "自定义英文输入探针函数，用于在不同mode下使用不同的探针列表"
+;   (let ((use-en (or (button-at (point))
+;                     (+rime--evil-mode-p))))
+;     (if (derived-mode-p 'telega-chat-mode)
+;         (setq use-en (or use-en
+;                          (+rime--probe-auto-english)))
+;       (when (derived-mode-p 'text-mode)
+;         (setq use-en (or use-en
+;                          (+rime--probe-auto-english))))
+;       (when (derived-mode-p 'prog-mode 'conf-mode)
+;         (setq use-en (or use-en
+;                          (rime--after-alphabet-char-p))))
+;       (setq use-en (or use-en
+;                        (rime--prog-in-code-p)
+;                        (+rime--beancount-p))))
+;     use-en))
 
 #+END_SRC
 * plantform
@@ -720,10 +710,8 @@ they are appended."
 (use-package json-mode)
 (use-package protobuf-mode)
 (use-package hydra)
-(use-package kubel)
 (use-package nginx-mode :ensure t)
 (use-package async :ensure t :init (async-bytecomp-package-mode 1))
-(use-package kubel-evil :ensure t)
 
 (use-package projectile
   :diminish
@@ -1122,7 +1110,7 @@ they are appended."
 
     "g"  'magit-status
     "G"  'magit-dispatch-popup
-    
+
     "of" 'other-frame
     "ow" 'other-window
 
@@ -1153,140 +1141,56 @@ they are appended."
       (call-interactively 'magit-blame)))
 )
 
-(defun air--config-evil ()
-  "Configure evil mode."
-  ;; Use Emacs state in these additional modes.
-  (dolist (mode '(ag-mode
-                  custom-mode
-                  custom-new-theme-mode
-                  ;dired-mode
-                  eshell-mode
-                  flycheck-error-list-mode
-                  git-rebase-mode
-                  term-mode
-                  deadgrep-mode))
-  (add-to-list 'evil-emacs-state-modes mode))
-
-  (delete 'term-mode evil-insert-state-modes)
-  (delete 'eshell-mode evil-insert-state-modes)
-
-  ;; Use insert state in these additional modes.
-  (dolist (mode '(twittering-edit-mode
-                  magit-log-edit-mode))
-    (add-to-list 'evil-insert-state-modes mode))
-
-  (add-to-list 'evil-buffer-regexps '("\\*Flycheck"))
-
-  (evil-add-hjkl-bindings occur-mode-map 'emacs
-    (kbd "/")       'evil-search-forward
-    (kbd "n")       'evil-search-next
-    (kbd "N")       'evil-search-previous
-    (kbd "C-d")     'evil-scroll-down
-    (kbd "C-u")     'evil-scroll-up
-    (kbd "C-w C-w") 'other-window)
-
-  ;; Global bindings.
-  (evil-define-key 'normal global-map (kbd "<down>")  'evil-next-visual-line)
-  (evil-define-key 'normal global-map (kbd "<up>")    'evil-previous-visual-line)
-  (evil-define-key 'normal global-map (kbd "-")       'helm-find-files)
-  (evil-define-key 'normal global-map (kbd "C--")     'air-dired-buffer-dir-or-home)
-  (evil-define-key 'normal global-map (kbd "C-`")     (lambda () (interactive) (dired (expand-file-name "~"))))
-  (evil-define-key 'normal global-map (kbd "[i")      'show-first-occurrence)
-  (evil-define-key 'insert global-map (kbd "C-e")     'end-of-line)
-  (evil-define-key 'insert global-map (kbd "C-a")     'beginning-of-line)
-  (evil-define-key 'insert global-map (kbd "C-n")     'next-line)
-  (evil-define-key 'insert global-map (kbd "C-p")     'previous-line)
-  (evil-define-key 'insert global-map (kbd "C-w")     'evil-delete)
-  (evil-define-key 'insert global-map (kbd "s-d")     'eval-last-sexp)
-  (evil-define-key 'normal global-map (kbd "s-d")     'eval-defun)
-  (evil-define-key 'normal global-map (kbd "C-=")     'sanityinc/increase-default-font-height)
-  (evil-define-key 'normal global-map (kbd "C--")     'sanityinc/decrease-default-font-height)
-
-  (defun minibuffer-keyboard-quit ()
-    "Abort recursive edit.
-  In Delete Selection mode, if the mark is active, just deactivate it;
-  then it takes a second \\[keyboard-quit] to abort the minibuffer."
-    (interactive)
-    (if (and delete-selection-mode transient-mark-mode mark-active)
-        (setq deactivate-mark  t)
-      (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
-      (abort-recursive-edit)))
-
-  ;; Make escape quit everything, whenever possible.
-;  (define-key evil-normal-state-map [escape] 'keyboard-escape-quit)
-;  (define-key evil-visual-state-map [escape] 'keyboard-quit)
-;  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-;  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-;  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-;  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-;  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-
-  ;; My own Ex commands.
-  (evil-ex-define-cmd "om" 'octopress-status))
-
-(defun air--apply-evil-other-package-configs ()
-  "Apply evil-dependent settings specific to other packages."
-
-  (defun next-conflict-marker ()
-    (interactive)
-    (evil-next-visual-line)
-    (if (not (search-forward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-max) t))
-        (evil-previous-visual-line))
-    (move-beginning-of-line nil))
-
-  (defun previous-conflict-marker ()
-    (interactive)
-    (search-backward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-min) t)
-    (move-beginning-of-line nil))
-
-  ;; PHP
-  (evil-define-key 'normal php-mode-map (kbd "]n") 'next-conflict-marker)
-  (evil-define-key 'normal php-mode-map (kbd "[n") 'previous-conflict-marker)
-  (evil-define-key 'visual php-mode-map (kbd "]n") 'next-conflict-marker)
-  (evil-define-key 'visual php-mode-map (kbd "[n") 'previous-conflict-marker)
-
-  ;; Dired
-  (evil-define-key 'normal dired-mode-map (kbd "C-e") 'dired-toggle-read-only))
-
-(defmacro define-evil-or-global-key (key def &optional state)
-  "Define a key KEY with DEF in an Evil map, or in the global map.
-If the Evil map for STATE is defined (or `normal' if STATE is not
-provided) the key will be defined in that map.  Failing that, it will
-be defined globally.
-Note that STATE should be provided as an unquoted symbol.
-This macro provides a way to override Evil mappings in the appropriate
-Evil map in a manner that is compatible with environments where Evil
-is not used."
-  (let* ((evil-map-name (if state
-                            (concat "evil-" (symbol-name state) "-state-map")
-                          "evil-normal-state-map"))
-         (map (if (boundp (intern evil-map-name))
-                  (intern evil-map-name)
-                global-map)))
-    `(define-key ,map ,key ,def)))
-
 (use-package evil
+  :ensure t
   :init
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-fine-undo t)
-  (when evil-want-C-u-scroll
-     (define-key evil-insert-state-map (kbd "C-u") 'evil-scroll-up)
-     (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
-     (define-key evil-visual-state-map (kbd "C-u") 'evil-scroll-up)
-     (define-key evil-motion-state-map (kbd "C-u") 'evil-scroll-up))
-  :commands (evil-mode evil-define-key)
+  (progn
+    (evil-mode t)
+    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state))
   :config
-  (add-hook 'evil-mode-hook 'air--config-evil)
-  (evil-mode 1)
-  (use-package evil-leader
-    :config
-    (global-evil-leader-mode)
-    (x/config-evil-leader))
-  (use-package evil-visualstar
-    :bind (:map evil-visual-state-map
-    ("*" . evil-visualstar/begin-search-forward)
-    ("#" . evil-visualstar/begin-search-backward))))
+  (progn
+    (use-package evil-visualstar
+        :bind (:map evil-visual-state-map
+        ("*" . evil-visualstar/begin-search-forward)
+        ("#" . evil-visualstar/begin-search-backward)))
+    (use-package evil-leader
+      :ensure t
+      :init
+      (progn
+        (global-evil-leader-mode)
+        (setq evil-leader/in-all-states 1)
+	(x/config-evil-leader)
+        ))
+    (use-package evil-surround
+      :ensure t
+      :config
+      (progn
+        (global-evil-surround-mode)))
+    (use-package evil-escape
+      :ensure t
+      :config
+      (progn
+        (evil-escape-mode)
+        (setq-default evil-escape-key-sequence "tn")))
+    (defvar evil-emacs-state-cursor)
+    (defvar evil-normal-state-cursor)
+    (defvar evil-visual-state-cursor)
+    (defvar evil-insert-state-cursor)
+    (defvar evil-replace-state-cursor)
+    (defvar evil-operator-state-cursor)
+    (defvar evil-normal-state-map)
+    (defvar evil-insert-state-map)
 
+    (setq evil-emacs-state-cursor '("red" box))
+    (setq evil-normal-state-cursor '("green" box))
+    (setq evil-visual-state-cursor '("orange" box))
+    (setq evil-insert-state-cursor '("red" bar))
+    (setq evil-replace-state-cursor '("red" bar))
+    (setq evil-operator-state-cursor '("red" ))
+    (define-key evil-normal-state-map "p" 'evil-paste-after)
+    (define-key evil-normal-state-map "P" 'evil-paste-before)
+    (define-key evil-normal-state-map (kbd "C-s") 'save-buffer)
+    (define-key evil-normal-state-map (kbd "C-]") (kbd "\\ M-."))))
 #+END_SRC
 * org
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1300,7 +1204,7 @@ is not used."
         org-startup-folded t  ; t, 'overview, 'content, 'showall.
         org-startup-truncated t
         org-image-actual-width nil
-        org-export-babel-evaluate t 
+        org-export-babel-evaluate t
         org-export-with-sub-superscripts nil ; 下划线不转下标
         org-confirm-babel-evaluate nil
         org-startup-indented t
@@ -1350,13 +1254,6 @@ is not used."
             ("CANCELLED" :foreground "forest green" :weight bold)))
 ))
 
-(use-package evil-org
-  :after (org)
-  :mode (("\\.org\\'" . org-mode))
-  :hook
-  ((org-mode . evil-org-mode)
-   (evil-org-mode . (lambda () (evil-org-set-key-theme)))))
-
 (use-package org-bullets
              :config
              (progn
@@ -1380,7 +1277,7 @@ is not used."
   :after org
   :hook
   (org-mode . toc-org-enable))
-  
+
 ;; -----------------------------------------------------------------------------------------
 ;; brew install imagemagick
 ;; plantuml-mode
@@ -1497,7 +1394,7 @@ is not used."
   :load-path "~/.emacs.d/vendor/valign.el"
   :config
   (add-hook 'org-mode-hook #'valign-mode))
-  
+
 (add-to-list 'org-latex-packages-alist '("" "tabularx"))
 
 #+END_SRC
@@ -1585,7 +1482,7 @@ is not used."
   :config
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save))
-  
+
 ;;---------------------------------------------------------------
 ;; Erlang Programming << sed ---> gsed >>
 ;; ===> https://stackoverflow.com/questions/30003570/how-to-use-gnu-sed-on-mac-os-x#34815955
@@ -1690,11 +1587,11 @@ is not used."
     (setq tab-width 4)
     (setq c-basic-offset 4)))
 
-(use-package ccls
-  :ensure t
-  :custom (ccls-executable "/usr/local/bin/ccls")
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
+;(use-package ccls
+;  :ensure t
+;  :custom (ccls-executable "/usr/local/bin/ccls")
+;  :hook ((c-mode c++-mode objc-mode) .
+;         (lambda () (require 'ccls) (lsp))))
 
 
 ;; other programming languages
@@ -1800,15 +1697,6 @@ is not used."
 (global-set-key (kbd "C-x |") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x -") 'hsplit-last-buffer)
 
-(eval-after-load "evil-maps"
-                 (dolist (map '(evil-normal-state-map
-                                evil-motion-state-map
-                                evil-insert-state-map
-                                evil-emacs-state-map))
-                   (define-key (eval map) "\M-." nil)
-                   (define-key (eval map) "\M-," nil)
-                   (define-key (eval map) "\C-t" nil)
-                   (define-key (eval map) "\C-]" nil)))
 
 (eval-after-load "erlang"
   '(progn
@@ -1857,7 +1745,7 @@ is not used."
       (proxy-socks-disable)
     (proxy-socks-enable)))
 
-(proxy-socks-enable)
+;(proxy-socks-enable)
 
 (use-package all-the-icons :if (display-graphic-p))
 
@@ -1897,7 +1785,7 @@ is not used."
   (defun snails-everywhere ()
     (interactive)
     (snails '(snails-backend-everything snails-backend-mdfind))))
-    
+
 (require 'watch-other-window)
 ; watch-other-window-up
 ; watch-other-window-down
@@ -1927,12 +1815,12 @@ is not used."
 (use-package awesome-tab
   :ensure nil
   :load-path "~/.emacs.d/vendor/awesome-tab"
-  :bind 
+  :bind
   ("C-x t h" . awesome-tab-backward-tab)
   ("C-x t l" . awesome-tab-forward-tab)
   :config
   (awesome-tab-mode t))
-  
+
   (global-set-key
   (kbd "C-M-t")
     (defhydra awesome-fast-switch (:hint nil)
@@ -1993,20 +1881,20 @@ is not used."
       "gpg"
       (file-name-extension (buffer-name)) t))))
 
-(use-package posframe :ensure t)
-(use-package rime
-  :ensure t
-  :config
-  (setq rime-user-data-dir "~/Library/Rime/")
-  (setq rime-show-candidate 'posframe)
-  (setq rime-disable-predicates '(+rime-english-prober))
-  (setq rime-posframe-properties
-          (list :background-color "#333333"
-                :foreground-color "#dcdccc"
-   ;             :font "WenQuanYi Micro Hei Mono-14"
-                :internal-border-width 10))
-  :custom
-  (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-  (default-input-method "rime")
-)
+; (use-package posframe :ensure t)
+; (use-package rime
+;   :ensure t
+;   :config
+;   (setq rime-user-data-dir "~/Library/Rime/")
+;   (setq rime-show-candidate 'posframe)
+;   (setq rime-disable-predicates '(+rime-english-prober))
+;   (setq rime-posframe-properties
+;           (list :background-color "#333333"
+;                 :foreground-color "#dcdccc"
+;    ;             :font "WenQuanYi Micro Hei Mono-14"
+;                 :internal-border-width 10))
+;   :custom
+;   (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+;   (default-input-method "rime")
+; )
 #+END_SRC
