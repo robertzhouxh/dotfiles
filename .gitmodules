@@ -13,3 +13,6 @@
 [submodule ".emacs.d/vendor/emacs-application-framework"]
 	path = .emacs.d/vendor/emacs-application-framework
 	url = https://github.com/manateelazycat/emacs-application-framework
+[submodule ".emacs.d/vendor/snails"]
+	path = .emacs.d/vendor/snails
+	url = https://github.com/manateelazycat/snails

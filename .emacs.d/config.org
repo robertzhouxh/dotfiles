@@ -1855,7 +1855,7 @@ is not used."
       (proxy-socks-disable)
     (proxy-socks-enable)))
 
-(proxy-socks-enable)
+;(proxy-socks-enable)
 
 (use-package all-the-icons :if (display-graphic-p))
 
