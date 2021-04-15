@@ -31,16 +31,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (package-initialize)
 (setq use-package-always-ensure nil)
 
-;;; auto install use-package
-;(unless (require 'use-package nil t)
-;  (if (not (yes-or-no-p (concat "Refresh packages, install use-package and"
-;                                " other packages used by init file? ")))
-;      (error "you need to install use-package first")
-;    (package-refresh-contents)
-;    (package-install 'use-package)
-;    (require 'use-package)
-;    (setq use-package-always-ensure t)))
-
 ;; Automatic package installation
 (mapc
  (lambda (package)
@@ -52,8 +42,7 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 
 
 ;; trigger use-package, And force the install of missing packages.
-(eval-when-compile
-  (require 'use-package))
+(eval-when-compile (require 'use-package))
 (require 'diminish)
 (require 'bind-key)
 
@@ -64,10 +53,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (setq custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p custom-file)
     (load custom-file))
-
-;;; proxy?
-;(setq url-proxy-services `(("http" . "127.0.0.1:8123")
-;                           ("https" . "127.0.0.1:8123")))
 
 (defmacro safe-diminish (file mode &optional new-name)
   "https://github.com/robertzhoxh/dotfiles"
@@ -92,8 +77,8 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 ;; setup coding system and window property
 (prefer-coding-system 'utf-8)
 (setenv "LANG" "en_US.UTF-8")
-(setenv	"LC_ALL" "en_US.UTF-8")
-(setenv	"LC_CTYPE" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US.UTF-8")
 
 ;; setup titlebar appearance
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
@@ -168,13 +153,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (setq make-backup-files nil)
 (set-fringe-mode '(6 . 0))
 
-;; nice scrolling
-;(setq scroll-margin 0
-;      scroll-conservatively 100000
-;      scroll-preserve-screen-position 1)
-
-;; more useful frame title, that show either a file or a
-;; buffer name (if the buffer isn't visiting a file)
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
@@ -210,6 +188,54 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 #+END_SRC
 * utils
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+;--------------------------------------------------------------------------
+; from: https://github.com/manateelazycat/lazy-load/blob/master/lazy-load.el
+
+(defun lazy-load-global-keys (key-alist filename &optional key-prefix)
+  (lazy-load-set-keys key-alist nil key-prefix)
+  (dolist (element key-alist)
+    (setq fun (cdr element))
+    (autoload fun filename nil t)))
+
+(defun lazy-load-local-keys (key-alist keymap filename &optional key-prefix)
+  (lazy-load-set-keys key-alist keymap key-prefix)
+  (dolist (element key-alist)
+    (setq fun (cdr element))
+    (autoload fun filename nil t)))
+
+(defun lazy-load-set-keys (key-alist &optional keymap key-prefix)
+  "This function is to little type when define key binding.
+`KEYMAP' is a add keymap for some binding, default is `current-global-map'.
+`KEY-ALIST' is a alist contain main-key and command.
+`KEY-PREFIX' is a add prefix for some binding, default is nil."
+  (let (key def)
+    (or keymap (setq keymap (current-global-map)))
+    (if key-prefix
+        (setq key-prefix (concat key-prefix " "))
+      (setq key-prefix ""))
+    (dolist (element key-alist)
+      (setq key (car element))
+      (setq def (cdr element))
+      (cond ((stringp key) (setq key (read-kbd-macro (concat key-prefix key))))
+            ((vectorp key) nil)
+            (t (signal 'wrong-type-argument (list 'array key))))
+      (define-key keymap key def))))
+
+(defun lazy-load-unset-keys (key-list &optional keymap)
+  "This function is to little type when unset key binding.
+`KEYMAP' is add keymap for some binding, default is `current-global-map'
+`KEY-LIST' is list contain key."
+  (let (key)
+    (or keymap (setq keymap (current-global-map)))
+    (dolist (key key-list)
+      (cond ((stringp key) (setq key (read-kbd-macro (concat key))))
+            ((vectorp key) nil)
+            (t (signal 'wrong-type-argument (list 'array key))))
+      (define-key keymap key nil))))
+;; ----------------------------------- end -----------------------------------------
+
+
 (defun x/save-all ()
   "Save all file-visiting buffers without prompting."
   (interactive)
@@ -232,9 +258,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 (defun x/system-is-linux ()
   (interactive)
   (string-equal system-type "gnu/linux"))
-
-(defun system-is-mac ()
-  (eq system-type 'darwin))
 
 (defun hold-line-scroll-up ()
   "Scroll the page with the cursor in the same line"
@@ -260,13 +283,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
   (split-window-horizontally)
   (occur "@FIXME:\\|@TODO:\\|@BUG:\\|@NOTE:"))
 
-(defun dired-touch ()
-  "Creates empty file at current directory."
-  (interactive)
-  (append-to-file "" nil (read-string "New file: "))
-  (if (equal major-mode 'dired-mode)
-    (revert-buffer)))
-
 (defun select-current-word ()
   "Select the word under cursor.
   “word” here is considered any alphanumeric sequence with “_” or “-”."
@@ -276,14 +292,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
     (setq pt (point))
     (skip-chars-forward "-_A-Za-z0-9")
     (set-mark pt)))
-
-;; manage window
-(defun revert-all-buffers ()
-  (interactive)
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-                         (when (buffer-file-name)
-                           (revert-buffer t t t)))))
 
 ;; Insert Src Block
 (use-package ido-completing-read+)
@@ -307,7 +315,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 
 
 ;;; Some Cool Funtions
-
 (defun generate-scratch-buffer ()
   "Create and switch to a temporary scratch buffer with a random
      name."
@@ -321,30 +328,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
     (find-alternate-file
      (concat "/sudo:root@localhost:"
              buffer-file-name))))
-
-(defun replace-token (token)
-  "Replace JSON web token for requests"
-  (interactive "sEnter the new token: ")
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward "Bearer .*\"" nil t)
-      (replace-match (concat "Bearer " token "\"")))))
-
-;; source: http://steve.yegge.googlepages.com/my-dot-emacs-file
-(defun rename-file-and-buffer (new-name)
-  "Renames both current buffer and file it's visiting to NEW-NAME."
-  (interactive "sNew name: ")
-  (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (if (not filename)
-        (message "Buffer '%s' is not visiting a file!" name)
-      (if (get-buffer new-name)
-          (message "A buffer named '%s' already exists!" new-name)
-        (progn
-          (rename-file filename new-name 1)
-          (rename-buffer new-name)
-          (set-visited-file-name new-name)
-          (set-buffer-modified-p nil))))))
 
 (defun rename-local-var (name)
   (interactive "sEnter new name: ")
@@ -365,20 +348,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
   (or (looking-at "[0-9]+")
       (error "No number at point"))
   (replace-match (number-to-string (- (string-to-number (match-string 0)) 1))))
-
-(defun email-selection ()
-  (interactive)
-  (copy-region-as-kill (region-beginning) (region-end))
-  (let ((tmp-file (concat "/tmp/" (buffer-name (current-buffer))))
-        (recipient (read-string "Enter a recipient: "))
-        (subject (read-string "Enter a subject: ")))
-    (find-file tmp-file)
-    (yank)
-    (save-buffer)
-    (kill-buffer (current-buffer))
-    (shell-command (concat "mutt -s \"" subject "\" " recipient " < " tmp-file))
-    (shell-command (concat "rm -f " tmp-file)))
-  (message "Sent!"))
 
 (defun move-file ()
   "Write this file to a new location, and delete the old one."
@@ -414,52 +383,8 @@ Setting up the basics early, so if the config breaks further along, I'll still h
     (insert (concat "ls"))
     (eshell-send-input)))
 
-(bind-key "C-!" 'eshell-here)
-
-(add-hook 'git-commit-setup-hook
-    '(lambda ()
-        (let ((has-ticket-title (string-match "^[A-Z]+-[0-9]+"
-                                    (magit-get-current-branch)))
-              (words (s-split-words (magit-get-current-branch))))
-          (if has-ticket-title
-              (insert (format "[%s-%s] " (car words) (car (cdr words))))))))
-
-(defun what-the-commit ()
-  (interactive)
-  (insert
-   (with-current-buffer
-       (url-retrieve-synchronously "http://whatthecommit.com")
-     (re-search-backward "<p>\\([^<]+\\)\n<\/p>")
-     (match-string 1))))
-
-(defun insta-kill-buffer ()
-  (interactive)
-  (kill-buffer))
-(global-set-key (kbd "C-z") 'insta-kill-buffer)
-
-(defun toggle-presentation ()
-  "Toggle presentation features, like font increase."
-  (interactive)
-  (let ((regular-fontsize 140)
-        (presentation-fontsize 240))
-    (if (equal (face-attribute 'default :height) regular-fontsize)
-        (set-face-attribute 'default nil :height presentation-fontsize)
-      (set-face-attribute 'default nil :height regular-fontsize))))
-
-;;Quick custom function to integrate with the moq tool to generate quick mocks
-(defun moq ()
-  (interactive)
-  (let ((interface (word-at-point))
-        (test-file (concat (downcase (word-at-point)) "_test.go")))
-    (shell-command
-     (concat "moq -out " test-file " . " interface))
-    (find-file test-file)))
-
-;; --------------------------------------------------------------
-;; copy当前文件的路径
 (defun zxh/copy-file-path (&optional @dir-path-only-p)
-  "Copy the current buffer's file path or dired path to `kill-ring'.
-Result is full path."
+  "Copy the current buffer's file path or dired path to `kill-ring'. Result is full path."
   (interactive "P")
   (let (($fpath
          (if (string-equal major-mode 'dired-mode)
@@ -479,6 +404,7 @@ Result is full path."
        (progn
          (message "File path copied: 「%s」" $fpath)
          $fpath )))))
+
 
 ;;-------------------------- Esehll -----------------------------
 (use-package eshell
@@ -567,6 +493,8 @@ they are appended."
     (delete-window)))
 
 (add-hook 'eshell-exit-hook 'eshell-pop--kill-and-delete-window)
+
+
 
 ;;------------------------------------------------------------
 ;;; +rime-probe-english.el -*- lexical-binding: t; -*-
@@ -780,8 +708,8 @@ they are appended."
   (setq company-idle-delay 0.2)
   (setq company-selection-wrap-around t)
   (define-key company-active-map [tab] 'company-complete)
-  (define-key company-active-map (kbd "C-p") 'company-select-next)
-  (define-key company-active-map (kbd "C-n") 'company-select-previous))
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous))
 
 (use-package ag
   :defer t
@@ -925,13 +853,7 @@ they are appended."
   :init
   (add-to-list 'ivy-ignore-buffers "^#")
   (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
-  (with-eval-after-load 'evil-leader
-    (evil-leader/set-key
-      "bb" 'ivy-switch-buffer
-      "br" 'counsel-recentf
-      "dv" 'counsel-describe-variable
-      "df" 'counsel-describe-function
-      "/"  'counsel-rg)))
+  )
 (use-package counsel-projectile
   :after (counsel projectile)
   :diminish counsel-projectile-mode
@@ -943,12 +865,6 @@ they are appended."
    counsel-projectile-switch-project
    counsel-projectile-switch-to-buffer)
   :init
-  (with-eval-after-load 'evil-leader
-    (evil-leader/set-key
-      "p/" 'counsel-projectile-rg
-      "pf" 'counsel-projectile-find-file
-      "pp" 'counsel-projectile-switch-project
-      "pb" 'counsel-projectile-switch-to-buffer))
   :config (counsel-projectile-mode t))
 
 (use-package ivy-prescient
