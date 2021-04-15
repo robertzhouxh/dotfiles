@@ -189,53 +189,6 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 * utils
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;--------------------------------------------------------------------------
-; from: https://github.com/manateelazycat/lazy-load/blob/master/lazy-load.el
-
-(defun lazy-load-global-keys (key-alist filename &optional key-prefix)
-  (lazy-load-set-keys key-alist nil key-prefix)
-  (dolist (element key-alist)
-    (setq fun (cdr element))
-    (autoload fun filename nil t)))
-
-(defun lazy-load-local-keys (key-alist keymap filename &optional key-prefix)
-  (lazy-load-set-keys key-alist keymap key-prefix)
-  (dolist (element key-alist)
-    (setq fun (cdr element))
-    (autoload fun filename nil t)))
-
-(defun lazy-load-set-keys (key-alist &optional keymap key-prefix)
-  "This function is to little type when define key binding.
-`KEYMAP' is a add keymap for some binding, default is `current-global-map'.
-`KEY-ALIST' is a alist contain main-key and command.
-`KEY-PREFIX' is a add prefix for some binding, default is nil."
-  (let (key def)
-    (or keymap (setq keymap (current-global-map)))
-    (if key-prefix
-        (setq key-prefix (concat key-prefix " "))
-      (setq key-prefix ""))
-    (dolist (element key-alist)
-      (setq key (car element))
-      (setq def (cdr element))
-      (cond ((stringp key) (setq key (read-kbd-macro (concat key-prefix key))))
-            ((vectorp key) nil)
-            (t (signal 'wrong-type-argument (list 'array key))))
-      (define-key keymap key def))))
-
-(defun lazy-load-unset-keys (key-list &optional keymap)
-  "This function is to little type when unset key binding.
-`KEYMAP' is add keymap for some binding, default is `current-global-map'
-`KEY-LIST' is list contain key."
-  (let (key)
-    (or keymap (setq keymap (current-global-map)))
-    (dolist (key key-list)
-      (cond ((stringp key) (setq key (read-kbd-macro (concat key))))
-            ((vectorp key) nil)
-            (t (signal 'wrong-type-argument (list 'array key))))
-      (define-key keymap key nil))))
-;; ----------------------------------- end -----------------------------------------
-
-
 (defun x/save-all ()
   "Save all file-visiting buffers without prompting."
   (interactive)
@@ -1577,249 +1530,246 @@ they are appended."
 #+END_SRC
 * maps
 #+BEGIN_SRC emacs-lisp :tangle yes
-(global-set-key
-  (kbd "C-M-w")
-  (defhydra hydra-window ()
-            "window"
-            ("h" windmove-left)
-            ("j" windmove-down)
-            ("k" windmove-up)
-            ("l" windmove-right)
-            ("<" shrink-window-horizontally)
-            (">" enlarge-window-horizontally)
-            ("^" shrink-window)
-            ("V" enlarge-window)
-            ("|" (lambda ()
-                   (interactive)
-                   (split-window-right)
-                   (windmove-right))
-                   "vert")
-            ("-" (lambda ()
-                   (interactive)
-                   (split-window-below)
-                   (windmove-down))
-                   "horz")
-            ("o" delete-other-windows "1" :color blue)
-            ("i" ace-maximize-window "a1" :color blue)
-            ("q" nil "cancel")))
-
-(global-set-key (kbd "M-]") 'dumb-jump-go)
-(global-set-key (kbd "M-t") 'dumb-jump-back)
-(global-set-key (kbd "M-p") 'hold-line-scroll-up )
-(global-set-key (kbd "M-n") 'hold-line-scroll-down )
-(global-set-key (kbd "M-@") 'pkg-mark-word)
-(global-set-key (kbd "M-y") 'async-shell-command)
-(global-set-key (kbd "C-x |") 'vsplit-last-buffer)
-(global-set-key (kbd "C-x -") 'hsplit-last-buffer)
+ (eval-after-load "evil-maps"
+                   (dolist (map '(evil-normal-state-map
+                                  evil-motion-state-map
+                                  evil-insert-state-map
+                                  evil-emacs-state-map))
+                     (define-key (eval map) "\M-." nil)
+                     (define-key (eval map) "\M-," nil)
+                     (define-key (eval map) "\C-t" nil)
+                     (define-key (eval map) "\C-]" nil)))
 
 
-(eval-after-load "evil-maps"
-                 (dolist (map '(evil-normal-state-map
-                                evil-motion-state-map
-                                evil-insert-state-map
-                                evil-emacs-state-map))
-                   (define-key (eval map) "\M-." nil)
-                   (define-key (eval map) "\M-," nil)
-                   (define-key (eval map) "\C-t" nil)
-                   (define-key (eval map) "\C-]" nil)))
-
-(eval-after-load "erlang"
-  '(progn
-     (define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary)
-     (define-key erlang-mode-map (kbd "M-.") 'ivy-erlang-complete-find-definition)
-     (define-key erlang-mode-map (kbd "M-,") 'xref-pop-marker-stack)
-     (define-key erlang-mode-map (kbd "M-?") 'ivy-erlang-complete-find-references)
-     ))
-
-
-;; -------------------------------------------------------------------
-
-(defun proxy-socks-show ()
-  "Show SOCKS proxy."
-  (interactive)
-  (when (fboundp 'cadddr)
-    (if (bound-and-true-p socks-noproxy)
-        (message "Current SOCKS%d proxy is %s:%d"
-                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-      (message "No SOCKS proxy"))))
-
-(defun proxy-socks-enable ()
-  "Enable SOCKS proxy."
-  (interactive)
-  (require 'socks)
-  (setq url-gateway-method 'socks
-        socks-noproxy '("localhost")
-        socks-server '("Default server" "127.0.0.1" 1080 5))
-  (setenv "all_proxy" "socks5://127.0.0.1:1080")
-  (proxy-socks-show))
-
-(defun proxy-socks-disable ()
-  "Disable SOCKS proxy."
-  (interactive)
-  (require 'socks)
-  (setq url-gateway-method 'native
-        socks-noproxy nil)
-  (setenv "all_proxy" "")
-  (proxy-socks-show))
-
-(defun proxy-socks-toggle ()
-  "Toggle SOCKS proxy."
-  (interactive)
-  (require 'socks)
-  (if (bound-and-true-p socks-noproxy)
-      (proxy-socks-disable)
-    (proxy-socks-enable)))
-
-;(proxy-socks-enable)
-
-(use-package all-the-icons :if (display-graphic-p))
-
-;(use-package eaf
-;  :load-path (lambda () (expand-file-name "vendor/emacs-application-framework/" user-emacs-directory))
-;  :init
-;  (use-package epc :defer t :ensure t)
-;  (use-package ctable :defer t :ensure t)
-;  (use-package deferred :defer t :ensure t)
-;  (use-package s :defer t :ensure t)
-;  :custom
-;  (eaf-browser-continue-where-left-off t)
-;  :config
-;  (eaf-setq eaf-browser-enable-adblocker "true")
-;  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
-;  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
-;  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
-;  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
-
-(use-package snails
-  :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
-  :if (display-graphic-p)
-  :custom-face
-  (snails-content-buffer-face ((t (:background "#111" :height 110))))
-  (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
-  (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
-  ;:init
-  ;(use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
-  :config
-  ;; Functions for specific backends
-  (defun snails-current-project ()
-    (interactive)
-    (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
-  (defun snails-active-recent-buffers ()
-    (interactive)
-    (snails '(snails-backend-buffer snails-backend-recentf)))
-  (defun snails-everywhere ()
-    (interactive)
-    (snails '(snails-backend-everything snails-backend-mdfind))))
-
-(require 'watch-other-window)
-; watch-other-window-up
-; watch-other-window-down
-; watch-other-window-up-line
-; watch-other-window-down-line
-
-;;https://raw.githubusercontent.com/manateelazycat/cache-path-from-shell/master/cache-path-from-shell.el
-;(require 'cache-path-from-shell)
-
-;;https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el
-(require 'color-rg)
-;color-rg-search-input
-;color-rg-search-symbol
-;color-rg-search-project
-;color-rg-search-project-rails
-
-;;https://raw.githubusercontent.com/manateelazycat/awesome-tray/master/awesome-tray.el
-(require 'awesome-tray)
-(awesome-tray-mode 1)
-
-;;https://github.com/manateelazycat/lazycat-theme
-(require 'lazycat-theme)
-(lazycat-theme-load-dark)
-(setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-
-;; git clone --depth=1 https://github.com/manateelazycat/awesome-tab.git
-(use-package awesome-tab
-  :ensure nil
-  :load-path "~/.emacs.d/vendor/awesome-tab"
-  :bind
-  ("C-x t h" . awesome-tab-backward-tab)
-  ("C-x t l" . awesome-tab-forward-tab)
-  :config
-  (awesome-tab-mode t))
+  (global-set-key (kbd "M-]") 'dumb-jump-go)
+  (global-set-key (kbd "M-t") 'dumb-jump-back)
+  (global-set-key (kbd "M-p") 'hold-line-scroll-up )
+  (global-set-key (kbd "M-n") 'hold-line-scroll-down )
 
   (global-set-key
-  (kbd "C-M-t")
-    (defhydra awesome-fast-switch (:hint nil)
+    (kbd "C-M-w")
+    (defhydra hydra-window ()
+              "window"
+              ("h" windmove-left)
+              ("j" windmove-down)
+              ("k" windmove-up)
+              ("l" windmove-right)
+              ("<" shrink-window-horizontally)
+              (">" enlarge-window-horizontally)
+              ("^" shrink-window)
+              ("V" enlarge-window)
+              ("|" (lambda ()
+                     (interactive)
+                     (split-window-right)
+                     (windmove-right))
+                     "vert")
+              ("-" (lambda ()
+                     (interactive)
+                     (split-window-below)
+                     (windmove-down))
+                     "horz")
+              ("o" delete-other-windows "1" :color blue)
+              ("i" ace-maximize-window "a1" :color blue)
+              ("q" nil "cancel")))
+
+
+  ;(eval-after-load "erlang"
+  ;  '(progn
+  ;     (define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary)
+  ;     (define-key erlang-mode-map (kbd "M-.") 'ivy-erlang-complete-find-definition)
+  ;     (define-key erlang-mode-map (kbd "M-,") 'xref-pop-marker-stack)
+  ;     (define-key erlang-mode-map (kbd "M-?") 'ivy-erlang-complete-find-references)
+  ;     ))
+
+
+  ;; ------------------------------ From Lazycat -------------------------------------
+
+  (defun proxy-socks-show ()
+    "Show SOCKS proxy."
+    (interactive)
+    (when (fboundp 'cadddr)
+      (if (bound-and-true-p socks-noproxy)
+          (message "Current SOCKS%d proxy is %s:%d"
+                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+        (message "No SOCKS proxy"))))
+
+  (defun proxy-socks-enable ()
+    "Enable SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (setq url-gateway-method 'socks
+          socks-noproxy '("localhost")
+          socks-server '("Default server" "127.0.0.1" 1080 5))
+    (setenv "all_proxy" "socks5://127.0.0.1:1080")
+    (proxy-socks-show))
+
+  (defun proxy-socks-disable ()
+    "Disable SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (setq url-gateway-method 'native
+          socks-noproxy nil)
+    (setenv "all_proxy" "")
+    (proxy-socks-show))
+
+  (defun proxy-socks-toggle ()
+    "Toggle SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (if (bound-and-true-p socks-noproxy)
+        (proxy-socks-disable)
+      (proxy-socks-enable)))
+
+  ;(proxy-socks-enable)
+
+  (use-package all-the-icons :if (display-graphic-p))
+
+  ;(use-package eaf
+  ;  :load-path (lambda () (expand-file-name "vendor/emacs-application-framework/" user-emacs-directory))
+  ;  :init
+  ;  (use-package epc :defer t :ensure t)
+  ;  (use-package ctable :defer t :ensure t)
+  ;  (use-package deferred :defer t :ensure t)
+  ;  (use-package s :defer t :ensure t)
+  ;  :custom
+  ;  (eaf-browser-continue-where-left-off t)
+  ;  :config
+  ;  (eaf-setq eaf-browser-enable-adblocker "true")
+  ;  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+  ;  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+  ;  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+  ;  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
+
+  (use-package snails
+    :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+    :if (display-graphic-p)
+    :custom-face
+    (snails-content-buffer-face ((t (:background "#111" :height 110))))
+    (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
+    (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
+    ;:init
+    ;(use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
+    :config
+    ;; Functions for specific backends
+    (defun snails-current-project ()
+      (interactive)
+      (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
+    (defun snails-active-recent-buffers ()
+      (interactive)
+      (snails '(snails-backend-buffer snails-backend-recentf)))
+    (defun snails-everywhere ()
+      (interactive)
+      (snails '(snails-backend-everything snails-backend-mdfind))))
+
+  (require 'watch-other-window)
+  ; watch-other-window-up
+  ; watch-other-window-down
+  ; watch-other-window-up-line
+  ; watch-other-window-down-line
+
+  ;;https://raw.githubusercontent.com/manateelazycat/cache-path-from-shell/master/cache-path-from-shell.el
+  ;(require 'cache-path-from-shell)
+
+  ;;https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el
+  (require 'color-rg)
+  ;color-rg-search-input
+  ;color-rg-search-symbol
+  ;color-rg-search-project
+  ;color-rg-search-project-rails
+
+  ;;https://raw.githubusercontent.com/manateelazycat/awesome-tray/master/awesome-tray.el
+  (require 'awesome-tray)
+  (awesome-tray-mode 1)
+
+  ;;https://github.com/manateelazycat/lazycat-theme
+  (require 'lazycat-theme)
+  (lazycat-theme-load-dark)
+  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+
+  ;; git clone --depth=1 https://github.com/manateelazycat/awesome-tab.git
+  (use-package awesome-tab
+    :ensure nil
+    :load-path "~/.emacs.d/vendor/awesome-tab"
+    :bind
+    ("C-x t h" . awesome-tab-backward-tab)
+    ("C-x t l" . awesome-tab-forward-tab)
+    :config
+    (awesome-tab-mode t))
+
+    (global-set-key
+    (kbd "C-M-t")
+      (defhydra awesome-fast-switch (:hint nil)
+        "
+       ^^^^Fast Move             ^^^^Tab                    ^^Search            ^^Misc
+      -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
+         ^_k_^   prev group    | _C-a_^^     select first | _b_ search buffer | _C-k_   kill buffer
+       _h_   _l_  switch tab   | _C-e_^^     select last  | _g_ search group  | _C-S-k_ kill others in group
+         ^_j_^   next group    | _C-j_^^     ace jump     | ^^                | ^^
+       ^^0 ~ 9^^ select window | _C-h_/_C-l_ move current | ^^                | ^^
+      -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
       "
-     ^^^^Fast Move             ^^^^Tab                    ^^Search            ^^Misc
-    -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
-       ^_k_^   prev group    | _C-a_^^     select first | _b_ search buffer | _C-k_   kill buffer
-     _h_   _l_  switch tab   | _C-e_^^     select last  | _g_ search group  | _C-S-k_ kill others in group
-       ^_j_^   next group    | _C-j_^^     ace jump     | ^^                | ^^
-     ^^0 ~ 9^^ select window | _C-h_/_C-l_ move current | ^^                | ^^
-    -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
-    "
-      ("h" awesome-tab-backward-tab)
-      ("j" awesome-tab-forward-group)
-      ("k" awesome-tab-backward-group)
-      ("l" awesome-tab-forward-tab)
-      ("0" my-select-window)
-      ("1" my-select-window)
-      ("2" my-select-window)
-      ("3" my-select-window)
-      ("4" my-select-window)
-      ("5" my-select-window)
-      ("6" my-select-window)
-      ("7" my-select-window)
-      ("8" my-select-window)
-      ("9" my-select-window)
-      ("C-a" awesome-tab-select-beg-tab)
-      ("C-e" awesome-tab-select-end-tab)
-      ("C-j" awesome-tab-ace-jump)
-      ("C-h" awesome-tab-move-current-tab-to-left)
-      ("C-l" awesome-tab-move-current-tab-to-right)
-      ("b" ivy-switch-buffer)
-      ("g" awesome-tab-counsel-switch-group)
-      ("C-k" kill-current-buffer)
-      ("C-S-k" awesome-tab-kill-other-buffers-in-current-group)
-      ("q" nil "quit")))
+        ("h" awesome-tab-backward-tab)
+        ("j" awesome-tab-forward-group)
+        ("k" awesome-tab-backward-group)
+        ("l" awesome-tab-forward-tab)
+        ("0" my-select-window)
+        ("1" my-select-window)
+        ("2" my-select-window)
+        ("3" my-select-window)
+        ("4" my-select-window)
+        ("5" my-select-window)
+        ("6" my-select-window)
+        ("7" my-select-window)
+        ("8" my-select-window)
+        ("9" my-select-window)
+        ("C-a" awesome-tab-select-beg-tab)
+        ("C-e" awesome-tab-select-end-tab)
+        ("C-j" awesome-tab-ace-jump)
+        ("C-h" awesome-tab-move-current-tab-to-left)
+        ("C-l" awesome-tab-move-current-tab-to-right)
+        ("b" ivy-switch-buffer)
+        ("g" awesome-tab-counsel-switch-group)
+        ("C-k" kill-current-buffer)
+        ("C-S-k" awesome-tab-kill-other-buffers-in-current-group)
+        ("q" nil "quit")))
 
-(use-package aweshell
-  :ensure nil
-  :load-path "~/.emacs.d/vendor/aweshell")
-;aweshell-new
-;aweshell-next
-;aweshell-prev
-;aweshell-clear-buffer
-;aweshell-sudo-toggle
-;aweshell-switch-buffer
-;aweshell-dedicated-toggle
-;aweshell-dedicated-open
-;aweshell-dedicated-close
+  (use-package aweshell
+    :ensure nil
+    :load-path "~/.emacs.d/vendor/aweshell")
+  ;aweshell-new
+  ;aweshell-next
+  ;aweshell-prev
+  ;aweshell-clear-buffer
+  ;aweshell-sudo-toggle
+  ;aweshell-switch-buffer
+  ;aweshell-dedicated-toggle
+  ;aweshell-dedicated-open
+  ;aweshell-dedicated-close
 
-(require 'auto-save)
-(auto-save-enable)
-(setq auto-save-silent nil)
-(setq auto-save-delete-trailing-whitespace nil)
-(setq auto-save-disable-predicates
-      '((lambda ()
-      (string-suffix-p
-      "gpg"
-      (file-name-extension (buffer-name)) t))))
+  (require 'auto-save)
+  (auto-save-enable)
+  (setq auto-save-silent nil)
+  (setq auto-save-delete-trailing-whitespace nil)
+  (setq auto-save-disable-predicates
+        '((lambda ()
+        (string-suffix-p
+        "gpg"
+        (file-name-extension (buffer-name)) t))))
 
-(use-package posframe :ensure t)
-(use-package rime
-  :ensure t
-  :config
-  (setq rime-user-data-dir "~/Library/Rime/")
-  (setq rime-show-candidate 'posframe)
-  (setq rime-disable-predicates '(+rime-english-prober))
-  (setq rime-posframe-properties
-          (list :background-color "#333333"
-                :foreground-color "#dcdccc"
-   ;             :font "WenQuanYi Micro Hei Mono-14"
-                :internal-border-width 10))
-  :custom
-  (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-  (default-input-method "rime")
-)
+  (use-package posframe :ensure t)
+  (use-package rime
+    :ensure t
+    :config
+    (setq rime-user-data-dir "~/Library/Rime/")
+    (setq rime-show-candidate 'posframe)
+    (setq rime-disable-predicates '(+rime-english-prober))
+    (setq rime-posframe-properties
+            (list :background-color "#333333"
+                  :foreground-color "#dcdccc"
+     ;             :font "WenQuanYi Micro Hei Mono-14"
+                  :internal-border-width 10))
+    :custom
+    (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+    (default-input-method "rime")
+  )
 #+END_SRC
