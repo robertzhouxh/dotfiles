@@ -1,7 +1,7 @@
 * Introduce
 To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * basics
-Setting up the basics early, so if the config breaks further along, I'll still have evil also, setting some code block properties that help.
+etting up the basics early, so if the config breaks further along, I'll still have evil also, setting some code block properties that help.
 #+PROPERTY: header-args :results silent
 * global settings
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -923,132 +923,133 @@ they are appended."
 #+END_SRC
 * evil
 #+BEGIN_SRC emacs-lisp :tangle yes
-; C-y => paste the things to minibuffer, then use consel-rg
-(defun x/config-evil-leader ()
-  "Configure evil leader mode."
-  (evil-leader/set-leader ",")
-  (evil-leader/set-key
-    ","  'avy-goto-char-2
-    ":"  'eval-expression
+  ; C-y => paste the things to minibuffer, then use consel-rg
+  (defun x/config-evil-leader ()
+    "Configure evil leader mode."
+    (evil-leader/set-leader ",")
+    (evil-leader/set-key
+      ","  'avy-goto-char-2
+      ":"  'eval-expression
 
-    "/"  'counsel-rg
+      "/"  'counsel-rg
 
-    "a"  'align-regexp
+      "a"  'align-regexp
 
-    "bb" 'ivy-switch-buffer
-    "br" 'counsel-recentf
-    "B"  'magit-blame-toggle
+      "bb" 'ivy-switch-buffer
+      "br" 'counsel-recentf
+      "B"  'magit-blame-toggle
 
-    "c"  'comment-dwim
+      "c"  'comment-dwim
 
-    "db" 'kill-this-buffer
-    "D"  'kill-buffer-and-window
-    "do" 'delete-other-windows
-    "dt" 'delete-trailing-whitespace
-    "dv" 'counsel-describe-variable
-    "df" 'counsel-describe-function
+      "db" 'kill-this-buffer
+      "D"  'kill-buffer-and-window
+      "do" 'delete-other-windows
+      "dt" 'delete-trailing-whitespace
+      "dv" 'counsel-describe-variable
+      "df" 'counsel-describe-function
 
-    "es" 'ivy-erlang-complete-find-spec
-    "ef" 'ivy-erlang-complete-find-file
-    "eh" 'ivy-erlang-complete-show-doc-at-point
-    "ep" 'ivy-erlang-complete-set-project-root
-    "ea" 'ivy-erlang-complete-autosetup-project-root
-    "ek" 'get-erl-man
-    "es" 'eshell-here
-    "ec" 'eshell/clear
-    "ed" 'eshell/close
+      "es" 'ivy-erlang-complete-find-spec
+      "ef" 'ivy-erlang-complete-find-file
+      "eh" 'ivy-erlang-complete-show-doc-at-point
+      "ep" 'ivy-erlang-complete-set-project-root
+      "ea" 'ivy-erlang-complete-autosetup-project-root
+      "ek" 'get-erl-man
+      "es" 'eshell-here
+      "ec" 'eshell/clear
+      "ed" 'eshell/close
 
-    "ff" 'find-file-other-frame
-    "fp" 'format-function-parameters
-    "fd" 'dired-jump
-    "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-    "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-    "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
-    "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
+      "ff" 'find-file-other-frame
+      "fp" 'format-function-parameters
+      "fd" 'dired-jump
+      "fn" 'find-name-dired
+      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+      "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
+      "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
 
-    "g"  'magit-status
-    "G"  'magit-dispatch-popup
+      "g"  'magit-status
+      "G"  'magit-dispatch-popup
 
-    "of" 'other-frame
-    "ow" 'other-window
+      "of" 'other-frame
+      "ow" 'other-window
 
-    "p/" 'counsel-projectile-rg
-    "pf" 'counsel-projectile-find-file
-    "pp" 'counsel-projectile-switch-project
-    "pb" 'counsel-projectile-switch-to-buffer
+      "p/" 'counsel-projectile-rg
+      "pf" 'counsel-projectile-find-file
+      "pp" 'counsel-projectile-switch-project
+      "pb" 'counsel-projectile-switch-to-buffer
 
-    "rb" 'generate-scratch-buffer
-    "ri" 'x/open-init-file
-    "rv" 'rename-local-var
-    "R"  'x/reload-init-file
+      "rb" 'generate-scratch-buffer
+      "ri" 'x/open-init-file
+      "rv" 'rename-local-var
+      "R"  'x/reload-init-file
 
-    "sa" 'x/save-all
-    "su" 'sudo
+      "sa" 'x/save-all
+      "su" 'sudo
 
-    "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
-    "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+      "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
+      "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
-    "w" 'whitespace-mode
-    )
+      "w" 'whitespace-mode
+      )
 
-  (defun magit-blame-toggle ()
-    "Toggle magit-blame-mode on and off interactively."
-    (interactive)
-    (if (and (boundp 'magit-blame-mode) magit-blame-mode)
-        (magit-blame-quit)
-      (call-interactively 'magit-blame)))
-)
+    (defun magit-blame-toggle ()
+      "Toggle magit-blame-mode on and off interactively."
+      (interactive)
+      (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+          (magit-blame-quit)
+        (call-interactively 'magit-blame)))
+  )
 
-(use-package evil
-  :ensure t
-  :init
-  (progn
-    (evil-mode t)
-    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state))
-  :config
-  (progn
-    (use-package evil-visualstar
-        :bind (:map evil-visual-state-map
-        ("*" . evil-visualstar/begin-search-forward)
-        ("#" . evil-visualstar/begin-search-backward)))
-    (use-package evil-leader
-      :ensure t
-      :init
-      (progn
-        (global-evil-leader-mode)
-        (setq evil-leader/in-all-states 1)
-	(x/config-evil-leader)
-        ))
-    (use-package evil-surround
-      :ensure t
-      :config
-      (progn
-        (global-evil-surround-mode)))
-    (use-package evil-escape
-      :ensure t
-      :config
-      (progn
-        (evil-escape-mode)
-        (setq-default evil-escape-key-sequence "tn")))
-    (defvar evil-emacs-state-cursor)
-    (defvar evil-normal-state-cursor)
-    (defvar evil-visual-state-cursor)
-    (defvar evil-insert-state-cursor)
-    (defvar evil-replace-state-cursor)
-    (defvar evil-operator-state-cursor)
-    (defvar evil-normal-state-map)
-    (defvar evil-insert-state-map)
+  (use-package evil
+    :ensure t
+    :init
+    (progn
+      (evil-mode t)
+      (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state))
+    :config
+    (progn
+      (use-package evil-visualstar
+          :bind (:map evil-visual-state-map
+          ("*" . evil-visualstar/begin-search-forward)
+          ("#" . evil-visualstar/begin-search-backward)))
+      (use-package evil-leader
+        :ensure t
+        :init
+        (progn
+          (global-evil-leader-mode)
+          (setq evil-leader/in-all-states 1)
+          (x/config-evil-leader)
+          ))
+      (use-package evil-surround
+        :ensure t
+        :config
+        (progn
+          (global-evil-surround-mode)))
+      (use-package evil-escape
+        :ensure t
+        :config
+        (progn
+          (evil-escape-mode)
+          (setq-default evil-escape-key-sequence "tn")))
+      (defvar evil-emacs-state-cursor)
+      (defvar evil-normal-state-cursor)
+      (defvar evil-visual-state-cursor)
+      (defvar evil-insert-state-cursor)
+      (defvar evil-replace-state-cursor)
+      (defvar evil-operator-state-cursor)
+      (defvar evil-normal-state-map)
+      (defvar evil-insert-state-map)
 
-    (setq evil-emacs-state-cursor '("red" box))
-    (setq evil-normal-state-cursor '("green" box))
-    (setq evil-visual-state-cursor '("orange" box))
-    (setq evil-insert-state-cursor '("red" bar))
-    (setq evil-replace-state-cursor '("red" bar))
-    (setq evil-operator-state-cursor '("red" ))
-    (define-key evil-normal-state-map "p" 'evil-paste-after)
-    (define-key evil-normal-state-map "P" 'evil-paste-before)
-    (define-key evil-normal-state-map (kbd "C-s") 'save-buffer)
-    (define-key evil-normal-state-map (kbd "C-]") (kbd "\\ M-."))))
+      (setq evil-emacs-state-cursor '("red" box))
+      (setq evil-normal-state-cursor '("green" box))
+      (setq evil-visual-state-cursor '("orange" box))
+      (setq evil-insert-state-cursor '("red" bar))
+      (setq evil-replace-state-cursor '("red" bar))
+      (setq evil-operator-state-cursor '("red" ))
+      (define-key evil-normal-state-map "p" 'evil-paste-after)
+      (define-key evil-normal-state-map "P" 'evil-paste-before)
+      (define-key evil-normal-state-map (kbd "C-s") 'save-buffer)
+      (define-key evil-normal-state-map (kbd "C-]") (kbd "\\ M-."))))
 #+END_SRC
 * org
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1519,234 +1520,90 @@ they are appended."
 	      auto-insert-alist))
 #+END_SRC
 * dired config
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; ------------------------ from lazy cat ---------------------------
+  (require 'dired-x)
+  (require 'dired+)
 
-(defun lazy-load-global-keys (key-alist filename &optional key-prefix)
-  (lazy-load-set-keys key-alist nil key-prefix)
-  (dolist (element key-alist)
-    (setq fun (cdr element))
-    (autoload fun filename nil t)))
+  ;; Details toggling is bound to "(" in `dired-mode' by default
 
-(defun lazy-load-local-keys (key-alist keymap filename &optional key-prefix)
-  (lazy-load-set-keys key-alist keymap key-prefix)
-  (dolist (element key-alist)
-    (setq fun (cdr element))
-    (autoload fun filename nil t)))
+  (setq diredp-hide-details-initially-flag nil)
+  (setq diredp-hide-details-propagate-flag nil)
 
-(defun lazy-load-set-keys (key-alist &optional keymap key-prefix)
-  "This function is to little type when define key binding.
-`KEYMAP' is a add keymap for some binding, default is `current-global-map'.
-`KEY-ALIST' is a alist contain main-key and command.
-`KEY-PREFIX' is a add prefix for some binding, default is nil."
-  (let (key def)
-    (or keymap (setq keymap (current-global-map)))
-    (if key-prefix
-        (setq key-prefix (concat key-prefix " "))
-      (setq key-prefix ""))
-    (dolist (element key-alist)
-      (setq key (car element))
-      (setq def (cdr element))
-      (cond ((stringp key) (setq key (read-kbd-macro (concat key-prefix key))))
-            ((vectorp key) nil)
-            (t (signal 'wrong-type-argument (list 'array key))))
-      (define-key keymap key def))))
-
-(defun lazy-load-unset-keys (key-list &optional keymap)
-  "This function is to little type when unset key binding.
-`KEYMAP' is add keymap for some binding, default is `current-global-map'
-`KEY-LIST' is list contain key."
-  (let (key)
-    (or keymap (setq keymap (current-global-map)))
-    (dolist (key key-list)
-      (cond ((stringp key) (setq key (read-kbd-macro (concat key))))
-            ((vectorp key) nil)
-            (t (signal 'wrong-type-argument (list 'array key))))
-      (define-key keymap key nil))))
+  (setq dired-listing-switches "-aluh")
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq dired-dwim-target t)
+  (put 'dired-find-alternate-file 'disabled nil)
+  (with-eval-after-load 'dired
+    (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+    (define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file ".."))))  ; was dired-up-directory)
 
 
-;;; dired
-;;; Require
-(require 'dired)
-(require 'dired-x)
-(require 'dired-details)                ;Dired详细信息
-(require 'dired-details+)
+  (setq dired-omit-files-p t)
+  (setq dired-omit-verbose nil)
+  (setq dired-omit-files
+        (concat dired-omit-files
+                "\\|^.DS_Store$\\|^.vimrc\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.js\\.meta$\\|\\.meta$\\|\\.elc$\\|^.emacs.*"))
 
-;;; Code:
+  ;; only use one buffer
+  (diredp-toggle-find-file-reuse-dir 1)
 
-;(setq dired-recursive-copies t)         ;可以递归的进行拷贝
-;(setq dired-recursive-deletes t)        ;可以递归的删除目录
-;(setq dired-recursive-deletes 'always)  ;删除东西时不提示
-;(setq dired-recursive-copies 'always)   ;拷贝东西时不提示
-;(setq dired-listing-switches "-aluh")   ;传给 ls 的参数
-;(setq dired-details-hidden-string "")   ;设置隐藏dired里面详细信息的字符串
-;(setq directory-free-space-args "-Pkh") ;目录空间选项
-;(setq dired-omit-size-limit nil)        ;dired忽略的上限
-;(setq dired-dwim-target t)              ;Dired试着猜处默认的目标目录
-;(setq my-dired-omit-status t)           ;设置默认忽略文件
-;(setq my-dired-omit-regexp "^\\.?#\\|^\\..*") ;设置忽略文件的匹配正则表达式
-;(setq my-dired-omit-extensions '(".cache")) ;设置忽略文件的扩展名列表
-;(add-hook 'dired-after-readin-hook #'(lambda ()
-;                                       (progn
-;                                         (require 'dired-extension)
-;                                         (dired-sort-method)))) ;先显示目录, 然后显示文件
-;(add-hook
-; 'dired-mode-hook
-; #'(lambda ()
-;     (require 'dired-extension)
-;     (dired-omit-method)                ;隐藏文件的方法
-;     ))
-;(setq dired-guess-shell-alist-user      ;设置文件默认打开的模式
-;      '(
-;        ;; 压缩包
-;        (list "\\.rar$" "unrar e -ad")
-;        (list "\\.tar.bz2$" "tar jxvf")
-;        (list "\\.gz$" "gzip -d")
-;        ;; 其他
-;        (list "\\.exe$" "wine")))
+  (defun custom-dired-open-file-with-osx ()
+    "In Dired, try to open files by osx"
+    (interactive)
+    (shell-command (format "open \"%s\"" (dired-get-file-for-visit))))
 
-;;;; ### Dired ###
-;;;; --- 文件浏览器
-;(lazy-load-set-keys
-; '(
-;   ("h" . dired-next-subdir)            ;下一个子目录
-;   ("l" . dired-prev-subdir)            ;上一个子目录
-;   ("n" . dired-next-dirline)           ;下一个目录
-;   ("p" . dired-prev-dirline)           ;上一个目录
-;   ("P" . dired-do-kill-lines)          ;删除标记的行
-;   ("5" . dired-translate-to-html)      ;转换到HTML格式
-;   ("9" . auto-install-from-dired)      ;自动从EmacsWiki安装标记的文件
-;   ("I" . image-dired)                  ;打开浏览模式
-;   ("W" . dired-x-find-file)            ;查找文件
-;   ("J" . awesome-tab-backward-tab)
-;   ("K" . awesome-tab-forward-tab)
-;   ("X" . traverse-cp-or-mv-extfiles-in-dir) ;拷贝或移动目录下指定扩展名的文件
-;   ("V" . traverse-dired-browse-archive)     ;浏览压缩文件
-;   ("," . dired-diff)                        ;比较文件
-;   ("SPC" . scroll-up)                       ;向下翻页
-;   ("e" . scroll-down)                       ;向上翻页
-;   ("c" . kill-this-buffer)                  ;关闭当前标签
-;   ("/" . copy-buffer-file-name-as-kill)     ;显示路径或名称
-;   ("s" . one-key-menu-dired-sort)           ;排序
-;   ("F" . one-key-menu-dired-filter)         ;过滤
-;   ("w" . wdired-change-to-wdired-mode)      ;切换到dired编辑模式
-;   )
-; dired-mode-map
-; )
-;(lazy-load-local-keys
-; '(
-;   ("w" . wdired-change-to-wdired-mode))
-; dired-mode-map
-; "wdired")
-;(lazy-load-local-keys
-; '(
-;   ("C-s" . dired-isearch-forward)             ;向后搜索
-;   ("C-r" . dired-isearch-backward)            ;向前搜索
-;   ("ESC C-s" . dired-isearch-forward-regexp)  ;向前正则表达式搜索
-;   ("ESC C-r" . dired-isearch-backward-regexp) ;向后正则表达式搜索
-;   )
-; dired-mode-map
-; "dired-isearch")
-;(lazy-load-local-keys
-; '(
-;   ("/" . copy-buffer-file-name-as-kill))
-; dired-mode-map
-; "buffer-extension")
-;(lazy-load-local-keys
-; '(
-;   (";" . dired-view-minor-mode-toggle) ;字母输入导航模式
-;   )
-; dired-mode-map
-; "dired-view")
-;(lazy-load-local-keys
-; '(
-;   ("T" . dired-tar-pack-unpack)
-;   )
-; dired-mode-map
-; "dired-tar")
-;(lazy-load-local-keys
-; '(
-;   ("M-o" . dired-toggle-omit)          ;切换忽略状态
-;   ("?" . dired-get-size)               ;得到文件的大小
-;   ("[" . dired-rename-with-copy)       ;重命名函数
-;   ("'" . dired-up-directory-single)    ;返回上一级目录
-;   ("4" . dired-serial-rename)          ;批量重命名
-;   ("7" . dired-move-to-last-file)      ;移动到最后一个文件
-;   ("8" . dired-move-to-first-file)     ;移动到第一个文件
-;   ("k" . dired-previous-file-line)     ;上一行
-;   ("j" . dired-next-file-line)         ;下一行
-;   ("{" . dired-gnome-open-file)        ;用GNOME方式打开文件
-;   ("E" . dired-touch-now)              ;Touch命令
-;   ("f" . dired-find-file+)             ;打开当前文件或目录
-;   ("C-m" . dired-find-file+)           ;打开当前文件或目录
-;   )
-; dired-mode-map
-; "dired-extension")
-;(lazy-load-local-keys
-; '(
-;   ("\"" . grep-dired-dwim)             ;查找特定的lisp文件
-;   )
-; dired-mode-map
-; "grep-dired")
-;(lazy-load-local-keys
-; '(
-;   ("]" . dired-show-file-qrcode))
-; dired-mode-map
-; "eaf.el")
-;;;; ### Wdired ###
-;;;; --- Dired 的编辑模式
-;(eval-after-load 'wdired
-;  '(lambda ()
-;     (progn
-;       (require 'wdired-extension)
-;       (lazy-load-set-keys
-;        '(
-;          ("C-c C-e" . wdired-format-filename) ;格式化文件名
-;          )
-;        wdired-mode-map
-;        ))))
-;
-;(defvar one-key-menu-dired-sort-alist nil
-;  "The `one-key' menu alist for DIRED-SORT.")
-;
-;(setq one-key-menu-dired-sort-alist
-;      '(
-;        (("s" . "Size") . dired-sort-size)
-;        (("x" . "Extension") . dired-sort-extension)
-;        (("n" . "Name") . dired-sort-name)
-;        (("t" . "Modified Time") . dired-sort-time)
-;        (("u" . "Access Time") . dired-sort-utime)
-;        (("c" . "Create Time") . dired-sort-ctime)))
-;
-;(defun one-key-menu-dired-sort ()
-;  "The `one-key' menu for DIRED-SORT."
-;  (interactive)
-;  (require 'one-key)
-;  (require 'dired-sort)                 ;排序 dired 文件
-;  (one-key-menu "DIRED-SORT" one-key-menu-dired-sort-alist t))
-;
-;(defvar one-key-menu-dired-filter-alist nil
-;  "The `one-key' menu alist for DIRED-FILTER.")
-;
-;(setq one-key-menu-dired-filter-alist
-;      '(
-;        (("x" . "Extension") . dired-filter-by-extension)
-;        (("f" . "File") . dired-filter-by-file)
-;        (("d" . "Directory") . dired-filter-by-directory)
-;        (("e" . "Execute") . dired-filter-by-executable)
-;        (("." . "Dot files") . dired-filter-by-dot-files)
-;        (("r" . "Regex") . dired-filter-by-regexp)
-;        (("s" . "Symlink") . dired-filter-by-symlink)
-;        (("n" . "Name") . dired-filter-by-name)
-;        ))
-;
-;(defun one-key-menu-dired-filter ()
-;  "The `one-key' menu for DIRED-FILTER."
-;  (interactive)
-;  (require 'dired-filter)
-;  (one-key-menu "DIRED-FILTER" one-key-menu-dired-filter-alist t))
+  (defun custom-dired-temp-hide-files ()
+    "Hide/show marked files temporary."
+    (interactive)
+    (if dired-omit-files-p
+        (setq dired-omit-files-p nil)
+      (progn
+        (make-local-variable 'dired-omit-files)
+        (dolist (item (dired-get-marked-files))
+          (setq dired-omit-files
+                (concat dired-omit-files (format "\\|%s" (file-name-nondirectory item)))))
+        (setq dired-omit-files-p t)))
+    (dired-unmark-all-marks)
+    (revert-buffer))
 
+
+  (defun custom-dired-sort-dir-first ()
+    "Dired sort hook to list directories first."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2) ;; beyond dir. header
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
+    (and (featurep 'xemacs)
+         (fboundp 'dired-insert-set-properties)
+         (dired-insert-set-properties (point-min) (point-max)))
+    (set-buffer-modified-p nil))
+
+  (add-hook 'dired-after-readin-hook 'custom-dired-sort-dir-first)
+
+
+  (setq custom-dired-sort-seq-list `((,(concat dired-listing-switches "h") . "Name")
+                                     (,(concat dired-listing-switches "cth") . "Create Time")
+                                     (,(concat dired-listing-switches "uth") . "Modify Time")
+                                     (,(concat dired-listing-switches "Xh") . "Extension")
+                                     (,(concat dired-listing-switches "Sh") . "Size")))
+
+  (defun custom-dired-sort-next ()
+    "In dired mode, sort"
+    (interactive)
+    (let ((nextpos (1+ (or (cl-position
+                            (assoc dired-actual-switches custom-dired-sort-seq-list)
+                            custom-dired-sort-seq-list :test 'equal) 0))))
+      (when (= (length custom-dired-sort-seq-list) nextpos)
+        (setq nextpos 0))
+      (dired-sort-other (car (car (nthcdr nextpos custom-dired-sort-seq-list))))
+      (message "SORTBY - \"%s\"" (cdr (car (nthcdr nextpos custom-dired-sort-seq-list))))))
+
+  (evil-define-key '(normal motion)
+    dired-mode-map (kbd "e") 'wdired-change-to-wdired-mode
+    (kbd "H") 'custom-dired-temp-hide-files
+    (kbd "O") 'custom-dired-open-file-with-osx
+    (kbd "s") 'custom-dired-sort-next)
 
 
 #+END_SRC
