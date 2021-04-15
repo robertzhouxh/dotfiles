@@ -12,9 +12,16 @@
 # brew uninstall emacs-head
 
 # brew tap d12frosted/emacs-plus
-# brew install emacs-plus@28 --with-modern-sexy-v1-icon
+# brew install emacs-plus@28 --with-modern-sexy-v1-icon --with-cocoa
 # brew uninstall emacs-plus
 
 # GCC-Emacs ---> https://github.com/jimeh/build-emacs-for-macos
 
+ln -s /usr/local/opt/emacs-plus@27/Emacs.app /Applications
 
+#wget https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/dired.el
+
+wget https://www.emacswiki.org/emacs/download/dired+.el
+wget https://www.emacswiki.org/emacs/download/dired-details.el
+wget https://www.emacswiki.org/emacs/download/dired-details+.el
+wget https://www.emacswiki.org/emacs/dired-extension.el

@@ -29,7 +29,7 @@ Setting up the basics early, so if the config breaks further along, I'll still h
 			 ("org"   . "http://elpa.emacs-china.org/org/")
 			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")))
 (package-initialize)
-(setq use-package-always-ensure nil)
+;(setq use-package-always-ensure nil)
 
 ;; Automatic package installation
 (mapc
@@ -537,13 +537,6 @@ they are appended."
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx)
 
-  ;; Better for dired
-  (if (executable-find "gls")
-    (progn
-      (setq insert-directory-program "gls")
-      (setq dired-listing-switches "-lFaGh1v --group-directories-first"))
-    (setq dired-listing-switches "-ahlF"))
-
   ;; Trash for safe
   (defun move-file-to-trash (file)
     "Use `trash' to move FILE to the system trash.
@@ -870,9 +863,6 @@ they are appended."
     (key-chord-define-global "kb" 'gh/kill-current-buffer)
     (key-chord-mode 1)))
 
-;; Enable dired-x && Use human-readable sizes
-(require 'dired-x)
-(setq dired-listing-switches "-alh")
 
 ;; Font set
 
@@ -1528,84 +1518,236 @@ they are appended."
 		 ))
 	      auto-insert-alist))
 #+END_SRC
-* dired
+* dired config
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-(require 'dired-isearch)
-(require 'wdired)
+;; ------------------------ from lazy cat ---------------------------
+
+(defun lazy-load-global-keys (key-alist filename &optional key-prefix)
+  (lazy-load-set-keys key-alist nil key-prefix)
+  (dolist (element key-alist)
+    (setq fun (cdr element))
+    (autoload fun filename nil t)))
+
+(defun lazy-load-local-keys (key-alist keymap filename &optional key-prefix)
+  (lazy-load-set-keys key-alist keymap key-prefix)
+  (dolist (element key-alist)
+    (setq fun (cdr element))
+    (autoload fun filename nil t)))
+
+(defun lazy-load-set-keys (key-alist &optional keymap key-prefix)
+  "This function is to little type when define key binding.
+`KEYMAP' is a add keymap for some binding, default is `current-global-map'.
+`KEY-ALIST' is a alist contain main-key and command.
+`KEY-PREFIX' is a add prefix for some binding, default is nil."
+  (let (key def)
+    (or keymap (setq keymap (current-global-map)))
+    (if key-prefix
+        (setq key-prefix (concat key-prefix " "))
+      (setq key-prefix ""))
+    (dolist (element key-alist)
+      (setq key (car element))
+      (setq def (cdr element))
+      (cond ((stringp key) (setq key (read-kbd-macro (concat key-prefix key))))
+            ((vectorp key) nil)
+            (t (signal 'wrong-type-argument (list 'array key))))
+      (define-key keymap key def))))
+
+(defun lazy-load-unset-keys (key-list &optional keymap)
+  "This function is to little type when unset key binding.
+`KEYMAP' is add keymap for some binding, default is `current-global-map'
+`KEY-LIST' is list contain key."
+  (let (key)
+    (or keymap (setq keymap (current-global-map)))
+    (dolist (key key-list)
+      (cond ((stringp key) (setq key (read-kbd-macro (concat key))))
+            ((vectorp key) nil)
+            (t (signal 'wrong-type-argument (list 'array key))))
+      (define-key keymap key nil))))
+
+
+;;; dired
+;;; Require
 (require 'dired)
-(require 'dired+)                       ;增强dired
-(require 'dired-details)                ;Dired详细信息
-(require 'dired-details+)               ;Dired详细消息切换
 (require 'dired-x)
+(require 'dired-details)                ;Dired详细信息
+(require 'dired-details+)
 
-(setq dired-recursive-copies t)               ;可以递归的进行拷贝
-(setq dired-recursive-deletes t)              ;可以递归的删除目录
-(setq dired-recursive-deletes 'always)        ;删除东西时不提示
-(setq dired-recursive-copies 'always)         ;拷贝东西时不提示
-;; (toggle-dired-find-file-reuse-dir 1)          ;使用单一模式浏览Dired
-(setq dired-details-hidden-string "[ ... ] ") ;设置隐藏dired里面详细信息的字符串
-(setq dired-listing-switches "-aluh")         ;传给 ls 的参数，这里就可以设置显示大小的方式
-(setq directory-free-space-args "-Pkh")       ;目录空间选项
-(setq dired-omit-size-limit nil)              ;dired忽略的上限
-(setq dired-dwim-target t)                    ;Dired试着猜处默认的目标目录
-(setq my-dired-omit-status t)                 ;设置默认忽略文件
-(setq my-dired-omit-regexp "^\\.?#\\|^\\..*") ;设置忽略文件的匹配正则表达式
-(setq my-dired-omit-extensions '(".cache" ".o" ".elc"))   ;设置忽略文件的扩展名列表
-(add-hook 'dired-after-readin-hook '(lambda ()
-                                      (progn
-                                        (require 'dired-extension)
-                                        (dired-sort-method)))) ;先显示目录, 然后显示文件
-(add-hook 'dired-mode-hook '(lambda ()
-                              (progn
-                                (require 'dired-extension)
-                                (dired-omit-method)))) ;隐藏文件的方法
-                                
-(setq dired-guess-shell-alist-user                     ;设置文件默认打开的模式
-      (list
-        ;; 图书
-        (list "\\.chm$" '(concat
-                          "firefox chm:"            ;执行特定的命令
-                          (replace-regexp-in-string ;替换空格为%20
-                           " " "%20" (w3m-expand-file-name-as-url (dired-get-filename))) ;用URL的模式解析文件名
-                          " -q"))
-        ;; (list "\\.pdf$" "wine /data/Backup/WindowsTools/FoxitReader/FoxitReader.exe")
-        (list "\\.pdf$" "evince")
-        (list "\\.pdg$" "wine /data/Backup/WindowsTools/MiniPDG/pdgreader.exe")
-        ;; 多媒体
-        ;; (list (format "\\(%s\\)$" (emms-player-get emms-player-mplayer 'regex)) "mplayer")
-        (list "\\.\\(jpe?g\\|png\\)$" "gthumb" )
-        ;; 网页
-        (list "\\.html?$" "firefox")
-        ;; 压缩包
-        (list "\\.rar$" "unrar e -ad")
-        (list "\\.tar.bz2$" "tar jxvf")
-        (list "\\.gz$" "gzip -d")
-        (list "\\.mkv$" "smplayer")
-        (list "\\.rmvb$" "smplayer")
-        (list "\\.mp4$" "smplayer")
-        (list "\\.avi$" "smplayer")
-        (list "\\.doc$" "wps")
-        ;; 其他
-        (list "\\.exe$" "wine")))
-        
-(defvar one-key-menu-dired-sort-alist nil
-  "The `one-key' menu alist for DIRED-SORT.")
+;;; Code:
 
-(setq one-key-menu-dired-sort-alist
-      '(
-        (("s" . "Size") . dired-sort-size)
-        (("x" . "Extension") . dired-sort-extension)
-        (("n" . "Name") . dired-sort-name)
-        (("t" . "Modified Time") . dired-sort-time)
-        (("u" . "Access Time") . dired-sort-utime)
-        (("c" . "Create Time") . dired-sort-ctime)))
+;(setq dired-recursive-copies t)         ;可以递归的进行拷贝
+;(setq dired-recursive-deletes t)        ;可以递归的删除目录
+;(setq dired-recursive-deletes 'always)  ;删除东西时不提示
+;(setq dired-recursive-copies 'always)   ;拷贝东西时不提示
+;(setq dired-listing-switches "-aluh")   ;传给 ls 的参数
+;(setq dired-details-hidden-string "")   ;设置隐藏dired里面详细信息的字符串
+;(setq directory-free-space-args "-Pkh") ;目录空间选项
+;(setq dired-omit-size-limit nil)        ;dired忽略的上限
+;(setq dired-dwim-target t)              ;Dired试着猜处默认的目标目录
+;(setq my-dired-omit-status t)           ;设置默认忽略文件
+;(setq my-dired-omit-regexp "^\\.?#\\|^\\..*") ;设置忽略文件的匹配正则表达式
+;(setq my-dired-omit-extensions '(".cache")) ;设置忽略文件的扩展名列表
+;(add-hook 'dired-after-readin-hook #'(lambda ()
+;                                       (progn
+;                                         (require 'dired-extension)
+;                                         (dired-sort-method)))) ;先显示目录, 然后显示文件
+;(add-hook
+; 'dired-mode-hook
+; #'(lambda ()
+;     (require 'dired-extension)
+;     (dired-omit-method)                ;隐藏文件的方法
+;     ))
+;(setq dired-guess-shell-alist-user      ;设置文件默认打开的模式
+;      '(
+;        ;; 压缩包
+;        (list "\\.rar$" "unrar e -ad")
+;        (list "\\.tar.bz2$" "tar jxvf")
+;        (list "\\.gz$" "gzip -d")
+;        ;; 其他
+;        (list "\\.exe$" "wine")))
 
-(defun one-key-menu-dired-sort ()
-  "The `one-key' menu for DIRED-SORT."
-  (interactive)
-  (require 'one-key)
-  (require 'dired-sort)                 ;排序 dired 文件
-  (one-key-menu "DIRED-SORT" one-key-menu-dired-sort-alist t))
+;;;; ### Dired ###
+;;;; --- 文件浏览器
+;(lazy-load-set-keys
+; '(
+;   ("h" . dired-next-subdir)            ;下一个子目录
+;   ("l" . dired-prev-subdir)            ;上一个子目录
+;   ("n" . dired-next-dirline)           ;下一个目录
+;   ("p" . dired-prev-dirline)           ;上一个目录
+;   ("P" . dired-do-kill-lines)          ;删除标记的行
+;   ("5" . dired-translate-to-html)      ;转换到HTML格式
+;   ("9" . auto-install-from-dired)      ;自动从EmacsWiki安装标记的文件
+;   ("I" . image-dired)                  ;打开浏览模式
+;   ("W" . dired-x-find-file)            ;查找文件
+;   ("J" . awesome-tab-backward-tab)
+;   ("K" . awesome-tab-forward-tab)
+;   ("X" . traverse-cp-or-mv-extfiles-in-dir) ;拷贝或移动目录下指定扩展名的文件
+;   ("V" . traverse-dired-browse-archive)     ;浏览压缩文件
+;   ("," . dired-diff)                        ;比较文件
+;   ("SPC" . scroll-up)                       ;向下翻页
+;   ("e" . scroll-down)                       ;向上翻页
+;   ("c" . kill-this-buffer)                  ;关闭当前标签
+;   ("/" . copy-buffer-file-name-as-kill)     ;显示路径或名称
+;   ("s" . one-key-menu-dired-sort)           ;排序
+;   ("F" . one-key-menu-dired-filter)         ;过滤
+;   ("w" . wdired-change-to-wdired-mode)      ;切换到dired编辑模式
+;   )
+; dired-mode-map
+; )
+;(lazy-load-local-keys
+; '(
+;   ("w" . wdired-change-to-wdired-mode))
+; dired-mode-map
+; "wdired")
+;(lazy-load-local-keys
+; '(
+;   ("C-s" . dired-isearch-forward)             ;向后搜索
+;   ("C-r" . dired-isearch-backward)            ;向前搜索
+;   ("ESC C-s" . dired-isearch-forward-regexp)  ;向前正则表达式搜索
+;   ("ESC C-r" . dired-isearch-backward-regexp) ;向后正则表达式搜索
+;   )
+; dired-mode-map
+; "dired-isearch")
+;(lazy-load-local-keys
+; '(
+;   ("/" . copy-buffer-file-name-as-kill))
+; dired-mode-map
+; "buffer-extension")
+;(lazy-load-local-keys
+; '(
+;   (";" . dired-view-minor-mode-toggle) ;字母输入导航模式
+;   )
+; dired-mode-map
+; "dired-view")
+;(lazy-load-local-keys
+; '(
+;   ("T" . dired-tar-pack-unpack)
+;   )
+; dired-mode-map
+; "dired-tar")
+;(lazy-load-local-keys
+; '(
+;   ("M-o" . dired-toggle-omit)          ;切换忽略状态
+;   ("?" . dired-get-size)               ;得到文件的大小
+;   ("[" . dired-rename-with-copy)       ;重命名函数
+;   ("'" . dired-up-directory-single)    ;返回上一级目录
+;   ("4" . dired-serial-rename)          ;批量重命名
+;   ("7" . dired-move-to-last-file)      ;移动到最后一个文件
+;   ("8" . dired-move-to-first-file)     ;移动到第一个文件
+;   ("k" . dired-previous-file-line)     ;上一行
+;   ("j" . dired-next-file-line)         ;下一行
+;   ("{" . dired-gnome-open-file)        ;用GNOME方式打开文件
+;   ("E" . dired-touch-now)              ;Touch命令
+;   ("f" . dired-find-file+)             ;打开当前文件或目录
+;   ("C-m" . dired-find-file+)           ;打开当前文件或目录
+;   )
+; dired-mode-map
+; "dired-extension")
+;(lazy-load-local-keys
+; '(
+;   ("\"" . grep-dired-dwim)             ;查找特定的lisp文件
+;   )
+; dired-mode-map
+; "grep-dired")
+;(lazy-load-local-keys
+; '(
+;   ("]" . dired-show-file-qrcode))
+; dired-mode-map
+; "eaf.el")
+;;;; ### Wdired ###
+;;;; --- Dired 的编辑模式
+;(eval-after-load 'wdired
+;  '(lambda ()
+;     (progn
+;       (require 'wdired-extension)
+;       (lazy-load-set-keys
+;        '(
+;          ("C-c C-e" . wdired-format-filename) ;格式化文件名
+;          )
+;        wdired-mode-map
+;        ))))
+;
+;(defvar one-key-menu-dired-sort-alist nil
+;  "The `one-key' menu alist for DIRED-SORT.")
+;
+;(setq one-key-menu-dired-sort-alist
+;      '(
+;        (("s" . "Size") . dired-sort-size)
+;        (("x" . "Extension") . dired-sort-extension)
+;        (("n" . "Name") . dired-sort-name)
+;        (("t" . "Modified Time") . dired-sort-time)
+;        (("u" . "Access Time") . dired-sort-utime)
+;        (("c" . "Create Time") . dired-sort-ctime)))
+;
+;(defun one-key-menu-dired-sort ()
+;  "The `one-key' menu for DIRED-SORT."
+;  (interactive)
+;  (require 'one-key)
+;  (require 'dired-sort)                 ;排序 dired 文件
+;  (one-key-menu "DIRED-SORT" one-key-menu-dired-sort-alist t))
+;
+;(defvar one-key-menu-dired-filter-alist nil
+;  "The `one-key' menu alist for DIRED-FILTER.")
+;
+;(setq one-key-menu-dired-filter-alist
+;      '(
+;        (("x" . "Extension") . dired-filter-by-extension)
+;        (("f" . "File") . dired-filter-by-file)
+;        (("d" . "Directory") . dired-filter-by-directory)
+;        (("e" . "Execute") . dired-filter-by-executable)
+;        (("." . "Dot files") . dired-filter-by-dot-files)
+;        (("r" . "Regex") . dired-filter-by-regexp)
+;        (("s" . "Symlink") . dired-filter-by-symlink)
+;        (("n" . "Name") . dired-filter-by-name)
+;        ))
+;
+;(defun one-key-menu-dired-filter ()
+;  "The `one-key' menu for DIRED-FILTER."
+;  (interactive)
+;  (require 'dired-filter)
+;  (one-key-menu "DIRED-FILTER" one-key-menu-dired-filter-alist t))
+
+
 
 #+END_SRC
 * maps
