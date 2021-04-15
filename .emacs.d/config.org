@@ -1524,6 +1524,10 @@ they are appended."
   (require 'dired-x)
   (require 'dired+)
 
+  (use-package dired-subtree
+    :defer t
+    :bind (:map dired-mode-map
+                ("TAB" . dired-subtree-cycle)))
   ;; Details toggling is bound to "(" in `dired-mode' by default
 
   (setq diredp-hide-details-initially-flag nil)
@@ -1604,6 +1608,9 @@ they are appended."
     (kbd "H") 'custom-dired-temp-hide-files
     (kbd "O") 'custom-dired-open-file-with-osx
     (kbd "s") 'custom-dired-sort-next)
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (highlight-lines-matching-regexp "\.org$" 'hi-yellow)))
 
 
 #+END_SRC
