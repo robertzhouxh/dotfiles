@@ -19,3 +19,6 @@
 [submodule ".emacs.d/vendor/awesome-tray"]
 	path = .emacs.d/vendor/awesome-tray
 	url = https://github.com/manateelazycat/awesome-tray
+[submodule ".emacs.d/vendor/lazycat-theme"]
+	path = .emacs.d/vendor/lazycat-theme
+	url = https://github.com/manateelazycat/lazycat-theme
