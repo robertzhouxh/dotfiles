@@ -1,9 +1,9 @@
 * Introduce
 To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
-* basics
-etting up the basics early, so if the config breaks further along, I'll still have evil also, setting some code block properties that help.
+* Header
+header args
 #+PROPERTY: header-args :results silent
-* global settings
+* Bootstrap
 #+BEGIN_SRC emacs-lisp :tangle yes
 
 (defun add-subdirs-to-load-path (dir)
@@ -71,7 +71,7 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 (safe-diminish "yasnippet" 'yas-minor-mode)
 
 #+END_SRC
-* bootstrap
+* Essential
 #+BEGIN_SRC emacs-lisp :tangle yes
 
 ;; setup coding system and window property
@@ -186,7 +186,7 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 (use-package popup    )
 
 #+END_SRC
-* utils
+* Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
 
     (defun x/save-all ()
@@ -358,566 +358,442 @@ etting up the basics early, so if the config breaks further along, I'll still ha
              (message "File path copied: 「%s」" $fpath)
              $fpath )))))
 
-
-    ;;-------------------------- Esehll -----------------------------
-    (use-package eshell
-      :init
-      (setq eshell-scroll-to-bottom-on-input 'all
-            eshell-error-if-no-glob t
-            eshell-hist-ignoredups t
-            eshell-save-history-on-exit t
-            eshell-prefer-lisp-functions nil
-            eshell-destroy-buffer-when-process-dies t))
-
-    ;; Fancy prompt
-    (setq eshell-prompt-function
-          (lambda ()
-            (concat
-             (propertize "┌─[" 'face `(:foreground "green"))
-             (propertize (user-login-name) 'face `(:foreground "red"))
-             (propertize "@" 'face `(:foreground "green"))
-             (propertize (system-name) 'face `(:foreground "lightblue"))
-             (propertize "]──[" 'face `(:foreground "green"))
-             (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-             (propertize "]──[" 'face `(:foreground "green"))
-             (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-             (propertize "]\n" 'face `(:foreground "green"))
-             (propertize "└─>" 'face `(:foreground "green"))
-             (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
-             )))
-
-    ;; Define visual commands and subcommands
-    (setq eshell-visual-commands '("htop" "vi" "screen" "top" "less"
-                                   "more" "lynx" "ncftp" "pine" "tin" "trn" "elm"
-                                   "vim"))
-
-    (setq eshell-visual-subcommands '("git" "log" "diff" "show" "ssh"))
-
-    ;; Pager setup
-    (setenv "PAGER" "cat")
-
-    (defalias 'ff 'find-file)
-    (defalias 'd 'dired)
-
-    (defun eshell/clear ()
-      (let ((inhibit-read-only t))
-        (erase-buffer)))
-
-    ;; Git
-    (defun eshell/gst (&rest args)
-        (magit-status (pop args) nil)
-        (eshell/echo))   ;; The echo command suppresses output
-
-    ;; Bargs and Sargs
-    (defun eshell/-buffer-as-args (buffer separator command)
-      "Takes the contents of BUFFER, and splits it on SEPARATOR, and
-    runs the COMMAND with the contents as arguments. Use an argument
-    `%' to substitute the contents at a particular point, otherwise,
-    they are appended."
-      (let* ((lines (with-current-buffer buffer
-                      (split-string
-                       (buffer-substring-no-properties (point-min) (point-max))
-                       separator)))
-             (subcmd (if (-contains? command "%")
-                         (-flatten (-replace "%" lines command))
-                       (-concat command lines)))
-             (cmd-str  (string-join subcmd " ")))
-        (message cmd-str)
-        (eshell-command-result cmd-str)))
-
-    (defun eshell/bargs (buffer &rest command)
-      "Passes the lines from BUFFER as arguments to COMMAND."
-      (eshell/-buffer-as-args buffer "\n" command))
-
-    (defun eshell/sargs (buffer &rest command)
-      "Passes the words from BUFFER as arguments to COMMAND."
-      (eshell/-buffer-as-args buffer nil command))
-
-    (defun eshell/close ()
-      (delete-window))
-
-    ;(add-hook 'eshell-mode-hook
-    ;          (lambda ()
-    ;            (define-key eshell-mode-map (kbd "C-M-a") 'eshell-previous-prompt)
-    ;            (define-key eshell-mode-map (kbd "C-M-e") 'eshell-next-prompt)))
-
-    (defun eshell-pop--kill-and-delete-window ()
-      (unless (one-window-p)
-        (delete-window)))
-
-    (add-hook 'eshell-exit-hook 'eshell-pop--kill-and-delete-window)
-
-
-
-    ;;------------------------------------------------------------
-    ;;; +rime-probe-english.el -*- lexical-binding: t; -*-
-
-    ;;
-    ;; Some functions copied from `pyim', thanks for tumashu@github.com .
-    ;;
-    (defun +rime--char-before-to-string (num)
-      "得到光标前第 `num' 个字符，并将其转换为字符串。"
-      (let* ((point (point))
-             (point-before (- point num)))
-        (when (and (> point-before 0)
-                   (char-before point-before))
-          (char-to-string (char-before point-before)))))
-
-    (defun +rime--string-match-p (regexp string &optional start)
-      "与 `string-match-p' 类似，如果 REGEXP 和 STRING 是非字符串时，
-    不会报错。"
-      (and (stringp regexp)
-           (stringp string)
-           (string-match-p regexp string start)))
-
-    (defun +rime--probe-auto-english ()
-      "激活这个探针函数后，使用下面的规则自动切换中英文输入：
-
-    1. 当前字符为英文字符（不包括空格）时，输入下一个字符为英文字符
-    2. 当前字符为中文字符或输入字符为行首字符时，输入的字符为中文字符
-    3. 以单个空格为界，自动切换中文和英文字符
-       即，形如 `我使用 emacs 编辑此函数' 的句子全程自动切换中英输入法
-    "
-      (let ((str-before-1 (+rime--char-before-to-string 0))
-            (str-before-2 (+rime--char-before-to-string 1)))
-        (unless (string= (buffer-name) " *temp*")
-          (if (> (point) (save-excursion (back-to-indentation)
-                                         (point)))
-              (or (if (+rime--string-match-p " " str-before-1)
-                      (+rime--string-match-p "\\cc" str-before-2)
-                    (not (+rime--string-match-p "\\cc" str-before-1))))))))
-
-    (defun +rime--beancount-p ()
-      "当前为`beancount-mode'，且光标在注释或字符串当中。"
-      (when (derived-mode-p 'beancount-mode)
-        (not (or (nth 3 (syntax-ppss))
-                 (nth 4 (syntax-ppss))))))
-
-    (defun +rime--evil-mode-p ()
-      "检测当前是否在 `evil' 模式下。"
-      (or (evil-normal-state-p)
-          (evil-visual-state-p)
-          (evil-motion-state-p)
-          (evil-operator-state-p)))
-
-    (defun +rime-english-prober()
-      "自定义英文输入探针函数，用于在不同mode下使用不同的探针列表"
-      (let ((use-en (or (button-at (point))
-                        (+rime--evil-mode-p))))
-        (if (derived-mode-p 'telega-chat-mode)
-            (setq use-en (or use-en
-                             (+rime--probe-auto-english)))
-          (when (derived-mode-p 'text-mode)
-            (setq use-en (or use-en
-                             (+rime--probe-auto-english))))
-          (when (derived-mode-p 'prog-mode 'conf-mode)
-            (setq use-en (or use-en
-                             (rime--after-alphabet-char-p))))
-          (setq use-en (or use-en
-                           (rime--prog-in-code-p)
-                           (+rime--beancount-p))))
-        use-en))
-
-#+END_SRC
-* plantform
-#+BEGIN_SRC emacs-lisp :tangle yes
-(when (x/system-is-mac)
-  (setq mac-command-modifier 'meta
-        mac-option-modifier 'none)
-
-  ;(set-face-attribute 'default nil :height 140)
-
-  (defun copy-from-osx ()
-    (shell-command-to-string "pbpaste"))
-  (defun paste-to-osx (text &optional push)
-    (let ((process-connection-type nil))
-      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-        (process-send-string proc text)
-        (process-send-eof proc))))
-  (setq interprogram-cut-function 'paste-to-osx)
-  (setq interprogram-paste-function 'copy-from-osx)
-
-  ;; Trash for safe
-  (defun move-file-to-trash (file)
-    "Use `trash' to move FILE to the system trash.
-    When using Homebrew, install it using \"brew install trash\"."
-    (call-process (executable-find "trash")
-                  nil 0 nil
-                  file))
-    (setq trash-directory "~/.Trash/emacs")
-    (setq delete-by-moving-to-trash t)
-    (defun system-move-file-to-trash (file)
-      "Use \"trash\" to move FILE to the system trash.
-      When using Homebrew, install it using \"brew install trash\"."
-      (call-process (executable-find "trash")
-                    nil 0 nil
-                    file))
-      (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
-
-(when (x/system-is-linux)
-  (defun yank-to-x-clipboard ()
+  (defun proxy-socks-show ()
+    "Show SOCKS proxy."
     (interactive)
-    (if (region-active-p)
-      (progn
-        (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-        (message "Yanked region to clipboard!")
-        (deactivate-mark))
-      (message "No region active; can't yank to clipboard!"))))
+    (when (fboundp 'cadddr)
+      (if (bound-and-true-p socks-noproxy)
+          (message "Current SOCKS%d proxy is %s:%d"
+                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+        (message "No SOCKS proxy"))))
+
+  (defun proxy-socks-enable ()
+    "Enable SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (setq url-gateway-method 'socks
+          socks-noproxy '("localhost")
+          socks-server '("Default server" "127.0.0.1" 1080 5))
+    (setenv "all_proxy" "socks5://127.0.0.1:1080")
+    (proxy-socks-show))
+
+  (defun proxy-socks-disable ()
+    "Disable SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (setq url-gateway-method 'native
+          socks-noproxy nil)
+    (setenv "all_proxy" "")
+    (proxy-socks-show))
+
+  (defun proxy-socks-toggle ()
+    "Toggle SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (if (bound-and-true-p socks-noproxy)
+        (proxy-socks-disable)
+      (proxy-socks-enable)))
+
+  ;(proxy-socks-enable)
 
 #+END_SRC
-* basic plugins
+* Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package exec-path-from-shell
-  :if (x/system-is-mac)
-  :config
-  (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-env "PATH")
-  (exec-path-from-shell-copy-env "GOROOT")
-  (exec-path-from-shell-copy-env "GOPATH")
-  )
-(use-package json-reformat)
-(use-package comment-dwim-2)
-(use-package buffer-flip)
-(use-package markdown-mode)
-(use-package dockerfile-mode)
-(use-package json-mode)
-(use-package protobuf-mode)
-(use-package hydra)
-(use-package nginx-mode :ensure t)
-(use-package async :ensure t :init (async-bytecomp-package-mode 1))
+  (use-package exec-path-from-shell
+    :if (x/system-is-mac)
+    :config
+    (exec-path-from-shell-initialize)
+    (exec-path-from-shell-copy-env "PATH")
+    (exec-path-from-shell-copy-env "GOROOT")
+    (exec-path-from-shell-copy-env "GOPATH")
+    )
+  (use-package json-reformat)
+  (use-package comment-dwim-2)
+  (use-package buffer-flip)
+  (use-package markdown-mode)
+  (use-package dockerfile-mode)
+  (use-package json-mode)
+  (use-package protobuf-mode)
+  (use-package hydra)
+  (use-package nginx-mode :ensure t)
+  (use-package async :ensure t :init (async-bytecomp-package-mode 1))
 
-(use-package projectile
-  :diminish
-  :config (projectile-global-mode))
+  (use-package projectile
+    :diminish
+    :config (projectile-global-mode))
 
-(use-package flycheck
-  :diminish
-  :config (global-flycheck-mode 1))
+  (use-package flycheck
+    :diminish
+    :config (global-flycheck-mode 1))
 
-(use-package avy
-  :bind
-  (("C-c SPC" . avy-goto-char-2)
-  ("M-g f" . avy-goto-line)
-  ("M-g w" . avy-goto-word-1)))
+  (use-package avy
+    :bind
+    (("C-c SPC" . avy-goto-char-2)
+    ("M-g f" . avy-goto-line)
+    ("M-g w" . avy-goto-word-1)))
 
-(use-package which-key
-  :diminish which-key-mode
-  :hook (after-init . which-key-mode)
-  :config
-  (progn
-    (which-key-mode)
-    (which-key-setup-side-window-right)))
-
-(use-package volatile-highlights
-  :ensure t
-  :diminish
-  :hook
-  (after-init . volatile-highlights-mode)
-  :custom-face
-  (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
-
-(use-package undo-tree
-  :ensure t
-  :diminish
-  :config
-  (progn
-    (global-undo-tree-mode)
-    (setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)
-    ))
-
-(use-package multiple-cursors
-  :bind
-  (("C-c n" . mc/mark-next-like-this)
-   ("C-c p" . mc/mark-previous-like-this)))
-
-(use-package paredit
-  :diminish paredit-mode
-  :init
-  (add-hook 'erlang-mode-hook 'paredit-mode)
-  (add-hook 'go-mode-hook 'paredit-mode)
-  (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
-
-(use-package yasnippet
-  :diminish yas-minor-mode
-  :init
-  (yas-global-mode)
-  :config
-  (progn
-    (add-to-list 'yas-snippet-dirs (concat user-emacs-directory "snippets"))))
-
-(use-package company
-  :diminish 'company-mode
-  :init
-  (global-company-mode)
-  :config
-  (setq company-idle-delay 0.2)
-  (setq company-selection-wrap-around t)
-  (define-key company-active-map [tab] 'company-complete)
-  (define-key company-active-map (kbd "C-n") 'company-select-next)
-  (define-key company-active-map (kbd "C-p") 'company-select-previous))
-
-(use-package ag
-  :defer t
-  :config
-  (progn
-    (setq ag-highlight-search t)
-    (bind-key "n" 'compilation-next-error ag-mode-map)
-    (bind-key "p" 'compilation-previous-error ag-mode-map)
-    (bind-key "N" 'compilation-next-file ag-mode-map)
-    (bind-key "P" 'compilation-previous-file ag-mode-map)))
-
-;; https://github.com/magit/magit
-(use-package magit
-  :commands magit-get-top-dir
-  :init
-  (progn
-    ;; magit extensions
-    ;; make magit status go full-screen but remember previous window
-    ;; settings
-    ;; from: http://whattheemacsd.com/setup-magit.el-01.html
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))
-
-    ;; Close popup when commiting - this stops the commit window
-    ;; hanging around
-    ;; From: http://git.io/rPBE0Q
-    (defadvice git-commit-commit (after delete-window activate)
-      (delete-window))
-
-    (defadvice git-commit-abort (after delete-window activate)
-      (delete-window))
-
-    ;; these two force a new line to be inserted into a commit window,
-    ;; which stops the invalid style showing up.
-    ;; From: http://git.io/rPBE0Q
-    (defun magit-commit-mode-init ()
-      (when (looking-at "\n")
-        (open-line 1)))
-
-    (add-hook 'git-commit-mode-hook 'magit-commit-mode-init))
-  :config
-  (progn
-    ;; restore previously hidden windows
-    ;; major mode for editing `git rebase -i`
-    (defadvice magit-quit-window (around magit-restore-screen activate)
-      (let ((current-mode major-mode))
-        ad-do-it
-        ;; we only want to jump to register when the last seen buffer
-        ;; was a magit-status buffer.
-        (when (eq 'magit-status-mode current-mode)
-          (jump-to-register :magit-fullscreen))))
-
-    (defun magit-maybe-commit (&optional show-options)
-      "Runs magit-commit unless prefix is passed"
-      (interactive "P")
-      (if show-options
-          (magit-key-mode-popup-committing)
-        (magit-commit)))
-    (define-key magit-mode-map "c" 'magit-maybe-commit)
-
-    ;; Customizing transients
-    ;; This gives us the option to override local branch
-    (transient-insert-suffix 'magit-pull "-r" '("-f" "Overwrite local branch" "--force"))
-    ;; magit settings
-    (setq
-     ;; use ido to look for branches
-     magit-completing-read-function  'ivy-completing-read
-     ;; don't put "origin-" in front of new branch names by default
-     magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
-     ;; open magit status in same window as current buffer
-     magit-status-buffer-switch-function 'switch-to-buffer
-     ;; highlight word/letter changes in hunk diffs
-     magit-diff-refine-hunk t
-     ;; ask me if I want to include a revision when rewriting
-     magit-rewrite-inclusive 'ask
-     ;; ask me to save buffers
-     magit-save-some-buffers nil
-     ;; pop the process buffer if we're taking a while to complete
-     magit-process-popup-time 10
-     ;; ask me if I want a tracking upstream
-     magit-set-upstream-on-push 'askifnotset))
-  )
-
-
-(use-package git-messenger
-  :bind ("C-x G" . git-messenger:popup-message)
-  :config
-  (setq git-messenger:show-detail t
-	git-messenger:use-magit-popup t))
-
-(use-package git-gutter
-  :diminish
-  :ensure t
-  :custom
-  (git-gutter:modified-sign "~")
-  (git-gutter:added-sign    "+")
-  (git-gutter:deleted-sign  "-")
-  :custom-face
-  (git-gutter:modified ((t (:background "#f1fa8c"))))
-  (git-gutter:added    ((t (:background "#50fa7b"))))
-  (git-gutter:deleted  ((t (:background "#ff79c6"))))
-  :config
-  (global-git-gutter-mode +1))
-
-(use-package ivy
-  :diminish ivy-mode
-  :ensure t
-  :preface (eval-when-compile (declare-function ivy-mode nil))
-  :init (setq ivy-use-virtual-buffers t)
-  :config (ivy-mode t))
-(use-package counsel
-  :after ivy
-  :diminish counsel-mode
-  :demand t
-  :ensure t
-  :bind
-  (("C-c C-r" . ivy-resume)
-   ("C-x C-b" . ivy-switch-buffer)
-   ("C-x C-f" . counsel-find-file)
-   ("M-x"     . counsel-M-x)
-   :map minibuffer-local-map
-   ("C-r"     . counsel-minibuffer-history)
-   :map ivy-minibuffer-map
-   ("<left>"  . ivy-backward-kill-word)
-   ("<right>" . ivy-alt-done)
-   ("C-f"     . ivy-partial-or-done)
-   ("C-h"     . ivy-backward-kill-word)
-   ("C-j"     . ivy-next-line)
-   ("C-k"     . ivy-previous-line)
-   ("C-l"     . ivy-alt-done)
-   ("C-r"     . ivy-previous-line-or-history)
-   :map counsel-find-file-map
-   ("<left>"  . counsel-up-directory)
-   ("C-h"     . counsel-up-directory))
-  :init
-  (add-to-list 'ivy-ignore-buffers "^#")
-  (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
-  )
-(use-package counsel-projectile
-  :after (counsel projectile)
-  :diminish counsel-projectile-mode
-  :ensure t
-  :preface (eval-when-compile (declare-function counsel-projectile-mode nil))
-  :commands
-  (counsel-projectile-rg
-   counsel-projectile-find-file
-   counsel-projectile-switch-project
-   counsel-projectile-switch-to-buffer)
-  :init
-  :config (counsel-projectile-mode t))
-
-(use-package ivy-prescient
-  :after (ivy prescient)
-  :ensure t
-  :preface (eval-when-compile (declare-function ivy-prescient-mode nil))
-  :config (ivy-prescient-mode t))
-(use-package ivy-rich
-  :ensure t
-  :after (ivy counsel)
-  :preface (eval-when-compile (defvar ivy-rich-path-style) (declare-function ivy-rich-mode nil))
-  :init (setq ivy-rich-path-style 'abbrev)
-  :config (ivy-rich-mode t))
-(use-package prescient
-  :ensure t
-  :preface (eval-when-compile (declare-function prescient-persist-mode nil))
-  :config (prescient-persist-mode t))
-(use-package swiper
-  :after ivy
-  :ensure t
-  :bind (("\C-s" . swiper)))
-
-;; Jump
-(use-package dumb-jump
-  :diminish dumb-jump-mode
-  :config
-  ;(setq dumb-jump-selector 'helm)
-  (setq dumb-jump-aggressive nil)
-  (setq dumb-jump-selector 'ivy)
-  (setq dumb-jump-prefer-searcher 'ag))
-
-(use-package smooth-scrolling
-  :config
-  (smooth-scrolling-mode 1)
-  (setq smooth-scroll-margin 5))
-
-(use-package key-chord
-  :config
-  (progn
-    (key-chord-define-global "bn" 'buffer-flip-forward)
-    (key-chord-define-global "bp" 'buffer-flip-backward)
-    (key-chord-define-global "bf" 'buffer-flip)
-    (key-chord-define-global "bo" 'buffer-flip-other-window)
-    (key-chord-define-global "ba" 'buffer-flip-abort)
-    (key-chord-define-global "jk" 'evil-normal-state)
-    (key-chord-define-global "jb" 'ibuffer)
-    (key-chord-define-global "j0" 'delete-window)
-    (key-chord-define-global "j1" 'delete-other-windows)
-    (key-chord-define-global "jz" 'magit-dispatch-popup)
-    (key-chord-define-global "kb" 'gh/kill-current-buffer)
-    (key-chord-mode 1)))
-
-
-;; Font set
-
-;Download official fonts https://go.googlesource.com/image/+archive/master/font/gofont/ttfs.tar.gz
-;tar -xvzf image-master-font-gofont-ttfs.tar.gz
-;Click on ttf file to install respective font.
-;In Mac, Font Book will open by default.
-;Ubuntu has font application too. Click on install.
-
-;; Use the Hack font from chrissimpkins: https://github.com/source-foundry/Hack
-(if (condition-case nil
-        (x-list-fonts "Hack")
-      (error nil))
+  (use-package which-key
+    :diminish which-key-mode
+    :hook (after-init . which-key-mode)
+    :config
     (progn
-      (add-to-list 'default-frame-alist '(font . "Hack"))
-      (set-face-attribute 'default nil :font "Hack")))
+      (which-key-mode)
+      (which-key-setup-side-window-right)))
 
-(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "Sarasa Mono SC Nerd"))
-(defun my-set-frame-font (font-name size &optional frames)
-  "Set font to one of the fonts from `my-font-list'
-  Argument FRAMES has the same meaning as for `set-frame-font'"
-  (interactive
-   (list (ivy-read "Font name: " my-font-list)
-         (read-number "Font size: ")))
-  (set-frame-font
-   (format "%s:pixelsize=%d:antialias=true:autohint=true" font-name size)
-   nil frames))
+  (use-package volatile-highlights
+    :ensure t
+    :diminish
+    :hook
+    (after-init . volatile-highlights-mode)
+    :custom-face
+    (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
 
-(global-set-key (kbd "C-c F") #'my-set-frame-font)
+  (use-package undo-tree
+    :ensure t
+    :diminish
+    :config
+    (progn
+      (global-undo-tree-mode)
+      (setq undo-tree-visualizer-timestamps t)
+      (setq undo-tree-visualizer-diff t)
+      ))
 
-;; UI
+  (use-package multiple-cursors
+    :bind
+    (("C-c n" . mc/mark-next-like-this)
+     ("C-c p" . mc/mark-previous-like-this)))
 
-;(load-theme 'wombat t)
-;(set-cursor-color "#00ff00")
-(use-package dracula-theme
-  :ensure t
-  :disabled t
-  :config (load-theme 'dracula t)
-  (set-face-background 'mode-line "#510370")
-  (set-face-background 'mode-line-inactive "#212020"))
+  (use-package paredit
+    :diminish paredit-mode
+    :init
+    (add-hook 'erlang-mode-hook 'paredit-mode)
+    (add-hook 'go-mode-hook 'paredit-mode)
+    (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
-(use-package srcery-theme
-  :ensure t
-  :disabled t
-  :config
-  (load-theme 'srcery t))
+  (use-package yasnippet
+    :diminish yas-minor-mode
+    :init
+    (yas-global-mode)
+    :config
+    (progn
+      (add-to-list 'yas-snippet-dirs (concat user-emacs-directory "snippets"))))
 
-(use-package base16-theme
-  :ensure t
-  :disabled t
-  :config
-  (load-theme 'base16-tomorrow-night t)
+  (use-package company
+    :diminish 'company-mode
+    :init
+    (global-company-mode)
+    :config
+    (setq company-idle-delay 0.2)
+    (setq company-selection-wrap-around t)
   )
 
-;(custom-set-faces
-; '(mode-line ((t (:background "#510370" :foreground "white")))))
+  (use-package ag
+    :defer t
+    :config
+    (progn
+      (setq ag-highlight-search t)
+      (bind-key "n" 'compilation-next-error ag-mode-map)
+      (bind-key "p" 'compilation-previous-error ag-mode-map)
+      (bind-key "N" 'compilation-next-file ag-mode-map)
+      (bind-key "P" 'compilation-previous-file ag-mode-map)))
+
+  ;; https://github.com/magit/magit
+  (use-package magit
+    :commands magit-get-top-dir
+    :init
+    (progn
+      ;; magit extensions
+      ;; make magit status go full-screen but remember previous window
+      ;; settings
+      ;; from: http://whattheemacsd.com/setup-magit.el-01.html
+      (defadvice magit-status (around magit-fullscreen activate)
+        (window-configuration-to-register :magit-fullscreen)
+        ad-do-it
+        (delete-other-windows))
+
+      ;; Close popup when commiting - this stops the commit window
+      ;; hanging around
+      ;; From: http://git.io/rPBE0Q
+      (defadvice git-commit-commit (after delete-window activate)
+        (delete-window))
+
+      (defadvice git-commit-abort (after delete-window activate)
+        (delete-window))
+
+      ;; these two force a new line to be inserted into a commit window,
+      ;; which stops the invalid style showing up.
+      ;; From: http://git.io/rPBE0Q
+      (defun magit-commit-mode-init ()
+        (when (looking-at "\n")
+          (open-line 1)))
+
+      (add-hook 'git-commit-mode-hook 'magit-commit-mode-init))
+    :config
+    (progn
+      ;; restore previously hidden windows
+      ;; major mode for editing `git rebase -i`
+      (defadvice magit-quit-window (around magit-restore-screen activate)
+        (let ((current-mode major-mode))
+          ad-do-it
+          ;; we only want to jump to register when the last seen buffer
+          ;; was a magit-status buffer.
+          (when (eq 'magit-status-mode current-mode)
+            (jump-to-register :magit-fullscreen))))
+
+      (defun magit-maybe-commit (&optional show-options)
+        "Runs magit-commit unless prefix is passed"
+        (interactive "P")
+        (if show-options
+            (magit-key-mode-popup-committing)
+          (magit-commit)))
+      (define-key magit-mode-map "c" 'magit-maybe-commit)
+
+      ;; Customizing transients
+      ;; This gives us the option to override local branch
+      (transient-insert-suffix 'magit-pull "-r" '("-f" "Overwrite local branch" "--force"))
+      ;; magit settings
+      (setq
+       ;; use ido to look for branches
+       magit-completing-read-function  'ivy-completing-read
+       ;; don't put "origin-" in front of new branch names by default
+       magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+       ;; open magit status in same window as current buffer
+       magit-status-buffer-switch-function 'switch-to-buffer
+       ;; highlight word/letter changes in hunk diffs
+       magit-diff-refine-hunk t
+       ;; ask me if I want to include a revision when rewriting
+       magit-rewrite-inclusive 'ask
+       ;; ask me to save buffers
+       magit-save-some-buffers nil
+       ;; pop the process buffer if we're taking a while to complete
+       magit-process-popup-time 10
+       ;; ask me if I want a tracking upstream
+       magit-set-upstream-on-push 'askifnotset))
+    )
+
+
+  (use-package git-messenger
+    :bind ("C-x G" . git-messenger:popup-message)
+    :config
+    (setq git-messenger:show-detail t
+          git-messenger:use-magit-popup t))
+
+  (use-package git-gutter
+    :diminish
+    :ensure t
+    :custom
+    (git-gutter:modified-sign "~")
+    (git-gutter:added-sign    "+")
+    (git-gutter:deleted-sign  "-")
+    :custom-face
+    (git-gutter:modified ((t (:background "#f1fa8c"))))
+    (git-gutter:added    ((t (:background "#50fa7b"))))
+    (git-gutter:deleted  ((t (:background "#ff79c6"))))
+    :config
+    (global-git-gutter-mode +1))
+
+  (use-package ivy
+    :diminish ivy-mode
+    :ensure t
+    :preface (eval-when-compile (declare-function ivy-mode nil))
+    :init (setq ivy-use-virtual-buffers t)
+    :config (ivy-mode t))
+  (use-package counsel
+    :after ivy
+    :diminish counsel-mode
+    :demand t
+    :ensure t
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("C-x C-b" . ivy-switch-buffer)
+     ("C-x C-f" . counsel-find-file)
+     ("M-x"     . counsel-M-x)
+     :map minibuffer-local-map
+     ("C-r"     . counsel-minibuffer-history)
+     :map ivy-minibuffer-map
+     ("<left>"  . ivy-backward-kill-word)
+     ("<right>" . ivy-alt-done)
+     ("C-f"     . ivy-partial-or-done)
+     ("C-h"     . ivy-backward-kill-word)
+     ("C-j"     . ivy-next-line)
+     ("C-k"     . ivy-previous-line)
+     ("C-l"     . ivy-alt-done)
+     ("C-r"     . ivy-previous-line-or-history)
+     :map counsel-find-file-map
+     ("<left>"  . counsel-up-directory)
+     ("C-h"     . counsel-up-directory))
+    :init
+    (add-to-list 'ivy-ignore-buffers "^#")
+    (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
+    )
+  (use-package counsel-projectile
+    :after (counsel projectile)
+    :diminish counsel-projectile-mode
+    :ensure t
+    :preface (eval-when-compile (declare-function counsel-projectile-mode nil))
+    :commands
+    (counsel-projectile-rg
+     counsel-projectile-find-file
+     counsel-projectile-switch-project
+     counsel-projectile-switch-to-buffer)
+    :init
+    :config (counsel-projectile-mode t))
+
+  (use-package ivy-prescient
+    :after (ivy prescient)
+    :ensure t
+    :preface (eval-when-compile (declare-function ivy-prescient-mode nil))
+    :config (ivy-prescient-mode t))
+  (use-package ivy-rich
+    :ensure t
+    :after (ivy counsel)
+    :preface (eval-when-compile (defvar ivy-rich-path-style) (declare-function ivy-rich-mode nil))
+    :init (setq ivy-rich-path-style 'abbrev)
+    :config (ivy-rich-mode t))
+  (use-package prescient
+    :ensure t
+    :preface (eval-when-compile (declare-function prescient-persist-mode nil))
+    :config (prescient-persist-mode t))
+  (use-package swiper
+    :after ivy
+    :ensure t
+    :bind (("\C-s" . swiper)))
+
+  ;; Jump
+  (use-package dumb-jump
+    :diminish dumb-jump-mode
+    :config
+    ;(setq dumb-jump-selector 'helm)
+    (setq dumb-jump-aggressive nil)
+    (setq dumb-jump-selector 'ivy)
+    (setq dumb-jump-prefer-searcher 'ag))
+
+  (use-package smooth-scrolling
+    :config
+    (smooth-scrolling-mode 1)
+    (setq smooth-scroll-margin 5))
+
+  (use-package key-chord
+    :config
+    (progn
+      (key-chord-define-global "bn" 'buffer-flip-forward)
+      (key-chord-define-global "bp" 'buffer-flip-backward)
+      (key-chord-define-global "bf" 'buffer-flip)
+      (key-chord-define-global "bo" 'buffer-flip-other-window)
+      (key-chord-define-global "ba" 'buffer-flip-abort)
+      (key-chord-define-global "jk" 'evil-normal-state)
+      (key-chord-define-global "jb" 'ibuffer)
+      (key-chord-define-global "j0" 'delete-window)
+      (key-chord-define-global "j1" 'delete-other-windows)
+      (key-chord-define-global "jz" 'magit-dispatch-popup)
+      (key-chord-define-global "kb" 'gh/kill-current-buffer)
+      (key-chord-mode 1)))
+
+    (use-package aweshell
+      :ensure nil
+      :load-path "~/.emacs.d/vendor/aweshell")
+    ;aweshell-new
+    ;aweshell-next
+    ;aweshell-prev
+    ;aweshell-clear-buffer
+    ;aweshell-sudo-toggle
+    ;aweshell-switch-buffer
+    ;aweshell-dedicated-toggle
+    ;aweshell-dedicated-open
+    ;aweshell-dedicated-close
+
+    (require 'auto-save)
+    (auto-save-enable)
+    (setq auto-save-silent nil)
+    (setq auto-save-delete-trailing-whitespace nil)
+    (setq auto-save-disable-predicates
+          '((lambda ()
+          (string-suffix-p
+          "gpg"
+          (file-name-extension (buffer-name)) t))))
+
+    (use-package posframe :ensure t)
+    (use-package rime
+      :ensure t
+      :config
+      (setq rime-user-data-dir "~/Library/Rime/")
+      (setq rime-show-candidate 'posframe)
+      (setq rime-disable-predicates '(+rime-english-prober))
+      (setq rime-posframe-properties
+              (list :background-color "#333333"
+                    :foreground-color "#dcdccc"
+       ;             :font "WenQuanYi Micro Hei Mono-14"
+                    :internal-border-width 10))
+      :custom
+      (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+      (default-input-method "rime")
+    )
+
+    (use-package all-the-icons :if (display-graphic-p))
+
+    ;(use-package eaf
+    ;  :load-path (lambda () (expand-file-name "vendor/emacs-application-framework/" user-emacs-directory))
+    ;  :init
+    ;  (use-package epc :defer t :ensure t)
+    ;  (use-package ctable :defer t :ensure t)
+    ;  (use-package deferred :defer t :ensure t)
+    ;  (use-package s :defer t :ensure t)
+    ;  :custom
+    ;  (eaf-browser-continue-where-left-off t)
+    ;  :config
+    ;  (eaf-setq eaf-browser-enable-adblocker "true")
+    ;  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+    ;  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+    ;  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+    ;  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
+
+    (use-package snails
+      :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+      :if (display-graphic-p)
+      :custom-face
+      (snails-content-buffer-face ((t (:background "#111" :height 110))))
+      (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
+      (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
+                                            ;:init
+                                            ;(use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
+      :config
+      ;; Functions for specific backends
+      (defun snails-current-project ()
+        (interactive)
+        (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
+      (defun snails-active-recent-buffers ()
+        (interactive)
+        (snails '(snails-backend-buffer snails-backend-recentf)))
+      (defun snails-everywhere ()
+        (interactive)
+        (snails '(snails-backend-everything snails-backend-mdfind))))
+
+    (require 'watch-other-window)
+                                            ; watch-other-window-up
+                                            ; watch-other-window-down
+                                            ; watch-other-window-up-line
+                                            ; watch-other-window-down-line
+
+
+    ;;https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el
+    (require 'color-rg)
+                                            ;color-rg-search-input
+                                            ;color-rg-search-symbol
+                                            ;color-rg-search-project
+                                            ;color-rg-search-project-rails
+
+    ;; git clone --depth=1 https://github.com/manateelazycat/awesome-tab.git
+    (use-package awesome-tab
+      :ensure nil
+      :load-path "~/.emacs.d/vendor/awesome-tab"
+      :bind
+      ("C-x t h" . awesome-tab-backward-tab)
+      ("C-x t l" . awesome-tab-forward-tab)
+      :config
+      (awesome-tab-mode t))
 
 #+END_SRC
-* evil
+* Evil-Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
     ; C-y => paste the things to minibuffer, then use consel-rg
     (defun x/config-evil-leader ()
@@ -1070,7 +946,7 @@ etting up the basics early, so if the config breaks further along, I'll still ha
     :init
     (progn
       (evil-mode t)
-      (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state))
+      )
     :config
     (progn
       (use-package evil-visualstar
@@ -1111,12 +987,8 @@ etting up the basics early, so if the config breaks further along, I'll still ha
       (setq evil-insert-state-cursor '("red" bar))
       (setq evil-replace-state-cursor '("red" bar))
       (setq evil-operator-state-cursor '("red" ))
-      (define-key evil-normal-state-map "p" 'evil-paste-after)
-      (define-key evil-normal-state-map "P" 'evil-paste-before)
-      (define-key evil-normal-state-map (kbd "C-s") 'save-buffer)
-      (define-key evil-normal-state-map (kbd "C-]") (kbd "\\ M-."))))
 #+END_SRC
-* org
+* Org-Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; ---------------------------------------------------------------------------
 (use-package org
@@ -1322,7 +1194,123 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 (add-to-list 'org-latex-packages-alist '("" "tabularx"))
 
 #+END_SRC
-* program languages
+* Dired-Mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'dired-x)
+  (require 'dired+)
+
+  (use-package dired-subtree
+    :defer t
+    :bind (:map dired-mode-map
+                ("TAB" . dired-subtree-cycle)))
+
+  (defvar ao/v-dired-omit t
+    "If dired-omit-mode enabled by default. Don't setq me.")
+
+  (defun ao/dired-omit-caller ()
+    (if ao/v-dired-omit
+        (setq dired-omit-mode t)
+      (setq dired-omit-mode nil)))
+
+  (defun ao/dired-omit-switch ()
+    "This function is a small enhancement for `dired-omit-mode', which will
+       \"remember\" omit state across Dired buffers."
+    (interactive)
+    (if (eq ao/v-dired-omit t)
+        (setq ao/v-dired-omit nil)
+      (setq ao/v-dired-omit t))
+    (ao/dired-omit-caller)
+    (when (equal major-mode 'dired-mode)
+      (revert-buffer)))
+
+  ;; Details toggling is bound to "(" in `dired-mode' by default
+  (setq diredp-hide-details-initially-flag nil)
+  (setq diredp-hide-details-propagate-flag nil)
+
+  (setq dired-listing-switches "-aluh")
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq dired-dwim-target t)
+  (put 'dired-find-alternate-file 'disabled nil)
+
+  (setq dired-omit-files-p t)
+  (setq dired-omit-verbose nil)
+  (setq dired-omit-files (concat dired-omit-files "\\|^.DS_Store$\\|^.vimrc\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.elc$\\|^.emacs.*\\|^\\..+$"))
+  (setq dired-omit-extensions '(".rc" ".o" "~" ".bin" ".a" ".ln"))
+  (add-hook 'dired-mode-hook #'dired-omit-mode)
+
+  ;; only use one buffer
+  (diredp-toggle-find-file-reuse-dir 1)
+
+  (defun custom-dired-open-file-with-osx ()
+    "In Dired, try to open files by osx"
+    (interactive)
+    (shell-command (format "open \"%s\"" (dired-get-file-for-visit))))
+
+  (defun custom-dired-temp-hide-files ()
+    "Hide/show marked files temporary."
+    (interactive)
+    (if dired-omit-files-p
+        (setq dired-omit-files-p nil)
+      (progn
+        (make-local-variable 'dired-omit-files)
+        (dolist (item (dired-get-marked-files))
+          (setq dired-omit-files
+                (concat dired-omit-files (format "\\|%s" (file-name-nondirectory item)))))
+        (setq dired-omit-files-p t)))
+    (dired-unmark-all-marks)
+    (revert-buffer))
+
+
+  (defun custom-dired-sort-dir-first ()
+    "Dired sort hook to list directories first."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2) ;; beyond dir. header
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
+    (and (featurep 'xemacs)
+         (fboundp 'dired-insert-set-properties)
+         (dired-insert-set-properties (point-min) (point-max)))
+    (set-buffer-modified-p nil))
+
+  (add-hook 'dired-after-readin-hook 'custom-dired-sort-dir-first)
+
+
+  (setq custom-dired-sort-seq-list `((,(concat dired-listing-switches "h") . "Name")
+                                     (,(concat dired-listing-switches "cth") . "Create Time")
+                                     (,(concat dired-listing-switches "uth") . "Modify Time")
+                                     (,(concat dired-listing-switches "Xh") . "Extension")
+                                     (,(concat dired-listing-switches "Sh") . "Size")))
+
+  (defun custom-dired-sort-next ()
+    "In dired mode, sort"
+    (interactive)
+    (let ((nextpos (1+ (or (cl-position
+                            (assoc dired-actual-switches custom-dired-sort-seq-list)
+                            custom-dired-sort-seq-list :test 'equal) 0))))
+      (when (= (length custom-dired-sort-seq-list) nextpos)
+        (setq nextpos 0))
+      (dired-sort-other (car (car (nthcdr nextpos custom-dired-sort-seq-list))))
+      (message "SORTBY - \"%s\"" (cdr (car (nthcdr nextpos custom-dired-sort-seq-list))))))
+
+;; Set the wanted files.
+(add-to-list 'dired-guess-shell-alist-user '("\\.pdf\\'" "open -a preview"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.mp4\\'" "vlc ? &"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.mkv\\'" "vlc"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.png\\'" "open -a preview"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.jpg\\'" "open -a preview"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.html\\'" "open -a safari"))
+
+;; Work apps
+(add-to-list 'dired-guess-shell-alist-user '("\\.xlsx\\'" "open"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.xls\\'" "open"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.ppt\\'" "open -a Keynote"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.pptx\\'" "open"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.docx\\'" "open"))
+(add-to-list 'dired-guess-shell-alist-user '("\\.doc\\'" "open"))
+
+#+END_SRC
+* Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; Remote SSH
 ;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
@@ -1395,9 +1383,6 @@ etting up the basics early, so if the config breaks further along, I'll still ha
   (add-hook hook '(lambda () (nox-ensure))))
   (add-to-list 'nox-server-programs '(go-mode . ("gopls")))
   (add-to-list 'nox-server-programs '(erlang-mode . ("/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls")))
-  (define-key nox-mode-map (kbd "M-.") 'xref-find-definitions)
-  (define-key nox-mode-map (kbd "M-,") 'pop-tag-mark)
-  (define-key nox-mode-map (kbd "M-r") 'xref-find-references)
   )
 
 (use-package go-mode
@@ -1584,108 +1569,64 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 		 ))
 	      auto-insert-alist))
 #+END_SRC
-* dired config
+* Platform
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'dired-x)
-  (require 'dired+)
+(when (x/system-is-mac)
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'none)
 
-  (use-package dired-subtree
-    :defer t
-    :bind (:map dired-mode-map
-                ("TAB" . dired-subtree-cycle)))
+  ;(set-face-attribute 'default nil :height 140)
 
-  (defvar ao/v-dired-omit t
-    "If dired-omit-mode enabled by default. Don't setq me.")
+  (defun copy-from-osx ()
+    (shell-command-to-string "pbpaste"))
+  (defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
+  (setq interprogram-cut-function 'paste-to-osx)
+  (setq interprogram-paste-function 'copy-from-osx)
 
-  (defun ao/dired-omit-caller ()
-    (if ao/v-dired-omit
-        (setq dired-omit-mode t)
-      (setq dired-omit-mode nil)))
+  ;; Trash for safe
+  (defun move-file-to-trash (file)
+    "Use `trash' to move FILE to the system trash.
+    When using Homebrew, install it using \"brew install trash\"."
+    (call-process (executable-find "trash")
+                  nil 0 nil
+                  file))
+    (setq trash-directory "~/.Trash/emacs")
+    (setq delete-by-moving-to-trash t)
+    (defun system-move-file-to-trash (file)
+      "Use \"trash\" to move FILE to the system trash.
+      When using Homebrew, install it using \"brew install trash\"."
+      (call-process (executable-find "trash")
+                    nil 0 nil
+                    file))
+      (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
-  (defun ao/dired-omit-switch ()
-    "This function is a small enhancement for `dired-omit-mode', which will
-       \"remember\" omit state across Dired buffers."
+(when (x/system-is-linux)
+  (defun yank-to-x-clipboard ()
     (interactive)
-    (if (eq ao/v-dired-omit t)
-        (setq ao/v-dired-omit nil)
-      (setq ao/v-dired-omit t))
-    (ao/dired-omit-caller)
-    (when (equal major-mode 'dired-mode)
-      (revert-buffer)))
-
-  ;; Details toggling is bound to "(" in `dired-mode' by default
-  (setq diredp-hide-details-initially-flag nil)
-  (setq diredp-hide-details-propagate-flag nil)
-
-  (setq dired-listing-switches "-aluh")
-  (setq dired-recursive-copies 'always)
-  (setq dired-recursive-deletes 'always)
-  (setq dired-dwim-target t)
-  (put 'dired-find-alternate-file 'disabled nil)
-  (with-eval-after-load 'dired
-    (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-    (define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file ".."))))  ; was dired-up-directory)
-
-
-  (setq dired-omit-files-p t)
-  (setq dired-omit-verbose nil)
-  (setq dired-omit-files (concat dired-omit-files "\\|^.DS_Store$\\|^.vimrc\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.elc$\\|^.emacs.*\\|^\\..+$"))
-  (setq dired-omit-extensions '(".rc" ".o" "~" ".bin" ".a" ".ln"))
-  (add-hook 'dired-mode-hook #'dired-omit-mode)
-
-  ;; only use one buffer
-  (diredp-toggle-find-file-reuse-dir 1)
-
-  (defun custom-dired-open-file-with-osx ()
-    "In Dired, try to open files by osx"
-    (interactive)
-    (shell-command (format "open \"%s\"" (dired-get-file-for-visit))))
-
-  (defun custom-dired-temp-hide-files ()
-    "Hide/show marked files temporary."
-    (interactive)
-    (if dired-omit-files-p
-        (setq dired-omit-files-p nil)
+    (if (region-active-p)
       (progn
-        (make-local-variable 'dired-omit-files)
-        (dolist (item (dired-get-marked-files))
-          (setq dired-omit-files
-                (concat dired-omit-files (format "\\|%s" (file-name-nondirectory item)))))
-        (setq dired-omit-files-p t)))
-    (dired-unmark-all-marks)
-    (revert-buffer))
+        (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+        (message "Yanked region to clipboard!")
+        (deactivate-mark))
+      (message "No region active; can't yank to clipboard!"))))
 
+#+END_SRC
+* Key-Maps
 
-  (defun custom-dired-sort-dir-first ()
-    "Dired sort hook to list directories first."
-    (save-excursion
-      (let (buffer-read-only)
-        (forward-line 2) ;; beyond dir. header
-        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
-    (and (featurep 'xemacs)
-         (fboundp 'dired-insert-set-properties)
-         (dired-insert-set-properties (point-min) (point-max)))
-    (set-buffer-modified-p nil))
-
-  (add-hook 'dired-after-readin-hook 'custom-dired-sort-dir-first)
-
-
-  (setq custom-dired-sort-seq-list `((,(concat dired-listing-switches "h") . "Name")
-                                     (,(concat dired-listing-switches "cth") . "Create Time")
-                                     (,(concat dired-listing-switches "uth") . "Modify Time")
-                                     (,(concat dired-listing-switches "Xh") . "Extension")
-                                     (,(concat dired-listing-switches "Sh") . "Size")))
-
-  (defun custom-dired-sort-next ()
-    "In dired mode, sort"
-    (interactive)
-    (let ((nextpos (1+ (or (cl-position
-                            (assoc dired-actual-switches custom-dired-sort-seq-list)
-                            custom-dired-sort-seq-list :test 'equal) 0))))
-      (when (= (length custom-dired-sort-seq-list) nextpos)
-        (setq nextpos 0))
-      (dired-sort-other (car (car (nthcdr nextpos custom-dired-sort-seq-list))))
-      (message "SORTBY - \"%s\"" (cdr (car (nthcdr nextpos custom-dired-sort-seq-list))))))
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (eval-after-load "evil-maps"
+    (dolist (map '(evil-normal-state-map
+                   evil-motion-state-map
+                   evil-insert-state-map
+                   evil-emacs-state-map))
+      (define-key (eval map) "\M-." nil)
+      (define-key (eval map) "\M-," nil)
+      (define-key (eval map) "\C-t" nil)
+      (define-key (eval map) "\C-]" nil)))
 
   (evil-define-key '(normal motion)
     dired-mode-map (kbd "e") 'wdired-change-to-wdired-mode
@@ -1694,159 +1635,223 @@ etting up the basics early, so if the config breaks further along, I'll still ha
     (kbd "S") 'ao/dired-omit-switch
     (kbd "s") 'custom-dired-sort-next)
 
+  (with-eval-after-load 'dired
+    (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+    (define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file ".."))))  ; was dired-up-directory)
+
   (define-key evil-normal-state-map (kbd "_") 'projectile-dired)
   (define-key evil-normal-state-map (kbd "-") 'dired-jump)
-
-#+END_SRC
-* maps
-#+BEGIN_SRC emacs-lisp :tangle yes
- (eval-after-load "evil-maps"
-                   (dolist (map '(evil-normal-state-map
-                                  evil-motion-state-map
-                                  evil-insert-state-map
-                                  evil-emacs-state-map))
-                     (define-key (eval map) "\M-." nil)
-                     (define-key (eval map) "\M-," nil)
-                     (define-key (eval map) "\C-t" nil)
-                     (define-key (eval map) "\C-]" nil)))
-
+  (define-key evil-normal-state-map "p" 'evil-paste-after)
+  (define-key evil-normal-state-map "P" 'evil-paste-before)
+  (define-key evil-normal-state-map (kbd "C-s") 'save-buffer)
+  (define-key evil-normal-state-map (kbd "C-]") (kbd "\\ M-."))))
+  (define-key company-active-map [tab] 'company-complete)
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key nox-mode-map (kbd "M-.") 'xref-find-definitions)
+  (define-key nox-mode-map (kbd "M-,") 'pop-tag-mark)
+  (define-key nox-mode-map (kbd "M-r") 'xref-find-references)
 
   (global-set-key (kbd "M-]") 'dumb-jump-go)
   (global-set-key (kbd "M-t") 'dumb-jump-back)
   (global-set-key (kbd "M-p") 'hold-line-scroll-up )
   (global-set-key (kbd "M-n") 'hold-line-scroll-down )
+  (global-set-key (kbd "C-c F") #'my-set-frame-font)
 
   (global-set-key
-    (kbd "C-M-w")
-    (defhydra hydra-window ()
-              "window"
-              ("h" windmove-left)
-              ("j" windmove-down)
-              ("k" windmove-up)
-              ("l" windmove-right)
-              ("<" shrink-window-horizontally)
-              (">" enlarge-window-horizontally)
-              ("^" shrink-window)
-              ("V" enlarge-window)
-              ("|" (lambda ()
-                     (interactive)
-                     (split-window-right)
-                     (windmove-right))
-                     "vert")
-              ("-" (lambda ()
-                     (interactive)
-                     (split-window-below)
-                     (windmove-down))
-                     "horz")
-              ("o" delete-other-windows "1" :color blue)
-              ("i" ace-maximize-window "a1" :color blue)
-              ("q" nil "cancel")))
+   (kbd "C-M-w")
+   (defhydra hydra-window ()
+     "window"
+     ("h" windmove-left)
+     ("j" windmove-down)
+     ("k" windmove-up)
+     ("l" windmove-right)
+     ("<" shrink-window-horizontally)
+     (">" enlarge-window-horizontally)
+     ("^" shrink-window)
+     ("V" enlarge-window)
+     ("|" (lambda ()
+            (interactive)
+            (split-window-right)
+            (windmove-right))
+      "vert")
+     ("-" (lambda ()
+            (interactive)
+            (split-window-below)
+            (windmove-down))
+      "horz")
+     ("o" delete-other-windows "1" :color blue)
+     ("i" ace-maximize-window "a1" :color blue)
+     ("q" nil "cancel")))
 
 
-  ;(eval-after-load "erlang"
-  ;  '(progn
-  ;     (define-key erlang-mode-map (kbd "C-c b") 'erlang-insert-binary)
-  ;     (define-key erlang-mode-map (kbd "M-.") 'ivy-erlang-complete-find-definition)
-  ;     (define-key erlang-mode-map (kbd "M-,") 'xref-pop-marker-stack)
-  ;     (define-key erlang-mode-map (kbd "M-?") 'ivy-erlang-complete-find-references)
-  ;     ))
+  (global-set-key
+   (kbd "C-M-t")
+   (defhydra awesome-fast-switch (:hint nil)
+     "
+        ^^^^Fast Move             ^^^^Tab                    ^^Search            ^^Misc
+       -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
+          ^_k_^   prev group    | _C-a_^^     select first | _b_ search buffer | _C-k_   kill buffer
+        _h_   _l_  switch tab   | _C-e_^^     select last  | _g_ search group  | _C-S-k_ kill others in group
+          ^_j_^   next group    | _C-j_^^     ace jump     | ^^                | ^^
+        ^^0 ~ 9^^ select window | _C-h_/_C-l_ move current | ^^                | ^^
+       -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
+       "
+     ("h" awesome-tab-backward-tab)
+     ("j" awesome-tab-forward-group)
+     ("k" awesome-tab-backward-group)
+     ("l" awesome-tab-forward-tab)
+     ("0" my-select-window)
+     ("1" my-select-window)
+     ("2" my-select-window)
+     ("3" my-select-window)
+     ("4" my-select-window)
+     ("5" my-select-window)
+     ("6" my-select-window)
+     ("7" my-select-window)
+     ("8" my-select-window)
+     ("9" my-select-window)
+     ("C-a" awesome-tab-select-beg-tab)
+     ("C-e" awesome-tab-select-end-tab)
+     ("C-j" awesome-tab-ace-jump)
+     ("C-h" awesome-tab-move-current-tab-to-left)
+     ("C-l" awesome-tab-move-current-tab-to-right)
+     ("b" ivy-switch-buffer)
+     ("g" awesome-tab-counsel-switch-group)
+     ("C-k" kill-current-buffer)
+     ("C-S-k" awesome-tab-kill-other-buffers-in-current-group)
+     ("q" nil "quit")))
 
+#+END_SRC
 
-  ;; ------------------------------ From Lazycat -------------------------------------
+* Font
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; Font set
 
-  (defun proxy-socks-show ()
-    "Show SOCKS proxy."
-    (interactive)
-    (when (fboundp 'cadddr)
-      (if (bound-and-true-p socks-noproxy)
-          (message "Current SOCKS%d proxy is %s:%d"
-                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-        (message "No SOCKS proxy"))))
+;Download official fonts https://go.googlesource.com/image/+archive/master/font/gofont/ttfs.tar.gz
+;tar -xvzf image-master-font-gofont-ttfs.tar.gz
+;Click on ttf file to install respective font.
+;In Mac, Font Book will open by default.
+;Ubuntu has font application too. Click on install.
 
-  (defun proxy-socks-enable ()
-    "Enable SOCKS proxy."
-    (interactive)
-    (require 'socks)
-    (setq url-gateway-method 'socks
-          socks-noproxy '("localhost")
-          socks-server '("Default server" "127.0.0.1" 1080 5))
-    (setenv "all_proxy" "socks5://127.0.0.1:1080")
-    (proxy-socks-show))
+;; Use the Hack font from chrissimpkins: https://github.com/source-foundry/Hack
+(if (condition-case nil
+        (x-list-fonts "Hack")
+      (error nil))
+    (progn
+      (add-to-list 'default-frame-alist '(font . "Hack"))
+      (set-face-attribute 'default nil :font "Hack")))
 
-  (defun proxy-socks-disable ()
-    "Disable SOCKS proxy."
-    (interactive)
-    (require 'socks)
-    (setq url-gateway-method 'native
-          socks-noproxy nil)
-    (setenv "all_proxy" "")
-    (proxy-socks-show))
+(setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "Sarasa Mono SC Nerd"))
+(defun my-set-frame-font (font-name size &optional frames)
+  "Set font to one of the fonts from `my-font-list'
+  Argument FRAMES has the same meaning as for `set-frame-font'"
+  (interactive
+   (list (ivy-read "Font name: " my-font-list)
+         (read-number "Font size: ")))
+  (set-frame-font
+   (format "%s:pixelsize=%d:antialias=true:autohint=true" font-name size)
+   nil frames))
 
-  (defun proxy-socks-toggle ()
-    "Toggle SOCKS proxy."
-    (interactive)
-    (require 'socks)
-    (if (bound-and-true-p socks-noproxy)
-        (proxy-socks-disable)
-      (proxy-socks-enable)))
+;;------------------------------------------------------------
+;;; +rime-probe-english.el -*- lexical-binding: t; -*-
 
-  ;(proxy-socks-enable)
+;;
+;; Some functions copied from `pyim', thanks for tumashu@github.com .
+;;
+(defun +rime--char-before-to-string (num)
+  "得到光标前第 `num' 个字符，并将其转换为字符串。"
+  (let* ((point (point))
+         (point-before (- point num)))
+    (when (and (> point-before 0)
+               (char-before point-before))
+      (char-to-string (char-before point-before)))))
 
-  (use-package all-the-icons :if (display-graphic-p))
+(defun +rime--string-match-p (regexp string &optional start)
+  "与 `string-match-p' 类似，如果 REGEXP 和 STRING 是非字符串时，
+不会报错。"
+  (and (stringp regexp)
+       (stringp string)
+       (string-match-p regexp string start)))
 
-  ;(use-package eaf
-  ;  :load-path (lambda () (expand-file-name "vendor/emacs-application-framework/" user-emacs-directory))
-  ;  :init
-  ;  (use-package epc :defer t :ensure t)
-  ;  (use-package ctable :defer t :ensure t)
-  ;  (use-package deferred :defer t :ensure t)
-  ;  (use-package s :defer t :ensure t)
-  ;  :custom
-  ;  (eaf-browser-continue-where-left-off t)
-  ;  :config
-  ;  (eaf-setq eaf-browser-enable-adblocker "true")
-  ;  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
-  ;  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
-  ;  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
-  ;  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
+(defun +rime--probe-auto-english ()
+  "激活这个探针函数后，使用下面的规则自动切换中英文输入：
 
-  (use-package snails
-    :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
-    :if (display-graphic-p)
-    :custom-face
-    (snails-content-buffer-face ((t (:background "#111" :height 110))))
-    (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
-    (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
-    ;:init
-    ;(use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
+1. 当前字符为英文字符（不包括空格）时，输入下一个字符为英文字符
+2. 当前字符为中文字符或输入字符为行首字符时，输入的字符为中文字符
+3. 以单个空格为界，自动切换中文和英文字符
+   即，形如 `我使用 emacs 编辑此函数' 的句子全程自动切换中英输入法
+"
+  (let ((str-before-1 (+rime--char-before-to-string 0))
+        (str-before-2 (+rime--char-before-to-string 1)))
+    (unless (string= (buffer-name) " *temp*")
+      (if (> (point) (save-excursion (back-to-indentation)
+                                     (point)))
+          (or (if (+rime--string-match-p " " str-before-1)
+                  (+rime--string-match-p "\\cc" str-before-2)
+                (not (+rime--string-match-p "\\cc" str-before-1))))))))
+
+(defun +rime--beancount-p ()
+  "当前为`beancount-mode'，且光标在注释或字符串当中。"
+  (when (derived-mode-p 'beancount-mode)
+    (not (or (nth 3 (syntax-ppss))
+             (nth 4 (syntax-ppss))))))
+
+(defun +rime--evil-mode-p ()
+  "检测当前是否在 `evil' 模式下。"
+  (or (evil-normal-state-p)
+      (evil-visual-state-p)
+      (evil-motion-state-p)
+      (evil-operator-state-p)))
+
+(defun +rime-english-prober()
+  "自定义英文输入探针函数，用于在不同mode下使用不同的探针列表"
+  (let ((use-en (or (button-at (point))
+                    (+rime--evil-mode-p))))
+    (if (derived-mode-p 'telega-chat-mode)
+        (setq use-en (or use-en
+                         (+rime--probe-auto-english)))
+      (when (derived-mode-p 'text-mode)
+        (setq use-en (or use-en
+                         (+rime--probe-auto-english))))
+      (when (derived-mode-p 'prog-mode 'conf-mode)
+        (setq use-en (or use-en
+                         (rime--after-alphabet-char-p))))
+      (setq use-en (or use-en
+                       (rime--prog-in-code-p)
+                       (+rime--beancount-p))))
+    use-en))
+#+END_SRC
+
+* UI
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+  ;(load-theme 'wombat t)
+  ;(set-cursor-color "#00ff00")
+  (use-package dracula-theme
+    :ensure t
+    :disabled t
+    :config (load-theme 'dracula t)
+    (set-face-background 'mode-line "#510370")
+    (set-face-background 'mode-line-inactive "#212020"))
+
+  (use-package srcery-theme
+    :ensure t
+    :disabled t
     :config
-    ;; Functions for specific backends
-    (defun snails-current-project ()
-      (interactive)
-      (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
-    (defun snails-active-recent-buffers ()
-      (interactive)
-      (snails '(snails-backend-buffer snails-backend-recentf)))
-    (defun snails-everywhere ()
-      (interactive)
-      (snails '(snails-backend-everything snails-backend-mdfind))))
+    (load-theme 'srcery t))
 
-  (require 'watch-other-window)
-  ; watch-other-window-up
-  ; watch-other-window-down
-  ; watch-other-window-up-line
-  ; watch-other-window-down-line
+  (use-package base16-theme
+    :ensure t
+    :disabled t
+    :config
+    (load-theme 'base16-tomorrow-night t)
+    )
 
-  ;;https://raw.githubusercontent.com/manateelazycat/cache-path-from-shell/master/cache-path-from-shell.el
-  ;(require 'cache-path-from-shell)
-
-  ;;https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el
-  (require 'color-rg)
-  ;color-rg-search-input
-  ;color-rg-search-symbol
-  ;color-rg-search-project
-  ;color-rg-search-project-rails
-
+  ;(custom-set-faces
+  ;'(mode-line ((t (:background "#510370" :foreground "white")))))
   ;;https://raw.githubusercontent.com/manateelazycat/awesome-tray/master/awesome-tray.el
   (require 'awesome-tray)
   (awesome-tray-mode 1)
@@ -1856,90 +1861,5 @@ etting up the basics early, so if the config breaks further along, I'll still ha
   (lazycat-theme-load-dark)
   (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
 
-  ;; git clone --depth=1 https://github.com/manateelazycat/awesome-tab.git
-  (use-package awesome-tab
-    :ensure nil
-    :load-path "~/.emacs.d/vendor/awesome-tab"
-    :bind
-    ("C-x t h" . awesome-tab-backward-tab)
-    ("C-x t l" . awesome-tab-forward-tab)
-    :config
-    (awesome-tab-mode t))
 
-    (global-set-key
-    (kbd "C-M-t")
-      (defhydra awesome-fast-switch (:hint nil)
-        "
-       ^^^^Fast Move             ^^^^Tab                    ^^Search            ^^Misc
-      -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
-         ^_k_^   prev group    | _C-a_^^     select first | _b_ search buffer | _C-k_   kill buffer
-       _h_   _l_  switch tab   | _C-e_^^     select last  | _g_ search group  | _C-S-k_ kill others in group
-         ^_j_^   next group    | _C-j_^^     ace jump     | ^^                | ^^
-       ^^0 ~ 9^^ select window | _C-h_/_C-l_ move current | ^^                | ^^
-      -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
-      "
-        ("h" awesome-tab-backward-tab)
-        ("j" awesome-tab-forward-group)
-        ("k" awesome-tab-backward-group)
-        ("l" awesome-tab-forward-tab)
-        ("0" my-select-window)
-        ("1" my-select-window)
-        ("2" my-select-window)
-        ("3" my-select-window)
-        ("4" my-select-window)
-        ("5" my-select-window)
-        ("6" my-select-window)
-        ("7" my-select-window)
-        ("8" my-select-window)
-        ("9" my-select-window)
-        ("C-a" awesome-tab-select-beg-tab)
-        ("C-e" awesome-tab-select-end-tab)
-        ("C-j" awesome-tab-ace-jump)
-        ("C-h" awesome-tab-move-current-tab-to-left)
-        ("C-l" awesome-tab-move-current-tab-to-right)
-        ("b" ivy-switch-buffer)
-        ("g" awesome-tab-counsel-switch-group)
-        ("C-k" kill-current-buffer)
-        ("C-S-k" awesome-tab-kill-other-buffers-in-current-group)
-        ("q" nil "quit")))
-
-  (use-package aweshell
-    :ensure nil
-    :load-path "~/.emacs.d/vendor/aweshell")
-  ;aweshell-new
-  ;aweshell-next
-  ;aweshell-prev
-  ;aweshell-clear-buffer
-  ;aweshell-sudo-toggle
-  ;aweshell-switch-buffer
-  ;aweshell-dedicated-toggle
-  ;aweshell-dedicated-open
-  ;aweshell-dedicated-close
-
-  (require 'auto-save)
-  (auto-save-enable)
-  (setq auto-save-silent nil)
-  (setq auto-save-delete-trailing-whitespace nil)
-  (setq auto-save-disable-predicates
-        '((lambda ()
-        (string-suffix-p
-        "gpg"
-        (file-name-extension (buffer-name)) t))))
-
-  (use-package posframe :ensure t)
-  (use-package rime
-    :ensure t
-    :config
-    (setq rime-user-data-dir "~/Library/Rime/")
-    (setq rime-show-candidate 'posframe)
-    (setq rime-disable-predicates '(+rime-english-prober))
-    (setq rime-posframe-properties
-            (list :background-color "#333333"
-                  :foreground-color "#dcdccc"
-     ;             :font "WenQuanYi Micro Hei Mono-14"
-                  :internal-border-width 10))
-    :custom
-    (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-    (default-input-method "rime")
-  )
 #+END_SRC
