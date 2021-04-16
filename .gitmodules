@@ -16,3 +16,6 @@
 [submodule ".emacs.d/vendor/snails"]
 	path = .emacs.d/vendor/snails
 	url = https://github.com/manateelazycat/snails
+[submodule ".emacs.d/vendor/awesome-tray"]
+	path = .emacs.d/vendor/awesome-tray
+	url = https://github.com/manateelazycat/awesome-tray
