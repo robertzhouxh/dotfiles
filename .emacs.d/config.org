@@ -189,349 +189,334 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 * utils
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (defun x/save-all ()
-    "Save all file-visiting buffers without prompting."
-    (interactive)
-    (save-some-buffers t))
+    (defun x/save-all ()
+      "Save all file-visiting buffers without prompting."
+      (interactive)
+      (save-some-buffers t))
 
-  (defun x/open-init-file ()
-    (interactive)
-    (find-file user-init-file))
+    (defun x/open-init-file ()
+      (interactive)
+      (find-file user-init-file))
 
-  (defun x/reload-init-file ()
-    "Reload init.el file."
-    (interactive)
-    (load user-init-file)
-    (message "Reloaded init.el OK."))
+    (defun x/reload-init-file ()
+      "Reload init.el file."
+      (interactive)
+      (load user-init-file)
+      (message "Reloaded init.el OK."))
 
-  (defun x/system-is-mac ()
-    (interactive)
-    (string-equal system-type "darwin"))
+    (defun x/system-is-mac ()
+      (interactive)
+      (string-equal system-type "darwin"))
 
-  (defun x/system-is-linux ()
-    (interactive)
-    (string-equal system-type "gnu/linux"))
+    (defun x/system-is-linux ()
+      (interactive)
+      (string-equal system-type "gnu/linux"))
 
-  (defun hold-line-scroll-up ()
-    "Scroll the page with the cursor in the same line"
-    (interactive)
-    ;; move the cursor also
-    (let ((tmp (current-column)))
-      (scroll-up 1)
-      (line-move-to-column tmp)
-      (forward-line 1)))
+    (defun hold-line-scroll-up ()
+      "Scroll the page with the cursor in the same line"
+      (interactive)
+      ;; move the cursor also
+      (let ((tmp (current-column)))
+        (scroll-up 1)
+        (line-move-to-column tmp)
+        (forward-line 1)))
 
-  (defun hold-line-scroll-down ()
-    "Scroll the page with the cursor in the same line"
-    (interactive)
-    ;; move the cursor also
-    (let ((tmp (current-column)))
-      (scroll-down 1)
-      (line-move-to-column tmp)
-      (forward-line -1)))
+    (defun hold-line-scroll-down ()
+      "Scroll the page with the cursor in the same line"
+      (interactive)
+      ;; move the cursor also
+      (let ((tmp (current-column)))
+        (scroll-down 1)
+        (line-move-to-column tmp)
+        (forward-line -1)))
 
-  (defun scan-code-tags ()
-    "Scan code tags: @TODO: , @FIXME:, @BUG:, @NOTE:."
-    (interactive)
-    (split-window-horizontally)
-    (occur "@FIXME:\\|@TODO:\\|@BUG:\\|@NOTE:"))
+    (defun scan-code-tags ()
+      "Scan code tags: @TODO: , @FIXME:, @BUG:, @NOTE:."
+      (interactive)
+      (split-window-horizontally)
+      (occur "@FIXME:\\|@TODO:\\|@BUG:\\|@NOTE:"))
 
-  (defun select-current-word ()
-    "Select the word under cursor.
-    “word” here is considered any alphanumeric sequence with “_” or “-”."
-    (interactive)
-    (let (pt)
-      (skip-chars-backward "-_A-Za-z0-9")
-      (setq pt (point))
-      (skip-chars-forward "-_A-Za-z0-9")
-      (set-mark pt)))
+    (defun select-current-word ()
+      "Select the word under cursor.
+      “word” here is considered any alphanumeric sequence with “_” or “-”."
+      (interactive)
+      (let (pt)
+        (skip-chars-backward "-_A-Za-z0-9")
+        (setq pt (point))
+        (skip-chars-forward "-_A-Za-z0-9")
+        (set-mark pt)))
 
-  ;; Insert Src Block
-  (use-package ido-completing-read+)
-  (defun pkg-insert-src-block (src-code-type)
-    "Insert a `SRC-CODE-TYPE' type source code block in org-mode."
-    (interactive
-      (let ((src-code-types
-              '("emacs-lisp" "python" "C" "sh" "java" "js" "clojure" "C++" "css"
-                "calc" "asymptote" "dot" "gnuplot" "ledger" "lilypond" "mscgen"
-                "octave" "oz" "plantuml" "R" "sass" "screen" "sql" "awk" "ditaa"
-                "haskell" "latex" "lisp" "matlab" "ocaml" "org" "perl" "ruby"
-                "scheme" "sqlite" "html")))
-        (list (ido-completing-read+ "Source code type: " src-code-types))))
-    (progn
+    ;; Insert Src Block
+    (use-package ido-completing-read+)
+    (defun pkg-insert-src-block (src-code-type)
+      "Insert a `SRC-CODE-TYPE' type source code block in org-mode."
+      (interactive
+        (let ((src-code-types
+                '("emacs-lisp" "python" "C" "sh" "java" "js" "clojure" "C++" "css"
+                  "calc" "asymptote" "dot" "gnuplot" "ledger" "lilypond" "mscgen"
+                  "octave" "oz" "plantuml" "R" "sass" "screen" "sql" "awk" "ditaa"
+                  "haskell" "latex" "lisp" "matlab" "ocaml" "org" "perl" "ruby"
+                  "scheme" "sqlite" "html")))
+          (list (ido-completing-read+ "Source code type: " src-code-types))))
+      (progn
+        (newline-and-indent)
+        (insert (format "#+BEGIN_SRC %s\n" src-code-type))
+        (newline-and-indent)
+        (insert "#+END_SRC\n")
+        (previous-line 2)
+        (org-edit-src-code)))
+
+
+    ;;; Some Cool Funtions
+    (defun generate-scratch-buffer ()
+      "Create and switch to a temporary scratch buffer with a random
+         name."
+      (interactive)
+      (switch-to-buffer (make-temp-name "scratch-")))
+
+    (defun sudo ()
+      "Use TRAMP to `sudo' the current buffer"
+      (interactive)
+      (when buffer-file-name
+        (find-alternate-file
+         (concat "/sudo:root@localhost:"
+                 buffer-file-name))))
+
+    (defun rename-local-var (name)
+      (interactive "sEnter new name: ")
+      (let ((var (word-at-point)))
+        (mark-defun)
+        (replace-string var name nil (region-beginning) (region-end))))
+
+    (defun increment-number-at-point ()
+      (interactive)
+      (skip-chars-backward "0-9")
+      (or (looking-at "[0-9]+")
+          (error "No number at point"))
+      (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
+
+    (defun decrement-number-at-point ()
+      (interactive)
+      (skip-chars-backward "0-9")
+      (or (looking-at "[0-9]+")
+          (error "No number at point"))
+      (replace-match (number-to-string (- (string-to-number (match-string 0)) 1))))
+
+    (defun move-file ()
+      "Write this file to a new location, and delete the old one."
+      (interactive)
+      (let ((old-location (buffer-file-name)))
+        (call-interactively #'write-file)
+        (when old-location
+          (delete-file old-location))))
+
+    (defun format-function-parameters ()
+      "Turn the list of function parameters into multiline."
+      (interactive)
+      (beginning-of-line)
+      (search-forward "(" (line-end-position))
       (newline-and-indent)
-      (insert (format "#+BEGIN_SRC %s\n" src-code-type))
-      (newline-and-indent)
-      (insert "#+END_SRC\n")
-      (previous-line 2)
-      (org-edit-src-code)))
-
-
-  ;;; Some Cool Funtions
-  (defun generate-scratch-buffer ()
-    "Create and switch to a temporary scratch buffer with a random
-       name."
-    (interactive)
-    (switch-to-buffer (make-temp-name "scratch-")))
-
-  (defun sudo ()
-    "Use TRAMP to `sudo' the current buffer"
-    (interactive)
-    (when buffer-file-name
-      (find-alternate-file
-       (concat "/sudo:root@localhost:"
-               buffer-file-name))))
-
-  (defun rename-local-var (name)
-    (interactive "sEnter new name: ")
-    (let ((var (word-at-point)))
-      (mark-defun)
-      (replace-string var name nil (region-beginning) (region-end))))
-
-  (defun increment-number-at-point ()
-    (interactive)
-    (skip-chars-backward "0-9")
-    (or (looking-at "[0-9]+")
-        (error "No number at point"))
-    (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
-
-  (defun decrement-number-at-point ()
-    (interactive)
-    (skip-chars-backward "0-9")
-    (or (looking-at "[0-9]+")
-        (error "No number at point"))
-    (replace-match (number-to-string (- (string-to-number (match-string 0)) 1))))
-
-  (defun move-file ()
-    "Write this file to a new location, and delete the old one."
-    (interactive)
-    (let ((old-location (buffer-file-name)))
-      (call-interactively #'write-file)
-      (when old-location
-        (delete-file old-location))))
-
-  (defun format-function-parameters ()
-    "Turn the list of function parameters into multiline."
-    (interactive)
-    (beginning-of-line)
-    (search-forward "(" (line-end-position))
-    (newline-and-indent)
-    (while (search-forward "," (line-end-position) t)
+      (while (search-forward "," (line-end-position) t)
+        (newline-and-indent))
+      (end-of-line)
+      (c-hungry-delete-forward)
+      (insert " ")
+      (search-backward ")")
       (newline-and-indent))
-    (end-of-line)
-    (c-hungry-delete-forward)
-    (insert " ")
-    (search-backward ")")
-    (newline-and-indent))
 
-  (defun eshell-here ()
-    "Opens up a new shell in the directory associated with the
-      current buffer's file. The eshell is renamed to match that
-      directory to make multiple eshell windows easier."
-    (interactive)
-    (let* ((height (/ (window-total-height) 3)))
-      (split-window-vertically (- height))
-      (other-window 1)
-      (eshell "new")
-      (insert (concat "ls"))
-      (eshell-send-input)))
+    (defun eshell-here ()
+      "Opens up a new shell in the directory associated with the
+        current buffer's file. The eshell is renamed to match that
+        directory to make multiple eshell windows easier."
+      (interactive)
+      (let* ((height (/ (window-total-height) 3)))
+        (split-window-vertically (- height))
+        (other-window 1)
+        (eshell "new")
+        (insert (concat "ls"))
+        (eshell-send-input)))
 
-  (defun zxh/copy-file-path (&optional @dir-path-only-p)
-    "Copy the current buffer's file path or dired path to `kill-ring'. Result is full path."
-    (interactive "P")
-    (let (($fpath
-           (if (string-equal major-mode 'dired-mode)
-               (progn
-                 (let (($result (mapconcat 'identity (dired-get-marked-files) "\n")))
-                   (if (equal (length $result) 0)
-                       (progn default-directory )
-                     (progn $result))))
-             (if (buffer-file-name)
-                 (buffer-file-name)
-               (expand-file-name default-directory)))))
-      (kill-new
-       (if @dir-path-only-p
+    (defun zxh/copy-file-path (&optional @dir-path-only-p)
+      "Copy the current buffer's file path or dired path to `kill-ring'. Result is full path."
+      (interactive "P")
+      (let (($fpath
+             (if (string-equal major-mode 'dired-mode)
+                 (progn
+                   (let (($result (mapconcat 'identity (dired-get-marked-files) "\n")))
+                     (if (equal (length $result) 0)
+                         (progn default-directory )
+                       (progn $result))))
+               (if (buffer-file-name)
+                   (buffer-file-name)
+                 (expand-file-name default-directory)))))
+        (kill-new
+         (if @dir-path-only-p
+             (progn
+               (message "Directory path copied: 「%s」" (file-name-directory $fpath))
+               (file-name-directory $fpath))
            (progn
-             (message "Directory path copied: 「%s」" (file-name-directory $fpath))
-             (file-name-directory $fpath))
-         (progn
-           (message "File path copied: 「%s」" $fpath)
-           $fpath )))))
+             (message "File path copied: 「%s」" $fpath)
+             $fpath )))))
 
 
-  ;;-------------------------- Esehll -----------------------------
-  (use-package eshell
-    :init
-    (setq eshell-scroll-to-bottom-on-input 'all
-          eshell-error-if-no-glob t
-          eshell-hist-ignoredups t
-          eshell-save-history-on-exit t
-          eshell-prefer-lisp-functions nil
-          eshell-destroy-buffer-when-process-dies t))
+    ;;-------------------------- Esehll -----------------------------
+    (use-package eshell
+      :init
+      (setq eshell-scroll-to-bottom-on-input 'all
+            eshell-error-if-no-glob t
+            eshell-hist-ignoredups t
+            eshell-save-history-on-exit t
+            eshell-prefer-lisp-functions nil
+            eshell-destroy-buffer-when-process-dies t))
 
-  ;; Fancy prompt
-  (setq eshell-prompt-function
-        (lambda ()
-          (concat
-           (propertize "┌─[" 'face `(:foreground "green"))
-           (propertize (user-login-name) 'face `(:foreground "red"))
-           (propertize "@" 'face `(:foreground "green"))
-           (propertize (system-name) 'face `(:foreground "lightblue"))
-           (propertize "]──[" 'face `(:foreground "green"))
-           (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-           (propertize "]──[" 'face `(:foreground "green"))
-           (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-           (propertize "]\n" 'face `(:foreground "green"))
-           (propertize "└─>" 'face `(:foreground "green"))
-           (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
-           )))
+    ;; Fancy prompt
+    (setq eshell-prompt-function
+          (lambda ()
+            (concat
+             (propertize "┌─[" 'face `(:foreground "green"))
+             (propertize (user-login-name) 'face `(:foreground "red"))
+             (propertize "@" 'face `(:foreground "green"))
+             (propertize (system-name) 'face `(:foreground "lightblue"))
+             (propertize "]──[" 'face `(:foreground "green"))
+             (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+             (propertize "]──[" 'face `(:foreground "green"))
+             (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+             (propertize "]\n" 'face `(:foreground "green"))
+             (propertize "└─>" 'face `(:foreground "green"))
+             (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+             )))
 
-  ;; Define visual commands and subcommands
-  (setq eshell-visual-commands '("htop" "vi" "screen" "top" "less"
-                                 "more" "lynx" "ncftp" "pine" "tin" "trn" "elm"
-                                 "vim"))
+    ;; Define visual commands and subcommands
+    (setq eshell-visual-commands '("htop" "vi" "screen" "top" "less"
+                                   "more" "lynx" "ncftp" "pine" "tin" "trn" "elm"
+                                   "vim"))
 
-  (setq eshell-visual-subcommands '("git" "log" "diff" "show" "ssh"))
+    (setq eshell-visual-subcommands '("git" "log" "diff" "show" "ssh"))
 
-  ;; Pager setup
-  (setenv "PAGER" "cat")
+    ;; Pager setup
+    (setenv "PAGER" "cat")
 
-  (defalias 'ff 'find-file)
-  (defalias 'd 'dired)
+    (defalias 'ff 'find-file)
+    (defalias 'd 'dired)
 
-  (defun eshell/clear ()
-    (let ((inhibit-read-only t))
-      (erase-buffer)))
+    (defun eshell/clear ()
+      (let ((inhibit-read-only t))
+        (erase-buffer)))
 
-  ;; Git
-  (defun eshell/gst (&rest args)
-      (magit-status (pop args) nil)
-      (eshell/echo))   ;; The echo command suppresses output
+    ;; Git
+    (defun eshell/gst (&rest args)
+        (magit-status (pop args) nil)
+        (eshell/echo))   ;; The echo command suppresses output
 
-  ;; Bargs and Sargs
-  (defun eshell/-buffer-as-args (buffer separator command)
-    "Takes the contents of BUFFER, and splits it on SEPARATOR, and
-  runs the COMMAND with the contents as arguments. Use an argument
-  `%' to substitute the contents at a particular point, otherwise,
-  they are appended."
-    (let* ((lines (with-current-buffer buffer
-                    (split-string
-                     (buffer-substring-no-properties (point-min) (point-max))
-                     separator)))
-           (subcmd (if (-contains? command "%")
-                       (-flatten (-replace "%" lines command))
-                     (-concat command lines)))
-           (cmd-str  (string-join subcmd " ")))
-      (message cmd-str)
-      (eshell-command-result cmd-str)))
+    ;; Bargs and Sargs
+    (defun eshell/-buffer-as-args (buffer separator command)
+      "Takes the contents of BUFFER, and splits it on SEPARATOR, and
+    runs the COMMAND with the contents as arguments. Use an argument
+    `%' to substitute the contents at a particular point, otherwise,
+    they are appended."
+      (let* ((lines (with-current-buffer buffer
+                      (split-string
+                       (buffer-substring-no-properties (point-min) (point-max))
+                       separator)))
+             (subcmd (if (-contains? command "%")
+                         (-flatten (-replace "%" lines command))
+                       (-concat command lines)))
+             (cmd-str  (string-join subcmd " ")))
+        (message cmd-str)
+        (eshell-command-result cmd-str)))
 
-  (defun eshell/bargs (buffer &rest command)
-    "Passes the lines from BUFFER as arguments to COMMAND."
-    (eshell/-buffer-as-args buffer "\n" command))
+    (defun eshell/bargs (buffer &rest command)
+      "Passes the lines from BUFFER as arguments to COMMAND."
+      (eshell/-buffer-as-args buffer "\n" command))
 
-  (defun eshell/sargs (buffer &rest command)
-    "Passes the words from BUFFER as arguments to COMMAND."
-    (eshell/-buffer-as-args buffer nil command))
+    (defun eshell/sargs (buffer &rest command)
+      "Passes the words from BUFFER as arguments to COMMAND."
+      (eshell/-buffer-as-args buffer nil command))
 
-  (defun eshell/close ()
-    (delete-window))
+    (defun eshell/close ()
+      (delete-window))
 
-  ;(add-hook 'eshell-mode-hook
-  ;          (lambda ()
-  ;            (define-key eshell-mode-map (kbd "C-M-a") 'eshell-previous-prompt)
-  ;            (define-key eshell-mode-map (kbd "C-M-e") 'eshell-next-prompt)))
+    ;(add-hook 'eshell-mode-hook
+    ;          (lambda ()
+    ;            (define-key eshell-mode-map (kbd "C-M-a") 'eshell-previous-prompt)
+    ;            (define-key eshell-mode-map (kbd "C-M-e") 'eshell-next-prompt)))
 
-  (defun eshell-pop--kill-and-delete-window ()
-    (unless (one-window-p)
-      (delete-window)))
+    (defun eshell-pop--kill-and-delete-window ()
+      (unless (one-window-p)
+        (delete-window)))
 
-  (add-hook 'eshell-exit-hook 'eshell-pop--kill-and-delete-window)
+    (add-hook 'eshell-exit-hook 'eshell-pop--kill-and-delete-window)
 
 
 
-  ;;------------------------------------------------------------
-  ;;; +rime-probe-english.el -*- lexical-binding: t; -*-
+    ;;------------------------------------------------------------
+    ;;; +rime-probe-english.el -*- lexical-binding: t; -*-
 
-  ;;
-  ;; Some functions copied from `pyim', thanks for tumashu@github.com .
-  ;;
-  (defun +rime--char-before-to-string (num)
-    "得到光标前第 `num' 个字符，并将其转换为字符串。"
-    (let* ((point (point))
-           (point-before (- point num)))
-      (when (and (> point-before 0)
-                 (char-before point-before))
-        (char-to-string (char-before point-before)))))
+    ;;
+    ;; Some functions copied from `pyim', thanks for tumashu@github.com .
+    ;;
+    (defun +rime--char-before-to-string (num)
+      "得到光标前第 `num' 个字符，并将其转换为字符串。"
+      (let* ((point (point))
+             (point-before (- point num)))
+        (when (and (> point-before 0)
+                   (char-before point-before))
+          (char-to-string (char-before point-before)))))
 
-  (defun +rime--string-match-p (regexp string &optional start)
-    "与 `string-match-p' 类似，如果 REGEXP 和 STRING 是非字符串时，
-  不会报错。"
-    (and (stringp regexp)
-         (stringp string)
-         (string-match-p regexp string start)))
+    (defun +rime--string-match-p (regexp string &optional start)
+      "与 `string-match-p' 类似，如果 REGEXP 和 STRING 是非字符串时，
+    不会报错。"
+      (and (stringp regexp)
+           (stringp string)
+           (string-match-p regexp string start)))
 
-  (defun +rime--probe-auto-english ()
-    "激活这个探针函数后，使用下面的规则自动切换中英文输入：
+    (defun +rime--probe-auto-english ()
+      "激活这个探针函数后，使用下面的规则自动切换中英文输入：
 
-  1. 当前字符为英文字符（不包括空格）时，输入下一个字符为英文字符
-  2. 当前字符为中文字符或输入字符为行首字符时，输入的字符为中文字符
-  3. 以单个空格为界，自动切换中文和英文字符
-     即，形如 `我使用 emacs 编辑此函数' 的句子全程自动切换中英输入法
-  "
-    (let ((str-before-1 (+rime--char-before-to-string 0))
-          (str-before-2 (+rime--char-before-to-string 1)))
-      (unless (string= (buffer-name) " *temp*")
-        (if (> (point) (save-excursion (back-to-indentation)
-                                       (point)))
-            (or (if (+rime--string-match-p " " str-before-1)
-                    (+rime--string-match-p "\\cc" str-before-2)
-                  (not (+rime--string-match-p "\\cc" str-before-1))))))))
+    1. 当前字符为英文字符（不包括空格）时，输入下一个字符为英文字符
+    2. 当前字符为中文字符或输入字符为行首字符时，输入的字符为中文字符
+    3. 以单个空格为界，自动切换中文和英文字符
+       即，形如 `我使用 emacs 编辑此函数' 的句子全程自动切换中英输入法
+    "
+      (let ((str-before-1 (+rime--char-before-to-string 0))
+            (str-before-2 (+rime--char-before-to-string 1)))
+        (unless (string= (buffer-name) " *temp*")
+          (if (> (point) (save-excursion (back-to-indentation)
+                                         (point)))
+              (or (if (+rime--string-match-p " " str-before-1)
+                      (+rime--string-match-p "\\cc" str-before-2)
+                    (not (+rime--string-match-p "\\cc" str-before-1))))))))
 
-  (defun +rime--beancount-p ()
-    "当前为`beancount-mode'，且光标在注释或字符串当中。"
-    (when (derived-mode-p 'beancount-mode)
-      (not (or (nth 3 (syntax-ppss))
-               (nth 4 (syntax-ppss))))))
+    (defun +rime--beancount-p ()
+      "当前为`beancount-mode'，且光标在注释或字符串当中。"
+      (when (derived-mode-p 'beancount-mode)
+        (not (or (nth 3 (syntax-ppss))
+                 (nth 4 (syntax-ppss))))))
 
-  (defun +rime--evil-mode-p ()
-    "检测当前是否在 `evil' 模式下。"
-    (or (evil-normal-state-p)
-        (evil-visual-state-p)
-        (evil-motion-state-p)
-        (evil-operator-state-p)))
+    (defun +rime--evil-mode-p ()
+      "检测当前是否在 `evil' 模式下。"
+      (or (evil-normal-state-p)
+          (evil-visual-state-p)
+          (evil-motion-state-p)
+          (evil-operator-state-p)))
 
-  (defun +rime-english-prober()
-    "自定义英文输入探针函数，用于在不同mode下使用不同的探针列表"
-    (let ((use-en (or (button-at (point))
-                      (+rime--evil-mode-p))))
-      (if (derived-mode-p 'telega-chat-mode)
+    (defun +rime-english-prober()
+      "自定义英文输入探针函数，用于在不同mode下使用不同的探针列表"
+      (let ((use-en (or (button-at (point))
+                        (+rime--evil-mode-p))))
+        (if (derived-mode-p 'telega-chat-mode)
+            (setq use-en (or use-en
+                             (+rime--probe-auto-english)))
+          (when (derived-mode-p 'text-mode)
+            (setq use-en (or use-en
+                             (+rime--probe-auto-english))))
+          (when (derived-mode-p 'prog-mode 'conf-mode)
+            (setq use-en (or use-en
+                             (rime--after-alphabet-char-p))))
           (setq use-en (or use-en
-                           (+rime--probe-auto-english)))
-        (when (derived-mode-p 'text-mode)
-          (setq use-en (or use-en
-                           (+rime--probe-auto-english))))
-        (when (derived-mode-p 'prog-mode 'conf-mode)
-          (setq use-en (or use-en
-                           (rime--after-alphabet-char-p))))
-        (setq use-en (or use-en
-                         (rime--prog-in-code-p)
-                         (+rime--beancount-p))))
-      use-en))
-
-  ;; ---------- quick magit push ---------------------
-  (defun aborn/simple-git-commit-push (msg)
-    "Simple commit current git project and push to its upstream."
-    (interactive "sCommit Message: ")
-    (when (= 0 (length msg))
-      (setq msg (format-time-string "commit by magit in emacs@%Y-%m-%d %H:%M:%S"
-                                    (current-time))))
-    (message "commit message is %s" msg)
-    (when (and buffer-file-name
-               (buffer-modified-p))
-      (save-buffer))                   ;; save it first if modified.
-    (magit-stage-modified)
-    (magit-commit (list "-m" msg))
-    (magit-push-current-to-upstream nil))
+                           (rime--prog-in-code-p)
+                           (+rime--beancount-p))))
+        use-en))
 
 #+END_SRC
 * plantform
@@ -685,13 +670,9 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 ;; https://github.com/magit/magit
 (use-package magit
   :commands magit-get-top-dir
-  :bind (("C-c g" . magit-status)
-         ("C-c C-g l" . magit-file-log)
-         ("C-c f" . magit-grep))
   :init
   (progn
     ;; magit extensions
-
     ;; make magit status go full-screen but remember previous window
     ;; settings
     ;; from: http://whattheemacsd.com/setup-magit.el-01.html
@@ -720,7 +701,7 @@ etting up the basics early, so if the config breaks further along, I'll still ha
   :config
   (progn
     ;; restore previously hidden windows
-        ;; major mode for editing `git rebase -i`
+    ;; major mode for editing `git rebase -i`
     (defadvice magit-quit-window (around magit-restore-screen activate)
       (let ((current-mode major-mode))
         ad-do-it
@@ -938,83 +919,151 @@ etting up the basics early, so if the config breaks further along, I'll still ha
 #+END_SRC
 * evil
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ; C-y => paste the things to minibuffer, then use consel-rg
-  (defun x/config-evil-leader ()
-    "Configure evil leader mode."
-    (evil-leader/set-leader ",")
-    (evil-leader/set-key
-      ","  'avy-goto-char-2
-      ":"  'eval-expression
+    ; C-y => paste the things to minibuffer, then use consel-rg
+    (defun x/config-evil-leader ()
+      "Configure evil leader mode."
+      (evil-leader/set-leader ",")
+      (evil-leader/set-key
+        ","  'avy-goto-char-2
+        ":"  'eval-expression
 
-      "/"  'counsel-rg
+        "/"  'counsel-rg
 
-      "a"  'align-regexp
+        "a"  'align-regexp
 
-      "bb" 'ivy-switch-buffer
-      "br" 'counsel-recentf
-      "B"  'magit-blame-toggle
+        "bb" 'ivy-switch-buffer
+        "br" 'counsel-recentf
+        "B"  'magit-blame-toggle
 
-      "c"  'comment-dwim
+        "c"  'comment-dwim
 
-      "db" 'kill-this-buffer
-      "D"  'kill-buffer-and-window
-      "do" 'delete-other-windows
-      "dt" 'delete-trailing-whitespace
-      "dv" 'counsel-describe-variable
-      "df" 'counsel-describe-function
+        "db" 'kill-this-buffer
+        "D"  'kill-buffer-and-window
+        "do" 'delete-other-windows
+        "dt" 'delete-trailing-whitespace
+        "dv" 'counsel-describe-variable
+        "df" 'counsel-describe-function
 
-      "es" 'ivy-erlang-complete-find-spec
-      "ef" 'ivy-erlang-complete-find-file
-      "eh" 'ivy-erlang-complete-show-doc-at-point
-      "ep" 'ivy-erlang-complete-set-project-root
-      "ea" 'ivy-erlang-complete-autosetup-project-root
-      "ek" 'get-erl-man
-      "es" 'eshell-here
-      "ec" 'eshell/clear
-      "ed" 'eshell/close
+        "es" 'ivy-erlang-complete-find-spec
+        "ef" 'ivy-erlang-complete-find-file
+        "eh" 'ivy-erlang-complete-show-doc-at-point
+        "ep" 'ivy-erlang-complete-set-project-root
+        "ea" 'ivy-erlang-complete-autosetup-project-root
+        "ek" 'get-erl-man
+        "es" 'eshell-here
+        "ec" 'eshell/clear
+        "ed" 'eshell/close
 
-      "ff" 'find-file-other-frame
-      "fp" 'format-function-parameters
-      "fd" 'dired-jump
-      "fn" 'find-name-dired
-      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-      "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
-      "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
+        "ff" 'find-file-other-frame
+        "fp" 'format-function-parameters
+        "fd" 'dired-jump
+        "fn" 'find-name-dired
+        "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+        "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+        "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
+        "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
 
-      "g"  'magit-status
-      "G"  'aborn/simple-git-commit-push
-      ;"G"  'magit-dispatch-popup
+        "g"  'magit-status
+        "G"  'aborn/simple-git-commit-push
 
-      "of" 'other-frame
-      "ow" 'other-window
+        "of" 'other-frame
+        "ow" 'other-window
 
-      "p/" 'counsel-projectile-rg
-      "pf" 'counsel-projectile-find-file
-      "pp" 'counsel-projectile-switch-project
-      "pb" 'counsel-projectile-switch-to-buffer
+        "p/" 'counsel-projectile-rg
+        "pf" 'counsel-projectile-find-file
+        "pp" 'counsel-projectile-switch-project
+        "pb" 'counsel-projectile-switch-to-buffer
 
-      "rb" 'generate-scratch-buffer
-      "ri" 'x/open-init-file
-      "rv" 'rename-local-var
-      "R"  'x/reload-init-file
+        "rb" 'generate-scratch-buffer
+        "ri" 'x/open-init-file
+        "rv" 'rename-local-var
+        "R"  'x/reload-init-file
 
-      "sa" 'x/save-all
-      "su" 'sudo
+        "sa" 'x/save-all
+        "su" 'sudo
 
-      "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
-      "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+        "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
+        "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
-      "w" 'whitespace-mode
-      )
+        "w" 'whitespace-mode
+        )
 
-    (defun magit-blame-toggle ()
-      "Toggle magit-blame-mode on and off interactively."
-      (interactive)
-      (if (and (boundp 'magit-blame-mode) magit-blame-mode)
-          (magit-blame-quit)
-        (call-interactively 'magit-blame)))
-  )
+      (defun magit-blame-toggle ()
+        "Toggle magit-blame-mode on and off interactively."
+        (interactive)
+        (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+            (magit-blame-quit)
+          (call-interactively 'magit-blame)))
+    )
+
+  ;; steal from: https://github.com/aborn/.spacemacs.d/blob/master/parts/aborn-swift.el
+  (require 'async)
+  (defun aborn/magit-create-or-checkout-fix-branch ()
+    "Crate (or checkout to) fix branch using magit."
+    (interactive)
+    (let* ((cbranch (magit-get-current-branch))
+           (bname (format-time-string "fix%m%d" (current-time))))
+      (if (member bname (magit-list-local-branch-names))
+          (progn
+            (magit-checkout bname)
+            (message "checkout to branch %s success." bname)
+            (force-mode-line-update))
+        (if (and cbranch
+                 (not (string= cbranch bname))
+                 (string= "master" cbranch))
+            (progn
+              (magit-branch-and-checkout bname "master")
+              (message "create & checkout to branch %s success." bname))
+          (message "current branch is %s (not master), create branch %s failed." cbranch bname))
+        (force-mode-line-update))))
+
+  (defun aborn/swift-git-commit-push (msg)
+    "Commit modified and push to upstream."
+    (interactive "sCommit Message: ")
+    (when (= 0 (length msg))
+      (setq msg (format-time-string "commit by magit in emacs@%Y-%m-%d %H:%M:%S" (current-time))))
+    (message "commit message is %s" msg)
+    (when (and buffer-file-name
+               (buffer-modified-p))
+      (save-buffer))                                     ;; save it first if modified.
+    (magit-stage-modified)
+    (magit-commit (list "-m" msg))
+    (let* ((begin-time (current-time)))
+      (async-start
+       `(lambda ()
+          ,(async-inject-variables "\\`begin-time\\'")
+          ,(async-inject-variables "\\`default-directory\\'")
+          ,(async-inject-variables "\\`load-path\\'")    ;; main-process load-path.
+          (require 'magit)
+          (require 'aborn-log)
+          (aborn/log (format "[[** start to execute push in directory %s" default-directory))
+          (aborn/log (shell-command-to-string "echo $PWD"))
+          (when (file-exists-p default-directory)
+            (aborn/log (shell-command-to-string "git push"))
+            (aborn/log "finished push. **]]"))
+          (format "%s push to upstream success. %s. time cost: %ss."
+                  (aborn/log-format "")
+                  (or (magit-get "remote" "origin" "url") default-directory)
+                  (float-time (time-subtract (current-time) begin-time))))
+       (lambda (result)
+         (message "%s" result)))))
+
+  (defun aborn/simple-git-commit-push (msg)
+    "Simple commit current git project and push to its upstream."
+    (interactive "sCommit Message: ")
+    (when (= 0 (length msg))
+      (setq msg (format-time-string "commit by magit in emacs@%Y-%m-%d %H:%M:%S"
+                                    (current-time))))
+    (message "commit message is %s" msg)
+    (when (and buffer-file-name
+               (buffer-modified-p))
+      (save-buffer))                   ;; save it first if modified.
+    (magit-stage-modified)
+    ;(magit-commit (list "-m" msg))
+    ;(magit-git "commit" "-m" msg)
+    (magit-git (list "commit" "-m" msg))
+    (magit-push-current-to-upstream nil)
+    (message "now do async push to %s" (magit-get "remote" "origin" "url")))
 
   (use-package evil
     :ensure t
