@@ -888,6 +888,7 @@ header args
           "pf" 'counsel-projectile-find-file
           "pp" 'counsel-projectile-switch-project
           "pb" 'counsel-projectile-switch-to-buffer
+          "proxy" 'proxy-socks-enable
 
           "rb" 'generate-scratch-buffer
           "ri" 'x/open-init-file
