@@ -57,121 +57,154 @@ header args
 * Generic
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(prefer-coding-system 'utf-8)
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US.UTF-8")
+  ;; startup
+  (tool-bar-mode -1)                      ;禁用工具栏
+  (menu-bar-mode -1)                      ;禁用菜单栏
+  (scroll-bar-mode -1)                    ;禁用滚动条
+  
+  (if (featurep 'cocoa)
+      (progn
+        ;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
+        ;; 所以先设置 `ns-use-native-fullscreen' 和 `ns-use-fullscreen-animation' 禁止Emacs使用Mac原生的全屏模式.
+        ;; 而是采用传统的全屏模式, 传统的全屏模式, 只会在当前工作区全屏,而不是切换到Mac那种单独的全屏工作区,
+        ;; 这样执行 `make-frame' 先关代码或插件时,就不会因为Mac单独工作区左右滑动产生的bug.
+        ;;
+        ;; Mac平台下,不能直接使用 `set-frame-parameter' 和 `fullboth' 来设置全屏,
+        ;; 那样也会导致Mac窗口管理器直接把Emacs窗口扔到单独的工作区, 从而对 `make-frame' 产生同样的Bug.
+        ;; 所以, 启动的时候通过 `set-frame-parameter' 和 `maximized' 先设置Emacs为最大化窗口状态, 启动5秒以后再设置成全屏状态,
+        ;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
+        (setq ns-use-native-fullscreen nil)
+        (setq ns-use-fullscreen-animation nil)
+  
+        ;; 默认先最大化。
+        (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  
+        (run-at-time "2sec" nil
+                     (lambda ()
+                       (toggle-frame-fullscreen)
+                       ))
+        )
+  
+    ;; 非Mac平台直接全屏
+    (require 'fullscreen)
+    (fullscreen))
 
-;; Restore emacs session.
-(setq initial-buffer-choice t)
-(run-with-timer 1 nil #'(lambda () (bury-buffer)))
+;; Code
+  (prefer-coding-system 'utf-8)
+  (setenv "LANG" "en_US.UTF-8")
+  (setenv "LC_ALL" "en_US.UTF-8")
+  (setenv "LC_CTYPE" "en_US.UTF-8")
 
-;; 增加长行处理性能
-(setq bidi-inhibit-bpa t)
-(setq-default bidi-paragraph-direction 'left-to-right)
+  ;; Restore emacs session.
+  (setq initial-buffer-choice t)
+  (run-with-timer 1 nil #'(lambda () (bury-buffer)))
 
-;; 增加IO性能
-(setq process-adaptive-read-buffering nil)
-(setq read-process-output-max (* 1024 1024))
+  ;; 增加长行处理性能
+  (setq bidi-inhibit-bpa t)
+  (setq-default bidi-paragraph-direction 'left-to-right)
 
-(fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
-(blink-cursor-mode -1)                  ;指针不闪动
-(transient-mark-mode 1)                 ;标记高亮
-(global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
-(setq use-dialog-box nil)               ;never pop dialog
-(setq inhibit-startup-screen t)         ;inhibit start screen
-(setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
-(setq-default comment-style 'indent)    ;设定自动缩进的注释风格
-(setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
-(setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
-(setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
-(setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
-(setq split-width-threshold nil)        ;分屏的时候使用上下分屏
-(setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
-(setq confirm-kill-processes nil)       ;退出自动杀掉进程
-(setq async-bytecomp-allowed-packages nil) ;避免magit报错
-(setq word-wrap-by-category t)             ;按照中文折行
-(setq profiler-report-cpu-line-format ;让 profiler-report 第一列宽一点
-      '((100 left)
-        (24 right ((19 right)
-                   (5 right)))))
-(setq profiler-report-memory-line-format
-      '((100 left)
-        (19 right ((14 right profiler-format-number)
-                   (5 right)))))
-;(add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
+  ;; 增加IO性能
+  (setq process-adaptive-read-buffering nil)
+  (setq read-process-output-max (* 1024 1024))
 
-(setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
-(setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
+  (fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
+  (blink-cursor-mode -1)                  ;指针不闪动
+  (transient-mark-mode 1)                 ;标记高亮
+  (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
+  (setq use-dialog-box nil)               ;never pop dialog
+  (setq inhibit-startup-screen t)         ;inhibit start screen
+  (setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
+  (setq-default comment-style 'indent)    ;设定自动缩进的注释风格
+  (setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
+  (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
+  (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
+  (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
+  (setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+  (setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
+  (setq confirm-kill-processes nil)       ;退出自动杀掉进程
+  (setq async-bytecomp-allowed-packages nil) ;避免magit报错
+  (setq word-wrap-by-category t)             ;按照中文折行
+  (setq profiler-report-cpu-line-format ;让 profiler-report 第一列宽一点
+        '((100 left)
+          (24 right ((19 right)
+                     (5 right)))))
+  (setq profiler-report-memory-line-format
+        '((100 left)
+          (19 right ((14 right profiler-format-number)
+                     (5 right)))))
+  ;(add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
 
-;; 平滑地进行半屏滚动，避免滚动后recenter操作
-(setq scroll-step 1
-      scroll-conservatively 10000)
+  (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
+  (setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
-;; 不显示 *scratch*
-(defun remove-scratch-buffer ()
-  (if (get-buffer "*scratch*")
-      (kill-buffer "*scratch*")))
-(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+  ;; 平滑地进行半屏滚动，避免滚动后recenter操作
+  (setq scroll-step 1
+        scroll-conservatively 10000)
 
-;                   ;; Don't ask me when close emacs with process is running
-;                   (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-;                     "Prevent annoying \"Active processes exist\" query when you quit Emacs."
-;                     (require 'noflet)
-;                     (noflet ((process-list ())) ad-do-it))
+  ;; 不显示 *scratch*
+  (defun remove-scratch-buffer ()
+    (if (get-buffer "*scratch*")
+        (kill-buffer "*scratch*")))
+  (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
 
-;; Don't ask me when kill process buffer
-(setq kill-buffer-query-functions
-      (remq 'process-kill-buffer-query-function
-            kill-buffer-query-functions))
+  ;                   ;; Don't ask me when close emacs with process is running
+  ;                   (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+  ;                     "Prevent annoying \"Active processes exist\" query when you quit Emacs."
+  ;                     (require 'noflet)
+  ;                     (noflet ((process-list ())) ad-do-it))
 
-;; idle
-(custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
-(setq max-lisp-eval-depth 40000)          ;lisp最大执行深度
-(setq max-specpdl-size 10000)             ;最大容量
-(setq kill-ring-max 1024) ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
-(setq mark-ring-max 1024) ;设置的mark ring容量
-(setq eval-expression-print-length nil) ;设置执行表达式的长度没有限制
-(setq eval-expression-print-level nil)  ;设置执行表达式的深度没有限制
-(auto-compression-mode 1)               ;打开压缩文件时自动解压缩
-(setq read-quoted-char-radix 16)        ;设置 引用字符 的基数
-(setq global-mark-ring-max 1024)        ;设置最大的全局标记容量
-(global-hl-line-mode 1)                 ;高亮当前行
-(setq isearch-allow-scroll t)           ;isearch搜索时是可以滚动屏幕的
-(setq one-key-popup-window nil)         ;禁止自动弹出窗口
-(setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
-(setq history-delete-duplicates t)      ;删除minibuffer的重复历史
-(setq minibuffer-message-timeout 1)     ;显示消息超时的时间
-(setq auto-revert-mode 1)               ;自动更新buffer
-(show-paren-mode t)                     ;显示括号匹配
-(setq show-paren-style 'parentheses) ;括号匹配显示但不是烦人的跳到另一个括号。
-(setq blink-matching-paren nil)      ;当插入右括号时不显示匹配的左括号
-(setq message-log-max t)         ;设置message记录全部消息, 而不用截去
-(setq require-final-newline nil) ;不自动添加换行符到末尾, 有些情况会出现错误
-(setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
-(setq x-stretch-cursor t)         ;光标在 TAB 字符上会显示为一个大方块
-(put 'narrow-to-region 'disabled nil)   ;开启变窄区域
-(setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
-(setq tramp-default-method "ssh")       ;设置传送文件默认的方法
-(setq void-text-area-pointer nil)       ;禁止显示鼠标指针
-(setq byte-compile-warnings
-      (quote (
-              ;; 显示的警告
-              free-vars                 ;不在当前范围的引用变量
-              unresolved                ;不知道的函数
-              callargs                  ;函数调用的参数和定义的不匹配
-              obsolete                  ;荒废的变量和函数
-              noruntime                 ;函数没有定义在运行时期
-              interactive-only          ;正常不被调用的命令
-              make-local ;调用 `make-variable-buffer-local' 可能会不正确的
-              mapcar     ;`mapcar' 调用
-              ;;
-              ;; 抑制的警告
-              (not redefine)        ;重新定义的函数 (比如参数数量改变)
-              (not cl-functions)    ;`CL' 包中的运行时调用的函数
-              )))
-(setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
-(tooltip-mode -1)                       ;不要显示任何 tooltips
+  ;; Don't ask me when kill process buffer
+  (setq kill-buffer-query-functions
+        (remq 'process-kill-buffer-query-function
+              kill-buffer-query-functions))
+
+  ;; idle
+  (custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
+  (setq max-lisp-eval-depth 40000)          ;lisp最大执行深度
+  (setq max-specpdl-size 10000)             ;最大容量
+  (setq kill-ring-max 1024) ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
+  (setq mark-ring-max 1024) ;设置的mark ring容量
+  (setq eval-expression-print-length nil) ;设置执行表达式的长度没有限制
+  (setq eval-expression-print-level nil)  ;设置执行表达式的深度没有限制
+  (auto-compression-mode 1)               ;打开压缩文件时自动解压缩
+  (setq read-quoted-char-radix 16)        ;设置 引用字符 的基数
+  (setq global-mark-ring-max 1024)        ;设置最大的全局标记容量
+  (global-hl-line-mode 1)                 ;高亮当前行
+  (setq isearch-allow-scroll t)           ;isearch搜索时是可以滚动屏幕的
+  (setq one-key-popup-window nil)         ;禁止自动弹出窗口
+  (setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
+  (setq history-delete-duplicates t)      ;删除minibuffer的重复历史
+  (setq minibuffer-message-timeout 1)     ;显示消息超时的时间
+  (setq auto-revert-mode 1)               ;自动更新buffer
+  (show-paren-mode t)                     ;显示括号匹配
+  (setq show-paren-style 'parentheses) ;括号匹配显示但不是烦人的跳到另一个括号。
+  (setq blink-matching-paren nil)      ;当插入右括号时不显示匹配的左括号
+  (setq message-log-max t)         ;设置message记录全部消息, 而不用截去
+  (setq require-final-newline nil) ;不自动添加换行符到末尾, 有些情况会出现错误
+  (setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
+  (setq x-stretch-cursor t)         ;光标在 TAB 字符上会显示为一个大方块
+  (put 'narrow-to-region 'disabled nil)   ;开启变窄区域
+  (setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
+  (setq tramp-default-method "ssh")       ;设置传送文件默认的方法
+  (setq void-text-area-pointer nil)       ;禁止显示鼠标指针
+  (setq byte-compile-warnings
+        (quote (
+                ;; 显示的警告
+                free-vars                 ;不在当前范围的引用变量
+                unresolved                ;不知道的函数
+                callargs                  ;函数调用的参数和定义的不匹配
+                obsolete                  ;荒废的变量和函数
+                noruntime                 ;函数没有定义在运行时期
+                interactive-only          ;正常不被调用的命令
+                make-local ;调用 `make-variable-buffer-local' 可能会不正确的
+                mapcar     ;`mapcar' 调用
+                ;;
+                ;; 抑制的警告
+                (not redefine)        ;重新定义的函数 (比如参数数量改变)
+                (not cl-functions)    ;`CL' 包中的运行时调用的函数
+                )))
+  (setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
+  (tooltip-mode -1)                       ;不要显示任何 tooltips
 
 #+END_SRC
 * Functions
@@ -615,39 +648,6 @@ header args
       (add-to-list 'ivy-ignore-buffers "^#")
       (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
       )
-    (use-package counsel-projectile
-      :after (counsel projectile)
-      :diminish counsel-projectile-mode
-      :ensure t
-      :preface (eval-when-compile (declare-function counsel-projectile-mode nil))
-      :commands
-      (counsel-projectile-rg
-       counsel-projectile-find-file
-       counsel-projectile-switch-project
-       counsel-projectile-switch-to-buffer)
-      :init
-      :config (counsel-projectile-mode t))
-
-    (use-package ivy-prescient
-      :after (ivy prescient)
-      :ensure t
-      :preface (eval-when-compile (declare-function ivy-prescient-mode nil))
-      :config (ivy-prescient-mode t))
-    (use-package ivy-rich
-      :ensure t
-      :after (ivy counsel)
-      :preface (eval-when-compile (defvar ivy-rich-path-style) (declare-function ivy-rich-mode nil))
-      :init (setq ivy-rich-path-style 'abbrev)
-      :config (ivy-rich-mode t))
-    (use-package prescient
-      :ensure t
-      :preface (eval-when-compile (declare-function prescient-persist-mode nil))
-      :config (prescient-persist-mode t))
-    (use-package swiper
-      :after ivy
-      :ensure t
-      :bind (("\C-s" . swiper)))
-
     ;; Jump
     (use-package dumb-jump
       :diminish dumb-jump-mode
@@ -689,21 +689,21 @@ header args
 
     (use-package all-the-icons :if (display-graphic-p))
 
-                                            ;(use-package eaf
-                                            ;  :load-path (lambda () (expand-file-name "vendor/emacs-application-framework/" user-emacs-directory))
-                                            ;  :init
-                                            ;  (use-package epc :defer t :ensure t)
-                                            ;  (use-package ctable :defer t :ensure t)
-                                            ;  (use-package deferred :defer t :ensure t)
-                                            ;  (use-package s :defer t :ensure t)
-                                            ;  :custom
-                                            ;  (eaf-browser-continue-where-left-off t)
-                                            ;  :config
-                                            ;  (eaf-setq eaf-browser-enable-adblocker "true")
-                                            ;  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
-                                            ;  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
-                                            ;  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
-                                            ;  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
+    ;(use-package eaf
+    ;  :load-path (lambda () (expand-file-name "vendor/emacs-application-framework/" user-emacs-directory))
+    ;  :init
+    ;  (use-package epc :defer t :ensure t)
+    ;  (use-package ctable :defer t :ensure t)
+    ;  (use-package deferred :defer t :ensure t)
+    ;  (use-package s :defer t :ensure t)
+    ;  :custom
+    ;  (eaf-browser-continue-where-left-off t)
+    ;  :config
+    ;  (eaf-setq eaf-browser-enable-adblocker "true")
+    ;  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+    ;  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+    ;  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+    ;  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
 
     (use-package snails
       :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
@@ -743,6 +743,9 @@ header args
     (require 'awesome-tray)
     (awesome-tray-mode)
 
+#+END_SRC
+* Performance
+#+BEGIN_SRC emacs-lisp :tangle yes
   ;; -------------------------------------------------------------
   ;; Performance
   ;; Disable garbage collection when entering commands.
@@ -757,7 +760,6 @@ header args
 
   ;; Improve the performance of rendering long lines.
   (setq-default bidi-display-reordering nil)
-
 #+END_SRC
 * Evil-Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -775,16 +777,16 @@ header args
 
         "bb" 'ivy-switch-buffer
         "br" 'counsel-recentf
-        "B"  'magit-blame-toggle
 
-        "c"  'comment-dwim
+        "ci" 'color-rg-search-input
+        "cs" 'color-rg-search-symbol
+        "cp" 'color-rg-search-project
+        "cc" 'comment-dwim
 
         "db" 'kill-this-buffer
         "D"  'kill-buffer-and-window
         "do" 'delete-other-windows
         "dt" 'delete-trailing-whitespace
-        "dv" 'counsel-describe-variable
-        "df" 'counsel-describe-function
 
         "es" 'ivy-erlang-complete-find-spec
         "ef" 'ivy-erlang-complete-find-file
@@ -1278,49 +1280,6 @@ header args
 #+END_SRC
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; Remote SSH
-;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
-;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
-;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
-;; C-x C-f /sudo::/etc/hosts
-;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
-;; but it’s sometimes useful if you are debugging a docker file or whatever and need a tigher feedback loop.
-(use-package tramp
-  :config
-  (setq tramp-default-method "ssh"
-	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
-
-;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
-(push
- (cons
-  "docker"
-  '((tramp-login-program "docker")
-    (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
-    (tramp-remote-shell "/bin/sh")
-    (tramp-remote-shell-args ("-i") ("-c"))))
- tramp-methods)
-
-(defadvice tramp-completion-handle-file-name-all-completions
-  (around dotemacs-completion-docker activate)
-  "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
-    a list of active Docker container names, followed by colons."
-  (if (equal (ad-get-arg 1) "/docker:")
-      (let* ((dockernames-raw (shell-command-to-string "docker ps | awk '$NF != \"NAMES\" { print $NF \":\" }'"))
-             (dockernames (cl-remove-if-not
-                           #'(lambda (dockerline) (string-match ":$" dockerline))
-                           (split-string dockernames-raw "\n"))))
-        (setq ad-return-value dockernames))
-    ad-do-it))
-
-; To try this out, we can spin up a quick server like this
-; docker run --rm -p 6379:6379 --name redis_container redis
-; And then look at files inside of it using
-; C-x C-f /docker:redis_container:/
-
-; Inside a docker container on a remote host
-; We can also chain things together! Lets say that we have a docker container named ssb-pub running on a remote host ssb.willschenk.com, we can connect to it using:
-; C-x C-f /ssh:root@ssb.willschenk.com|docker:ssb-pub:/
-
 ;;---------------------------------------------------------
 ;; Golang
 ;; export GO111MODULE=on
@@ -1461,6 +1420,10 @@ header args
     (eval-after-load 'flycheck
       '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
 
+#+END_SRC
+* AutoInsert
+#+BEGIN_SRC emacs-lisp :tangle yes
+
 ;; auto insert
 (load "autoinsert")
 (auto-insert-mode)
@@ -1491,6 +1454,53 @@ header args
 		 _
 		 ))
 	      auto-insert-alist))
+#+END_SRC
+* Tramp
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+;; Remote SSH
+;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
+;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
+;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
+;; C-x C-f /sudo::/etc/hosts
+;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
+;; but it’s sometimes useful if you are debugging a docker file or whatever and need a tigher feedback loop.
+(use-package tramp
+  :config
+  (setq tramp-default-method "ssh"
+	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
+
+;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+(push
+ (cons
+  "docker"
+  '((tramp-login-program "docker")
+    (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
+    (tramp-remote-shell "/bin/sh")
+    (tramp-remote-shell-args ("-i") ("-c"))))
+ tramp-methods)
+
+(defadvice tramp-completion-handle-file-name-all-completions
+  (around dotemacs-completion-docker activate)
+  "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
+    a list of active Docker container names, followed by colons."
+  (if (equal (ad-get-arg 1) "/docker:")
+      (let* ((dockernames-raw (shell-command-to-string "docker ps | awk '$NF != \"NAMES\" { print $NF \":\" }'"))
+             (dockernames (cl-remove-if-not
+                           #'(lambda (dockerline) (string-match ":$" dockerline))
+                           (split-string dockernames-raw "\n"))))
+        (setq ad-return-value dockernames))
+    ad-do-it))
+
+; To try this out, we can spin up a quick server like this
+; docker run --rm -p 6379:6379 --name redis_container redis
+; And then look at files inside of it using
+; C-x C-f /docker:redis_container:/
+
+; Inside a docker container on a remote host
+; We can also chain things together! Lets say that we have a docker container named ssb-pub running on a remote host ssb.willschenk.com, we can connect to it using:
+; C-x C-f /ssh:root@ssb.willschenk.com|docker:ssb-pub:/
+
 #+END_SRC
 * Font
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1625,6 +1635,53 @@ header args
     (default-input-method "rime")
     )
 #+END_SRC
+* Platform
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+(when (x/system-is-mac)
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'none)
+
+  ;(set-face-attribute 'default nil :height 140)
+
+  (defun copy-from-osx ()
+    (shell-command-to-string "pbpaste"))
+  (defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
+  (setq interprogram-cut-function 'paste-to-osx)
+  (setq interprogram-paste-function 'copy-from-osx)
+
+  ;; Trash for safe
+  (defun move-file-to-trash (file)
+    "Use `trash' to move FILE to the system trash.
+    When using Homebrew, install it using \"brew install trash\"."
+    (call-process (executable-find "trash")
+                  nil 0 nil
+                  file))
+    (setq trash-directory "~/.Trash/emacs")
+    (setq delete-by-moving-to-trash t)
+    (defun system-move-file-to-trash (file)
+      "Use \"trash\" to move FILE to the system trash.
+      When using Homebrew, install it using \"brew install trash\"."
+      (call-process (executable-find "trash")
+                    nil 0 nil
+                    file))
+      (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
+
+(when (x/system-is-linux)
+  (defun yank-to-x-clipboard ()
+    (interactive)
+    (if (region-active-p)
+      (progn
+        (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+        (message "Yanked region to clipboard!")
+        (deactivate-mark))
+      (message "No region active; can't yank to clipboard!"))))
+
+#+END_SRC
 * Key-Maps
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1735,49 +1792,6 @@ header args
      ("C-S-k" awesome-tab-kill-other-buffers-in-current-group)
      ("q" nil "quit")))
 
-
-(when (x/system-is-mac)
-  (setq mac-command-modifier 'meta
-        mac-option-modifier 'none)
-
-  ;(set-face-attribute 'default nil :height 140)
-
-  (defun copy-from-osx ()
-    (shell-command-to-string "pbpaste"))
-  (defun paste-to-osx (text &optional push)
-    (let ((process-connection-type nil))
-      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-        (process-send-string proc text)
-        (process-send-eof proc))))
-  (setq interprogram-cut-function 'paste-to-osx)
-  (setq interprogram-paste-function 'copy-from-osx)
-
-  ;; Trash for safe
-  (defun move-file-to-trash (file)
-    "Use `trash' to move FILE to the system trash.
-    When using Homebrew, install it using \"brew install trash\"."
-    (call-process (executable-find "trash")
-                  nil 0 nil
-                  file))
-    (setq trash-directory "~/.Trash/emacs")
-    (setq delete-by-moving-to-trash t)
-    (defun system-move-file-to-trash (file)
-      "Use \"trash\" to move FILE to the system trash.
-      When using Homebrew, install it using \"brew install trash\"."
-      (call-process (executable-find "trash")
-                    nil 0 nil
-                    file))
-      (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
-
-(when (x/system-is-linux)
-  (defun yank-to-x-clipboard ()
-    (interactive)
-    (if (region-active-p)
-      (progn
-        (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-        (message "Yanked region to clipboard!")
-        (deactivate-mark))
-      (message "No region active; can't yank to clipboard!"))))
 
 #+END_SRC
 

@@ -22,3 +22,6 @@
 [submodule ".emacs.d/vendor/lazycat-theme"]
 	path = .emacs.d/vendor/lazycat-theme
 	url = https://github.com/manateelazycat/lazycat-theme
+[submodule ".emacs.d/vendor/color-rg"]
+	path = .emacs.d/vendor/color-rg
+	url = https://github.com/manateelazycat/color-rg
