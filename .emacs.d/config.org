@@ -210,7 +210,6 @@ header args
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; steal from: https://github.com/aborn/.spacemacs.d/blob/master/parts/aborn-swift.el
-  (require 'async)
   (defun aborn/magit-create-or-checkout-fix-branch ()
     "Crate (or checkout to) fix branch using magit."
     (interactive)
@@ -638,6 +637,9 @@ header args
               (magit-key-mode-popup-committing)
             (magit-commit)))
         (define-key magit-mode-map "c" 'magit-maybe-commit)
+
+        ;; todo
+	(require 'async)
 
         ;; Customizing transients
         ;; This gives us the option to override local branch
