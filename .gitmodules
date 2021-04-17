@@ -25,3 +25,6 @@
 [submodule ".emacs.d/vendor/color-rg"]
 	path = .emacs.d/vendor/color-rg
 	url = https://github.com/manateelazycat/color-rg
+[submodule ".emacs.d/vendor/auto-save"]
+	path = .emacs.d/vendor/auto-save
+	url = https://github.com/manateelazycat/auto-save
