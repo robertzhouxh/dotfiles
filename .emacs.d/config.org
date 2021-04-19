@@ -809,7 +809,7 @@ header args
   :demand
   :diminish (dashboard-mode page-break-lines-mode)
   :bind
-  (("C-x d" . open-dashboard)
+  (("C-x D" . open-dashboard)
    :map dashboard-mode-map
    (("n" . dashboard-next-line)
     ("p" . dashboard-previous-line)
@@ -817,7 +817,7 @@ header args
     ("F" . dashboard-previous-section)))
   :custom
   (dashboard-banner-logo-title "Close the world. Open the nExt.")
-  (dashboard-startup-banner (expand-file-name "images/KEC_Dark_BK_Small.png" user-emacs-directory))
+  (dashboard-startup-banner (expand-file-name "vendor/KEC_Dark_BK_Small.png" user-emacs-directory))
   (dashboard-items '((projects . 7)
                      (recents  . 7)
                      (agenda . 5)))
