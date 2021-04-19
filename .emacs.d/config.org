@@ -799,6 +799,10 @@ header args
 (require 'awesome-tray)
 (awesome-tray-mode)
 
+(defun edit-configs ()
+  "Opens the README.org file."
+  (interactive)
+  (find-file "~/.emacs.d/init.org"))
 
 ;; DashboardPac
 (use-package dashboard
@@ -822,17 +826,12 @@ header args
   (dashboard-set-navigator t)
   (dashboard-navigator-buttons
    (if (featurep 'all-the-icons)
-       `(((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust -0.05)
-           "M-EMACS" "Browse M-EMACS Homepage"
-           (lambda (&rest _) (browse-url "https://github.com/MatthewZMD/.emacs.d")))
-          (,(all-the-icons-fileicon "elisp" :height 1.0 :v-adjust -0.1)
-           "Configuration" "" (lambda (&rest _) (edit-configs)))
-          (,(all-the-icons-faicon "cogs" :height 1.0 :v-adjust -0.1)
-           "Update" "" (lambda (&rest _) (auto-package-update-now)))))
-     `((("" "M-EMACS" "Browse M-EMACS Homepage"
-         (lambda (&rest _) (browse-url "https://github.com/MatthewZMD/.emacs.d")))
-        ("" "Configuration" "" (lambda (&rest _) (edit-configs)))
-        ("" "Update" "" (lambda (&rest _) (auto-package-update-now)))))))
+       `(((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust -0.05) "M-EMACS" "Browse M-EMACS Homepage" (lambda (&rest _) (browse-url "https://github.com/robertzhouxh/.emacs.d")))
+          (,(all-the-icons-faicon "cogs" :height 1.0 :v-adjust -0.1) "Configuration" "" (lambda (&rest _) (edit-configs)))
+          (,(all-the-icons-faicon "cogs" :height 1.0 :v-adjust -0.1) "Update" "" (lambda (&rest _) (auto-package-update-now)))))
+       `((("" "M-EMACS" "Browse M-EMACS Homepage" (lambda (&rest _) (browse-url "https://github.com/robertzhouxh/dotfiles")))
+          ("" "Configuration" "" (lambda (&rest _) (edit-configs)))
+          ("" "Update" "" (lambda (&rest _) (edit-configs)))))))
   :custom-face
   (dashboard-banner-logo-title ((t (:family "Love LetterTW" :height 123))))
   :config
