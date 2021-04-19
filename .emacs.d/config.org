@@ -1584,7 +1584,7 @@ header args
 
 
   ;; Font set
-  (let ((emacs-font-size 14)
+  (let ((emacs-font-size 12)
         emacs-font-name)
     (cond
      ((featurep 'cocoa)
