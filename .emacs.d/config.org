@@ -865,14 +865,18 @@ header args
 (use-package dashboard
   :demand t
   :config
-  ;(when (file-exists-p (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png"))
-  ;  (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png")))
-  (when (file-exists-p (expand-file-name "~/.emacs.d/vendor/emacs.png"))
-    (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/emacs.png")))
+
+  (when (file-exists-p (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png"))
+    ;(setq dashboard-startup-banner 'official)
+    (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png")))
+
+  ;(when (file-exists-p (expand-file-name "~/.emacs.d/vendor/emacs.png"))
+  ;  (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/emacs.png")))
+
   (dashboard-setup-startup-hook)
-  ;(evil-collection-dashboard-setup)
   :custom
   (dashboard-items '((projects . 5) (recents . 5)))
+  (dashboard-left-content t)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons nil)
   (dashboard-set-navigator t)
