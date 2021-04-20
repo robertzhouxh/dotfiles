@@ -869,6 +869,7 @@ header args
     (dashboard-insert-startupify-lists)
     (switch-to-buffer dashboard-buffer-name)
     (goto-char (point-min))
+    (dashboard-left-content t)
     (delete-other-windows))
 (use-package dashboard
   :demand t
