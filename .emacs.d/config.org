@@ -1,7 +1,6 @@
 * Introduce
 To use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * Header
-header args
 #+PROPERTY: header-args :results silent
 * Bootstrap
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -488,7 +487,7 @@ header args
 * Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package exec-path-from-shell
-                                          ;:if (x/system-is-mac)
+    ;:if (x/system-is-mac)
     :if (featurep 'cocoa)
     :config
     (exec-path-from-shell-initialize)
