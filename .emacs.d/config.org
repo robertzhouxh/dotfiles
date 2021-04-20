@@ -804,50 +804,81 @@ header args
   (interactive)
   (find-file "~/.emacs.d/init.org"))
 
-;; DashboardPac
+
+;; Chromium
+(defun chromium-calendar ()
+  "Open Google-calendar with chrome."
+  (interactive)
+  (browse-url "https://calendar.google.com/calendar/r"))
+
+(defun chromium-weather ()
+  "Open tenki.jp with chrome."
+  (interactive)
+  (browse-url "https://tenki.jp/week/6/31/"))
+
+(defun chromium-google-news ()
+  "Open Google-news with chrome."
+  (interactive)
+  (browse-url "https://news.google.com/topstories?hl=ja&gl=JP&ceid=JP:ja"))
+
+(defun chromium-pocket ()
+  "Open pocket with chrome."
+  (interactive)
+  (browse-url "https://getpocket.com/a/queue/"))
+
+(defun chromium-keep ()
+  "Open keep with chromium."
+  (interactive)
+  (browse-url "https://keep.google.com/u/0/"))
+
+(defun chromium-keep-new ()
+  "Open new keep with chrome."
+  (interactive)
+  (browse-url "https://keep.new/"))
+
+(defun chromium-homepage ()
+  "Open my homepage with crome."
+  (interactive)
+  (browse-url "https://gospel-haiku.com/"))
+
+(defun chromium-gmail ()
+  "Open gmail with chrome."
+  (interactive)
+  (browse-url "https://mail.google.com/mail/"))
+
+(defun chromium-tweetdeck ()
+  "Open tweetdeck with chrome."
+  (interactive)
+  (browse-url "https://tweetdeck.twitter.com/"))
+
+(defun chromium-slack ()
+  "Open slack with chrome."
+  (interactive)
+  (browse-url "https://emacs-jp.slack.com/messages/C1B73BWPJ/"))
+
+(defun chromium-bible ()
+  "Open slack with chrome."
+  (interactive)
+  (browse-url "https://j-bible.jimdofree.com/"))
+
+
 (use-package dashboard
-  :demand
-  :diminish (dashboard-mode page-break-lines-mode)
-  :bind
-  (("C-x D" . open-dashboard)
-   :map dashboard-mode-map
-   (("n" . dashboard-next-line)
-    ("p" . dashboard-previous-line)
-    ("N" . dashboard-next-section)
-    ("F" . dashboard-previous-section)))
-  :custom
-  (dashboard-banner-logo-title "Close the world. Open the nExt.")
-  (dashboard-startup-banner (expand-file-name "vendor/KEC_Dark_BK_Small.png" user-emacs-directory))
-  (dashboard-items '((projects . 7)
-                     (recents  . 7)
-                     (agenda . 5)))
-  (initial-buffer-choice (lambda () (get-buffer dashboard-buffer-name)))
-  (dashboard-set-heading-icons t)
-  (dashboard-set-navigator t)
-  (dashboard-navigator-buttons
-   (if (featurep 'all-the-icons)
-       `(((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust -0.05) "M-EMACS" "Browse M-EMACS Homepage" (lambda (&rest _) (browse-url "https://github.com/robertzhouxh/.emacs.d")))
-          (,(all-the-icons-faicon "cogs" :height 1.0 :v-adjust -0.1) "Configuration" "" (lambda (&rest _) (edit-configs)))
-          (,(all-the-icons-faicon "cogs" :height 1.0 :v-adjust -0.1) "Update" "" (lambda (&rest _) (auto-package-update-now)))))
-       `((("" "M-EMACS" "Browse M-EMACS Homepage" (lambda (&rest _) (browse-url "https://github.com/robertzhouxh/dotfiles")))
-          ("" "Configuration" "" (lambda (&rest _) (edit-configs)))
-          ("" "Update" "" (lambda (&rest _) (edit-configs)))))))
-  :custom-face
-  (dashboard-banner-logo-title ((t (:family "Love LetterTW" :height 123))))
+  :demand t
   :config
-  (dashboard-modify-heading-icons '((recents . "file-text")
-                                (projects . "book")))
+  ;(when (file-exists-p (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png"))
+  ;  (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png")))
+  (when (file-exists-p (expand-file-name "~/.emacs.d/vendor/emacs.png"))
+    (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/emacs.png")))
   (dashboard-setup-startup-hook)
-  ;; Open Dashboard function
-  (defun open-dashboard ()
-    "Open the *dashboard* buffer and jump to the first widget."
-    (interactive)
-    (if (get-buffer dashboard-buffer-name)
-        (kill-buffer dashboard-buffer-name))
-    (dashboard-insert-startupify-lists)
-    (switch-to-buffer dashboard-buffer-name)
-    (goto-char (point-min))
-    (delete-other-windows)))
+  ;(evil-collection-dashboard-setup)
+  :custom
+  (dashboard-items '((projects . 5) (recents . 5)))
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons nil)
+  (dashboard-set-navigator t)
+  (dashboard-set-footer nil)
+  (dashboard-banner-logo-title "欢迎来到浩哥的 EMACS 世界"))
+;; DashboardPac
 #+END_SRC
 
 * Performance
