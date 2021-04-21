@@ -775,118 +775,54 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
     (require 'watch-other-window)
     (require 'color-rg)
-    (use-package awesome-tab
-      :ensure nil
-      :load-path "~/.emacs.d/vendor/awesome-tab"
-      :bind
-      ("C-x t h" . awesome-tab-backward-tab)
-      ("C-x t l" . awesome-tab-forward-tab)
-      :config
-      (awesome-tab-mode t))
+
 
 #+END_SRC
 * UI
 #+BEGIN_SRC emacs-lisp :tangle yes
-(require 'lazycat-theme)
-(lazycat-theme-load-dark)
-(setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-(require 'awesome-tray)
-(awesome-tray-mode)
+  (require 'lazycat-theme)
+  (lazycat-theme-load-dark)
+  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+  (require 'awesome-tray)
+  (awesome-tray-mode)
 
-(defun edit-configs ()
-  "Opens the README.org file."
-  (interactive)
-  (find-file "~/.emacs.d/init.org"))
+  (require 'awesome-tab)
+  (require 'all-the-icons)
+  (awesome-tab-mode t)
 
+  (defun open-dashboard ()
+      "Open the *dashboard* buffer and jump to the first widget."
+      (interactive)
+      (if (get-buffer dashboard-buffer-name)
+          (kill-buffer dashboard-buffer-name))
+      (dashboard-insert-startupify-lists)
+      (switch-to-buffer dashboard-buffer-name)
+      (goto-char (point-min))
+      (dashboard-left-content t)
+      (delete-other-windows))
 
-;; Chromium
-(defun chromium-calendar ()
-  "Open Google-calendar with chrome."
-  (interactive)
-  (browse-url "https://calendar.google.com/calendar/r"))
+  (use-package dashboard
+    :demand t
+    :bind ("C-x D" . open-dashboard)
+    :config
 
-(defun chromium-weather ()
-  "Open tenki.jp with chrome."
-  (interactive)
-  (browse-url "https://tenki.jp/week/6/31/"))
+    (when (file-exists-p (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png"))
+      ;(setq dashboard-startup-banner 'official)
+      (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png")))
 
-(defun chromium-google-news ()
-  "Open Google-news with chrome."
-  (interactive)
-  (browse-url "https://news.google.com/topstories?hl=ja&gl=JP&ceid=JP:ja"))
+    ;(when (file-exists-p (expand-file-name "~/.emacs.d/vendor/emacs.png"))
+    ;  (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/emacs.png")))
 
-(defun chromium-pocket ()
-  "Open pocket with chrome."
-  (interactive)
-  (browse-url "https://getpocket.com/a/queue/"))
-
-(defun chromium-keep ()
-  "Open keep with chromium."
-  (interactive)
-  (browse-url "https://keep.google.com/u/0/"))
-
-(defun chromium-keep-new ()
-  "Open new keep with chrome."
-  (interactive)
-  (browse-url "https://keep.new/"))
-
-(defun chromium-homepage ()
-  "Open my homepage with crome."
-  (interactive)
-  (browse-url "https://gospel-haiku.com/"))
-
-(defun chromium-gmail ()
-  "Open gmail with chrome."
-  (interactive)
-  (browse-url "https://mail.google.com/mail/"))
-
-(defun chromium-tweetdeck ()
-  "Open tweetdeck with chrome."
-  (interactive)
-  (browse-url "https://tweetdeck.twitter.com/"))
-
-(defun chromium-slack ()
-  "Open slack with chrome."
-  (interactive)
-  (browse-url "https://emacs-jp.slack.com/messages/C1B73BWPJ/"))
-
-(defun chromium-bible ()
-  "Open slack with chrome."
-  (interactive)
-  (browse-url "https://j-bible.jimdofree.com/"))
-
-(defun open-dashboard ()
-    "Open the *dashboard* buffer and jump to the first widget."
-    (interactive)
-    (if (get-buffer dashboard-buffer-name)
-        (kill-buffer dashboard-buffer-name))
-    (dashboard-insert-startupify-lists)
-    (switch-to-buffer dashboard-buffer-name)
-    (goto-char (point-min))
+    (dashboard-setup-startup-hook)
+    :custom
+    (dashboard-items '((projects . 12) (recents . 8)))
     (dashboard-left-content t)
-    (delete-other-windows))
-(use-package dashboard
-  :demand t
-  :bind ("C-x D" . open-dashboard)
-  :config
+    (dashboard-set-heading-icons t)
+    (dashboard-set-file-icons nil)
+    (dashboard-set-navigator t)
+    (dashboard-set-footer nil)
+    (dashboard-banner-logo-title "欢迎来到浩哥的 EMACS 世界"))
 
-  (when (file-exists-p (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png"))
-    ;(setq dashboard-startup-banner 'official)
-    (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/KEC_Dark_BK_Small.png")))
-
-  ;(when (file-exists-p (expand-file-name "~/.emacs.d/vendor/emacs.png"))
-  ;  (setq dashboard-startup-banner (expand-file-name "~/.emacs.d/vendor/emacs.png")))
-
-  (dashboard-setup-startup-hook)
-  :custom
-  (dashboard-items '((projects . 12) (recents . 8)))
-  (dashboard-left-content t)
-  (dashboard-set-heading-icons t)
-  (dashboard-set-file-icons nil)
-  (dashboard-set-navigator t)
-  (dashboard-set-footer nil)
-  (dashboard-banner-logo-title "欢迎来到浩哥的 EMACS 世界"))
-;; DashboardPac
 #+END_SRC
 
 * Performance
@@ -905,6 +841,7 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
   ;; Improve the performance of rendering long lines.
   (setq-default bidi-display-reordering nil)
+
 #+END_SRC
 * Evil-Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -918,7 +855,7 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
             "/"  'counsel-rg
 
-            "a"  'align-regexp
+            "A"  'align-regexp
 
             "bb" 'ivy-switch-buffer
             "br" 'counsel-recentf
@@ -972,6 +909,12 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
             "sa" 'x/save-all
             "su" 'sudo
+
+            "tj" 'awesome-tab-backward-tab
+            "tk" 'awesome-tab-forward-tab
+            "th" 'awesome-tab-backward-group
+            "tl" 'awesome-tab-forward-group
+            "tg" 'awesome-tab-counsel-switch-group
 
             "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
             "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
