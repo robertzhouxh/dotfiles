@@ -59,7 +59,7 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
   (tool-bar-mode -1)                      ;禁用工具栏
   (menu-bar-mode -1)                      ;禁用菜单栏
   (scroll-bar-mode -1)                    ;禁用滚动条
-  
+
   (if (featurep 'cocoa)
       (progn
         ;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
@@ -73,16 +73,16 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
         ;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
         (setq ns-use-native-fullscreen nil)
         (setq ns-use-fullscreen-animation nil)
-  
+
         ;; 默认先最大化。
         (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-  
+
         (run-at-time "2sec" nil
                      (lambda ()
                        (toggle-frame-fullscreen)
                        ))
         )
-  
+
     ;; 非Mac平台直接全屏
     (require 'fullscreen)
     (fullscreen))
@@ -130,7 +130,10 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
         '((100 left)
           (19 right ((14 right profiler-format-number)
                      (5 right)))))
-  ;(add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
+
+  (require 'highlight-parentheses)
+  (add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
+  (add-hook 'prog-mode-hook #'highlight-parentheses-mode)
 
   (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
   (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
@@ -481,8 +484,6 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
         (proxy-socks-disable)
       (proxy-socks-enable)))
 
-  ;(proxy-socks-enable)
-
 #+END_SRC
 * Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -505,14 +506,8 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
   (use-package hydra)
   (use-package nginx-mode :ensure t)
   (use-package async :ensure t :init (async-bytecomp-package-mode 1))
-
-  (use-package projectile
-    :diminish
-    :config (projectile-global-mode))
-
-  (use-package flycheck
-    :diminish
-    :config (global-flycheck-mode 1))
+  (use-package projectile :diminish :config (projectile-global-mode))
+  (use-package flycheck :diminish :config (global-flycheck-mode 1))
 
   (use-package avy
     :bind
@@ -884,7 +879,7 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
   (dashboard-setup-startup-hook)
   :custom
-  (dashboard-items '((projects . 8) (recents . 10)))
+  (dashboard-items '((projects . 12) (recents . 8)))
   (dashboard-left-content t)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons nil)
@@ -967,7 +962,8 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
             "pf" 'counsel-projectile-find-file
             "pp" 'counsel-projectile-switch-project
             "pb" 'counsel-projectile-switch-to-buffer
-            "proxy" 'proxy-socks-enable
+            "pr"  'proxy-socks-enable
+            "pR"  'proxy-socks-disable
 
             "rb" 'generate-scratch-buffer
             "ri" 'x/open-init-file
