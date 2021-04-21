@@ -25,3 +25,5 @@ wget https://www.emacswiki.org/emacs/download/dired+.el
 wget https://www.emacswiki.org/emacs/download/dired-details.el
 wget https://www.emacswiki.org/emacs/download/dired-details+.el
 wget https://www.emacswiki.org/emacs/dired-extension.el
+
+; NOTE: Must run `M-x all-the-icons-install-fonts', and install fonts manually on Windows
