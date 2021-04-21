@@ -1764,8 +1764,8 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
   (global-set-key (kbd "M-]") 'dumb-jump-go)
   (global-set-key (kbd "M-t") 'dumb-jump-back)
-  (global-set-key (kbd "M-p") 'hold-line-scroll-up )
-  (global-set-key (kbd "M-n") 'hold-line-scroll-down )
+  (global-set-key (kbd "M-n") 'hold-line-scroll-up )
+  (global-set-key (kbd "M-p") 'hold-line-scroll-down )
   (global-set-key (kbd "C-c F") #'my-set-frame-font)
   ;(global-set-key (kbd "s-y") 'snails)
   ;(global-set-key (kbd "s-u") 'snails-search-point)
