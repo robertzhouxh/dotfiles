@@ -884,7 +884,7 @@ To use it, just clone this repo to whereever your emacs config is (usually =/hom
 
   (dashboard-setup-startup-hook)
   :custom
-  (dashboard-items '((projects . 5) (recents . 5)))
+  (dashboard-items '((projects . 8) (recents . 10)))
   (dashboard-left-content t)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons nil)
