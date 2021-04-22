@@ -1,5 +1,23 @@
 ## Quick Start
 
+### install emacs
+
+   ```bash
+
+   git clone --depth 1 git://git.savannah.gnu.org/emacs.git
+   brew install autoconf automake texinfo gnutls pkg-config libxml2 --debug --verbose
+   cd ./emacs && ./autogen.sh
+
+   export LDFLAGS="-L/usr/local/opt/libxml2/lib"
+   export CPPFLAGS="-I/usr/local/opt/libxml2/include"
+   export PKG_CONFIG_PATH="/usr/local/opt/libxml2/lib/pkgconfig"
+
+   ./configure && make && make install
+   open -R nextstep/Emacs.app
+   and dragging Emacs to the Applications folder.
+
+   cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
+   ```
 ### Install usefull applications eg: userApp,utils,libs for developer
 
    ```bash
