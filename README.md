@@ -106,6 +106,10 @@ cd `pwd` && ggrep -rl "' \!include C4" ./ | gxargs -i echo {} | gxargs gsed -i "
 ## cd `pwd` && ggrep -rl "' !include C4" ./ | gxargs -i echo {} | gxargs gsed -i "s|' !include C4|!include /Users/glodon/.emacs.d/vendor/C4-PlantUML/C4|g"
 cd `pwd` && ggrep -rl "!include https" ./ | gxargs -i echo {} | gxargs gsed -i "s|!include https|'!include https|g"
 
+cd `pwd` && ggrep -rl "\!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master" ./ | gxargs -i echo {} | gxargs gsed -i "s|https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master|/Users/zxh/.emacs.d/vendor/C4-PlantUML|g"
+
+
+
 ```
 
 ## to be continued...
