@@ -664,7 +664,7 @@
     (setq auto-save-delete-trailing-whitespace nil)
 
     (use-package all-the-icons :if (display-graphic-p))
-    (use-package all-the-icons-dired :hook (dired-mode . all-the-icons-dired-mode))
+    ;(use-package all-the-icons-dired :hook (dired-mode . all-the-icons-dired-mode))
 
     (use-package snails
       :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
@@ -841,140 +841,140 @@
 #+END_SRC
 * Evil-Mode
 #+BEGIN_SRC emacs-lisp :tangle yes
-        ; C-y => paste the things to minibuffer, then use consel-rg
-        (defun x/config-evil-leader ()
-          "Configure evil leader mode."
-          (evil-leader/set-leader ",")
-          (evil-leader/set-key
-            ","  'avy-goto-char-2
-            ":"  'eval-expression
+  ; C-y => paste the things to minibuffer, then use consel-rg
+  (defun x/config-evil-leader ()
+    "Configure evil leader mode."
+    (evil-leader/set-leader ",")
+    (evil-leader/set-key
+      ","  'avy-goto-char-2
+      ":"  'eval-expression
 
-            "/"  'counsel-rg
+      "/"  'counsel-rg
 
-            "A"  'align-regexp
+      "A"  'align-regexp
 
-            "bb" 'ivy-switch-buffer
-            "br" 'counsel-recentf
+      "bb" 'ivy-switch-buffer
+      "br" 'counsel-recentf
 
-            "ci" 'color-rg-search-input
-            "cs" 'color-rg-search-symbol
-            "cp" 'color-rg-search-project
-            "cc" 'comment-dwim
+      "ci" 'color-rg-search-input
+      "cs" 'color-rg-search-symbol
+      "cp" 'color-rg-search-project
+      "cc" 'comment-dwim
 
-            "db" 'kill-this-buffer
-            "D"  'kill-buffer-and-window
-            "do" 'delete-other-windows
-            "dt" 'delete-trailing-whitespace
+      "db" 'kill-this-buffer
+      "D"  'kill-buffer-and-window
+      "do" 'delete-other-windows
+      "dt" 'delete-trailing-whitespace
 
-            "es" 'ivy-erlang-complete-find-spec
-            "ef" 'ivy-erlang-complete-find-file
-            "eh" 'ivy-erlang-complete-show-doc-at-point
-            "ep" 'ivy-erlang-complete-set-project-root
-            "ea" 'ivy-erlang-complete-autosetup-project-root
-            "ek" 'get-erl-man
-            "es" 'eshell-here
-            "ec" 'eshell/clear
-            "ed" 'eshell/close
+      "es" 'ivy-erlang-complete-find-spec
+      "ef" 'ivy-erlang-complete-find-file
+      "eh" 'ivy-erlang-complete-show-doc-at-point
+      "ep" 'ivy-erlang-complete-set-project-root
+      "ea" 'ivy-erlang-complete-autosetup-project-root
+      "ek" 'get-erl-man
+      "es" 'eshell-here
+      "ec" 'eshell/clear
+      "ed" 'eshell/close
 
-            "ff" 'find-file-other-frame
-            "fp" 'format-function-parameters
-            "fd" 'dired-jump
-            "fn" 'find-name-dired
-            "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-            "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-            "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
-            "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
+      "ff" 'find-file-other-frame
+      "fp" 'format-function-parameters
+      "fd" 'dired-jump
+      "fn" 'find-name-dired
+      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+      "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
+      "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
 
-            "g"  'magit-status
-            "G"  'aborn/simple-git-commit-push
+      "g"  'magit-status
+      "G"  'aborn/simple-git-commit-push
 
-            "of" 'other-frame
-            "ow" 'other-window
+      "of" 'other-frame
+      "ow" 'other-window
 
-            "p/" 'counsel-projectile-rg
-            "pf" 'counsel-projectile-find-file
-            "pp" 'counsel-projectile-switch-project
-            "pb" 'counsel-projectile-switch-to-buffer
-            "pr"  'proxy-socks-enable
-            "pR"  'proxy-socks-disable
+      "p/" 'counsel-projectile-rg
+      "pf" 'counsel-projectile-find-file
+      "pp" 'counsel-projectile-switch-project
+      "pb" 'counsel-projectile-switch-to-buffer
+      "pr"  'proxy-socks-enable
+      "pR"  'proxy-socks-disable
 
-            "rb" 'generate-scratch-buffer
-            "ri" 'x/open-init-file
-            "rv" 'rename-local-var
-            "R"  'x/reload-init-file
+      "rb" 'generate-scratch-buffer
+      "ri" 'x/open-init-file
+      "rv" 'rename-local-var
+      "R"  'x/reload-init-file
 
-            "sa" 'x/save-all
-            "su" 'sudo
+      "sa" 'x/save-all
+      "su" 'sudo
 
-            "tj" 'awesome-tab-backward-tab
-            "tk" 'awesome-tab-forward-tab
-            "th" 'awesome-tab-backward-group
-            "tl" 'awesome-tab-forward-group
-            "tg" 'awesome-tab-counsel-switch-group
+      "tj" 'awesome-tab-backward-tab
+      "tk" 'awesome-tab-forward-tab
+      "th" 'awesome-tab-backward-group
+      "tl" 'awesome-tab-forward-group
+      "tg" 'awesome-tab-counsel-switch-group
 
-            "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
-            "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+      "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
+      "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
-            "w" 'whitespace-mode
-            )
+      "w" 'whitespace-mode
+      )
 
-          (defun magit-blame-toggle ()
-            "Toggle magit-blame-mode on and off interactively."
-            (interactive)
-            (if (and (boundp 'magit-blame-mode) magit-blame-mode)
-                (magit-blame-quit)
-              (call-interactively 'magit-blame)))
-        )
+    (defun magit-blame-toggle ()
+      "Toggle magit-blame-mode on and off interactively."
+      (interactive)
+      (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+          (magit-blame-quit)
+        (call-interactively 'magit-blame)))
+  )
 
-      (setq evil-want-C-u-scroll t)
-      (use-package evil
-        :ensure t
-        :init
-        (progn
-          (evil-mode t)
-          (evil-set-initial-state 'color-rg-mode 'emacs)
-          ;(evil-set-initial-state 'dired-mode 'emacs)
-          )
-        :config
-        (progn
-          (use-package evil-visualstar
-              :bind (:map evil-visual-state-map
-              ("*" . evil-visualstar/begin-search-forward)
-              ("#" . evil-visualstar/begin-search-backward)))
-          (use-package evil-leader
-            :ensure t
-            :init
-            (progn
-              (global-evil-leader-mode)
-              (setq evil-leader/in-all-states 1)
-              (x/config-evil-leader)
-              ))
-          (use-package evil-surround
-            :ensure t
-            :config
-            (progn
-              (global-evil-surround-mode)))
-          (use-package evil-escape
-            :ensure t
-            :config
-            (progn
-              (evil-escape-mode)
-              (setq-default evil-escape-key-sequence "tn")))
-          (defvar evil-emacs-state-cursor)
-          (defvar evil-normal-state-cursor)
-          (defvar evil-visual-state-cursor)
-          (defvar evil-insert-state-cursor)
-          (defvar evil-replace-state-cursor)
-          (defvar evil-operator-state-cursor)
-          (defvar evil-normal-state-map)
-          (defvar evil-insert-state-map)
+(setq evil-want-C-u-scroll t)
+(use-package evil
+  :ensure t
+  :init
+  (progn
+    (evil-mode t)
+    (evil-set-initial-state 'color-rg-mode 'emacs)
+    ;(evil-set-initial-state 'dired-mode 'emacs)
+    )
+  :config
+  (progn
+    (use-package evil-visualstar
+        :bind (:map evil-visual-state-map
+        ("*" . evil-visualstar/begin-search-forward)
+        ("#" . evil-visualstar/begin-search-backward)))
+    (use-package evil-leader
+      :ensure t
+      :init
+      (progn
+        (global-evil-leader-mode)
+        (setq evil-leader/in-all-states 1)
+        (x/config-evil-leader)
+        ))
+    (use-package evil-surround
+      :ensure t
+      :config
+      (progn
+        (global-evil-surround-mode)))
+    (use-package evil-escape
+      :ensure t
+      :config
+      (progn
+        (evil-escape-mode)
+        (setq-default evil-escape-key-sequence "tn")))
+    (defvar evil-emacs-state-cursor)
+    (defvar evil-normal-state-cursor)
+    (defvar evil-visual-state-cursor)
+    (defvar evil-insert-state-cursor)
+    (defvar evil-replace-state-cursor)
+    (defvar evil-operator-state-cursor)
+    (defvar evil-normal-state-map)
+    (defvar evil-insert-state-map)
 
-          (setq evil-emacs-state-cursor '("red" box))
-          (setq evil-normal-state-cursor '("green" box))
-          (setq evil-visual-state-cursor '("orange" box))
-          (setq evil-insert-state-cursor '("red" bar))
-          (setq evil-replace-state-cursor '("red" bar))
-          (setq evil-operator-state-cursor '("red" ))
+    (setq evil-emacs-state-cursor '("red" box))
+    (setq evil-normal-state-cursor '("green" box))
+    (setq evil-visual-state-cursor '("orange" box))
+    (setq evil-insert-state-cursor '("red" bar))
+    (setq evil-replace-state-cursor '("red" bar))
+    (setq evil-operator-state-cursor '("red" ))
 #+END_SRC
 * Eaf
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1219,21 +1219,25 @@
     (when (equal major-mode 'dired-mode)
       (revert-buffer)))
 
+  (setq-default dired-omit-files-p t)
+  (setq dired-omit-files (concat dired-omit-files "\\|^\\..+$"))
+  (add-hook 'dired-mode-hook #'dired-omit-mode)
+
+
   ;; Details toggling is bound to "(" in `dired-mode' by default
   (setq diredp-hide-details-initially-flag nil)
   (setq diredp-hide-details-propagate-flag nil)
 
-  (setq dired-listing-switches "-aluh")
-  (setq dired-recursive-copies 'always)
-  (setq dired-recursive-deletes 'always)
-  (setq dired-dwim-target t)
-  (put 'dired-find-alternate-file 'disabled nil)
 
-  (setq dired-omit-files-p t)
-  (setq dired-omit-verbose nil)
-  (setq dired-omit-files (concat dired-omit-files "\\|^.DS_Store$\\|^.vimrc\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.elc$\\|^.emacs.*\\|^\\..+$"))
-  (setq dired-omit-extensions '(".rc" ".o" "~" ".bin" ".a" ".ln"))
-  (add-hook 'dired-mode-hook #'dired-omit-mode)
+  (setq dired-recursive-copies t)         ;可以递归的进行拷贝
+  (setq dired-recursive-deletes t)        ;可以递归的删除目录
+  (setq dired-recursive-deletes 'always)  ;删除东西时不提示
+  (setq dired-recursive-copies 'always)   ;拷贝东西时不提示
+  (setq dired-listing-switches "-aluh")   ;传给 ls 的参数
+  ;(setq dired-details-hidden-string "")   ;设置隐藏dired里面详细信息的字符串
+  (setq directory-free-space-args "-Pkh") ;目录空间选项
+  (setq dired-omit-size-limit nil)        ;dired忽略的上限
+  (setq dired-dwim-target t)              ;Dired试着猜处默认的目标目录
 
   ;; only use one buffer
   (diredp-toggle-find-file-reuse-dir 1)
@@ -1256,7 +1260,6 @@
         (setq dired-omit-files-p t)))
     (dired-unmark-all-marks)
     (revert-buffer))
-
 
   (defun custom-dired-sort-dir-first ()
     "Dired sort hook to list directories first."
@@ -1289,21 +1292,21 @@
       (dired-sort-other (car (car (nthcdr nextpos custom-dired-sort-seq-list))))
       (message "SORTBY - \"%s\"" (cdr (car (nthcdr nextpos custom-dired-sort-seq-list))))))
 
-;; Set the wanted files.
-(add-to-list 'dired-guess-shell-alist-user '("\\.pdf\\'" "open -a preview"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.mp4\\'" "vlc ? &"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.mkv\\'" "vlc"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.png\\'" "open -a preview"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.jpg\\'" "open -a preview"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.html\\'" "open -a safari"))
+  ;; Set the wanted files.
+  (add-to-list 'dired-guess-shell-alist-user '("\\.pdf\\'" "open -a preview"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.mp4\\'" "vlc ? &"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.mkv\\'" "vlc"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.png\\'" "open -a preview"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.jpg\\'" "open -a preview"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.html\\'" "open -a safari"))
 
-;; Work apps
-(add-to-list 'dired-guess-shell-alist-user '("\\.xlsx\\'" "open"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.xls\\'" "open"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.ppt\\'" "open -a Keynote"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.pptx\\'" "open"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.docx\\'" "open"))
-(add-to-list 'dired-guess-shell-alist-user '("\\.doc\\'" "open"))
+  ;; Work apps
+  (add-to-list 'dired-guess-shell-alist-user '("\\.xlsx\\'" "open"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.xls\\'" "open"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.ppt\\'" "open -a Keynote"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.pptx\\'" "open"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.docx\\'" "open"))
+  (add-to-list 'dired-guess-shell-alist-user '("\\.doc\\'" "open"))
 
 #+END_SRC
 * Programming
