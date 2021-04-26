@@ -112,5 +112,9 @@ cd `pwd` && ggrep -rl "\!include https://raw.githubusercontent.com/plantuml-stdl
 
 ```
 ##vim
+brew install macvim
+
+alias vim="mvim -v"
+
 https://github.com/axiaoxin/my-vimrc/blob/vim-8/readme_cn.md
 ## to be continued...
