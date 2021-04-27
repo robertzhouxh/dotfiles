@@ -82,5 +82,5 @@ autocmd FileType go nmap <leader>t  <Plug>(go-test)
 
 
 " Auto closing pairs
-:so ~/.dotfiles/vim/autopair.vim
+" :so ~/.dotfiles/vim/autopair.vim
 
