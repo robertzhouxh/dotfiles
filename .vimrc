@@ -63,12 +63,15 @@ call plug#begin()
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 Plug 'preservim/nerdtree'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'jimenezrick/vimerl'
+Plug 'edkolev/erlang-motions.vim'
+Plug 'vim-erlang/vim-dialyzer'
 call plug#end()
 
 set termguicolors
-colorscheme default
-colorscheme koehler
-colorscheme desert
+"colorscheme default
+"colorscheme koehler
+"colorscheme desert
 colorscheme delek
 
 " Run :GoBuild or :GoTestCompile based on the go file
@@ -85,6 +88,19 @@ autocmd FileType go nmap <leader>b :<C-u>call <SID>build_go_files()<CR>
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
 autocmd FileType go nmap <leader>t  <Plug>(go-test)
 
+" Erlang CONFIG
+au FileType erlang setl sw=4 sts=4 ts=8 et
+let erlang_completion_cache=0
+let erlang_folding=1
+let erlang_keywordprg="man"
+"let g:erlang_man_path="/usr/local/share/man/"
+let erlang_skel_dir="~/.erlang_tools/skels/"
+let erlang_skel_header = {
+			\"author": "Valery Meleshkin <valery.meleshkin@wooga.com>",
+			\"owner" : "Wooga"}
+if !exists(":DialyzeFile")
+    command DialyzeFile :cexpr system('dialyzer -Wno_return -Wunmatched_returns -Werror_handling -Wrace_conditions -Wunderspecs ' . expand('%:p'))
+endif
 
 " Auto closing pairs
 " :so ~/.dotfiles/vim/autopair.vim
