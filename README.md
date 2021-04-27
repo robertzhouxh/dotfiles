@@ -2,29 +2,30 @@
 
 ### install emacs
 
-   ```bash
+```bash
 
-   git clone --depth 1 git://git.savannah.gnu.org/emacs.git
-   brew install autoconf automake texinfo gnutls pkg-config libxml2 --debug --verbose
-   cd ./emacs && ./autogen.sh
+git clone --depth 1 git://git.savannah.gnu.org/emacs.git
+brew install autoconf automake texinfo gnutls pkg-config libxml2 --debug --verbose
+cd ./emacs && ./autogen.sh
 
-   export LDFLAGS="-L/usr/local/opt/libxml2/lib"
-   export CPPFLAGS="-I/usr/local/opt/libxml2/include"
-   export PKG_CONFIG_PATH="/usr/local/opt/libxml2/lib/pkgconfig"
+export LDFLAGS="-L/usr/local/opt/libxml2/lib"
+export CPPFLAGS="-I/usr/local/opt/libxml2/include"
+export PKG_CONFIG_PATH="/usr/local/opt/libxml2/lib/pkgconfig"
 
-   ./configure && make && make install
-   open -R nextstep/Emacs.app
-   and dragging Emacs to the Applications folder.
+./configure && make && make install
+open -R nextstep/Emacs.app
+and dragging Emacs to the Applications folder.
 
-   cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
-   ```
+cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
+```
+
 ### Install usefull applications eg: userApp,utils,libs for developer
 
-   ```bash
-   git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
-   cd dotfiles
-   set -- -f; source bootsrap.sh
-   ```
+```bash
+git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
+cd dotfiles
+set -- -f; source bootsrap.sh
+```
 
 ### Automatically depoly vim/emacs
 
@@ -36,6 +37,7 @@
     # emacs configuration file: .emacs.d/...
     ./emacs.sh
     ```
+
 ### Emacs
 
 use emacs org mode to describe the emacs configurations: ==.emacs.d/config.org==
@@ -51,7 +53,6 @@ Emacs: Failed to verify signature xxx
 - z: jump to the target dir directly eg: $ z xxxdir
 - .aliases: short name for frequence cmd
 - .exports: all the envirenment varibles
-
 
 ## mac 中文设置
 
@@ -97,7 +98,7 @@ cd ~/.emacs.d/
  wget https://github.com/rime/librime/releases/download/1.6.1/rime-1.6.1-osx.zip
 unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
 
- ```
+```
 
 ## C4-mode 架构图渲染
 
@@ -111,10 +112,13 @@ cd `pwd` && ggrep -rl "\!include https://raw.githubusercontent.com/plantuml-stdl
 
 
 ```
+
 ##vim
-brew install macvim
 
-alias vim="mvim -v"
+brew install vim
+refer: 
 
-https://github.com/axiaoxin/my-vimrc/blob/vim-8/readme_cn.md
+    https://gist.github.com/JeffreyWay/6753834
+    https://github.com/jogendra/dotfiles/tree/master/vim
+
 ## to be continued...
