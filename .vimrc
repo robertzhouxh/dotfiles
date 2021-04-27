@@ -30,6 +30,8 @@ set softtabstop=4   " Sets the number of columns for a TAB
 set expandtab       " Expand TABs to spaces
 
 
+let mapleader=","
+
 " VIM-GO CONFIGS
 " Syntax highlighting
 let g:go_highlight_fields = 1
@@ -64,7 +66,11 @@ Plug 'habamax/vim-polar'
 call plug#end()
 
 set termguicolors
-colorscheme polar
+"colorscheme default
+"colorscheme polar
+"colorscheme koehler
+"colorscheme desert
+colorscheme delek
 
 " Run :GoBuild or :GoTestCompile based on the go file
 function! s:build_go_files()
@@ -83,4 +89,5 @@ autocmd FileType go nmap <leader>t  <Plug>(go-test)
 
 " Auto closing pairs
 " :so ~/.dotfiles/vim/autopair.vim
+:so ~/githubs/dotfiles/autopair.vim
 
