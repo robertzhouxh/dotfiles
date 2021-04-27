@@ -62,14 +62,12 @@ call plug#begin()
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 Plug 'preservim/nerdtree'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'habamax/vim-polar'
 call plug#end()
 
 set termguicolors
-"colorscheme default
-"colorscheme polar
-"colorscheme koehler
-"colorscheme desert
+colorscheme default
+colorscheme koehler
+colorscheme desert
 colorscheme delek
 
 " Run :GoBuild or :GoTestCompile based on the go file
