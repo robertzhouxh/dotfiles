@@ -1,11 +1,26 @@
 filetype plugin indent on
 
+let mapleader=","
+set clipboard+=unnamed
+set incsearch	
+set foldmethod=syntax
+set foldminlines=20
 set autowrite
 set mouse=a
 
 :set number
 :set noswapfile
 
+" TAB SETUPS
+set tabstop=4       " The width of a TAB is set to 4.
+                    " Still it is a \t. It is just that
+                    " Vim will interpret it to be having
+                    " a width of 4.
+set shiftwidth=4    " Indents will have a width of 4
+set softtabstop=4   " Sets the number of columns for a TAB
+set expandtab       " Expand TABs to spaces
+
+" UI
 " Brackets Highlighting Colors
 hi MatchParen cterm=none ctermbg=black ctermfg=white
 
@@ -17,21 +32,24 @@ let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_SR = "\<Esc>]50;CursorShape=5\x7"
 let &t_EI = "\<Esc>]50;CursorShape=6\x7"
 
-" TAB SETUPS
-set tabstop=4       " The width of a TAB is set to 4.
-                    " Still it is a \t. It is just that
-                    " Vim will interpret it to be having
-                    " a width of 4.
+set termguicolors
+colorscheme desert
 
-set shiftwidth=4    " Indents will have a width of 4
+" PLUGINS
+call plug#begin()
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+Plug 'preservim/nerdtree'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'jimenezrick/vimerl'
+Plug 'edkolev/erlang-motions.vim'
+Plug 'vim-erlang/vim-dialyzer'
+call plug#end()
 
-set softtabstop=4   " Sets the number of columns for a TAB
-
-set expandtab       " Expand TABs to spaces
-
-set clipboard+=unnamed
-
-let mapleader=","
+" NERDTREE CONFIGS
+map <leader>n :NERDTreeToggle<CR>
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+let NERDTreeShowHidden=1
 
 " VIM-GO CONFIGS
 " Syntax highlighting
@@ -50,29 +68,6 @@ let g:go_auto_type_info = 1
 " Go Add Tags
 let g:go_addtags_transform = 'camelcase'
 noremap gat :GoAddTags<cr>
-
-" NERDTREE CONFIGS
-map <C-z> :NERDTreeToggle<CR>
-let g:NERDTreeDirArrowExpandable = '▸'
-let g:NERDTreeDirArrowCollapsible = '▾'
-let NERDTreeShowHidden=1
-
-
-" PLUGINS
-call plug#begin()
-Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
-Plug 'preservim/nerdtree'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'jimenezrick/vimerl'
-Plug 'edkolev/erlang-motions.vim'
-Plug 'vim-erlang/vim-dialyzer'
-call plug#end()
-
-set termguicolors
-"colorscheme default
-"colorscheme koehler
-"colorscheme desert
-colorscheme delek
 
 " Run :GoBuild or :GoTestCompile based on the go file
 function! s:build_go_files()
@@ -105,4 +100,3 @@ endif
 " Auto closing pairs
 " :so ~/.dotfiles/vim/autopair.vim
 :so ~/githubs/dotfiles/autopair.vim
-
