@@ -130,7 +130,7 @@ autocmd FileType go nmap <leader>t  <Plug>(go-test)
 " Erlang CONFIG
 au FileType erlang setl sw=4 sts=4 ts=8 et
 let erlang_completion_cache=0
-let erlang_folding=1
+"let erlang_folding=1
 let erlang_keywordprg="man"
 "let g:erlang_man_path="/usr/local/share/man/"
 let erlang_skel_dir="~/.erlang_tools/skels/"
