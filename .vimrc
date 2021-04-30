@@ -1,39 +1,81 @@
-filetype plugin indent on
+" ----------- Main Configuration ----------------------------------
 
+set nocompatible                         "don't need to keep compatibility with Vi
+filetype plugin indent on                "enable detection, plugins and indenting in one step
+syntax on                                "Turn on syntax highlighting
+set encoding=utf-8                       "Force UTF-8 encoding for special characters
+set ruler                                "Turn on the ruler
+set number                               "Show line numbers
+set scrolloff=10                         "Keep 10 lines below cursor always
+"set cursorline                           "underline the current line in the file
+"set cursorcolumn                         "highlight the current column. Visible in GUI mode only.
+"set colorcolumn=80
+
+set background=dark                      "make vim use colors that look good on a dark background
+
+set showcmd                              "show incomplete cmds down the bottom
+set showmode                             "show current mode down the bottom
+set foldenable                           "enable folding
+set showmatch                            "set show matching parenthesis
+"set virtualedit=all                      "allow the cursor to go in to "invalid" places
+set incsearch                            "find the next match as we type the search
+set hlsearch                             "hilight searches by default
+set ignorecase                           "ignore case when searching
+
+set shiftwidth=2                         "number of spaces to use in each autoindent step
+set tabstop=2                            "two tab spaces
+set softtabstop=2                        "number of spaces to skip or insert when <BS>ing or <Tab>ing
+set expandtab                            "spaces instead of tabs for better cross-editor compatibility
+set smarttab                             "use shiftwidth and softtabstop to insert or delete (on <BS>) blanks
+set shiftround                           "when at 3 spaces, and I hit > ... go to 4, not 5
+set nowrap                               "no wrapping
+
+set backspace=indent,eol,start           "allow backspacing over everything in insert mode
+"set cindent                              "recommended seting for automatic C-style indentation
+set autoindent                           "automatic indentation in non-C files
+"set copyindent                           "copy the previous indentation on autoindenting
+set smartindent
+
+set noerrorbells                         "don't make noise
+set wildmenu                             "make tab completion act more like bash
+set wildmode=list:longest                "tab complete to longest common string, like bash
+
+"set mouse-=a                             "disable mouse automatically entering visual mode
+set mouse=a                              "enable mouse automatically entering visual mode
+set hidden                               "allow hiding buffers with unsaved changes
+set cmdheight=2                          "make the command line a little taller to hide 'press enter to viem more' text
+
+set clipboard=unnamed,unnamedplus                    "Use system clipboard by default
+set splitright                           "splits open on the right.
+set splitbelow                           "splits open below existing window..
+
+set exrc                                 "enable per-directory .vimrc files
+set secure                               "disable unsafe stuff from local .vimrc files
+
+set laststatus=2                         "always show status line
+set lazyredraw                           "Vim 8 syntax highlighting on macOS is slow.
+
+
+" Use the same symbols as TextMate for tabstops and EOLs
+set listchars=tab:▸\ ,eol:¬
+
+
+" ----------- Shortcut Key Configuration ----------------------------------
 let mapleader=","
-set clipboard+=unnamed
-set incsearch	
-set foldmethod=syntax
-set foldminlines=20
-set autowrite
-set mouse=a
 
-:set number
-:set noswapfile
+" Emacs Move
+imap <C-a>  <Home>
+imap <C-e>  <End>
+imap <C-b>  <Left>
+imap <C-f>  <Right>
+imap <C-n>  <Down>
+imap <C-p>  <UP>
 
-" TAB SETUPS
-set tabstop=4       " The width of a TAB is set to 4.
-                    " Still it is a \t. It is just that
-                    " Vim will interpret it to be having
-                    " a width of 4.
-set shiftwidth=4    " Indents will have a width of 4
-set softtabstop=4   " Sets the number of columns for a TAB
-set expandtab       " Expand TABs to spaces
+" ctags
+map <Leader>ct :!ctags -R --exclude=.git --exclude=db/dumps --exclude=tmp --exclude=coverage --exclude=log --exclude=.svn --verbose=yes * <CR>
 
-" UI
-" Brackets Highlighting Colors
-hi MatchParen cterm=none ctermbg=black ctermfg=white
-
-" Errors/BadSpellings Higlighing Colors
-:highlight clear SpellBad
-
-" CUSOR SETUP
-let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-let &t_SR = "\<Esc>]50;CursorShape=5\x7"
-let &t_EI = "\<Esc>]50;CursorShape=6\x7"
-
-set termguicolors
-colorscheme desert
+" Exit insert mode and save with jj
+imap jj <Esc>:w<CR>
 
 " PLUGINS
 call plug#begin()
@@ -43,6 +85,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'jimenezrick/vimerl'
 Plug 'edkolev/erlang-motions.vim'
 Plug 'vim-erlang/vim-dialyzer'
+"Plug 'chriskempson/base16-vim'
 call plug#end()
 
 " NERDTREE CONFIGS
@@ -100,3 +143,10 @@ endif
 " Auto closing pairs
 " :so ~/.dotfiles/vim/autopair.vim
 :so ~/githubs/dotfiles/autopair.vim
+
+" UI
+set termguicolors
+colorscheme desert
+
+"Font
+set guifont=Monaco:h20
