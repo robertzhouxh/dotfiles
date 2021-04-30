@@ -86,7 +86,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'jimenezrick/vimerl'
 Plug 'edkolev/erlang-motions.vim'
 Plug 'vim-erlang/vim-dialyzer'
-"Plug 'chriskempson/base16-vim'
+Plug 'vim-erlang/vim-erlang-tags'
 call plug#end()
 
 " NERDTREE CONFIGS
