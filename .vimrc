@@ -54,6 +54,7 @@ set secure                               "disable unsafe stuff from local .vimrc
 
 set laststatus=2                         "always show status line
 set lazyredraw                           "Vim 8 syntax highlighting on macOS is slow.
+set noswapfile 
 
 
 " Use the same symbols as TextMate for tabstops and EOLs
