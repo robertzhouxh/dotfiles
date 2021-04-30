@@ -135,6 +135,7 @@ brew install ccls
 brew install imagemagick
 brew install pngpaste
 brew install z
+brew install protobuf
 # just abandon thunder
 brew install aria2
 fi;
