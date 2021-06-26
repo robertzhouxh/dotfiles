@@ -23,7 +23,8 @@ export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go-workspace
 export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/Cellar/erlang/23.3.1/lib/erlang/man/:$MANPATH
 export GO111MODULE=auto
-GOPROXY=https://goproxy.io,direct
+#GOPROXY=https://goproxy.io,direct
+go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 
 PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
