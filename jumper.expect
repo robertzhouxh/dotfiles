@@ -1,0 +1,70 @@
+#!/usr/local/bin/expect
+
+## 跳过跳板机管理服务器
+
+set connection_enum(1) emq
+set connection_enum(2) redis
+set connection_enum(3) kafka
+set connection_enum(4) client1
+set connection_enum(5) client2
+
+set connection_user(1) User  
+set connection_user(2) User 
+set connection_user(3) User 
+set connection_user(4) User 
+set connection_user(5) User 
+
+set connection_passwd(1) Password 
+set connection_passwd(2) Password 
+set connection_passwd(3) Password 
+set connection_passwd(4) Password 
+set connection_passwd(5) Password 
+
+set connection_ip(1) Ip 
+set connection_ip(2) Ip 
+set connection_ip(3) Ip 
+set connection_ip(4) Ip 
+set connection_ip(5) Ip 
+
+proc connectionlist {} {
+    global connection_enum
+    for {set i 1} {$i <= [array size connection_enum]} {incr i} {
+        puts "signin \[$i\] for $connection_enum($i)"
+    }
+}
+
+proc connecthost { enum } {
+    global connection_passwd
+    global connection_ip
+    global connection_user
+    global connection_enum
+
+    spawn ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -l JumperUser JumperIp
+    expect {
+             "*password*" { send "JumperPassword\r" }
+           }
+
+    expect "*Huawei Cloud*" {send "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -l $connection_user($enum) $connection_ip($enum)\r"}
+    expect {
+            "yes/no" {send "yes\r";exp_continue;}
+            "*password:*" { send "$connection_passwd($enum)\r" }
+           }
+    interact
+}
+
+# ----------------------------------------------------------------
+global connection_passwd
+global connection_ip
+global connection_user
+global connection_enum
+
+if {[llength $argv] == 0} {
+    puts "choice your login host:"
+    connectionlist
+    expect {
+        "\[12345\]" {
+            set num $expect_out(buffer); #$expect_out(buffer)获取输入值，set进行类型转换
+            connecthost $num;
+        }
+    }
+}

@@ -1,0 +1,36 @@
+[submodule ".emacs.d/vendor/nox"]
+	path = .emacs.d/vendor/nox
+	url = https://github.com/manateelazycat/nox
+[submodule ".emacs.d/vendor/awesome-tab"]
+	path = .emacs.d/vendor/awesome-tab
+	url = https://github.com/manateelazycat/awesome-tab
+[submodule ".emacs.d/vendor/C4-PlantUML"]
+	path = .emacs.d/vendor/C4-PlantUML
+	url = https://github.com/plantuml-stdlib/C4-PlantUML
+[submodule ".emacs.d/vendor/awesome-tray"]
+	path = .emacs.d/vendor/awesome-tray
+	url = https://github.com/manateelazycat/awesome-tray
+[submodule ".emacs.d/vendor/lazycat-theme"]
+	path = .emacs.d/vendor/lazycat-theme
+	url = https://github.com/manateelazycat/lazycat-theme
+[submodule ".emacs.d/vendor/color-rg"]
+	path = .emacs.d/vendor/color-rg
+	url = https://github.com/manateelazycat/color-rg
+[submodule ".emacs.d/vendor/auto-save"]
+	path = .emacs.d/vendor/auto-save
+	url = https://github.com/manateelazycat/auto-save
+[submodule ".emacs.d/vendor/ob-erlang"]
+	path = .emacs.d/vendor/ob-erlang
+	url = https://github.com/xfwduke/ob-erlang
+[submodule ".emacs.d/vendor/watch-other-window"]
+	path = .emacs.d/vendor/watch-other-window
+	url = https://github.com/manateelazycat/watch-other-window
+[submodule ".emacs.d/vendor/ob-go"]
+	path = .emacs.d/vendor/ob-go
+	url = https://github.com/pope/ob-go
+[submodule ".emacs.d/vendor/thing-edit"]
+	path = .emacs.d/vendor/thing-edit
+	url = https://github.com/manateelazycat/thing-edit
+[submodule ".emacs.d/vendor/snails"]
+	path = .emacs.d/vendor/snails
+	url = https://github.com/manateelazycat/snails

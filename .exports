@@ -1,0 +1,42 @@
+# Prefer US English and use UTF-8.
+export LANG='en_US.UTF-8';
+export LC_ALL='en_US.UTF-8';
+
+# Highlight section titles in manual pages.
+# export LESS_TERMCAP_md="${yellow}";
+
+
+# ===================== custom your exports here ... ======================
+export LD_LIBRARY_PATH=/usr/local/lib
+
+# use Unix Style cmd for mac-osx
+# if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
+#   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+# fi
+
+# if [ -d "$HOME/bin" ]; then
+#     PATH="$HOME/bin:$PATH"
+# fi
+
+# go
+export GOROOT=/usr/local/opt/go/libexec
+export GOPATH=$HOME/go-workspace
+export MANPATH=/usr/local/opt/coreutils/libexec/gnuman:/usr/local/Cellar/erlang/23.3.1/lib/erlang/man/:$MANPATH
+export GO111MODULE=auto
+#GOPROXY=https://goproxy.io,direct
+go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+
+PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
+PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="/usr/local/sbin:$PATH"
+PATH="/usr/local/opt/openjdk/bin:$PATH"
+PATH="/usr/local/Cellar/erlang/23.3.1/bin/:$PATH"
+PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+export PATH="$PATH:/Library/TeX/texbin"
+export CFLAGS="-I/usr/local/opt/openssl/include/"
+export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/openjdk/include -I/usr/local/opt/icu4c/include"
+export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/Cellar/erlang/23.3.1/lib -L/usr/local/opt/icu4c/lib"
+
+export HOMEBREW_NO_AUTO_UPDATE=1
+
