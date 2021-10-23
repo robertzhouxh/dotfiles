@@ -78,12 +78,22 @@ Note: if you encouter "Failed to verify signature xxx"
     ```
 5. erlang 依赖  erlang_ls 并适配路径
 
+### 代码跳转
+
+1. nox 方案， M-X ---> nox ---> C-], C-T
+2. dumb-jump 方案， M-], M-T
+
 ## 文件说明
 
-- z:        a execfile used to jump dir, eg:  z xxxdir
 - .aliases: short name for frequence cmd
 - .exports: all the envirenment varibles
 - .macos:   a config script for macos refer: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
+- .exports: 所有环境变量
+- .aliases: cmd别名
+- .config: ssh 配置文件
+- jumper.expect 一个跳板机相关脚本
+- apt.sh: ubuntu scripts
+- brew.sh: macos scripts
 
 ## Mac 中文设置
 
