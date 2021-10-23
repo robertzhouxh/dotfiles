@@ -65,6 +65,18 @@ Note: if you encouter "Failed to verify signature xxx"
 1. open .emacs.d/config.org with emacs in org-mode (,fe ---> M-X ---> org-mode)
 2. modify chapter: Evil-Mode, Kep-Map, ...
 3. reload: ,fr
+4. 准备golang 的依赖
+    ```
+    go get -v golang.org/x/tools/gopls@latest
+
+    go get -v -u golang.org/x/tools/cmd/goimports
+    go get -v -u github.com/go-delve/delve/cmd/dlv
+    go get -v -u github.com/josharian/impl
+    go get -v -u github.com/cweill/gotests/...
+    go get -v -u github.com/fatih/gomodifytags
+    go get -v -u github.com/davidrjenni/reftools/cmd/fillstruct
+    ```
+5. erlang 依赖  erlang_ls 并适配路径
 
 ## 文件说明
 
