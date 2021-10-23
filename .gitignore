@@ -37,7 +37,6 @@ Thumbs.db
 .emacs.d/var
 .emacs.d/config.el
 .emacs.d/eln-cache
-.emacs.d/config.org  
 .emacs.d/custom.el  
 .emacs.d/init.el  
 .emacs.d/snippets  
