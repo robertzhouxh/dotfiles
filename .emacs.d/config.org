@@ -1028,12 +1028,12 @@
 
 	    ;"w" 'select-current-word
 	    ;"W" 'whitespace-mode
-        "wr" 'edwina-arrange
-        "wj" 'edwina-select-next-window
-        "wk" 'edwina-select-previous-window
-        "wh" 'edwina-dec-mfact     ;; 主窗口缩窄
-        "wl" 'edwina-inc-mfact     ;; 主窗口拉宽
-        "wc" 'edwina-delete-window ;; 关闭窗口
+            "wr" 'edwina-arrange
+            "wj" 'edwina-select-next-window
+            "wk" 'edwina-select-previous-window
+            "wh" 'edwina-dec-mfact     ;; 主窗口缩窄
+            "wl" 'edwina-inc-mfact     ;; 主窗口拉宽
+            "wc" 'edwina-delete-window ;; 关闭窗口
 	    "wz" 'edwina-zoom          ;; 关闭窗口
         )
 
@@ -1134,11 +1134,11 @@
     :hook
     (org-mode . toc-org-enable))
 
-  (add-to-list 'org-tag-alist '("TOC" . ?T))
   (use-package org-superstar
     :if (and (display-graphic-p) (char-displayable-p ?⚫))
     :hook (org-mode . org-superstar-mode)
     :init (setq org-superstar-headline-bullets-list '("⚫" "⚫" "⚫" "⚫")))
+
   (use-package valign
     :defer t
     :ensure t
@@ -1193,7 +1193,7 @@
   ;(setq org-src-fontify-natively t)
 
   ;; 在 org 允许文件中执行代码块
-  (use-package ob-http :ensure t)
+  (use-package ob-http)
   (require 'ob-erlang)
   (require 'ob-go)
   (org-babel-do-load-languages
