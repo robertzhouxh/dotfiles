@@ -1117,8 +1117,9 @@
   (if window-system
       (s-font))
 #+END_SRC
-** init-org-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ; 参考: https://a358003542.github.io/articles/emacs-orgmode-learning-notes.html
+  ; 参考: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
   (use-package org-download
     :ensure t
     :after org
@@ -1158,31 +1159,44 @@
   (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
   (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
 
+  ;; org, latex 设置
   (require 'org)
   (require 'ox-latex)
-  (setq org-log-done 'time)
-
-
-  ;; always resize inline images to 300 pixels, or use scale 0.8  in src plantuml
-  (setq org-image-actual-width 200) 
-  ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise resize to 400
-  ;(setq org-image-actual-width '(400)) 
-  ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise don’t resize
-  ;(setq org-image-actual-width nil) 
-  ;; Never resize and use original width (the default)
-  ;(setq org-image-actual-width t) 
-
-  (setq org-hide-leading-stars t)
-  (setq org-startup-folded t)                   ; t, 'overview, 'content, 'showall.
-  (setq org-pretty-entities nil)                ; 下划线不转下标
-  (setq org-export-babel-evaluate t)
-  (setq org-export-with-sub-superscripts nil)   ; 下划线不转下标
 
   ;; Babel
   (setq org-confirm-babel-evaluate nil
 	org-src-fontify-natively t
 	org-src-tab-acts-natively t)
 
+  ;; Display
+  (setq org-log-done 'time)
+  (setq org-hide-leading-stars t)
+  (setq org-startup-folded t)                   ; t, 'overview, 'content, 'showall.
+  (setq org-pretty-entities nil)                ; 下划线不转下标
+  (setq org-export-babel-evaluate t)
+  (setq org-export-with-sub-superscripts nil)   ; 下划线不转下标
+  (setq org-export-headline-levels 5)           ; 5级结构
+
+  ;; 表格
+  ; 长表格  longtable环境：   #+ATTR_LATEX: :environment longtable :align x{0.2\linewidth}x{0.2\linewidth}
+  ; 普通表格tabular环境： #+ATTR_LATEX: :align p{0.18\linewidth}|p{0.72\linewidth}
+  (setq org-latex-tables-booktabs t)            ; 启用booktabs宏包模式, 额外支持插入一些属性设置
+
+  ;; 图片
+  ;; always resize inline images to 300 pixels, or use scale 0.8  in src plantuml
+  (setq org-image-actual-width 200) 
+  ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise resize to 400
+					  ;(setq org-image-actual-width '(400)) 
+  ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise don’t resize
+					  ;(setq org-image-actual-width nil) 
+  ;; Never resize and use original width (the default)
+					  ;(setq org-image-actual-width t) 
+  (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
+  (setq org-latex-image-default-width "")
+  (setq org-latex-default-figure-position "H")
+#+END_SRC
+** init-org-mode
+#+BEGIN_SRC emacs-lisp :tangle yes
   ;; from  https://github.com/zhcosin/dotemacs/blob/master/lisp/init-orgmode.el
   (add-hook 'org-mode-hook 
 	    (lambda () (setq truncate-lines nil))) 
@@ -1331,202 +1345,203 @@
 ** init-org2pdf
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;;org-mode export to latex, refer: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
-  (require 'ox-latex)
-  (setq org-export-latex-listings t)
-  ;;org-mode source code setup in exporting to latex
-  (add-to-list 'org-latex-listings '("" "listings"))
-  (add-to-list 'org-latex-listings '("" "color"))
+  ;; org-latex-packages-alist 第一个元素是要加载宏包的选项，第二个参数是要加载宏包的名字，第三个选项设置为t或者nil，即要加载或者不加载。
+  ;;org-mode export to latex, refer: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
+    (require 'ox-latex)
+    (setq org-export-latex-listings t)
+    ;;org-mode source code setup in exporting to latex
+    (add-to-list 'org-latex-listings '("" "listings"))
+    (add-to-list 'org-latex-listings '("" "color"))
 
-  (add-to-list 'org-latex-packages-alist
-               '("" "xcolor" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "listings" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "fontspec" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "indentfirst" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "xunicode" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "geometry"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "float"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "longtable"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "tikz"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "fancyhdr"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "textcomp"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amsmath"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amsthm"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "tabularx" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "booktabs" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "grffile" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "wrapfig" t))
-  (add-to-list 'org-latex-packages-alist
-               '("normalem" "ulem" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amssymb" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "capt-of" t))
-  (add-to-list 'org-latex-packages-alist
-               '("figuresright" "rotating" t))
-  (add-to-list 'org-latex-packages-alist
-               '("Lenny" "fncychap" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "xcolor" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "listings" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "fontspec" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "indentfirst" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "xunicode" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "geometry"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "float"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "longtable"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "tikz"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "fancyhdr"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "textcomp"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "amsmath"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "amsthm"))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "tabularx" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "booktabs" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "grffile" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "wrapfig" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("normalem" "ulem" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "amssymb" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("" "capt-of" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("figuresright" "rotating" t))
+    (add-to-list 'org-latex-packages-alist
+		 '("Lenny" "fncychap" t))
 
-  (add-to-list 'org-latex-classes
-               '("zhcosin-org-book"
-                 "\\documentclass{ctexbook}
-\\usepackage{titlesec}
-\\usepackage{hyperref}
-[NO-DEFAULT-PACKAGES]
-[PACKAGES]
-\\newtheorem{theorem}{定理}[section]
-%\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setCJKsansfont{WenQuanYi Micro Hei}
-%\\setCJKmonofont{WenQuanYi Micro Hei Mono}
-%\\setmainfont{DejaVu Sans} % 英文衬线字体
-%\\setsansfont{DejaVu Serif} % 英文无衬线字体
-%\\setmonofont{DejaVu Sans Mono}
-%\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setsansfont{WenQuanYi Micro Hei}
-%\\setmonofont{WenQuanYi Micro Hei Mono}
-%如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
-\\defaultfontfeatures{Mapping=tex-text}
-% 中文断行
-\\XeTeXlinebreaklocale \"zh\"
-\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-% 代码设置
-\\lstset{numbers=left,
-numberstyle= \\tiny,
-keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
-frame=shadowbox,
-breaklines=true,
-rulesepcolor= \\color{ red!20!green!20!blue!20}
-}
-[EXTRA]
-"
-                 ("\\chapter{%s}" . "\\chapter*{%s}")
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+		 '("zhcosin-org-book"
+		   "\\documentclass{ctexbook}
+  \\usepackage{titlesec}
+  \\usepackage{hyperref}
+  [NO-DEFAULT-PACKAGES]
+  [PACKAGES]
+  \\newtheorem{theorem}{定理}[section]
+  %\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
+  %\\setCJKsansfont{WenQuanYi Micro Hei}
+  %\\setCJKmonofont{WenQuanYi Micro Hei Mono}
+  %\\setmainfont{DejaVu Sans} % 英文衬线字体
+  %\\setsansfont{DejaVu Serif} % 英文无衬线字体
+  %\\setmonofont{DejaVu Sans Mono}
+  %\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
+  %\\setsansfont{WenQuanYi Micro Hei}
+  %\\setmonofont{WenQuanYi Micro Hei Mono}
+  %如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
+  \\defaultfontfeatures{Mapping=tex-text}
+  % 中文断行
+  \\XeTeXlinebreaklocale \"zh\"
+  \\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+  % 代码设置
+  \\lstset{numbers=left,
+  numberstyle= \\tiny,
+  keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
+  frame=shadowbox,
+  breaklines=true,
+  rulesepcolor= \\color{ red!20!green!20!blue!20}
+  }
+  [EXTRA]
+  "
+		   ("\\chapter{%s}" . "\\chapter*{%s}")
+		   ("\\section{%s}" . "\\section*{%s}")
+		   ("\\subsection{%s}" . "\\subsection*{%s}")
+		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-  (add-to-list 'org-latex-classes
-               '("zhcosin-org-article"
-                 "\\documentclass{ctexart}
-\\usepackage{titlesec}
-\\usepackage{hyperref}
-[NO-DEFAULT-PACKAGES]
-[PACKAGES]
-\\newtheorem{theorem}{定理}[section]
-\\parindent 2em
-%\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setCJKsansfont{WenQuanYi Micro Hei}
-%\\setCJKmonofont{WenQuanYi Micro Hei Mono}
-%\\setmainfont{DejaVu Sans} % 英文衬线字体
-%\\setsansfont{DejaVu Serif} % 英文无衬线字体
-%\\setmonofont{DejaVu Sans Mono}
-%\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setsansfont{WenQuanYi Micro Hei}
-%\\setmonofont{WenQuanYi Micro Hei Mono}
-%如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
-\\defaultfontfeatures{Mapping=tex-text}
-% 中文断行
-\\XeTeXlinebreaklocale \"zh\"
-\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-% 代码设置
-\\lstset{numbers=left,
-numberstyle= \\tiny,
-keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
-frame=shadowbox,
-breaklines=true,
-rulesepcolor= \\color{ red!20!green!20!blue!20}
-}
-[EXTRA]
-"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+		 '("zhcosin-org-article"
+		   "\\documentclass{ctexart}
+  \\usepackage{titlesec}
+  \\usepackage{hyperref}
+  [NO-DEFAULT-PACKAGES]
+  [PACKAGES]
+  \\newtheorem{theorem}{定理}[section]
+  \\parindent 2em
+  %\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
+  %\\setCJKsansfont{WenQuanYi Micro Hei}
+  %\\setCJKmonofont{WenQuanYi Micro Hei Mono}
+  %\\setmainfont{DejaVu Sans} % 英文衬线字体
+  %\\setsansfont{DejaVu Serif} % 英文无衬线字体
+  %\\setmonofont{DejaVu Sans Mono}
+  %\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
+  %\\setsansfont{WenQuanYi Micro Hei}
+  %\\setmonofont{WenQuanYi Micro Hei Mono}
+  %如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
+  \\defaultfontfeatures{Mapping=tex-text}
+  % 中文断行
+  \\XeTeXlinebreaklocale \"zh\"
+  \\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+  % 代码设置
+  \\lstset{numbers=left,
+  numberstyle= \\tiny,
+  keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
+  frame=shadowbox,
+  breaklines=true,
+  rulesepcolor= \\color{ red!20!green!20!blue!20}
+  }
+  [EXTRA]
+  "
+		   ("\\section{%s}" . "\\section*{%s}")
+		   ("\\subsection{%s}" . "\\subsection*{%s}")
+		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-  (add-to-list 'org-latex-classes
-               '("zhcosin-org-beamer"
-                 "\\documentclass{beamer}
-\\usepackage[slantfont, boldfont]{xeCJK}
-% beamer set
-\\usepackage[none]{hyphenat}
-\\usepackage[abs]{overpic}
-[NO-DEFAULT-PACKAGES]
-[PACKAGES]
-\\newtheorem{theorem}{定理}[section]
-\\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-\\setCJKsansfont{WenQuanYi Micro Hei}
-\\setCJKmonofont{WenQuanYi Micro Hei Mono}
-\\setmainfont{DejaVu Sans} % 英文衬线字体
-\\setsansfont{DejaVu Serif} % 英文无衬线字体
-\\setmonofont{DejaVu Sans Mono}
-%\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
-%\\setsansfont{WenQuanYi Micro Hei}
-%\\setmonofont{WenQuanYi Micro Hei Mono}
-%如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
-\\defaultfontfeatures{Mapping=tex-text}
-% 中文断行
-\\XeTeXlinebreaklocale \"zh\"
-\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-% 代码设置
-\\lstset{numbers=left,
-numberstyle= \\tiny,
-keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
-frame=shadowbox,
-breaklines=true,
-rulesepcolor= \\color{ red!20!green!20!blue!20}
-}
-[EXTRA]
-"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+		 '("zhcosin-org-beamer"
+		   "\\documentclass{beamer}
+  \\usepackage[slantfont, boldfont]{xeCJK}
+  % beamer set
+  \\usepackage[none]{hyphenat}
+  \\usepackage[abs]{overpic}
+  [NO-DEFAULT-PACKAGES]
+  [PACKAGES]
+  \\newtheorem{theorem}{定理}[section]
+  \\setCJKmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
+  \\setCJKsansfont{WenQuanYi Micro Hei}
+  \\setCJKmonofont{WenQuanYi Micro Hei Mono}
+  \\setmainfont{DejaVu Sans} % 英文衬线字体
+  \\setsansfont{DejaVu Serif} % 英文无衬线字体
+  \\setmonofont{DejaVu Sans Mono}
+  %\\setmainfont{WenQuanYi Micro Hei} % 设置缺省中文字体
+  %\\setsansfont{WenQuanYi Micro Hei}
+  %\\setmonofont{WenQuanYi Micro Hei Mono}
+  %如果没有它，会有一些 tex 特殊字符无法正常使用，比如连字符。
+  \\defaultfontfeatures{Mapping=tex-text}
+  % 中文断行
+  \\XeTeXlinebreaklocale \"zh\"
+  \\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+  % 代码设置
+  \\lstset{numbers=left,
+  numberstyle= \\tiny,
+  keywordstyle= \\color{ blue!70},commentstyle=\\color{red!50!green!50!blue!50},
+  frame=shadowbox,
+  breaklines=true,
+  rulesepcolor= \\color{ red!20!green!20!blue!20}
+  }
+  [EXTRA]
+  "
+		   ("\\section{%s}" . "\\section*{%s}")
+		   ("\\subsection{%s}" . "\\subsection*{%s}")
+		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-  (setq org-latex-pdf-process
-        '("xelatex -interaction nonstopmode -output-directory %o %f"
-          ;;"biber %b" "xelatex -interaction nonstopmode -output-directory %o %f"
-          "bibtex %b"
-          "xelatex -interaction nonstopmode -output-directory %o %f"
-          "xelatex -interaction nonstopmode -output-directory %o %f"))
+    (setq org-latex-pdf-process
+	  '("xelatex -interaction nonstopmode -output-directory %o %f"
+	    ;;"biber %b" "xelatex -interaction nonstopmode -output-directory %o %f"
+	    "bibtex %b"
+	    "xelatex -interaction nonstopmode -output-directory %o %f"
+	    "xelatex -interaction nonstopmode -output-directory %o %f"))
 
 
 
-  ;;;;  参考 https://pengpengxp.github.io/archive/before-2018-11-10/2018-05-30-org-mode-to-pdf.html
-  ;;;;  源码默认的block默认导出还是 verbatim 此时还管设置什么 options 都是不支持的。可以修改为 listings 或者 minted 
-  ;;;;  这两个都是支持直接在org中设置options：
-  ;;
-  ;;   #+ATTR_LATEX: :options commentstyle=\bfseries
-  ;;   #+BEGIN_SRC emacs-lisp
-  ;;     (defun Fib (n)
-  ;;       (if (< n 2) n (+ (Fib (- n 1)) (Fib (- n 2)))))
-  ;;   #+END_SRC
+    ;;;;  参考 https://pengpengxp.github.io/archive/before-2018-11-10/2018-05-30-org-mode-to-pdf.html
+    ;;;;  源码默认的block默认导出还是 verbatim 此时还管设置什么 options 都是不支持的。可以修改为 listings 或者 minted 
+    ;;;;  这两个都是支持直接在org中设置options：
+    ;;
+    ;;   #+ATTR_LATEX: :options commentstyle=\bfseries
+    ;;   #+BEGIN_SRC emacs-lisp
+    ;;     (defun Fib (n)
+    ;;       (if (< n 2) n (+ (Fib (- n 1)) (Fib (- n 2)))))
+    ;;   #+END_SRC
 
-  ;(setq org-latex-pdf-process
-  ;    '(
-  ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  ;      "rm -fr %b.out %b.log %b.tex auto"
-  ;      ))
+    ;(setq org-latex-pdf-process
+    ;    '(
+    ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+    ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+    ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+    ;      "rm -fr %b.out %b.log %b.tex auto"
+    ;      ))
 #+END_SRC
 
 * Programming
@@ -1827,7 +1842,7 @@ rulesepcolor= \\color{ red!20!green!20!blue!20}
 				 "#+LATEX_CLASS: zhcosin-org-article\n"
 			 "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
 				 "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
-         "目录 :TOC_2_org:"
+         "* 目录 :TOC_2_org:"
 				 _
 				 ))
 		  auto-insert-alist))
