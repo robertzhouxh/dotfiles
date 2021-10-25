@@ -157,40 +157,12 @@
 
 # URL shorthands
 
-[url "git@github.com:"]
-
-  insteadOf = "gh:"
-  pushInsteadOf = "github:"
-  pushInsteadOf = "git://github.com/"
-
-[url "git://github.com/"]
-
-  insteadOf = "github:"
-
-[url "git@gist.github.com:"]
-
-  insteadOf = "gst:"
-  pushInsteadOf = "gist:"
-  pushInsteadOf = "git://gist.github.com/"
-
-[url "git://gist.github.com/"]
-
-  insteadOf = "gist:"
 [user]
-  name = 周学浩(10033362)
-  email = zhouxh-e@glodon.com
-[difftool "ediff"]
-  cmd = ~/bin/ediff.sh \"$LOCAL\" \"$REMOTE\"
-[difftool]
-  prompt = false
-[mergetool "ediff"]
-  cmd = ~/bin/ediff_merge.sh \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"
-[mergetool]
-  prompt = false
 
-[http]
-  proxy = socks5://127.0.0.1:1080
-  postBuffer = 524288000
-[https]
+  name = robertzhouxh
+  email = zhouxh-e@glodon.com
+
+[http "https://github.com"]
+
   proxy = socks5://127.0.0.1:1080
   postBuffer = 524288000
