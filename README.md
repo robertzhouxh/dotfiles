@@ -61,7 +61,7 @@ Note: if you encouter "Failed to verify signature xxx"
 2. download the package gnu-elpa-keyring-update and run the function with the same name, e.g. M-x package-install RET gnu-elpa-keyring-update RET.
 3. reset package-check-signature to the default value allow-unsigned，e.g. M-: (setq package-check-signature t) RET
 
-### 维护 emacs 配置
+### 维护 emacs 配置 (~/.emacs.d/config.org)
 1. open .emacs.d/config.org with emacs in org-mode (,fe ---> M-X ---> org-mode)
 2. modify chapter: Evil-Mode, Kep-Map, ...
 3. reload: ,fr
@@ -99,7 +99,22 @@ Note: if you encouter "Failed to verify signature xxx"
 
 	```
 
+8. 根据需要调整 evil 键映射
+    ```
+    (defun x/config-evil-leader ()
+      "Configure evil leader mode."
+      (evil-leader/set-leader ",")
+      (evil-leader/set-key
+	    ","  'avy-goto-char-2
+	    ":"  'eval-expression
 
+	    "/"  'counsel-rg
+
+	    "A"  'align-regexp
+
+	    "bb" 'ivy-switch-buffer
+	    "br" 'counsel-recentf
+    ```
 ### 代码跳转
 
 1. nox 方案， M-X ---> nox ---> C-], C-T

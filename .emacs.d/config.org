@@ -960,91 +960,91 @@
     (global-git-gutter-mode +1))
 #+END_SRC
 * Evil-Mode
-#+BEGIN_SRC emacs-lisp :tangle yes
-    ; C-y => paste the things to minibuffer, then use consel-rg
+  #+BEGIN_SRC emacs-lisp :tangle yes
+    ;;; C-y => paste the things to minibuffer, then use consel-rg
     (defun x/config-evil-leader ()
       "Configure evil leader mode."
       (evil-leader/set-leader ",")
       (evil-leader/set-key
-	    ","  'avy-goto-char-2
-	    ":"  'eval-expression
+	","  'avy-goto-char-2
+	":"  'eval-expression
 
-	    "/"  'counsel-rg
+	"/"  'counsel-rg
 
-	    "A"  'align-regexp
+	"A"  'align-regexp
 
-	    "bb" 'ivy-switch-buffer
-	    "br" 'counsel-recentf
+	"bb" 'ivy-switch-buffer
+	"br" 'counsel-recentf
 
-	    "ci" 'color-rg-search-input
-	    "cs" 'color-rg-search-symbol
-	    "cp" 'color-rg-search-project
-	    "cc" 'comment-dwim
+	"ci" 'color-rg-search-input
+	"cs" 'color-rg-search-symbol
+	"cp" 'color-rg-search-project
+	"cc" 'comment-dwim
 
-	    "db" 'kill-this-buffer
-	    "D"  'kill-buffer-and-window
-	    "do" 'delete-other-windows
-	    "dt" 'delete-trailing-whitespace
+	"db" 'kill-this-buffer
+	"D"  'kill-buffer-and-window
+	"do" 'delete-other-windows
+	"dt" 'delete-trailing-whitespace
 
-	    "es" 'ivy-erlang-complete-find-spec
-	    "ef" 'ivy-erlang-complete-find-file
-	    "eh" 'ivy-erlang-complete-show-doc-at-point
-	    "ep" 'ivy-erlang-complete-set-project-root
-	    "ea" 'ivy-erlang-complete-autosetup-project-root
-	    "ek" 'get-erl-man
-	    "es" 'eshell-here
-	    "ec" 'eshell/clear
-	    "ed" 'eshell/close
+	"es" 'ivy-erlang-complete-find-spec
+	"ef" 'ivy-erlang-complete-find-file
+	"eh" 'ivy-erlang-complete-show-doc-at-point
+	"ep" 'ivy-erlang-complete-set-project-root
+	"ea" 'ivy-erlang-complete-autosetup-project-root
+	"ek" 'get-erl-man
+	"es" 'eshell-here
+	"ec" 'eshell/clear
+	"ed" 'eshell/close
 
-	    "ff" 'find-file-other-frame
-	    "fp" 'format-function-parameters
-	    "fd" 'dired-jump
-	    "fn" 'find-name-dired
-	    "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-	    "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-	    "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
-	    "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
+	"ff" 'find-file-other-frame
+	"fp" 'format-function-parameters
+	"fd" 'dired-jump
+	"fn" 'find-name-dired
+	"fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+	"fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+	"fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
+	"fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
 
-	    "g"  'magit-status
-	    "G"  'aborn/simple-git-commit-push
+	"g"  'magit-status
+	"G"  'aborn/simple-git-commit-push
 
-	    "of" 'other-frame
-	    "ow" 'other-window
+	"of" 'other-frame
+	"ow" 'other-window
 
-	    "p/" 'counsel-projectile-rg
-	    "pf" 'counsel-projectile-find-file
-	    "pp" 'counsel-projectile-switch-project
-	    "pb" 'counsel-projectile-switch-to-buffer
-	    "pr"  'proxy-socks-enable
-	    "pR"  'proxy-socks-disable
+	"p/" 'counsel-projectile-rg
+	"pf" 'counsel-projectile-find-file
+	"pp" 'counsel-projectile-switch-project
+	"pb" 'counsel-projectile-switch-to-buffer
+	"pr" 'proxy-socks-toggle
+	"ps" 'proxy-http-toggle
 
-	    "rb" 'generate-scratch-buffer
-	    "ri" 'x/open-init-file
-	    "rv" 'rename-local-var
-	    "R"  'x/reload-init-file
+	"rb" 'generate-scratch-buffer
+	"ri" 'x/open-init-file
+	"rv" 'rename-local-var
+	"R"  'x/reload-init-file
 
-	    "sa" 'x/save-all
-	    "su" 'sudo
+	"sa" 'x/save-all
+	"su" 'sudo
 
-	    "tj" 'awesome-tab-backward-tab
-	    "tk" 'awesome-tab-forward-tab
-	    "th" 'awesome-tab-backward-group
-	    "tl" 'awesome-tab-forward-group
-	    "tg" 'awesome-tab-counsel-switch-group
+	"tj" 'awesome-tab-backward-tab
+	"tk" 'awesome-tab-forward-tab
+	"th" 'awesome-tab-backward-group
+	"tl" 'awesome-tab-forward-group
+	"tg" 'awesome-tab-counsel-switch-group
 
-	    "vd" '(lambda () (interactive) (find-file "./Dockerfile"))
-	    "vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+	"vd" '(lambda () (interactive) (find-file "./Dockerfile"))
+	"vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
-	    ;"w" 'select-current-word
-	    ;"W" 'whitespace-mode
-            "wr" 'edwina-arrange
-            "wj" 'edwina-select-next-window
-            "wk" 'edwina-select-previous-window
-            "wh" 'edwina-dec-mfact     ;; 主窗口缩窄
-            "wl" 'edwina-inc-mfact     ;; 主窗口拉宽
-            "wc" 'edwina-delete-window ;; 关闭窗口
-	    "wz" 'edwina-zoom          ;; 关闭窗口
-        )
+					    ;"w" 'select-current-word
+					    ;"W" 'whitespace-mode
+	"wr" 'edwina-arrange
+	"wj" 'edwina-select-next-window
+	"wk" 'edwina-select-previous-window
+	"wh" 'edwina-dec-mfact     ;; 主窗口缩窄
+	"wl" 'edwina-inc-mfact     ;; 主窗口拉宽
+	"wc" 'edwina-delete-window ;; 关闭窗口
+	"wz" 'edwina-zoom          ;; 关闭窗口
+	)
 
       (defun magit-blame-toggle ()
 	"Toggle magit-blame-mode on and off interactively."
@@ -1052,42 +1052,42 @@
 	(if (and (boundp 'magit-blame-mode) magit-blame-mode)
 	    (magit-blame-quit)
 	  (call-interactively 'magit-blame)))
-    )
+      )
 
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-i-jump nil)
-  (use-package evil
-    :ensure t
-    :init
-    (progn
-      (evil-mode t)
-      (evil-set-initial-state 'color-rg-mode 'emacs)
-      ;(evil-set-initial-state 'dired-mode 'emacs)
-      (setq evil-want-C-i-jump nil))
-    :config
-    (progn
-      (use-package evil-visualstar
-	       :bind (:map evil-visual-state-map
-	       ("*" . evil-visualstar/begin-search-forward)
-	       ("#" . evil-visualstar/begin-search-backward)))
-      (use-package evil-leader
-	       :init
-	       (progn
-	         (global-evil-leader-mode)
-	         (setq evil-leader/in-all-states 1)
-	         (x/config-evil-leader)))
-      (use-package evil-surround
-	        :ensure t
-	        :config
-	        (progn
-	          (global-evil-surround-mode)))
-      (use-package evil-escape
-	        :ensure t
-	        :config
-	        (progn
-	          (evil-escape-mode)
-            (setq-default evil-escape-key-sequence "tn")))))
-#+END_SRC
+    (setq evil-want-C-u-scroll t)
+    (setq evil-want-C-i-jump nil)
+    (use-package evil
+      :ensure t
+      :init
+      (progn
+	(evil-mode t)
+	(evil-set-initial-state 'color-rg-mode 'emacs)
+					    ;(evil-set-initial-state 'dired-mode 'emacs)
+	(setq evil-want-C-i-jump nil))
+      :config
+      (progn
+	(use-package evil-visualstar
+	  :bind (:map evil-visual-state-map
+		      ("*" . evil-visualstar/begin-search-forward)
+		      ("#" . evil-visualstar/begin-search-backward)))
+	(use-package evil-leader
+	  :init
+	  (progn
+	    (global-evil-leader-mode)
+	    (setq evil-leader/in-all-states 1)
+	    (x/config-evil-leader)))
+	(use-package evil-surround
+	  :ensure t
+	  :config
+	  (progn
+	    (global-evil-surround-mode)))
+	(use-package evil-escape
+	  :ensure t
+	  :config
+	  (progn
+	    (evil-escape-mode)
+	    (setq-default evil-escape-key-sequence "tn")))))
+  #+END_SRC
 * Org-Mode
   #+BEGIN_SRC emacs-lisp :tangle yes
   ;; --------------------------------------------------------------
