@@ -76,7 +76,29 @@ Note: if you encouter "Failed to verify signature xxx"
     go get -v -u github.com/fatih/gomodifytags
     go get -v -u github.com/davidrjenni/reftools/cmd/fillstruct
     ```
-5. erlang 依赖  erlang_ls 并适配路径
+5. 修改 plantuml 路径: 
+
+   ```
+   (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")~
+   (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
+   ```
+
+6. 修改 erlang version: 路径: 
+
+   ```
+   ls /usr/local/lib/erlang/lib/tools-{version}/
+   emacs-version = ${version}
+   (add-to-list 'nox-server-programs '(erlang-mode . ("/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls"))))
+
+    ```
+7. 修改 代理设置
+    ```
+    (setq centaur-proxy "127.0.0.1:8123")          ; http_proxy
+    (setq centaur-proxy "127.0.0.1:1080")          ; Network proxy
+    (setq centaur-server nil)                      ; Enable `server-mode' or not: t or nil
+
+	```
+
 
 ### 代码跳转
 

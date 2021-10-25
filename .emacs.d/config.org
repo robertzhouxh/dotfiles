@@ -328,10 +328,9 @@
       :group 'centaur
       :type 'string)
 
-    (setq centaur-proxy "127.0.0.1:8123")
-    (setq centaur-proxy "127.0.0.1:1080")          ; Network proxy
-    (setq centaur-server nil)                      ; Enable `server-mode' or not: t or nil
-
+    (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
+    (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+    (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
 #+END_SRC
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -518,66 +517,72 @@
     (save-buffer-as-utf8 'gbk))
 
   ;;;;;;;;;;;;;;;;;;;;;; Network Proxy ;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+  ;; Network Proxy
   (defun proxy-http-show ()
     "Show HTTP/HTTPS proxy."
     (interactive)
     (if url-proxy-services
-	(message "Current HTTP proxy is `%s'" centaur-proxy)
+        (message "Current HTTP proxy is `%s'" centaur-proxy)
       (message "No HTTP proxy")))
-
+  
   (defun proxy-http-enable ()
     "Enable HTTP/HTTPS proxy."
     (interactive)
     (setq url-proxy-services
-	  `(("http" . ,centaur-proxy)
-	    ("https" . ,centaur-proxy)
-	    ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
+          `(("http" . ,centaur-proxy)
+            ("https" . ,centaur-proxy)
+            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
     (proxy-http-show))
-
+  
   (defun proxy-http-disable ()
     "Disable HTTP/HTTPS proxy."
     (interactive)
     (setq url-proxy-services nil)
     (proxy-http-show))
-
+  
   (defun proxy-http-toggle ()
     "Toggle HTTP/HTTPS proxy."
     (interactive)
     (if (bound-and-true-p url-proxy-services)
-	(proxy-http-disable)
+        (proxy-http-disable)
       (proxy-http-enable)))
-
+  
   (defun proxy-socks-show ()
     "Show SOCKS proxy."
     (interactive)
     (when (fboundp 'cadddr)                ; defined 25.2+
       (if (bound-and-true-p socks-noproxy)
-	  (message "Current SOCKS%d proxy is %s:%d"
-		   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-	(message "No SOCKS proxy"))))
-
+          (message "Current SOCKS%d proxy is %s:%s"
+                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+        (message "No SOCKS proxy"))))
+  
   (defun proxy-socks-enable ()
     "Enable SOCKS proxy."
     (interactive)
     (require 'socks)
     (setq url-gateway-method 'socks
-	  socks-noproxy '("localhost")
-	  socks-server '("Default server" "127.0.0.1" 1080 5))
+          socks-noproxy '("localhost"))
+    (let* ((proxy (split-string centaur-socks-proxy ":"))
+           (host (car proxy))
+           (port (cadr  proxy)))
+      (setq socks-server `("Default server" ,host ,port 5)))
+    (setenv "all_proxy" (concat "socks5://" centaur-socks-proxy))
     (proxy-socks-show))
-
+  
   (defun proxy-socks-disable ()
     "Disable SOCKS proxy."
     (interactive)
     (setq url-gateway-method 'native
-	  socks-noproxy nil)
+          socks-noproxy nil
+          socks-server nil)
+    (setenv "all_proxy" "")
     (proxy-socks-show))
-
+  
   (defun proxy-socks-toggle ()
     "Toggle SOCKS proxy."
     (interactive)
     (if (bound-and-true-p socks-noproxy)
-	(proxy-socks-disable)
+        (proxy-socks-disable)
       (proxy-socks-enable)))
 #+END_SRC
 * Plugins
@@ -1134,8 +1139,8 @@
     (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
     (setq plantuml-default-exec-mode 'jar)
     (setq plantuml-options "-charset UTF-8")
-    (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2021.7/libexec/plantuml.jar"))
-  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2021.7/libexec/plantuml.jar")
+    (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar"))
+  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
   (setq plantuml-default-exec-mode 'jar)
   (use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
   (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
@@ -1674,22 +1679,6 @@
     (insert "<<\"\">>")
     (backward-char 3)
     )
-
-					  ;(use-package ivy-erlang-complete
-					  ;  :custom
-					  ;  (ivy-erlang-complete-erlang-root '/usr/local/Cellar/erlang/24.0.2/lib/erlang)
-					  ;  :config
-					  ;  :bind
-					  ;  (
-					  ;   ("C-c e s" . 'ivy-erlang-complete-find-spec)
-					  ;   ("C-c e f" . 'ivy-erlang-complete-find-file)
-					  ;   ("C-c e h" . 'ivy-erlang-complete-show-doc-at-point)
-					  ;   ("C-c e p" . 'ivy-erlang-complete-set-project-root)
-					  ;   ("C-c e a" . 'ivy-erlang-complete-autosetup-project-root)
-					  ;   )
-					  ;  :init
-					  ;  (add-hook 'erlang-mode-hook #'ivy-erlang-complete-init)
-					  ;  (add-hook 'after-save-hook #'ivy-erlang-complete-reparse))
 
   ;;---------------------------------------------------------
   ;; C/C++ Mode
