@@ -1163,7 +1163,10 @@
   (setq org-export-babel-evaluate t)
   (setq org-export-with-sub-superscripts nil)   ; 下划线不转下标
   (setq org-export-headline-levels 5)           ; 5级结构
-
+  (setq org-highlight-latex-and-related '(latex)) ; 高亮latex代码
+  (setq org-file-apps
+      '(("pdf" . "open -a Skim %s")))
+  
   ;; 表格
   ; 长表格  longtable环境：   #+ATTR_LATEX: :environment longtable :align x{0.2\linewidth}x{0.2\linewidth}
   ; 普通表格tabular环境： #+ATTR_LATEX: :align p{0.18\linewidth}|p{0.72\linewidth}
@@ -1179,7 +1182,7 @@
   ;; Never resize and use original width (the default)
 					  ;(setq org-image-actual-width t) 
   (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
-  (setq org-latex-image-default-width "")
+  ;(setq org-latex-image-default-width "")
   (setq org-latex-default-figure-position "H")
 #+END_SRC
 ** init-org-mode
