@@ -39,6 +39,7 @@ Thumbs.db
 .emacs.d/eln-cache
 .emacs.d/custom.el  
 .emacs.d/snippets  
+.emacs.d/straight
 #.emacs.d/vendor
 
 htop
