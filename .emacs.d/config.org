@@ -1043,12 +1043,14 @@
 
 	"A"  'align-regexp
 
-	"bb" 'ivy-switch-buffer
+	;"bb" 'ivy-switch-buffer
+	"bb" 'switch-to-buffer
 	"br" 'counsel-recentf
+	"b[" 'previous-buffer
+	"b]" 'next-buffer
+	"bs" 'basic-save-buffer
+	"bS" 'evil-write-all
 
-	"ci" 'color-rg-search-input
-	"cs" 'color-rg-search-symbol
-	"cp" 'color-rg-search-project
 	"cc" 'comment-dwim
 
 	"db" 'kill-this-buffer
@@ -1075,24 +1077,31 @@
 	"fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
 	"fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
 
-	"g"  'magit-status
+	"gs" 'magit-status
+	"gb" 'magit-branch-checkout
+	"gp" 'magit-pull
+	"gB" 'magit-blame
 	"G"  'aborn/simple-git-commit-push
 
 	"of" 'other-frame
 	"ow" 'other-window
 
-	"p/" 'counsel-projectile-rg
 	"pf" 'counsel-projectile-find-file
 	"pp" 'counsel-projectile-switch-project
 	"pb" 'counsel-projectile-switch-to-buffer
+	"pk" 'projectile-kill-buffers
+	"pr" 'projectile-recentf
 	"ps" 'proxy-socks-toggle
 	"ph" 'proxy-http-toggle
 
 	"rb" 'generate-scratch-buffer
-	"ri" 'x/open-init-file
+	"rf" 'xref-find-references
 	"rv" 'rename-local-var
-	"R"  'x/reload-init-file
 
+	"si" 'color-rg-search-input
+	"ss" 'color-rg-search-symbol-in-project
+	"sp" 'color-rg-search-project
+	"sl" 'counsel-projectile-rg
 	"sa" 'x/save-all
 	"su" 'sudo
 	"sc" 'my-org-screenshot 
@@ -1771,6 +1780,8 @@
   ;;---------------------------------------------------------
   ;; Python Mode
   ;; Install: pip install pyflakes autopep8
+  ;; pip install python-language-server
+  ;; (setq nox-python-server “pyls”)
   ;;---------------------------------------------------------
   (use-package python
     :ensure nil
@@ -1831,7 +1842,7 @@
 		   'haskell-mode-hook
 		   ))
       (add-hook hook '(lambda () (nox-ensure))))
-    (add-to-list 'nox-server-programs '(go-mode . ("gopls")))
+    ;(add-to-list 'nox-server-programs '(go-mode . ("gopls")))
     (add-to-list 'nox-server-programs '(erlang-mode . ("/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls"))))
 
 #+END_SRC
