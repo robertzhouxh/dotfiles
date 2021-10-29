@@ -120,6 +120,17 @@ Note: if you encouter "Failed to verify signature xxx"
 1. nox 方案， M-X ---> nox ---> C-], C-T
 2. dumb-jump 方案， M-], M-T
 
+	针对 nox 的 python 代码补全跳转
+```
+  ;; Nox
+  ;; 1. M-x -> eshell 进入 eshell
+  ;; 2. ~ $ (nox-print-mspyls-download-url)
+  ;;    https://pvsc.blob.core.windows.net/python-language-server-stable/Python-Language-Server-osx-x64.0.5.59.nupkg
+  ;; 3. 下载并解压文件到 ~/.emacs.d/nox/mspyls 目录下，保证目录的根位置有 Microsoft.Python.LanguageServer 这个文件
+  ;; 4. 给mspyls索引权限: sudo chmod +x -R ~/.emacs.d/nox/mspyls
+  ;; 5. 直接打开 python 文件，即可快速进行语法补全
+
+```
 ## 文件说明
 
 - .aliases: short name for frequence cmd

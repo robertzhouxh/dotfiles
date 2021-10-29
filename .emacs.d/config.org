@@ -1115,8 +1115,7 @@
 	"vd" '(lambda () (interactive) (find-file "./Dockerfile"))
 	"vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
-					    ;"w" 'select-current-word
-					    ;"W" 'whitespace-mode
+        "wx" 'nox-print-mspyls-download-url
 	"wr" 'edwina-arrange
 	"wj" 'edwina-select-next-window
 	"wk" 'edwina-select-previous-window
@@ -1780,8 +1779,6 @@
   ;;---------------------------------------------------------
   ;; Python Mode
   ;; Install: pip install pyflakes autopep8
-  ;; pip install python-language-server
-  ;; (setq nox-python-server “pyls”)
   ;;---------------------------------------------------------
   (use-package python
     :ensure nil
@@ -1822,6 +1819,12 @@
 
   ;;---------------------------------------------------------
   ;; Nox
+  ;; 1. M-x -> eshell 进入 eshell
+  ;; 2. ~ $ (nox-print-mspyls-download-url)
+  ;;    https://pvsc.blob.core.windows.net/python-language-server-stable/Python-Language-Server-osx-x64.0.5.59.nupkg
+  ;; 3. 下载并解压文件到 ~/.emacs.d/nox/mspyls 目录下，保证目录的根位置有 Microsoft.Python.LanguageServer 这个文件
+  ;; 4. 给mspyls索引权限: sudo chmod +x -R ~/.emacs.d/nox/mspyls
+  ;; 5. 直接打开 python 文件，即可快速进行语法补全
   ;;---------------------------------------------------------
   (use-package nox
     :ensure nil
@@ -1842,7 +1845,6 @@
 		   'haskell-mode-hook
 		   ))
       (add-hook hook '(lambda () (nox-ensure))))
-    ;(add-to-list 'nox-server-programs '(go-mode . ("gopls")))
     (add-to-list 'nox-server-programs '(erlang-mode . ("/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls"))))
 
 #+END_SRC
