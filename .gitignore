@@ -40,7 +40,7 @@ Thumbs.db
 .emacs.d/custom.el  
 .emacs.d/snippets  
 .emacs.d/straight
-#.emacs.d/vendor
+.emacs.d/nox
 
 htop
 .tmux
