@@ -14,21 +14,54 @@
    package-enable-at-startup nil
    package--init-file-ensured t)
 
+   ; ;; Straight
+   ; ;; refer: https://github.com/theFool32/.emacs.d/blob/master/elisp/init-package.el
+   ; (setq straight--process-log nil
+   ; 	 straight-vc-git-default-clone-depth 1
+   ; 	 ;; straight-use-package-by-default t
+   ; 	 straight-use-package-by-default nil
+   ; 	 ;; straight-check-for-modifications '(check-on-save find-when-checking)
+   ; 	 straight-check-for-modifications nil
+   ; 	 )
+
+   ; (unless (featurep 'straight)
+   ;   (defvar bootstrap-version)
+
+   ;   (let ((bootstrap-file (concat user-emacs-directory
+   ; 				   "straight/repos/straight.el/bootstrap.el"))
+   ; 	   (bootstrap-version 5))
+   ;     (unless (file-exists-p bootstrap-file)
+   ; 	 (with-current-buffer
+   ; 	     (url-retrieve-synchronously
+   ; 	      "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+   ; 	      'silent 'inhibit-cookies)
+   ; 	   (goto-char (point-max))
+   ; 	   (eval-print-last-sexp)))
+   ;     (load bootstrap-file nil 'nomessage)))
+   ; ;; -Straight
+
+   (setq use-package-enable-imenu-support t
+	 use-package-verbose (not (bound-and-true-p byte-compile-current-file))
+	 use-package-expand-minimally t
+	 use-package-compute-statistics t)
+   (setq byte-compile-warnings '(cl-functions))
+   ;(straight-use-package 'use-package)
+
    ;; 启动
    (require 'package)
    (setq package-enable-at-startup nil)
    (setq package-archives '(("melpa" . "http://elpa.emacs-china.org/melpa/")
-                            ("org"   . "http://elpa.emacs-china.org/org/")
-                            ("gnu"   . "http://elpa.emacs-china.org/gnu/")))
+			    ("org"   . "http://elpa.emacs-china.org/org/")
+			    ("gnu"   . "http://elpa.emacs-china.org/gnu/")))
    (package-initialize)
 
    ;; Automatic package installation
    (mapc
     (lambda (package)
       (if (not (package-installed-p package))
-          (progn
-            (package-refresh-contents)
-            (package-install package))))
+	  (progn
+	    (package-refresh-contents)
+	    (package-install package))))
     '(use-package diminish bind-key))
 
 
@@ -832,7 +865,15 @@
       (snails '(snails-backend-everything snails-backend-mdfind))))
 
   (require 'watch-other-window)
+
   (require 'color-rg)
+  ;(use-package color-rg
+  ;  :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
+  ;  :straight (:host github :repo "manateelazycat/color-rg")
+  ;  ;:if *rg*
+  ;  :init
+  ;  (setq color-rg-mac-load-path-from-shell nil))
+
   (require 'thing-edit)
 
 
