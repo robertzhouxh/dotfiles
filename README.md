@@ -127,6 +127,8 @@ Note: if you encouter "Failed to verify signature xxx"
   ;; 2. ~ $ (nox-print-mspyls-download-url)
   ;;    https://pvsc.blob.core.windows.net/python-language-server-stable/Python-Language-Server-osx-x64.0.5.59.nupkg
   ;; 3. 下载并解压文件到 ~/.emacs.d/nox/mspyls 目录下，保证目录的根位置有 Microsoft.Python.LanguageServer 这个文件
+        mkdir -p ~/.emacs.d/nox/mspyls
+        unzip Python-Language-Server-osx-x64.0.5.59.nupkg -d ~/.emacs.d/nox/mspyls/
   ;; 4. 给mspyls索引权限: sudo chmod +x -R ~/.emacs.d/nox/mspyls
   ;; 5. 直接打开 python 文件，即可快速进行语法补全
 
