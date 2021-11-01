@@ -1095,6 +1095,11 @@
 	"gB" 'magit-blame
 	"G"  'aborn/simple-git-commit-push
 
+	"ni" 'nox-find-implementation 
+	"nd" 'nox-find-declaration
+	"nt" 'nox-find-typeDefination
+	"nr" 'xref-find-references
+
 	"oy" 'my-youdao-search-at-point
 	"oY" 'youdao-dictionary-search-from-input
 	"of" 'other-frame
@@ -1109,7 +1114,6 @@
 	"ph" 'proxy-http-toggle
 
 	"rb" 'generate-scratch-buffer
-	"rf" 'xref-find-references
 	"rv" 'rename-local-var
 
 	"si" 'color-rg-search-input
