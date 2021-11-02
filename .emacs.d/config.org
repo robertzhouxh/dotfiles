@@ -2251,7 +2251,7 @@
 		 (woman-mode . emacs)
 		 (sr-mode . emacs)
 		 (profiler-report-mode . emacs)
-		 (dired-mode . emacs)
+		 (dired-mode . normal)
 		 (compilation-mode . emacs)
 		 (speedbar-mode . emacs)
 		 (ivy-occur-mode . emacs)
