@@ -146,52 +146,20 @@ Note: if you encouter "Failed to verify signature xxx"
 - brew.sh: macos scripts
 
 ## Mac 中文设置
-
+	
 ```bash
 
-brew cask install squirrel
-
-
-#可以直接使用 cd ~/Library && git clone https://github.com/Zheaoli/RimeConfig.git Rime/
-#或者自己按照如下配制
-
-vi ~/Library/Rime/luna_pinyin.custom.yaml
-
-# luna_pinyin.custom.yaml
-
-patch:
-  switches:                   # 注意縮進
-    - name: ascii_mode
-      reset: 0                # reset 0 的作用是當從其他輸入方案切換到本方案時，
-      states: [ 中文, 西文 ]  # 重設爲指定的狀態，而不保留在前一個方案中設定的狀態。
-    - name: full_shape        # 選擇輸入方案後通常需要立即輸入中文，故重設 ascii_mode = 0；
-      states: [ 半角, 全角 ]  # 而全／半角則可沿用之前方案中的用法。
-    - name: simplification
-      reset: 1                # 增加這一行：默認啓用「繁→簡」轉換。
-      states: [ 漢字, 汉字 ]
-
-
-vi ~/Library/Rime/squirrel.custom.yaml
-
-# squirrel.custom.yaml
-
-patch:
-  style/color_scheme: clean_white        # 选择配色方案
-  style/horizontal: true                 # 候选窗横向显示
-  style/inline_preedit: false            # 关闭内嵌编码，这样就可以显示首行的拼音
-  style/font_point: 28                   # 字号
-
-# 重新加载配置
-修改配置，需要重新加载配置文件，新的配置才能生效。可以在输入法托盘图标右键点击 重新部署，或者用快捷键 Ctrl + alt + ~
-
+brew install squirrel
 
 cd ~/.emacs.d/
- wget https://github.com/rime/librime/releases/download/1.6.1/rime-1.6.1-osx.zip
+wget https://github.com/rime/librime/releases/download/1.6.1/rime-1.6.1-osx.zip
 unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
+
+直接使用开源方案 https://github.com/wongdean/rime-settings
 
 ```
 ## Proxy(代理设置)
-	
+
     ```
 	1. 命令行代理 vi ~/.polipo 适配转发端口
 	2. github 代理 vi ~/.gitconfig 适配sock5监听端口
