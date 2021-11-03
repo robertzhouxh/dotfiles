@@ -57,10 +57,10 @@ brew tap homebrew/cask-fonts
 brew tap laishulu/cask-fonts
 
 #Sarasa Mono SC Nerd
-brew cask install font-sarasa-nerd
-brew cask install font-source-code-pro
-brew cask install font-hack
-brew cask install font-fira-code
+brew install --cask font-sarasa-nerd
+brew install --cask font-source-code-pro
+brew install --cask font-hack
+brew install --cask font-fira-code
 
 # Install command-line tools using Homebrew.
 # Ask for the administrator password upfront.
@@ -159,7 +159,7 @@ apps=(
     vlc
     #licecap
 )
-cecho "Install My Favorate Apps with brew cask install xxx" $yellow
+cecho "Install My Favorate Apps with brew install --cask xxx" $yellow
 for item in ${apps[@]}; do
 	cecho "> ${item}" $magenta
 done
@@ -168,7 +168,7 @@ select yn in "Yes" "No"; do
 	case $yn in
 		Yes )
 		    cecho "Ok! installing apps, please wait ... " $yellow
-		    brew cask install --appdir="/Applications" ${apps[@]}
+		    brew install --cask --appdir="/Applications" ${apps[@]}
 		    break;;
 		No ) break;;
 	esac

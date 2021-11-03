@@ -2088,6 +2088,7 @@
     (use-package posframe :ensure t)
 
     ;使用 toggle-input-method 来激活，默认快捷键为 C-\
+
     (use-package rime
       :ensure t
       :custom
@@ -2096,11 +2097,20 @@
       :config
       (setq rime-user-data-dir "~/Library/Rime/")
       (setq rime-show-candidate 'posframe)
+      (setq rime-posframe-style 'vertical) ;horizontal,simple
+      (setq rime-disable-predicates
+		'(rime-predicate-evil-mode-p
+		  rime-predicate-after-alphabet-char-p
+		  rime-predicate-prog-in-code-p))
+      (setq rime-inline-ascii-trigger 'shift-l)
+      (define-key rime-active-mode-map (kbd "M-j") 'rime-inline-ascii)
+      (define-key rime-mode-map (kbd "C-`") 'rime-send-keybinding)
+      (setq mode-line-mule-info '((:eval (rime-lighter))))
       (setq rime-posframe-properties
 	    (list :background-color "#333333"
 		  :foreground-color "#dcdccc"
 		  ;;:font "WenQuanYi Micro Hei Mono-14"
-		  :font "Sarasa Mono SC-16"
+		  :font "Sarasa Mono SC Nerd"
 		  :internal-border-width 10))
       )
   #+END_SRC
