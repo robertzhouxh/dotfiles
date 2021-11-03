@@ -157,12 +157,19 @@ unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
 
 直接使用开源方案 https://github.com/wongdean/rime-settings
 
+settings ---> 项目中除了 font 以外的全部文件拖进来
+
+shift 切换中英文
+
 ```
 ## Proxy(代理设置)
 
     ```
-	1. 命令行代理 vi ~/.polipo 适配转发端口
+	1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
 	2. github 代理 vi ~/.gitconfig 适配sock5监听端口
+	3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
+	
+	youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
     ```
 
 

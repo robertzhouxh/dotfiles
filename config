@@ -20,6 +20,13 @@ Host *
     ServerAliveCountMax 3
     UseRoaming no
 
+
+Host github.com
+    HostName github.com
+    User git
+    Port 22
+    ProxyCommand /usr/bin/ncat --proxy 127.0.0.1:1080 --proxy-type socks5 %h %p
+
 Host github.com
     HostName github.com
     User git

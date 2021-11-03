@@ -42,7 +42,7 @@ Thumbs.db
 .emacs.d/straight
 .emacs.d/nox
 .emacs.d/squirrel*
-
+.emacs.d/rime*
 
 htop
 .tmux
