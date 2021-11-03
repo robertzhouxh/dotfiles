@@ -198,4 +198,10 @@ unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
     ```
 
 
+## Elisp 
+
+参考: https://github.com/susam/emacs4cl#use-slime
+```
+brew install sbcl
+```
 ## To be continued...
