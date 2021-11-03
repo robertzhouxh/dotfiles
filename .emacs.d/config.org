@@ -726,9 +726,23 @@
   (use-package paredit
     :diminish paredit-mode
     :init
-    (add-hook 'erlang-mode-hook 'paredit-mode)
+    (defun override-slime-del-key ()
+      (define-key slime-repl-mode-map
+      (read-kbd-macro paredit-backward-delete-key) nil))
+    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
+    (add-hook 'ielm-mode-hook 'enable-paredit-mode)
+    (add-hook 'lisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+    (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
+    (add-hook 'slime-repl-mode-hook 'override-slime-del-key)
+    (add-hook 'erlang-mode-hook 'enable-paredit-mode)
     (add-hook 'go-mode-hook 'paredit-mode)
-    (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
+    )
+
+  (use-package rainbow-delimiters
+    :ensure t
+    :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
   (use-package yasnippet
     :ensure t
@@ -1828,7 +1842,7 @@
   ;;---------------------------------------------------------
   (use-package sh-script :defer t :config (setq sh-basic-offset 4))
   (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
-  (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook 'flycheck-mode))
+  (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook #'flycheck-mode))
   (use-package flycheck-yamllint
     :defer t
     :init
@@ -1836,6 +1850,10 @@
 
       (eval-after-load 'flycheck
 	'(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
+  (use-package slime-company :defer)
+  (use-package slime
+    :init (setq inferior-lisp-program "sbcl")
+  )
 
   ;;---------------------------------------------------------
   ;; Nox
