@@ -2084,23 +2084,26 @@
 
 #+END_SRC
 * Rime
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package posframe :ensure t)
-  (use-package rime
-    :ensure t
-    :config
-    (setq rime-user-data-dir "~/Library/Rime/")
-    (setq rime-show-candidate 'posframe)
-    (setq rime-posframe-properties
-          (list :background-color "#333333"
-                :foreground-color "#dcdccc"
-                ;:font "WenQuanYi Micro Hei Mono-14"
-                :internal-border-width 10))
-    :custom
-    (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-    (default-input-method "rime")
-    )
-#+END_SRC
+  #+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package posframe :ensure t)
+
+    ;使用 toggle-input-method 来激活，默认快捷键为 C-\
+    (use-package rime
+      :ensure t
+      :custom
+      (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+      (default-input-method "rime")
+      :config
+      (setq rime-user-data-dir "~/Library/Rime/")
+      (setq rime-show-candidate 'posframe)
+      (setq rime-posframe-properties
+	    (list :background-color "#333333"
+		  :foreground-color "#dcdccc"
+		  ;;:font "WenQuanYi Micro Hei Mono-14"
+		  :font "Sarasa Mono SC-16"
+		  :internal-border-width 10))
+      )
+  #+END_SRC
 * Platform
 #+BEGIN_SRC emacs-lisp :tangle yes
 

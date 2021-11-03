@@ -149,17 +149,24 @@ Note: if you encouter "Failed to verify signature xxx"
 	
 ```bash
 
-brew install squirrel
+1. brew install squirrel
+   使用开源方案 https://github.com/wongdean/rime-settings
+   settings ---> 项目中除了 font 以外的全部文件拖进来
+   shift 切换中英文,
 
-cd ~/.emacs.d/
-wget https://github.com/rime/librime/releases/download/1.6.1/rime-1.6.1-osx.zip
-unzip rime-1.6.1-osx.zip -d ~/.emacs.d/librime
+2. cd ~/.emacs.d/
+  
+  curl -L -O https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
+  unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
+  rm -rf rime-1.7.1-osx.zip
+  
+  # 如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
+  # 
+  # sudo spctl --master-disable
+  # # later: sudo spctl --master-enable
 
-直接使用开源方案 https://github.com/wongdean/rime-settings
+  ;使用 toggle-input-method 来激活，默认快捷键为 C-\
 
-settings ---> 项目中除了 font 以外的全部文件拖进来
-
-shift 切换中英文
 
 ```
 ## Proxy(代理设置)
