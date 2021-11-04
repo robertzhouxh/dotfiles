@@ -656,6 +656,10 @@
       :init
       (setq exec-path-from-shell-variables '("PATH" "MANPATH"))
       (exec-path-from-shell-initialize)))
+
+  (with-eval-after-load 'exec-path-from-shell
+    (exec-path-from-shell-copy-env "PATH"))
+
   (use-package json-reformat)
   (use-package comment-dwim-2)
   (use-package buffer-flip)
@@ -948,10 +952,12 @@
 
       )
 
+  ;; Env vars
   (use-package snails
     :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
     :init
-    (setq snails-show-with-frame nil) 
+    ;(setq snails-show-with-frame nil) 
+    ;:bind (:map global-map ("C-S-r" . (lambda () (interactive) (snails '(snails-backend-rg)))))
     :config
     (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
     )
@@ -2382,10 +2388,8 @@
     ;; glolal
     (global-set-key (kbd "M-]") 'dumb-jump-go)
     (global-set-key (kbd "M-t") 'dumb-jump-back)
-    (global-set-key (kbd "M-n") 'hold-line-scroll-up )
-    (global-set-key (kbd "M-p") 'hold-line-scroll-down )
-    (global-set-key (kbd "C-S-r") #'(lambda () (interactive) (snails '(snails-backend-rg))))
-
+    (global-set-key (kbd "M-n") 'hold-line-scroll-up)
+    (global-set-key (kbd "M-p") 'hold-line-scroll-down)
 
   #+END_SRC
   
