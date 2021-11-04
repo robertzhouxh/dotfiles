@@ -848,28 +848,6 @@
   (setq auto-save-delete-trailing-whitespace nil)
 
   (use-package all-the-icons :if (display-graphic-p))
-					  ;(use-package all-the-icons-dired :hook (dired-mode . all-the-icons-dired-mode))
-
-  (use-package snails
-    :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
-    :if (display-graphic-p)
-    :custom-face
-    (snails-content-buffer-face ((t (:background "#111" :height 110))))
-    (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
-    (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
-    :init
-    (use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
-    :config
-    ;; Functions for specific backends
-    (defun snails-current-project ()
-      (interactive)
-      (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
-    (defun snails-active-recent-buffers ()
-      (interactive)
-      (snails '(snails-backend-buffer snails-backend-recentf)))
-    (defun snails-everywhere ()
-      (interactive)
-      (snails '(snails-backend-everything snails-backend-mdfind))))
 
   (require 'watch-other-window)
 
@@ -897,6 +875,102 @@
 	(youdao-dictionary-search-at-point))))
 
 #+END_SRC
+* Company
+  #+BEGIN_SRC emacs-lisp :tangle yes
+    ;;; Code:
+    (use-package company-tabnine :ensure t)
+    (use-package company
+      :diminish 'company-mode
+      :init
+      (global-company-mode)
+      :config
+      (add-hook 'prog-mode-hook
+		#'(lambda ()
+		    (require 'company)
+		    (require 'company-yasnippet)
+		    (require 'company-dabbrev)
+		    (require 'company-files)
+		    (require 'company-tng)
+		    (require 'company-tabnine)
+
+		    ;; Config for company mode.
+		    (setq company-minimum-prefix-length 1) ; pop up a completion menu by tapping a character
+		    (setq company-show-numbers t) ; number the candidates (use M-1, M-2 etc to select completions).
+		    (setq company-require-match nil) ; allow input string that do not match candidate words
+		    (setq company-idle-delay 0) ; trigger completion immediately.
+
+		    ;; Don't downcase the returned candidates.
+		    (setq company-dabbrev-downcase nil)
+		    (setq company-dabbrev-ignore-case t)
+
+		    ;; Customize company backends.
+		    (setq company-backends
+			  '(
+			    (company-tabnine company-dabbrev company-keywords company-files company-capf)
+			    ))
+
+		    ;; Add yasnippet support for all company backends.
+		    (defvar company-mode/enable-yas t
+		      "Enable yasnippet for all backends.")
+
+		    (defun company-mode/backend-with-yas (backend)
+		      (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+			  backend
+			(append (if (consp backend) backend (list backend))
+				'(:with company-yasnippet))))
+
+		    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+
+		    ;; Remove duplicate candidate.
+		    (add-to-list 'company-transformers #'delete-dups)
+
+
+		    ;; The free version of TabNine is good enough,
+		    ;; and below code is recommended that TabNine not always
+		    ;; prompt me to purchase a paid version in a large project.
+		    (defadvice company-echo-show (around disable-tabnine-upgrade-message activate)
+		      (let ((company-message-func (ad-get-arg 0)))
+			(when (and company-message-func
+				   (stringp (funcall company-message-func)))
+			  (unless (string-match "The free version of TabNine only indexes up to" (funcall company-message-func))
+			    ad-do-it))))
+
+		    ;; Add `company-elisp' backend for elisp.
+		    (add-hook 'emacs-lisp-mode-hook
+			      #'(lambda ()
+				  (require 'company-elisp)
+				  (push 'company-elisp company-backends)))
+
+		    ;; Enable global.
+		    (global-company-mode)
+
+		    ))
+
+      )
+
+  (use-package snails
+    :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+    :if (display-graphic-p)
+    :custom-face
+    (snails-content-buffer-face ((t (:background "#111" :height 110))))
+    (snails-input-buffer-face ((t (:background "#222" :foreground "gold" :height 110))))
+    (snails-header-line-face ((t (:inherit font-lock-function-name-face :underline t :height 1.1))))
+    :init
+    (use-package exec-path-from-shell :if (featurep 'cocoa) :defer t)
+    :config
+    ;; Functions for specific backends
+    (defun snails-current-project ()
+      (interactive)
+      (snails '(snails-backend-projectile snails-backend-rg snails-backend-fd)))
+    (defun snails-active-recent-buffers ()
+      (interactive)
+      (snails '(snails-backend-buffer snails-backend-recentf)))
+    (defun snails-everywhere ()
+      (interactive)
+      (snails '(snails-backend-everything snails-backend-mdfind))))
+
+
+ #+END_SRC
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;https://www.emacswiki.org/emacs/download/dired+.el
@@ -1658,81 +1732,6 @@
     ;      ))
 #+END_SRC
 
-* Company
-  #+BEGIN_SRC emacs-lisp :tangle yes
-    ;;; Code:
-
-    (use-package company
-      :diminish 'company-mode
-      :init
-      (global-company-mode)
-      :config
-      (add-hook 'prog-mode-hook
-		#'(lambda ()
-		    (require 'company)
-		    (require 'company-yasnippet)
-		    (require 'company-dabbrev)
-		    (require 'company-files)
-		    (require 'company-tng)
-		    (require 'company-tabnine)
-
-		    ;; Config for company mode.
-		    (setq company-minimum-prefix-length 1) ; pop up a completion menu by tapping a character
-		    (setq company-show-numbers t) ; number the candidates (use M-1, M-2 etc to select completions).
-		    (setq company-require-match nil) ; allow input string that do not match candidate words
-		    (setq company-idle-delay 0) ; trigger completion immediately.
-
-		    ;; Don't downcase the returned candidates.
-		    (setq company-dabbrev-downcase nil)
-		    (setq company-dabbrev-ignore-case t)
-
-		    ;; Customize company backends.
-		    (setq company-backends
-			  '(
-			    (company-tabnine company-dabbrev company-keywords company-files company-capf)
-			    ))
-
-		    ;; Add yasnippet support for all company backends.
-		    (defvar company-mode/enable-yas t
-		      "Enable yasnippet for all backends.")
-
-		    (defun company-mode/backend-with-yas (backend)
-		      (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-			  backend
-			(append (if (consp backend) backend (list backend))
-				'(:with company-yasnippet))))
-
-		    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-
-		    ;; Remove duplicate candidate.
-		    (add-to-list 'company-transformers #'delete-dups)
-
-
-		    ;; The free version of TabNine is good enough,
-		    ;; and below code is recommended that TabNine not always
-		    ;; prompt me to purchase a paid version in a large project.
-		    (defadvice company-echo-show (around disable-tabnine-upgrade-message activate)
-		      (let ((company-message-func (ad-get-arg 0)))
-			(when (and company-message-func
-				   (stringp (funcall company-message-func)))
-			  (unless (string-match "The free version of TabNine only indexes up to" (funcall company-message-func))
-			    ad-do-it))))
-
-		    ;; Add `company-elisp' backend for elisp.
-		    (add-hook 'emacs-lisp-mode-hook
-			      #'(lambda ()
-				  (require 'company-elisp)
-				  (push 'company-elisp company-backends)))
-
-		    ;; Enable global.
-		    (global-company-mode)
-
-		    ))
-
-      )
-
- #+END_SRC
- 
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
 
