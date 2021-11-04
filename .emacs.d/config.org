@@ -1041,7 +1041,20 @@
     (setq git-messenger:show-detail t
 	  git-messenger:use-magit-popup t))
 
-
+  (use-package blamer
+    :ensure t
+    :defer 20
+    :custom
+    (blamer-idle-time 0.3)
+    (blamer-min-offset 70)
+    :custom-face
+    (blamer-face ((t :foreground "#7a88cf"
+                      :background nil
+                      :height 140
+                      :italic t)))
+    ;:config
+    ;(global-blamer-mode 1)
+    )
 
   (use-package git-gutter
     :diminish
@@ -1108,7 +1121,8 @@
 	"gs" 'magit-status
 	"gb" 'magit-branch-checkout
 	"gp" 'magit-pull
-	"gB" 'magit-blame
+	;"gB" 'magit-blame
+	"gB" 'global-blamer-mode
 	"G"  'aborn/simple-git-commit-push
 
 	"ni" 'nox-find-implementation 
@@ -1167,16 +1181,31 @@
 	  (call-interactively 'magit-blame)))
       )
 
-    (setq evil-want-C-u-scroll t)
-    (setq evil-want-C-i-jump nil)
     (use-package evil
       :ensure t
       :init
       (progn
+
+	;; before evil-mode
+	(setq evil-want-C-i-jump nil)
+	(setq evil-want-C-u-scroll t)
+	(setq evil-want-C-i-jump nil)
+
 	(evil-mode t)
-	(evil-set-initial-state 'color-rg-mode 'emacs)
-					    ;(evil-set-initial-state 'dired-mode 'emacs)
-	(setq evil-want-C-i-jump nil))
+
+	;; after evil, may be moved to config: section
+	;;cursor-color
+	(setq evil-emacs-state-cursor    '("#E74C3C" box))
+	(setq evil-normal-state-cursor   '("#2ECC71" box))
+	(setq evil-visual-state-cursor   '("#E67E22" box))
+	(setq evil-insert-state-cursor   '("#E74C3C" bar))
+	(setq evil-replace-state-cursor  '("#E74C3C" bar))
+	(setq evil-operator-state-cursor '("#E74C3C" hollow))
+
+	(setq evil-want-fine-undo t)
+	(setq evil-move-cursor-back nil)
+	(setq evil-esc-delay 0)
+	)
       :config
       (progn
 	(use-package evil-visualstar
@@ -2207,6 +2236,7 @@
 		 (shell-mode . emacs)
 		 (xref--xref-buffer-mode . emacs)
 		 ;;(message-mode . emacs)
+		 (color-rg-mode . emacs)
 		 (fundamental-mode . normal)
 		 (woman-mode . emacs)
 		 (sr-mode . emacs)
@@ -2220,6 +2250,63 @@
 		 (messages-buffer-mode . normal)
 		 ))
       (evil-set-initial-state (car p) (cdr p)))
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;; key-binding
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    (define-key evil-normal-state-map           [escape] 'keyboard-quit)
+    (define-key evil-visual-state-map           [escape] 'keyboard-quit)
+    (define-key minibuffer-local-map            [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-ns-map         [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-isearch-map    [escape] 'minibuffer-keyboard-quit)
+    (define-key evil-normal-state-map "\C-a" 'seq-home)
+    (define-key evil-insert-state-map "\C-a" 'seq-home)
+    (define-key evil-visual-state-map "\C-a" 'seq-home)
+    (define-key evil-motion-state-map "\C-a" 'seq-home)
+    (define-key evil-normal-state-map "\C-e" 'seq-end)
+    (define-key evil-insert-state-map "\C-e" 'seq-end)
+    (define-key evil-visual-state-map "\C-e" 'seq-end)
+    (define-key evil-motion-state-map "\C-e" 'seq-end)
+    (define-key evil-normal-state-map "\C-f" 'evil-forward-char)
+    (define-key evil-insert-state-map "\C-f" 'evil-forward-char)
+    (define-key evil-insert-state-map "\C-f" 'evil-forward-char)
+    (define-key evil-normal-state-map "\C-b" 'evil-backward-char)
+    (define-key evil-insert-state-map "\C-b" 'evil-backward-char)
+    (define-key evil-visual-state-map "\C-b" 'evil-backward-char)
+    ;(define-key evil-normal-state-map "\C-d" 'evil-delete-char)
+    ;(define-key evil-insert-state-map "\C-d" 'evil-delete-char)
+    ;(define-key evil-visual-state-map "\C-d" 'evil-delete-char)
+    (define-key evil-normal-state-map "\C-n" 'evil-next-line)
+    (define-key evil-insert-state-map "\C-n" 'evil-next-line)
+    (define-key evil-visual-state-map "\C-n" 'evil-next-line)
+    (define-key evil-normal-state-map "\C-p" 'evil-previous-line)
+    (define-key evil-insert-state-map "\C-p" 'evil-previous-line)
+    (define-key evil-visual-state-map "\C-p" 'evil-previous-line)
+    (define-key evil-normal-state-map "\C-w" 'evil-delete)
+    (define-key evil-insert-state-map "\C-w" 'evil-delete)
+    (define-key evil-visual-state-map "\C-w" 'evil-delete)
+    (define-key evil-normal-state-map "\C-y" 'yank)
+    (define-key evil-insert-state-map "\C-y" 'yank)
+    (define-key evil-visual-state-map "\C-y" 'yank)
+    (define-key evil-normal-state-map "\C-k" 'kill-line)
+    (define-key evil-insert-state-map "\C-k" 'kill-line)
+    (define-key evil-visual-state-map "\C-k" 'kill-line)
+    (define-key evil-normal-state-map "\C-t" 'other-window)
+    (define-key evil-insert-state-map "\C-t" 'other-window)
+    (define-key evil-visual-state-map "\C-t" 'other-window)
+    (defun evil-escape-or-quit (&optional prompt)
+      (interactive)
+      (cond
+       ((or (evil-normal-state-p) (evil-insert-state-p) (evil-visual-state-p)
+            (evil-replace-state-p) (evil-visual-state-p)) [escape])
+       (t (kbd "C-g"))))
+    (define-key key-translation-map     (kbd "C-q") #'evil-escape-or-quit)
+    (define-key evil-operator-state-map (kbd "C-q") #'evil-escape-or-quit)
+    (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+
 
     (define-key dired-mode-map           (kbd "e")   'wdired-change-to-wdired-mode)
     (define-key evil-normal-state-map    (kbd "/")   'swiper)
