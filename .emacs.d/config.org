@@ -650,15 +650,14 @@
 * Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package use-package-ensure-system-package :ensure t)
-  ;; Environment
-  (when (or sys/mac-x-p sys/linux-x-p)
-    (use-package exec-path-from-shell
-      :init
-      (setq exec-path-from-shell-variables '("PATH" "MANPATH"))
-      (exec-path-from-shell-initialize)))
 
-  (with-eval-after-load 'exec-path-from-shell
-    (exec-path-from-shell-copy-env "PATH"))
+  ;; Environment
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (or sys/mac-x-p sys/linux-x-p)
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+    (exec-path-from-shell-initialize))
 
   (use-package json-reformat)
   (use-package comment-dwim-2)
