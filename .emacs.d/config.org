@@ -953,16 +953,33 @@
       )
 
   ;; Env vars
+  ;(use-package snails
+  ;  :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+  ;  :init
+  ;  ;(setq snails-show-with-frame nil) 
+  ;  ;:bind (:map global-map ("C-S-r" . (lambda () (interactive) (snails '(snails-backend-rg)))))
+  ;  :config
+  ;  (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
+  ;  (unless (executable-find "rg")
+  ;  	(user-error "Unable to find `rg' in `exec-path'!"))
+  ;  )
+
   (use-package snails
     :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+    :if (display-graphic-p)
     :init
-    ;(setq snails-show-with-frame nil) 
-    ;:bind (:map global-map ("C-S-r" . (lambda () (interactive) (snails '(snails-backend-rg)))))
     :config
+    ;; Functions for specific backends
     (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
-    (unless (executable-find "rg")
-    	(user-error "Unable to find `rg' in `exec-path'!"))
-    )
+    (defun snails-current-project ()
+      (interactive)
+      (snails '(nails-backend-rg snails-backend-fd)))
+    (defun snails-active-recent-buffers ()
+      (interactive)
+      (snails '(snails-backend-buffer snails-backend-recentf)))
+    (defun snails-everywhere ()
+      (interactive)
+      (snails '(snails-backend-everything snails-backend-mdfind))))
 
  #+END_SRC
 * Dired
