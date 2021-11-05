@@ -855,13 +855,13 @@
 
   (require 'watch-other-window)
 
-  (require 'color-rg)
-  ;(use-package color-rg
-  ;  :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
-  ;  :straight (:host github :repo "manateelazycat/color-rg")
-  ;  ;:if *rg*
-  ;  :init
-  ;  (setq color-rg-mac-load-path-from-shell nil))
+  (use-package color-rg
+    ;:straight (:host github :repo "manateelazycat/color-rg")
+    :load-path (lambda () (expand-file-name "vendor/color-rg/" user-emacs-directory))
+    :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
+    :if (executable-find "rg")
+    :bind ("C-M-s" . color-rg-search-input)
+    )
 
   (require 'thing-edit)
 
@@ -956,17 +956,14 @@
   (use-package snails
     :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
     :if (display-graphic-p)
+    :after color-rg
     :init
     ;(setq snails-show-with-frame nil) 
-    ;:bind (:map global-map ("C-S-r" . (lambda () (interactive) (snails '(snails-backend-rg)))))
-    :config
     (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
+    :config
     (unless (executable-find "rg")
     	(user-error "Unable to find `rg' in `exec-path'!"))
     )
-
-    (require 'snails)
-    (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
 
  #+END_SRC
 * Dired
@@ -1972,60 +1969,59 @@
 
 #+END_SRC
 * AutoInsert
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package edwina
-		:ensure t
-		:config
-		;; 让所有 display-buffer 动作都新增一个 window （而不是复用已经打开此 buffer 的 window）
-		(setq display-buffer-base-action '(display-buffer-below-selected))
-		(edwina-mode 1))
+  #+BEGIN_SRC emacs-lisp :tangle yes
+    ;(use-package edwina
+    ;  :config
+    ;  ;; 让所有 display-buffer 动作都新增一个 window （而不是复用已经打开此 buffer 的 window）
+    ;  (setq display-buffer-base-action '(display-buffer-below-selected))
+    ;  (edwina-mode 1))
 
-		;; auto insert
-		(load "autoinsert")
-		(auto-insert-mode)
-		(setq auto-insert t)
-		(setq auto-insert-query t)
-		(add-hook 'find-file-hooks 'auto-insert)
-		(setq auto-insert-alist
+    ;; auto insert
+    (load "autoinsert")
+    (auto-insert-mode)
+    (setq auto-insert t)
+    (setq auto-insert-query t)
+    (add-hook 'find-file-hooks 'auto-insert)
+    (setq auto-insert-alist
 	  (append '(
-				(("\\.go$" . "golang header")
-				 nil
-				 "//---------------------------------------------------------------------\n"
-				 "// @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
-				 "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-				 "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-				 "//----------------------------------------------------------------------\n"
-				 _
-				 ))
+		    (("\\.go$" . "golang header")
+		     nil
+		     "//---------------------------------------------------------------------\n"
+		     "// @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
+		     "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+		     "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+		     "//----------------------------------------------------------------------\n"
+		     _
+		     ))
 		  auto-insert-alist))
-		(setq auto-insert-alist
+    (setq auto-insert-alist
 	  (append '(
-				(("\\.erl$" . "erlang header")
-				 nil
-				 "%%%-------------------------------------------------------------------\n"
-				 "%%% @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
-				 "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-				 "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-				 "%%%-------------------------------------------------------------------\n"
-				 _
-				 ))
+		    (("\\.erl$" . "erlang header")
+		     nil
+		     "%%%-------------------------------------------------------------------\n"
+		     "%%% @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
+		     "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+		     "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+		     "%%%-------------------------------------------------------------------\n"
+		     _
+		     ))
 		  auto-insert-alist))
-		(setq auto-insert-alist
+    (setq auto-insert-alist
 	  (append '(
-				(("\\.org$" . "org header")
-				 nil
-				 "#+title: TODO\n"
-				 "#+author: 周学浩\n"
-				 "#+email: zhouxh-e@glodon.com\n"
-				 "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-                 "#+OPTIONS: ^:nil\n"
-                 "#+OPTIONS: toc:nil\n"
-				 "#+LATEX_CLASS: zhcosin-org-article\n"
-			 "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
-				 "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
-         "* 目录 :TOC_2_org:"
-				 _
-				 ))
+		    (("\\.org$" . "org header")
+		     nil
+		     "#+title: TODO\n"
+		     "#+author: 周学浩\n"
+		     "#+email: zhouxh-e@glodon.com\n"
+		     "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+		     "#+OPTIONS: ^:nil\n"
+		     "#+OPTIONS: toc:nil\n"
+		     "#+LATEX_CLASS: zhcosin-org-article\n"
+		     "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
+		     "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
+		     "* 目录 :TOC_2_org:"
+		     _
+		     ))
 		  auto-insert-alist))
 
 #+END_SRC
