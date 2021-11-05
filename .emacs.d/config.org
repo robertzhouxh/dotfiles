@@ -2,7 +2,7 @@
  use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * Header
 #+PROPERTY: header-args :results silent
-* Bootstrap
+* Bootstra  p
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; 加速
   (setq
@@ -681,12 +681,12 @@
     :after (nginx-mode)
     :hook((nginx-mode . company-nginx-keywords))
     :config)
-  (use-package edwina
-    :ensure t
-    :config
-    (setq display-buffer-base-action '(display-buffer-below-selected))
-    (edwina-setup-dwm-keys)
-    (edwina-mode 1))
+  ;(use-package edwina
+  ;  :config
+  ;  (setq display-buffer-base-action '(display-buffer-below-selected))
+  ;  (edwina-setup-dwm-keys)
+  ;  (edwina-mode 1))
+
   (use-package avy
     :bind
     (("C-c SPC" . avy-goto-char-2)
@@ -1224,13 +1224,13 @@
 	"vd" '(lambda () (interactive) (find-file "./Dockerfile"))
 	"vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
 
-	"wr" 'edwina-arrange
-	"wj" 'edwina-select-next-window
-	"wk" 'edwina-select-previous-window
-	"wh" 'edwina-dec-mfact     ;; 主窗口缩窄
-	"wl" 'edwina-inc-mfact     ;; 主窗口拉宽
-	"wc" 'edwina-delete-window ;; 关闭窗口
-	"wz" 'edwina-zoom          ;; 关闭窗口
+	;"wr" 'edwina-arrange
+	;"wj" 'edwina-select-next-window
+	;"wk" 'edwina-select-previous-window
+	;"wh" 'edwina-dec-mfact     ;; 主窗口缩窄
+	;"wl" 'edwina-inc-mfact     ;; 主窗口拉宽
+	;"wc" 'edwina-delete-window ;; 关闭窗口
+	;"wz" 'edwina-zoom          ;; 关闭窗口
 	)
 
       (defun magit-blame-toggle ()
@@ -1970,13 +1970,6 @@
 #+END_SRC
 * AutoInsert
   #+BEGIN_SRC emacs-lisp :tangle yes
-    ;(use-package edwina
-    ;  :config
-    ;  ;; 让所有 display-buffer 动作都新增一个 window （而不是复用已经打开此 buffer 的 window）
-    ;  (setq display-buffer-base-action '(display-buffer-below-selected))
-    ;  (edwina-mode 1))
-
-    ;; auto insert
     (load "autoinsert")
     (auto-insert-mode)
     (setq auto-insert t)
