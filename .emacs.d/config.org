@@ -1316,10 +1316,13 @@
     (org-mode . toc-org-enable))
 
   (use-package org-superstar
+    :if (and (display-graphic-p) (char-displayable-p ?⚫))
     :hook (org-mode . org-superstar-mode)
-    ;:custom
+    :custom
     ;(org-superstar-headline-bullets-list '("⌾" "◈" "⚬" "▷"))
-    ;(setq org-superstar-bullet-list '("■" "◆" "▲" "▶"))
+    ;(org-superstar-bullet-list '("■" "◆" "▲" "▶"))
+    (org-superstar-headline-bullets-list '("⚫" "⚫" "⚫" "⚫"))
+    ;:init (setq org-superstar-headline-bullets-list '("⚫" "⚫" "⚫" "⚫"))
   )
 
   (use-package valign
