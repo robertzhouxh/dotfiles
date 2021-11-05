@@ -185,5 +185,22 @@ Note: if you encouter "Failed to verify signature xxx"
 参考: https://github.com/susam/emacs4cl#use-slime
 ```
 brew install sbcl
+
+## Debug
+
+```
+  ;; Environment
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (or sys/mac-x-p sys/linux-x-p)
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize))
+
+光标直接放到最后一个list  [ (exec-path-from-shell-initialize) ]括号上执行 c-x c-e
+
+如 (featurep 'cocoa)  c-x c-e 在minibuffer中输出 t
+
 ```
 ## To be continued...
