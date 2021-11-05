@@ -4,9 +4,6 @@
 [submodule ".emacs.d/vendor/awesome-tab"]
 	path = .emacs.d/vendor/awesome-tab
 	url = https://github.com/manateelazycat/awesome-tab
-[submodule ".emacs.d/vendor/C4-PlantUML"]
-	path = .emacs.d/vendor/C4-PlantUML
-	url = https://github.com/plantuml-stdlib/C4-PlantUML
 [submodule ".emacs.d/vendor/awesome-tray"]
 	path = .emacs.d/vendor/awesome-tray
 	url = https://github.com/manateelazycat/awesome-tray

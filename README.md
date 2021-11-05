@@ -13,7 +13,7 @@ set -- -f; source bootsrap.sh
 cd dotfiles
 
 # -------------------------------------------------------------------------------
-# 更新到最新 commit 可以使用  # git submodule update --init --recursive --remote
+# 更新到最新 commit 可以使用  # git submodule update --init --remote
 # 修改 .gitmodules 后 可以执行 # git submodule sync 
 # 更新到 .gitmodules 中的 commit
 # -------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ git submodule update --init
 
 # -------------------------------------------------------------------------------
 # git clone --depth 1 git://git.savannah.gnu.org/emacs.git
-# 选择国内的同步镜像
+# 这里选择选择国内的同步镜像
 # -------------------------------------------------------------------------------
 
 git clone --depth 1 https://mirrors.ustc.edu.cn/emacs.git
