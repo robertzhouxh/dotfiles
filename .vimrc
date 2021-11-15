@@ -150,4 +150,4 @@ set termguicolors
 colorscheme desert
 
 "Font
-set guifont=Monaco:h20
+"set guifont=Monaco:h20
