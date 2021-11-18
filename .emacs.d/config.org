@@ -1337,8 +1337,8 @@
     (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
     (setq plantuml-default-exec-mode 'jar)
     (setq plantuml-options "-charset UTF-8")
-    (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar"))
-  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
+    (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2021.7/libexec/plantuml.jar"))
+  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2021.7/libexec/plantuml.jar")
   (setq plantuml-default-exec-mode 'jar)
   (use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
   (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
@@ -1475,11 +1475,25 @@
 
 
   (setq org-latex-default-class "ctexart")
-
+  (setq org-latex-compiler "xelatex")
   (setq org-latex-pdf-process
-	'("xelatex -interaction nonstopmode -output-directory %o %f"
-	  "xelatex -interaction nonstopmode -output-directory %o %f"
-	  "xelatex -interaction nonstopmode -output-directory %o %f"))
+  '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+  "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
+   ))
+
+  ;(setq org-latex-pdf-process
+  ;  '("xelatex -interaction nonstopmode %f"
+  ;    "bibtex %b"
+  ;    "xelatex -interaction nonstopmode %f"
+  ;    "xelatex -interaction nonstopmode %f"
+  ;    "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
+  ;    ))
+  ;(setq org-latex-pdf-process
+  ;  '("xelatex -interaction nonstopmode -output-directory %o %f"
+  ;    "xelatex -interaction nonstopmode -output-directory %o %f"
+  ;    "xelatex -interaction nonstopmode -output-directory %o %f"))
 
   ;; for math.
   (defun zhcosin/insert-inline-formulas()
@@ -1704,32 +1718,6 @@
 		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
 		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-    (setq org-latex-pdf-process
-	  '("xelatex -interaction nonstopmode -output-directory %o %f"
-	    ;;"biber %b" "xelatex -interaction nonstopmode -output-directory %o %f"
-	    "bibtex %b"
-	    "xelatex -interaction nonstopmode -output-directory %o %f"
-	    "xelatex -interaction nonstopmode -output-directory %o %f"))
-
-
-
-    ;;;;  参考 https://pengpengxp.github.io/archive/before-2018-11-10/2018-05-30-org-mode-to-pdf.html
-    ;;;;  源码默认的block默认导出还是 verbatim 此时还管设置什么 options 都是不支持的。可以修改为 listings 或者 minted 
-    ;;;;  这两个都是支持直接在org中设置options：
-    ;;
-    ;;   #+ATTR_LATEX: :options commentstyle=\bfseries
-    ;;   #+BEGIN_SRC emacs-lisp
-    ;;     (defun Fib (n)
-    ;;       (if (< n 2) n (+ (Fib (- n 1)) (Fib (- n 2)))))
-    ;;   #+END_SRC
-
-    ;(setq org-latex-pdf-process
-    ;    '(
-    ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-    ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-    ;      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-    ;      "rm -fr %b.out %b.log %b.tex auto"
-    ;      ))
 #+END_SRC
 
 * Programming
