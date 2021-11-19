@@ -149,7 +149,7 @@ Note: if you encouter "Failed to verify signature xxx"
 	
 ```bash
 
-1. brew install squirrel
+1. brew install --cask squirrel
    使用开源方案 https://github.com/wongdean/rime-settings
    settings ---> 项目中除了 font 以外的全部文件拖进来
    shift 切换中英文,
