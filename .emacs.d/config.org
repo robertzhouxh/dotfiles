@@ -2,7 +2,7 @@
  use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * Header
 #+PROPERTY: header-args :results silent
-* Bootstra  p
+* Bootstrap
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; 加速
   (setq
@@ -53,6 +53,8 @@
    (setq package-archives '(("melpa" . "http://elpa.emacs-china.org/melpa/")
 			    ("org"   . "http://elpa.emacs-china.org/org/")
 			    ("gnu"   . "http://elpa.emacs-china.org/gnu/")))
+
+   (setq package-check-signature nil)
    (package-initialize)
 
    ;; Automatic package installation
