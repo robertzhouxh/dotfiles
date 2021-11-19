@@ -133,7 +133,7 @@ Note: if you encouter "Failed to verify signature xxx"
   ;; 5. 直接打开 python 文件，即可快速进行语法补全
 
 ```
-## 文件说明
+## Files
 
 - .aliases: short name for frequence cmd
 - .exports: all the envirenment varibles
@@ -145,7 +145,7 @@ Note: if you encouter "Failed to verify signature xxx"
 - apt.sh: ubuntu scripts
 - brew.sh: macos scripts
 
-## Mac 中文设置
+## Mac squirrel 中文
 	
 ```bash
 
@@ -176,9 +176,32 @@ Note: if you encouter "Failed to verify signature xxx"
 	2. github 代理 vi ~/.gitconfig 适配sock5监听端口
 	3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
 	
-	youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+		youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
     ```
 
+
+## Emacs 配置
+
+./emacs.sh
+
+适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
+
+```
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+    ; /usr/local/lib/erlang/lib/tools-{erlang-version}
+    (setq erlang-version "3.4.4")
+    (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
+    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.5/libexec/plantuml.jar")
+    (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
+    (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+    (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
+
+#+END_SRC
+
+```
+
+启动 emacs
 
 ## Elisp 
 
