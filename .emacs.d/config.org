@@ -1,7 +1,19 @@
- Introduce
+* Introduce
  use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
 * Header
 #+PROPERTY: header-args :results silent
+* Custom Var
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+    ; /usr/local/lib/erlang/lib/tools-{erlang-version}
+    (setq erlang-version "3.4.4")
+    (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
+    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.5/libexec/plantuml.jar")
+    (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
+    (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+    (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
+
+#+END_SRC
 * Bootstrap
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; 加速
@@ -363,20 +375,6 @@
       :group 'centaur
       :type 'string)
 #+END_SRC
-* Custom Var
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-    ; /usr/local/lib/erlang/lib/tools-{erlang-version}
-    (setq erlang-version "3.4.4")
-    (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
-    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.5/libexec/plantuml.jar")
-    (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-    (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-    (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
-
-#+END_SRC
-
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;;; https://emacs-china.org/t/org-mode/79
