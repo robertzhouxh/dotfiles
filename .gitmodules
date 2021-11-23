@@ -34,3 +34,6 @@
 [submodule ".emacs.d/vendor/C4-PlantUML"]
 	path = .emacs.d/vendor/C4-PlantUML
 	url = https://github.com/plantuml-stdlib/C4-PlantUML
+[submodule ".emacs.d/vendor/plantuml-style-c4"]
+	path = .emacs.d/vendor/plantuml-style-c4
+	url = https://github.com/xuanye/plantuml-style-c4
