@@ -140,6 +140,8 @@ brew install protobuf
 brew install aria2
 # cool pdf reader 
 brew install aria2
+
+brew install antlr
 fi;
 brew cleanup
 

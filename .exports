@@ -40,3 +40,4 @@ export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/Cellar/erlang/23.3.1/l
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 
+export CLASSPATH="/usr/local/Cellar/antlr/4.9.2/antlr-4.9.2-complete.jar:$CLASSPATH"
