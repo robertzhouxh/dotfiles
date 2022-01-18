@@ -1068,49 +1068,35 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; Magit is an Emacs interface to Git.
-  ;; (It's awesome)
-  ;; https://github.com/magit/magit
-
   (use-package magit
-    :ensure t
-    ;; :pin melpa-stable
-    :bind ("C-x g" . magit-status)
-    :custom
-    (magit-git-executable "/usr/local/bin/git")
-    ;; (magit-refresh-verbose t)
-    :init
-    (use-package with-editor :ensure t)
-
-    ;; Have magit-status go full screen and quit to previous
-    ;; configuration.  Taken from
-    ;; http://whattheemacsd.com/setup-magit.el-01.html#comment-748135498
-    ;; and http://irreal.org/blog/?p=2253
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))
-    (defadvice magit-quit-window (after magit-restore-screen activate)
-      (jump-to-register :magit-fullscreen))
+    :bind ("C-M-;" . magit-status)
+    :commands (magit-status magit-get-current-branch)
     :config
-    (setq magit-blame--style
-	  '(margin
-	    (margin-format " %s%f" " %C %a" " %H")
-	    (margin-width . 42)
-	    (margin-face . magit-blame-margin)
-	    (margin-body-face magit-blame-dimmed)))
-    (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent))
+    
+      (defun magit-display-buffer-same-window (buffer)
+        "Display BUFFER in the selected window like God intended."
+        (display-buffer
+         buffer '(display-buffer-same-window)))
+      
+      (setq magit-display-buffer-function 'magit-display-buffer-same-window)
+      ;(setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
+   )
+
+(defun my/magit-display-buffer (buffer)
+  (if (and git-commit-mode
+           (with-current-buffer buffer
+             (derived-mode-p 'magit-diff-mode)))
+      (display-buffer buffer '((display-buffer-pop-up-window
+                                display-buffer-use-some-window
+                                display-buffer-below-selected)
+                               (inhibit-same-window . t)))
+    (magit-display-buffer-traditional buffer)))
+
+(setq magit-display-buffer-function #'my/magit-display-buffer)
 
   (use-package git-messenger
     :bind ("C-x G" . git-messenger:popup-message)
-    :config
-    (setq git-messenger:show-detail t
-	  git-messenger:use-magit-popup t))
-
+    :config (setq git-messenger:show-detail t git-messenger:use-magit-popup t))
   (use-package blamer
     :ensure t
     :defer 20
@@ -1119,12 +1105,9 @@
     (blamer-min-offset 70)
     :custom-face
     (blamer-face ((t :foreground "#7a88cf"
-                      :background nil
-                      :height 140
-                      :italic t)))
-    ;:config
-    ;(global-blamer-mode 1)
-    )
+		      :background nil
+		      :height 140
+		      :italic t))))
 
   (use-package git-gutter
     :diminish
