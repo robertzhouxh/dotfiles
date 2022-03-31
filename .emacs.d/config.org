@@ -8,7 +8,7 @@
     ; /usr/local/lib/erlang/lib/tools-{erlang-version}
     (setq erlang-version "3.4.4")
     (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
-    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.5/libexec/plantuml.jar")
+    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
     (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
     (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
     (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
