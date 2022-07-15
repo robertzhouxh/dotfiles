@@ -6,7 +6,7 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
     ; /usr/local/lib/erlang/lib/tools-{erlang-version}
-    (setq erlang-version "3.4.4")
+    (setq erlang-version "3.5.2")
     (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
     (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
     (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
@@ -380,29 +380,29 @@
   ;;; https://emacs-china.org/t/org-mode/79
   (defun my-org-screenshot ()
     "Take a screenshot into a time stamped unique-named file in the
-  same directory as the org-buffer and insert a link to this file."
+    same directory as the org-buffer and insert a link to this file."
     (interactive)
     (org-display-inline-images)
-  
+
     (setq filename
-          (concat
-           (make-temp-name
-            (concat (file-name-directory (buffer-file-name))
-                    "/imgs/"
-                    (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
+	  (concat
+	   (make-temp-name
+	    (concat (file-name-directory (buffer-file-name))
+		    "/imgs/"
+		    (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
     (unless (file-exists-p (file-name-directory filename))
       (make-directory (file-name-directory filename)))
-    ; take screenshot
+					  ; take screenshot
     (if (eq system-type 'darwin)
-        (progn
-          (call-process-shell-command "screencapture" nil nil nil nil " -s " (concat
-                                                                              "\"" filename "\"" ))
-          (call-process-shell-command "convert" nil nil nil nil (concat "\"" filename "\" -resize  \"50%\"" ) (concat "\"" filename "\"" ))
-          ))
-  
+	(progn
+	  (call-process-shell-command "screencapture" nil nil nil nil " -s " (concat
+									      "\"" filename "\"" ))
+	  (call-process-shell-command "convert" nil nil nil nil (concat "\"" filename "\" -resize  \"50%\"" ) (concat "\"" filename "\"" ))
+	  ))
+
     (setq relative-dir (concat "./imgs/" (file-name-nondirectory filename)))
     (if (file-exists-p filename)
-        (insert (concat "[[file:" relative-dir "]]")))
+	(insert (concat "[[file:" relative-dir "]]")))
     (org-display-inline-images)
     )
 
@@ -455,7 +455,7 @@
 
   (defun select-current-word ()
     "Select the word under cursor.
-	    “word” here is considered any alphanumeric sequence with “_” or “-”."
+	“word” here is considered any alphanumeric sequence with “_” or “-”."
     (interactive)
     (let (pt)
       (skip-chars-backward "-_A-Za-z0-9")
@@ -511,7 +511,7 @@
     (search-backward ")")
     (newline-and-indent))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;; File and buffer ;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;; File and buffer ;;;;;;;;;;;;;;;;;;;;;;;
   (defun revert-this-buffer ()
     "Revert the current buffer."
     (interactive)
@@ -550,7 +550,7 @@
     (switch-to-buffer (get-buffer-create "*scratch*"))
     (lisp-interaction-mode))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;; Font ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;; Font ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   (defun font-installed-p (font-name)
     "Check if font with FONT-NAME is available."
@@ -569,7 +569,7 @@
 
   (defun delete-carrage-returns ()
     "Delete `^M' characters in the buffer.
-    Same as `replace-string C-q C-m RET RET'."
+      Same as `replace-string C-q C-m RET RET'."
     (interactive)
     (save-excursion
       (goto-char 0)
@@ -588,7 +588,7 @@
     (interactive)
     (save-buffer-as-utf8 'gbk))
 
-  ;;;;;;;;;;;;;;;;;;;;;; Network Proxy ;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;; Network Proxy ;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Network Proxy
   (defun proxy-http-show ()
     "Show HTTP/HTTPS proxy."
@@ -656,6 +656,13 @@
     (if (bound-and-true-p socks-noproxy)
 	(proxy-socks-disable)
       (proxy-socks-enable)))
+
+  (defun org-export-docx ()
+    (interactive)
+    (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
+	  (template-file "/Users/glodon/githubs/gld/corps/template.docx"))
+      (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
+      (message "Convert finish: %s" docx-file)))
 #+END_SRC
 * Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1072,27 +1079,24 @@
     :bind ("C-M-;" . magit-status)
     :commands (magit-status magit-get-current-branch)
     :config
-    
-      (defun magit-display-buffer-same-window (buffer)
-        "Display BUFFER in the selected window like God intended."
-        (display-buffer
-         buffer '(display-buffer-same-window)))
-      
-      (setq magit-display-buffer-function 'magit-display-buffer-same-window)
-      ;(setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
-   )
+    (magit-auto-revert-mode t)
+    (magit-save-repository-buffers t)   
+    (defun magit-display-buffer-same-window (buffer)
+      "Display BUFFER in the selected window like God intended."
+      (display-buffer buffer '(display-buffer-same-window)))
+    (setq magit-display-buffer-function 'magit-display-buffer-same-window))
 
-(defun my/magit-display-buffer (buffer)
-  (if (and git-commit-mode
-           (with-current-buffer buffer
-             (derived-mode-p 'magit-diff-mode)))
-      (display-buffer buffer '((display-buffer-pop-up-window
-                                display-buffer-use-some-window
-                                display-buffer-below-selected)
-                               (inhibit-same-window . t)))
-    (magit-display-buffer-traditional buffer)))
+  (defun my/magit-display-buffer (buffer)
+    (if (and git-commit-mode
+	     (with-current-buffer buffer
+	       (derived-mode-p 'magit-diff-mode)))
+	(display-buffer buffer '((display-buffer-pop-up-window
+				  display-buffer-use-some-window
+				  display-buffer-below-selected)
+				 (inhibit-same-window . t)))
+      (magit-display-buffer-traditional buffer)))
 
-(setq magit-display-buffer-function #'my/magit-display-buffer)
+  (setq magit-display-buffer-function #'my/magit-display-buffer)
 
   (use-package git-messenger
     :bind ("C-x G" . git-messenger:popup-message)
@@ -1105,9 +1109,9 @@
     (blamer-min-offset 70)
     :custom-face
     (blamer-face ((t :foreground "#7a88cf"
-		      :background nil
-		      :height 140
-		      :italic t))))
+		     :background nil
+		     :height 140
+		     :italic t))))
 
   (use-package git-gutter
     :diminish
