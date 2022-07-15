@@ -660,7 +660,7 @@
   (defun org-export-docx ()
     (interactive)
     (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-	  (template-file "/Users/glodon/githubs/gld/corps/template.docx"))
+	  (template-file "/Users/glodon/githubs/dotfiles/.emacs.d/template.docx"))
       (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
       (message "Convert finish: %s" docx-file)))
 #+END_SRC
