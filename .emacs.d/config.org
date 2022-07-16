@@ -1011,44 +1011,62 @@
 
 * UI
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (use-package modus-themes
-    ;; :straight (modus-themes :type built-in)
-    ;;:straight (:type git :host gitlab :repo "protesilaos/modus-themes" :branch "main")
+    ;:pin melpa
     :load-path "~/.emacs.d/vendor/modus-themes"
+    ;:ensure t
     :init
-    (setq
-     modus-themes-vivendi-color-overrides
-     ;; '((bg-region-accent-subtle . "#240f55")) ;; Default
-     ;; '((bg-region-accent-subtle . "#323da2"));; Good candidate
-     '((bg-region-accent-subtle . "#304466"))
+    (setq modus-themes-org-blocks 'gray-background
+	modus-themes-fringes 'subtle
+	modus-themes-italic-constructs t
+	modus-themes-bold-constructs t
+	modus-themes-syntax '(alt-syntax)
+	modus-themes-hl-line '(intense)
+	modus-themes-paren-match '(intense)
+	modus-themes-mode-line '(moody borderless))
+    (setq modus-themes-headings
+	  (quote ((1 . (overline variable-pitch 1.4))
+		  (2 . (overline variable-pitch 1.25))
+		  (3 . (overline 1.1))
+		  (t . (monochrome))))))
 
-     modus-themes-bold-constructs t
-     modus-themes-completions '((matches . (extrabold))
-				(selection . (semibold accented))
-				(popup . (accented intense)))
-     modus-themes-diffs nil
-     modus-themes-fringes 'intense
-     modus-themes-hl-line '(accented intense)
-     modus-themes-intense-markup t
-     modus-themes-links '(faint background)
-     modus-themes-mixed-fonts t
-     modus-themes-mode-line '(accented 3d)
-     modus-themes-org-blocks 'gray-background
-     modus-themes-paren-match '(bold intense)
-     modus-themes-prompts '(intense accented)
-     modus-themes-region '(bg-only accented)
-     modus-themes-scale-headings t
-     modus-themes-slanted-constructs t
-     modus-themes-subtle-line-numbers t
-     modus-themes-syntax '(alt-syntax yellow-comments green-strings)
-     modus-themes-tabs-accented t
-     modus-themes-headings
-     '((1 . (variable-pitch light 1.6))
-       (2 . (overline semibold 1.4))
-       (3 . (monochrome overline 1.2))
-       (4 . (overline 1.1))
-       (t . (rainbow 1.05)))))
+  ;(use-package modus-themes
+  ;  ;; :straight (modus-themes :type built-in)
+  ;  ;;:straight (:type git :host gitlab :repo "protesilaos/modus-themes" :branch "main")
+  ;  :load-path "~/.emacs.d/vendor/modus-themes"
+  ;  :init
+  ;  (setq
+  ;   modus-themes-vivendi-color-overrides
+  ;   ;; '((bg-region-accent-subtle . "#240f55")) ;; Default
+  ;   ;; '((bg-region-accent-subtle . "#323da2"));; Good candidate
+  ;   '((bg-region-accent-subtle . "#304466"))
+
+  ;   modus-themes-bold-constructs t
+  ;   modus-themes-completions '((matches . (extrabold))
+  ;				(selection . (semibold accented))
+  ;				(popup . (accented intense)))
+  ;   modus-themes-diffs nil
+  ;   modus-themes-fringes 'intense
+  ;   modus-themes-hl-line '(accented intense)
+  ;   modus-themes-intense-markup t
+  ;   modus-themes-links '(faint background)
+  ;   modus-themes-mixed-fonts t
+  ;   modus-themes-mode-line '(accented 3d)
+  ;   modus-themes-org-blocks 'gray-background
+  ;   modus-themes-paren-match '(bold intense)
+  ;   modus-themes-prompts '(intense accented)
+  ;   modus-themes-region '(bg-only accented)
+  ;   modus-themes-scale-headings t
+  ;   modus-themes-slanted-constructs t
+  ;   modus-themes-subtle-line-numbers t
+  ;   modus-themes-syntax '(alt-syntax yellow-comments green-strings)
+  ;   modus-themes-tabs-accented t
+  ;   modus-themes-headings
+  ;   '((1 . (variable-pitch light 1.6))
+  ;     (2 . (overline semibold 1.4))
+  ;     (3 . (monochrome overline 1.2))
+  ;     (4 . (overline 1.1))
+  ;     (t . (rainbow 1.05)))))
   (load-theme 'modus-vivendi)
   ;(load-theme 'modus-operandi)
 
