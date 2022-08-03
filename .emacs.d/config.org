@@ -5,13 +5,14 @@
 * Custom Var
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-    ; /usr/local/lib/erlang/lib/tools-{erlang-version}
-    (setq erlang-version "3.5.2")
-    (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
-    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
-    (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-    (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-    (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
+  ; /usr/local/lib/erlang/lib/tools-{erlang-version}
+  ; /usr/local/opt/erlang@23/lib/erlang/lib/tools-
+  (setq erlang-version "3.4.4")
+  (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
+  (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
+  (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
+  (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
 
 #+END_SRC
 * Bootstrap
@@ -1900,7 +1901,8 @@
   ;; "/usr/local/opt/erlang@22/lib/tools-" for mac
   (let* ((emacs-version erlang-version)
 	 (tools-path
-	  (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
+	  ;; (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
+	  (concat "/usr/local/opt/erlang@23/lib/erlang/lib/tools-" emacs-version "/emacs")))
     (when (file-exists-p tools-path)
       (setq load-path (cons tools-path load-path))
       (setq erlang-root-dir "/usr/local/lib/erlang")
