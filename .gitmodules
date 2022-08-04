@@ -37,3 +37,6 @@
 [submodule ".emacs.d/vendor/plantuml-style-c4"]
 	path = .emacs.d/vendor/plantuml-style-c4
 	url = https://github.com/xuanye/plantuml-style-c4
+[submodule "rime-settings"]
+	path = rime-settings
+	url = https://github.com/wongdean/rime-settings
