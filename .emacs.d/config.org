@@ -2070,6 +2070,7 @@
   ;;      unzip Python-Language-Server-osx-x64.0.5.59.nupkg -d ~/.emacs.d/nox/mspyls/
   ;; 4. 给mspyls索引权限: sudo chmod +x -R ~/.emacs.d/nox/mspyls
   ;; 5. 直接打开 python 文件，即可快速进行语法补全
+  ;; 6. for rust: rustup component add rls rust-analysis rust-src
   ;;---------------------------------------------------------
   (use-package nox
     :ensure nil
@@ -2103,50 +2104,50 @@
   (when emacs/>=27p
     (use-package devdocs
       :bind (:map prog-mode-map
-             ("M-<f1>" . devdocs-dwim))
+	     ("M-<f1>" . devdocs-dwim))
       :init
       (defvar devdocs-major-mode-docs-alist
-        '((c-mode          . ("C"))
-          (c++-mode        . ("C++"))
-          (python-mode     . ("Python 3.9" "Python 3.8"))
-          (ruby-mode       . ("Ruby 3"))
-          (go-mode         . ("Go"))
-          (rustic-mode     . ("Rust"))
-          (css-mode        . ("CSS"))
-          (html-mode       . ("HTML"))
-          (js-mode         . ("JavaScript" "JQuery"))
-          (js2-mode        . ("JavaScript" "JQuery"))
-          (emacs-lisp-mode . ("Elisp")))
-        "Alist of MAJOR-MODE and list of docset names.")
-  
+	'((c-mode          . ("C"))
+	  (c++-mode        . ("C++"))
+	  (python-mode     . ("Python 3.9" "Python 3.8"))
+	  (ruby-mode       . ("Ruby 3"))
+	  (go-mode         . ("Go"))
+	  (rustic-mode     . ("Rust"))
+	  (css-mode        . ("CSS"))
+	  (html-mode       . ("HTML"))
+	  (js-mode         . ("JavaScript" "JQuery"))
+	  (js2-mode        . ("JavaScript" "JQuery"))
+	  (emacs-lisp-mode . ("Elisp")))
+	"Alist of MAJOR-MODE and list of docset names.")
+
       (mapc
        (lambda (e)
-         (add-hook (intern (format "%s-hook" (car e)))
-                   (lambda ()
-                     (setq-local devdocs-current-docs (cdr e)))))
+	 (add-hook (intern (format "%s-hook" (car e)))
+		   (lambda ()
+		     (setq-local devdocs-current-docs (cdr e)))))
        devdocs-major-mode-docs-alist)
-  
+
       (setq devdocs-data-dir (expand-file-name "devdocs" user-emacs-directory))
       (defun devdocs-dwim()
-        "Look up a DevDocs documentation entry.
-  
+	"Look up a DevDocs documentation entry.
+
   Install the doc if it's not installed."
-        (interactive)
-        ;; Install the doc if it's not installed
-        (mapc
-         (lambda (str)
-           (let* ((docs (split-string str " "))
-                  (doc (if (length= docs 1)
-                           (downcase (car docs))
-                         (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
-             (unless (and (file-directory-p devdocs-data-dir)
-                          (directory-files devdocs-data-dir nil "^[^.]"))
-               (message "Installing %s..." str)
-               (devdocs-install doc))))
-         (alist-get major-mode devdocs-major-mode-docs-alist))
-  
-        ;; Lookup the symbol at point
-        (devdocs-lookup nil (thing-at-point 'symbol t)))))
+	(interactive)
+	;; Install the doc if it's not installed
+	(mapc
+	 (lambda (str)
+	   (let* ((docs (split-string str " "))
+		  (doc (if (length= docs 1)
+			   (downcase (car docs))
+			 (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
+	     (unless (and (file-directory-p devdocs-data-dir)
+			  (directory-files devdocs-data-dir nil "^[^.]"))
+	       (message "Installing %s..." str)
+	       (devdocs-install doc))))
+	 (alist-get major-mode devdocs-major-mode-docs-alist))
+
+	;; Lookup the symbol at point
+	(devdocs-lookup nil (thing-at-point 'symbol t)))))
 
 #+END_SRC
 * AutoInsert
