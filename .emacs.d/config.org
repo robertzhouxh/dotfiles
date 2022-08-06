@@ -7,8 +7,8 @@
 
   ; /usr/local/lib/erlang/lib/tools-{erlang-version}
   ; /usr/local/opt/erlang@23/lib/erlang/lib/tools-
-  (setq erlang-version "3.4.4")
-  (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
+  (setq erlang-version "3.5")
+  (setq erlang-ls "/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls")
   (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
   (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
@@ -1854,48 +1854,61 @@
   ;; cd otp_src_22.3
   ;; ./configure --with-ssl && make && make install
   ;;---------------------------------------------------------------
-  (setq auto-mode-alist
-	(reverse
-	 (append auto-mode-alist
-		 '(("\\.rel$"         . erlang-mode)
-		   ("\\.app\\.src$"   . erlang-mode)
-		   ("\\.hrl$"         . erlang-mode)
-		   ("\\.erl$"         . erlang-mode)
-		   ("\\.yrl$"         . erlang-mode)
-		   ("\\.conf$"        . erlang-mode)
-		   ("\\.schema"       . erlang-mode)
-		   ("rebar\\.config$" . erlang-mode)
-		   ("relx\\.config$"  . erlang-mode)
-		   ("sys\\.config$"   . erlang-mode)))))
+  ;(setq auto-mode-alist
+  ;	(reverse
+  ;	 (append auto-mode-alist
+  ;		 '(("\\.rel$"         . erlang-mode)
+  ;		   ("\\.app\\.src$"   . erlang-mode)
+  ;		   ("\\.hrl$"         . erlang-mode)
+  ;		   ("\\.erl$"         . erlang-mode)
+  ;		   ("\\.yrl$"         . erlang-mode)
+  ;		   ("\\.conf$"        . erlang-mode)
+  ;		   ("\\.schema"       . erlang-mode)
+  ;		   ("rebar\\.config$" . erlang-mode)
+  ;		   ("relx\\.config$"  . erlang-mode)
+  ;		   ("sys\\.config$"   . erlang-mode)))))
 
-  ;; "/usr/local/opt/erlang@22/lib/tools-" for mac
-  (let* ((emacs-version erlang-version)
-	 (tools-path
-	  ;; (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
-	  (concat "/usr/local/opt/erlang@23/lib/erlang/lib/tools-" emacs-version "/emacs")))
-    (when (file-exists-p tools-path)
-      (setq load-path (cons tools-path load-path))
-      (setq erlang-root-dir "/usr/local/lib/erlang")
-      (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
-      (require 'erlang-start)
-      (defvar inferior-erlang-prompt-timeout t)))
-  (setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
-  (defun get-erl-man ()
-    (interactive)
-    (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
-	   (man-args (format "-M %s %s" man-path (current-word))))
-      (man man-args)))
+  ;;; "/usr/local/opt/erlang@22/lib/tools-" for mac
+  ;(let* ((emacs-version erlang-version)
+  ;	 (tools-path
+  ;	  ;; (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
+  ;	  (concat "/usr/local/opt/erlang@23/lib/erlang/lib/tools-" emacs-version "/emacs")))
+  ;  (when (file-exists-p tools-path)
+  ;    (setq load-path (cons tools-path load-path))
+  ;    (setq erlang-root-dir "/usr/local/lib/erlang")
+  ;    (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
+  ;    (require 'erlang-start)
+  ;    (defvar inferior-erlang-prompt-timeout t)))
+  ;(setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
+  ;(defun get-erl-man ()
+  ;  (interactive)
+  ;  (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
+  ;	   (man-args (format "-M %s %s" man-path (current-word))))
+  ;    (man man-args)))
 
-  (defun erlang-insert-binary ()
-    (interactive)
-    (insert "<<\"\">>")
-    (backward-char 3)
-    )
-  (defun org-insert-header ()
-    (interactive)
-    (insert "<<\"\">>")
-    (backward-char 3)
-    )
+  ;(defun erlang-insert-binary ()
+  ;  (interactive)
+  ;  (insert "<<\"\">>")
+  ;  (backward-char 3)
+  ;  )
+  ;(defun org-insert-header ()
+  ;  (interactive)
+  ;  (insert "<<\"\">>")
+  ;  (backward-char 3)
+  ;  )
+  (use-package erlang
+    :config (ivy-erlang-complete-init)
+    :mode (("\\.erl?$" . erlang-mode)
+       ("rebar\\.config$" . erlang-mode)
+       ("relx\\.config$" . erlang-mode)
+       ("sys\\.config\\.src$" . erlang-mode)
+       ("sys\\.config$" . erlang-mode)
+       ("\\.config\\.src?$" . erlang-mode)
+       ("\\.config\\.script?$" . erlang-mode)
+       ("\\.hrl?$" . erlang-mode)
+       ("\\.app?$" . erlang-mode)
+       ("\\.app.src?$" . erlang-mode)
+       ("\\Emakefile" . erlang-mode)))
 
   ;;---------------------------------------------------------
   ;; C/C++ Mode
