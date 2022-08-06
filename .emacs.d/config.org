@@ -1426,15 +1426,17 @@
     (org-mode . toc-org-enable))
 
   (use-package org-superstar
-    :if (and (display-graphic-p) (char-displayable-p ?⚫))
-    :hook (org-mode . org-superstar-mode)
-    :custom
-    ;(org-superstar-headline-bullets-list '("⌾" "◈" "⚬" "▷"))
-    ;(org-superstar-bullet-list '("■" "◆" "▲" "▶"))
-    (org-superstar-headline-bullets-list '("⚫" "⚫" "⚫" "⚫"))
-    ;:init (setq org-superstar-headline-bullets-list '("⚫" "⚫" "⚫" "⚫"))
-  )
+	  :if (and (display-graphic-p) (char-displayable-p ?◉))
+	  :hook (org-mode . org-superstar-mode)
+	  :init (setq org-superstar-headline-bullets-list '("◉""○""◈""◇""⁕")))
 
+ (use-package org-fancy-priorities
+        :diminish
+        :hook (org-mode . org-fancy-priorities-mode)
+        :init (setq org-fancy-priorities-list
+                    (if (and (display-graphic-p) (char-displayable-p ?🅐))
+                        '("🅐" "🅑" "🅒" "🅓")
+                      '("HIGH" "MEDIUM" "LOW" "OPTIONAL"))))
   (use-package valign
     :defer t
     :ensure t
@@ -1456,6 +1458,7 @@
 
   ;; org, latex 设置
   (require 'org)
+
   (require 'ox-latex)
 
   ;; Babel
@@ -1474,7 +1477,7 @@
   (setq org-highlight-latex-and-related '(latex)) ; 高亮latex代码
   (setq org-file-apps
       '(("pdf" . "open -a Skim %s")))
-  
+
   ;; 表格
   ; 长表格  longtable环境：   #+ATTR_LATEX: :environment longtable :align x{0.2\linewidth}x{0.2\linewidth}
   ; 普通表格tabular环境： #+ATTR_LATEX: :align p{0.18\linewidth}|p{0.72\linewidth}
