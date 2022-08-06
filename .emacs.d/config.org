@@ -1430,13 +1430,6 @@
 	  :hook (org-mode . org-superstar-mode)
 	  :init (setq org-superstar-headline-bullets-list '("◉""○""◈""◇""⁕")))
 
- (use-package org-fancy-priorities
-        :diminish
-        :hook (org-mode . org-fancy-priorities-mode)
-        :init (setq org-fancy-priorities-list
-                    (if (and (display-graphic-p) (char-displayable-p ?🅐))
-                        '("🅐" "🅑" "🅒" "🅓")
-                      '("HIGH" "MEDIUM" "LOW" "OPTIONAL"))))
   (use-package valign
     :defer t
     :ensure t
@@ -1456,9 +1449,7 @@
   (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
   (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
 
-  ;; org, latex 设置
-  (require 'org)
-
+  ;; latex 设置
   (require 'ox-latex)
 
   ;; Babel
@@ -1475,8 +1466,7 @@
   (setq org-export-with-sub-superscripts nil)   ; 下划线不转下标
   (setq org-export-headline-levels 5)           ; 5级结构
   (setq org-highlight-latex-and-related '(latex)) ; 高亮latex代码
-  (setq org-file-apps
-      '(("pdf" . "open -a Skim %s")))
+  (setq org-file-apps '(("pdf" . "open -a Skim %s")))
 
   ;; 表格
   ; 长表格  longtable环境：   #+ATTR_LATEX: :environment longtable :align x{0.2\linewidth}x{0.2\linewidth}
@@ -2101,53 +2091,53 @@
     (setq prettify-symbols-unprettify-at-point 'right-edge))
 
   ;; Browse devdocs.io documents using EWW
-  (when emacs/>=27p
-    (use-package devdocs
-      :bind (:map prog-mode-map
-	     ("M-<f1>" . devdocs-dwim))
-      :init
-      (defvar devdocs-major-mode-docs-alist
-	'((c-mode          . ("C"))
-	  (c++-mode        . ("C++"))
-	  (python-mode     . ("Python 3.9" "Python 3.8"))
-	  (ruby-mode       . ("Ruby 3"))
-	  (go-mode         . ("Go"))
-	  (rustic-mode     . ("Rust"))
-	  (css-mode        . ("CSS"))
-	  (html-mode       . ("HTML"))
-	  (js-mode         . ("JavaScript" "JQuery"))
-	  (js2-mode        . ("JavaScript" "JQuery"))
-	  (emacs-lisp-mode . ("Elisp")))
-	"Alist of MAJOR-MODE and list of docset names.")
-
-      (mapc
-       (lambda (e)
-	 (add-hook (intern (format "%s-hook" (car e)))
-		   (lambda ()
-		     (setq-local devdocs-current-docs (cdr e)))))
-       devdocs-major-mode-docs-alist)
-
-      (setq devdocs-data-dir (expand-file-name "devdocs" user-emacs-directory))
-      (defun devdocs-dwim()
-	"Look up a DevDocs documentation entry.
-
-  Install the doc if it's not installed."
-	(interactive)
-	;; Install the doc if it's not installed
-	(mapc
-	 (lambda (str)
-	   (let* ((docs (split-string str " "))
-		  (doc (if (length= docs 1)
-			   (downcase (car docs))
-			 (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
-	     (unless (and (file-directory-p devdocs-data-dir)
-			  (directory-files devdocs-data-dir nil "^[^.]"))
-	       (message "Installing %s..." str)
-	       (devdocs-install doc))))
-	 (alist-get major-mode devdocs-major-mode-docs-alist))
-
-	;; Lookup the symbol at point
-	(devdocs-lookup nil (thing-at-point 'symbol t)))))
+;  (when emacs/>=27p
+;    (use-package devdocs
+;      :bind (:map prog-mode-map
+;	     ("M-<f1>" . devdocs-dwim))
+;      :init
+;      (defvar devdocs-major-mode-docs-alist
+;	'((c-mode          . ("C"))
+;	  (c++-mode        . ("C++"))
+;	  (python-mode     . ("Python 3.9" "Python 3.8"))
+;	  (ruby-mode       . ("Ruby 3"))
+;	  (go-mode         . ("Go"))
+;	  (rustic-mode     . ("Rust"))
+;	  (css-mode        . ("CSS"))
+;	  (html-mode       . ("HTML"))
+;	  (js-mode         . ("JavaScript" "JQuery"))
+;	  (js2-mode        . ("JavaScript" "JQuery"))
+;	  (emacs-lisp-mode . ("Elisp")))
+;	"Alist of MAJOR-MODE and list of docset names.")
+;
+;      (mapc
+;       (lambda (e)
+;	 (add-hook (intern (format "%s-hook" (car e)))
+;		   (lambda ()
+;		     (setq-local devdocs-current-docs (cdr e)))))
+;       devdocs-major-mode-docs-alist)
+;
+;      (setq devdocs-data-dir (expand-file-name "devdocs" user-emacs-directory))
+;      (defun devdocs-dwim()
+;	"Look up a DevDocs documentation entry.
+;
+;  Install the doc if it's not installed."
+;	(interactive)
+;	;; Install the doc if it's not installed
+;	(mapc
+;	 (lambda (str)
+;	   (let* ((docs (split-string str " "))
+;		  (doc (if (length= docs 1)
+;			   (downcase (car docs))
+;			 (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
+;	     (unless (and (file-directory-p devdocs-data-dir)
+;			  (directory-files devdocs-data-dir nil "^[^.]"))
+;	       (message "Installing %s..." str)
+;	       (devdocs-install doc))))
+;	 (alist-get major-mode devdocs-major-mode-docs-alist))
+;
+;	;; Lookup the symbol at point
+;	(devdocs-lookup nil (thing-at-point 'symbol t)))))
 
 #+END_SRC
 * AutoInsert
