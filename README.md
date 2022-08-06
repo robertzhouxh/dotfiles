@@ -156,9 +156,9 @@ Note: if you encouter "Failed to verify signature xxx"
 
 2. cd ~/.emacs.d/
   
-  curl -L -O https://github.com/rime/librime/releases/download/1.7.1/rime-1.7.1-osx.zip
-  unzip rime-1.7.1-osx.zip -d ~/.emacs.d/librime
-  rm -rf rime-1.7.1-osx.zip
+  curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
+  unzip rime-1.7.3-osx.zip -d ~/.emacs.d/librime
+  rm -rf rime-1.7.3-osx.zip
   
   # 如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
   # 
