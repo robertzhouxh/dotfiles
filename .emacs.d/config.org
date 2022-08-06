@@ -337,6 +337,17 @@
 	  (and (= emacs-major-version 25) (>= emacs-minor-version 2)))
       "Emacs is 25.2 or above.")
 
+    (defconst emacs/>=27p
+      (>= emacs-major-version 27)
+      "Emacs is 27 or above.")
+
+    (defconst emacs/>=28p
+      (>= emacs-major-version 28)
+      "Emacs is 28 or above.")
+
+    (defconst emacs/>=29p
+      (>= emacs-major-version 29)
+      "Emacs is 29 or above.")
 
   ;; Suppress warnings
     (defvar socks-noproxy)
@@ -345,6 +356,57 @@
       "Set network proxy."
       :group 'centaur
       :type 'string)
+
+  (defcustom centaur-prettify-symbols-alist
+    '(("lambda" . ?λ)
+      ("<-"     . ?←)
+      ("->"     . ?→)
+      ("->>"    . ?↠)
+      ("=>"     . ?⇒)
+      ("map"    . ?↦)
+      ("/="     . ?≠)
+      ("!="     . ?≠)
+      ("=="     . ?≡)
+      ("<="     . ?≤)
+      (">="     . ?≥)
+      ("=<<"    . (?= (Br . Bl) ?≪))
+      (">>="    . (?≫ (Br . Bl) ?=))
+      ("<=<"    . ?↢)
+      (">=>"    . ?↣)
+      ("&&"     . ?∧)
+      ("||"     . ?∨)
+      ("not"    . ?¬))
+    "A list of symbol prettifications.
+  Nil to use font supports ligatures."
+    :group 'centaur
+    :type '(alist :key-type string :value-type (choice character sexp)))
+  
+  (defcustom centaur-prettify-org-symbols-alist
+    '(("[ ]" . ?☐)
+      ("[X]" . ?☑)
+      ("[-]" . ?⛝)
+  
+      ("#+ARCHIVE:"     . ?📦)
+      ("#+AUTHOR:"      . ?👤)
+      ("#+CREATOR:"     . ?💁)
+      ("#+DATE:"        . ?📆)
+      ("#+DESCRIPTION:" . ?⸙)
+      ("#+EMAIL:"       . ?📧)
+      ("#+OPTIONS:"     . ?⛭)
+      ("#+SETUPFILE:"   . ?⛮)
+      ("#+TAGS:"        . ?🏷)
+      ("#+TITLE:"       . ?📓)
+  
+      ("#+BEGIN_SRC"   . ?✎)
+      ("#+END_SRC"     . ?□)
+      ("#+BEGIN_QUOTE" . ?»)
+      ("#+END_QUOTE"   . ?«)
+      ("#+HEADERS"     . ?☰)
+      ("#+RESULTS:"    . ?💻))
+    "A list of symbol prettifications for `org-mode'."
+    :group 'centaur
+    :type '(alist :key-type string :value-type (choice character sexp)))
+
 #+END_SRC
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -772,6 +834,27 @@
     :preface (eval-when-compile (declare-function ivy-mode nil))
     :init (setq ivy-use-virtual-buffers t)
     :config (ivy-mode t))
+
+  ;; Cross-referencing commands
+  (use-package xref
+    :ensure nil
+    :init
+    (when (executable-find "rg")
+      (setq xref-search-program 'ripgrep))
+  
+    (with-no-warnings
+      ;; Select from xref candidates with Ivy
+      (if emacs/>=28p
+          (setq xref-show-definitions-function #'xref-show-definitions-completing-read
+                xref-show-xrefs-function #'xref-show-definitions-completing-read)
+        (use-package ivy-xref
+          :after ivy
+          :init
+          (when emacs/>=27p
+            (setq xref-show-definitions-function #'ivy-xref-show-defs))
+          (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
+
+
   (use-package counsel
     :after ivy
     :diminish counsel-mode
@@ -1897,7 +1980,6 @@
   ;  (backward-char 3)
   ;  )
   (use-package erlang
-    :config (ivy-erlang-complete-init)
     :mode (("\\.erl?$" . erlang-mode)
        ("rebar\\.config$" . erlang-mode)
        ("relx\\.config$" . erlang-mode)
@@ -1948,8 +2030,14 @@
       (exec-path-from-shell-copy-env "PYTHONPATH"))
 
     ;; Live Coding in Python
-    ;; (use-package live-py-mode)
-    )
+    (use-package live-py-mode))
+
+  ;;---------------------------------------------------------
+  ;; rust
+  ;;---------------------------------------------------------
+
+  (use-package rustic)
+  (use-package rust-playground)
 
   ;;---------------------------------------------------------
   ;; Other languages
@@ -2000,6 +2088,62 @@
 		   ))
       (add-hook hook '(lambda () (nox-ensure))))
     (add-to-list 'nox-server-programs `(erlang-mode . (,erlang-ls))))
+
+  (use-package prog-mode
+    :ensure nil
+    :hook (prog-mode . prettify-symbols-mode)
+    :init
+    (setq-default prettify-symbols-alist centaur-prettify-symbols-alist)
+    (setq prettify-symbols-unprettify-at-point 'right-edge))
+
+  ;; Browse devdocs.io documents using EWW
+  (when emacs/>=27p
+    (use-package devdocs
+      :bind (:map prog-mode-map
+             ("M-<f1>" . devdocs-dwim))
+      :init
+      (defvar devdocs-major-mode-docs-alist
+        '((c-mode          . ("C"))
+          (c++-mode        . ("C++"))
+          (python-mode     . ("Python 3.9" "Python 3.8"))
+          (ruby-mode       . ("Ruby 3"))
+          (go-mode         . ("Go"))
+          (rustic-mode     . ("Rust"))
+          (css-mode        . ("CSS"))
+          (html-mode       . ("HTML"))
+          (js-mode         . ("JavaScript" "JQuery"))
+          (js2-mode        . ("JavaScript" "JQuery"))
+          (emacs-lisp-mode . ("Elisp")))
+        "Alist of MAJOR-MODE and list of docset names.")
+  
+      (mapc
+       (lambda (e)
+         (add-hook (intern (format "%s-hook" (car e)))
+                   (lambda ()
+                     (setq-local devdocs-current-docs (cdr e)))))
+       devdocs-major-mode-docs-alist)
+  
+      (setq devdocs-data-dir (expand-file-name "devdocs" user-emacs-directory))
+      (defun devdocs-dwim()
+        "Look up a DevDocs documentation entry.
+  
+  Install the doc if it's not installed."
+        (interactive)
+        ;; Install the doc if it's not installed
+        (mapc
+         (lambda (str)
+           (let* ((docs (split-string str " "))
+                  (doc (if (length= docs 1)
+                           (downcase (car docs))
+                         (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
+             (unless (and (file-directory-p devdocs-data-dir)
+                          (directory-files devdocs-data-dir nil "^[^.]"))
+               (message "Installing %s..." str)
+               (devdocs-install doc))))
+         (alist-get major-mode devdocs-major-mode-docs-alist))
+  
+        ;; Lookup the symbol at point
+        (devdocs-lookup nil (thing-at-point 'symbol t)))))
 
 #+END_SRC
 * AutoInsert
