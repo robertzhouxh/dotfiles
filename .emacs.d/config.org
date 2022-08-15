@@ -1124,7 +1124,7 @@
   (load-theme 'modus-vivendi)
   ;(load-theme 'modus-operandi)
 
-  ;(require 'lazycat-theme)
+  (require 'lazycat-theme)
   ;(lazycat-theme-load-dark)
   (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
 
