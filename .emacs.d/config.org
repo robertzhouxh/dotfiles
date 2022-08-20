@@ -1086,9 +1086,9 @@
 
   (require 'lazycat-theme)
   (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-  (load-theme 'modus-vivendi)
+  ;(load-theme 'modus-vivendi)
   ;(load-theme 'modus-operandi)
-  ;(lazycat-theme-load-dark)
+  (lazycat-theme-load-dark)
 
   (require 'awesome-tray)
   (use-package awesome-tray
@@ -2061,7 +2061,7 @@
 		   ))
       (add-hook hook '(lambda () (nox-ensure))))
     (add-to-list 'nox-server-programs `(erlang-mode . (,erlang-ls))))
-
+    (use-package lsp-mode :ensure t)
   ;(use-package prog-mode
   ;  :ensure nil
   ;  :hook (prog-mode . prettify-symbols-mode)
