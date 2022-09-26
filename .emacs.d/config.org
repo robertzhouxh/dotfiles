@@ -8,7 +8,7 @@
   ; /usr/local/lib/erlang/lib/tools-{erlang-version}
   ; /usr/local/opt/erlang@23/lib/erlang/lib/tools-
   (setq erlang-version "3.5")
-  (setq erlang-ls "/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls")
+  (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
   (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
   (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
@@ -951,92 +951,68 @@
 
 #+END_SRC
 * Company
-  #+BEGIN_SRC emacs-lisp :tangle yes
-    ;;; Code:
-    (use-package company-tabnine :ensure t)
-    (use-package company
-      :diminish 'company-mode
-      :init
-      (global-company-mode)
-      :config
-      (add-hook 'prog-mode-hook
-		#'(lambda ()
-		    (require 'company)
-		    (require 'company-yasnippet)
-		    (require 'company-dabbrev)
-		    (require 'company-files)
-		    (require 'company-tng)
-		    (require 'company-tabnine)
+#+BEGIN_SRC emacs-lisp :tangle yes
+; auto-completion and code snippets
+(use-package yasnippet
+  :ensure
+  :config
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'text-mode-hook 'yas-minor-mode))
 
-		    ;; Config for company mode.
-		    (setq company-minimum-prefix-length 1) ; pop up a completion menu by tapping a character
-		    (setq company-show-numbers t) ; number the candidates (use M-1, M-2 etc to select completions).
-		    (setq company-require-match nil) ; allow input string that do not match candidate words
-		    (setq company-idle-delay 0) ; trigger completion immediately.
+(use-package company
+  :ensure
+  :bind
+  (:map company-active-map
+              ("C-n". company-select-next)
+              ("C-p". company-select-previous)
+              ("M-<". company-select-first)
+              ("M->". company-select-last))
+  (:map company-mode-map
+        ("<tab>". tab-indent-or-complete)
+        ("TAB". tab-indent-or-complete)))
 
-		    ;; Don't downcase the returned candidates.
-		    (setq company-dabbrev-downcase nil)
-		    (setq company-dabbrev-ignore-case t)
+(defun company-yasnippet-or-completion ()
+  (interactive)
+  (or (do-yas-expand)
+      (company-complete-common)))
 
-		    ;; Customize company backends.
-		    (setq company-backends
-			  '(
-			    (company-tabnine company-dabbrev company-keywords company-files company-capf)
-			    ))
+(defun check-expansion ()
+  (save-excursion
+    (if (looking-at "\\_>") t
+      (backward-char 1)
+      (if (looking-at "\\.") t
+        (backward-char 1)
+        (if (looking-at "::") t nil)))))
 
-		    ;; Add yasnippet support for all company backends.
-		    (defvar company-mode/enable-yas t
-		      "Enable yasnippet for all backends.")
+(defun do-yas-expand ()
+  (let ((yas/fallback-behavior 'return-nil))
+    (yas/expand)))
 
-		    (defun company-mode/backend-with-yas (backend)
-		      (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-			  backend
-			(append (if (consp backend) backend (list backend))
-				'(:with company-yasnippet))))
+(defun tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (or (not yas/minor-mode)
+            (null (do-yas-expand)))
+        (if (check-expansion)
+            (company-complete-common)
+          (indent-for-tab-command)))))
 
-		    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+;; Env vars
+(use-package snails
+  :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
+  :if (display-graphic-p)
+  :after color-rg
+  :init
+  ;(setq snails-show-with-frame nil) 
+  (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
+  :config
+  (unless (executable-find "rg")
+  	(user-error "Unable to find `rg' in `exec-path'!"))
+  )
 
-		    ;; Remove duplicate candidate.
-		    (add-to-list 'company-transformers #'delete-dups)
-
-
-		    ;; The free version of TabNine is good enough,
-		    ;; and below code is recommended that TabNine not always
-		    ;; prompt me to purchase a paid version in a large project.
-		    (defadvice company-echo-show (around disable-tabnine-upgrade-message activate)
-		      (let ((company-message-func (ad-get-arg 0)))
-			(when (and company-message-func
-				   (stringp (funcall company-message-func)))
-			  (unless (string-match "The free version of TabNine only indexes up to" (funcall company-message-func))
-			    ad-do-it))))
-
-		    ;; Add `company-elisp' backend for elisp.
-		    (add-hook 'emacs-lisp-mode-hook
-			      #'(lambda ()
-				  (require 'company-elisp)
-				  (push 'company-elisp company-backends)))
-
-		    ;; Enable global.
-		    (global-company-mode)
-
-		    ))
-
-      )
-
-  ;; Env vars
-  (use-package snails
-    :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
-    :if (display-graphic-p)
-    :after color-rg
-    :init
-    ;(setq snails-show-with-frame nil) 
-    (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
-    :config
-    (unless (executable-find "rg")
-    	(user-error "Unable to find `rg' in `exec-path'!"))
-    )
-
- #+END_SRC
+#+END_SRC
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;https://www.emacswiki.org/emacs/download/dired+.el
@@ -1988,29 +1964,73 @@
   ;;---------------------------------------------------------
   ;; rust
   ;;---------------------------------------------------------
-
-  (use-package cargo
-    :ensure t
-    :after rust-mode
-    :init
-    (setq rust-format-on-save t)
-    (add-hook 'rust-mode-hook 'cargo-minor-mode)
-    )
-  (use-package racer
-    :ensure t
-    :init
-    (add-hook 'rust-mode-hook #'racer-mode)
-    (add-hook 'racer-mode-hook #'eldoc-mode)
-    (add-hook 'racer-mode-hook #'company-mode)
-    )
+  ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ;; rustic = basic rust-mode + additions
   
-  (use-package rust-mode
-    :ensure t
-    :mode ("\\.rs\\'" . rust-mode)
+  (use-package rustic
+    :ensure
+    :bind (:map rustic-mode-map
+                ("M-j" . lsp-ui-imenu)
+                ("M-?" . lsp-find-references)
+                ("C-c C-c l" . flycheck-list-errors)
+                ("C-c C-c a" . lsp-execute-code-action)
+                ("C-c C-c r" . lsp-rename)
+                ("C-c C-c q" . lsp-workspace-restart)
+                ("C-c C-c Q" . lsp-workspace-shutdown)
+                ("C-c C-c s" . lsp-rust-analyzer-status)
+                ("C-c C-c e" . lsp-rust-analyzer-expand-macro)
+                ("C-c C-c d" . dap-hydra)
+                ("C-c C-c h" . lsp-ui-doc-glance))
     :config
-    (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
-    )
-
+    ;; uncomment for less flashiness
+    ;; (setq lsp-eldoc-hook nil)
+    ;; (setq lsp-enable-symbol-highlighting nil)
+    ;; (setq lsp-signature-auto-activate nil)
+  
+    ;; comment to disable rustfmt on save
+    (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+  
+  (defun rk/rustic-mode-hook ()
+    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+    ;; save rust buffers that are not file visiting. Once
+    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+    ;; no longer be necessary.
+    (when buffer-file-name
+      (setq-local buffer-save-without-query t))
+    (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+  
+  ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ;; for rust-analyzer integration
+  
+  (use-package lsp-mode
+    :ensure
+    :commands lsp
+    :custom
+    ;; what to use when checking on-save. "check" is default, I prefer clippy
+    (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-eldoc-render-all t)
+    (lsp-idle-delay 0.6)
+    ;; This controls the overlays that display type and other hints inline. Enable
+    ;; / disable as you prefer. Well require a `lsp-workspace-restart' to have an
+    ;; effect on open projects.
+    (lsp-rust-analyzer-server-display-inlay-hints t)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+    (lsp-rust-analyzer-display-chaining-hints t)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+    (lsp-rust-analyzer-display-closure-return-type-hints t)
+    (lsp-rust-analyzer-display-parameter-hints nil)
+    (lsp-rust-analyzer-display-reborrow-hints nil)
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  
+  (use-package lsp-ui
+    :ensure t
+    :commands lsp-ui-mode
+    :custom
+    (lsp-ui-peek-always-show t)
+    (lsp-ui-sideline-show-hover t)
+    (lsp-ui-doc-enable nil))
+  ;
   ;;---------------------------------------------------------
   ;; Other languages
   ;;---------------------------------------------------------
@@ -2021,14 +2041,14 @@
     :defer t
     :init
     (progn
-
+ 
       (eval-after-load 'flycheck
-	'(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
+ '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
   (use-package slime-company :defer)
   (use-package slime
     :init (setq inferior-lisp-program "sbcl")
   )
-
+ 
   ;;---------------------------------------------------------
   ;; Nox
   ;; 1. M-x -> eshell 进入 eshell
@@ -2061,62 +2081,6 @@
 		   ))
       (add-hook hook '(lambda () (nox-ensure))))
     (add-to-list 'nox-server-programs `(erlang-mode . (,erlang-ls))))
-    (use-package lsp-mode :ensure t)
-  ;(use-package prog-mode
-  ;  :ensure nil
-  ;  :hook (prog-mode . prettify-symbols-mode)
-  ;  :init
-  ;  (setq-default prettify-symbols-alist centaur-prettify-symbols-alist)
-  ;  (setq prettify-symbols-unprettify-at-point 'right-edge))
-
-  ;; Browse devdocs.io documents using EWW
-;  (when emacs/>=27p
-;    (use-package devdocs
-;      :bind (:map prog-mode-map
-;	     ("M-<f1>" . devdocs-dwim))
-;      :init
-;      (defvar devdocs-major-mode-docs-alist
-;	'((c-mode          . ("C"))
-;	  (c++-mode        . ("C++"))
-;	  (python-mode     . ("Python 3.9" "Python 3.8"))
-;	  (ruby-mode       . ("Ruby 3"))
-;	  (go-mode         . ("Go"))
-;	  (rustic-mode     . ("Rust"))
-;	  (css-mode        . ("CSS"))
-;	  (html-mode       . ("HTML"))
-;	  (js-mode         . ("JavaScript" "JQuery"))
-;	  (js2-mode        . ("JavaScript" "JQuery"))
-;	  (emacs-lisp-mode . ("Elisp")))
-;	"Alist of MAJOR-MODE and list of docset names.")
-;
-;      (mapc
-;       (lambda (e)
-;	 (add-hook (intern (format "%s-hook" (car e)))
-;		   (lambda ()
-;		     (setq-local devdocs-current-docs (cdr e)))))
-;       devdocs-major-mode-docs-alist)
-;
-;      (setq devdocs-data-dir (expand-file-name "devdocs" user-emacs-directory))
-;      (defun devdocs-dwim()
-;	"Look up a DevDocs documentation entry.
-;
-;  Install the doc if it's not installed."
-;	(interactive)
-;	;; Install the doc if it's not installed
-;	(mapc
-;	 (lambda (str)
-;	   (let* ((docs (split-string str " "))
-;		  (doc (if (length= docs 1)
-;			   (downcase (car docs))
-;			 (concat (downcase (car docs)) "~" (downcase (cdr docs))))))
-;	     (unless (and (file-directory-p devdocs-data-dir)
-;			  (directory-files devdocs-data-dir nil "^[^.]"))
-;	       (message "Installing %s..." str)
-;	       (devdocs-install doc))))
-;	 (alist-get major-mode devdocs-major-mode-docs-alist))
-;
-;	;; Lookup the symbol at point
-;	(devdocs-lookup nil (thing-at-point 'symbol t)))))
 
 #+END_SRC
 * AutoInsert
