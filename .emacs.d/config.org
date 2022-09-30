@@ -1970,6 +1970,8 @@
   (use-package rustic
     :ensure
     :bind (:map rustic-mode-map
+                ("C-]" . lsp-find-defination)
+                ("C-T" . lsp-find-defination)
                 ("M-j" . lsp-ui-imenu)
                 ("M-?" . lsp-find-references)
                 ("C-c C-c l" . flycheck-list-errors)
@@ -1988,8 +1990,8 @@
     ;; (setq lsp-signature-auto-activate nil)
   
     ;; comment to disable rustfmt on save
-    (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
-  
+    ;;(add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+    ) 
   (defun rk/rustic-mode-hook ()
     ;; so that run C-c C-c C-r works without having to confirm, but don't try to
     ;; save rust buffers that are not file visiting. Once
