@@ -999,19 +999,6 @@
             (company-complete-common)
           (indent-for-tab-command)))))
 
-;; Env vars
-(use-package snails
-  :load-path (lambda () (expand-file-name "vendor/snails/" user-emacs-directory))
-  :if (display-graphic-p)
-  :after color-rg
-  :init
-  ;(setq snails-show-with-frame nil) 
-  (add-hook 'snails-mode-hook (lambda () (evil-emacs-state)))
-  :config
-  (unless (executable-find "rg")
-  	(user-error "Unable to find `rg' in `exec-path'!"))
-  )
-
 #+END_SRC
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1227,14 +1214,8 @@
 	"gs" 'magit-status
 	"gb" 'magit-branch-checkout
 	"gp" 'magit-pull
-	;"gB" 'magit-blame
 	"gB" 'global-blamer-mode
 	"G"  'aborn/simple-git-commit-push
-
-	"ni" 'nox-find-implementation 
-	"nd" 'nox-find-declaration
-	"nt" 'nox-find-typeDefination
-	"nr" 'xref-find-references
 
 	"oy" 'my-youdao-search-at-point
 	"oY" 'youdao-dictionary-search-from-input
@@ -1269,14 +1250,6 @@
 
 	"vd" '(lambda () (interactive) (find-file "./Dockerfile"))
 	"vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
-
-	;"wr" 'edwina-arrange
-	;"wj" 'edwina-select-next-window
-	;"wk" 'edwina-select-previous-window
-	;"wh" 'edwina-dec-mfact     ;; 主窗口缩窄
-	;"wl" 'edwina-inc-mfact     ;; 主窗口拉宽
-	;"wc" 'edwina-delete-window ;; 关闭窗口
-	;"wz" 'edwina-zoom          ;; 关闭窗口
 	)
 
       (defun magit-blame-toggle ()
@@ -1763,6 +1736,48 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;;---------------------------------------------------------
+  ;; lsp-bridge config
+  ;;---------------------------------------------------------
+    ;;; Require
+  (require 'lsp-bridge)
+  (require 'lsp-bridge-jdtls)
+
+    ;;; Code:
+
+  (global-lsp-bridge-mode)
+
+  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+  (defun lsp-bridge-jump ()
+    (interactive)
+    (cond
+     ((eq major-mode 'emacs-lisp-mode)
+      (let ((symb (function-called-at-point)))
+	(when symb
+	  (find-function symb))))
+     (lsp-bridge-mode
+      (lsp-bridge-find-def))
+     (t
+      (require 'dumb-jump)
+      (dumb-jump-go))))
+
+  (defun lsp-bridge-jump-back ()
+    (interactive)
+    (cond
+     (lsp-bridge-mode
+      (lsp-bridge-find-def-return))
+     (t
+      (require 'dumb-jump)
+      (dumb-jump-back))))
+
+  (setq lsp-bridge-get-single-lang-server-by-project
+	(lambda (project-path filepath)
+	  (when (member (file-name-base project-path) '("deno-bridge" "deno-bridge-ts"))
+	    "deno")))
+
+  ;; 打开日志，开发者才需要
+  ;; (setq lsp-bridge-enable-log t)
+
+  ;;---------------------------------------------------------
   ;; Golang
   ;;---------------------------------------------------------
   (use-package go-mode
@@ -1866,60 +1881,18 @@
   ;; cd otp_src_22.3
   ;; ./configure --with-ssl && make && make install
   ;;---------------------------------------------------------------
-  ;(setq auto-mode-alist
-  ;	(reverse
-  ;	 (append auto-mode-alist
-  ;		 '(("\\.rel$"         . erlang-mode)
-  ;		   ("\\.app\\.src$"   . erlang-mode)
-  ;		   ("\\.hrl$"         . erlang-mode)
-  ;		   ("\\.erl$"         . erlang-mode)
-  ;		   ("\\.yrl$"         . erlang-mode)
-  ;		   ("\\.conf$"        . erlang-mode)
-  ;		   ("\\.schema"       . erlang-mode)
-  ;		   ("rebar\\.config$" . erlang-mode)
-  ;		   ("relx\\.config$"  . erlang-mode)
-  ;		   ("sys\\.config$"   . erlang-mode)))))
-
-  ;;; "/usr/local/opt/erlang@22/lib/tools-" for mac
-  ;(let* ((emacs-version erlang-version)
-  ;	 (tools-path
-  ;	  ;; (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
-  ;	  (concat "/usr/local/opt/erlang@23/lib/erlang/lib/tools-" emacs-version "/emacs")))
-  ;  (when (file-exists-p tools-path)
-  ;    (setq load-path (cons tools-path load-path))
-  ;    (setq erlang-root-dir "/usr/local/lib/erlang")
-  ;    (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
-  ;    (require 'erlang-start)
-  ;    (defvar inferior-erlang-prompt-timeout t)))
-  ;(setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
-  ;(defun get-erl-man ()
-  ;  (interactive)
-  ;  (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
-  ;	   (man-args (format "-M %s %s" man-path (current-word))))
-  ;    (man man-args)))
-
-  ;(defun erlang-insert-binary ()
-  ;  (interactive)
-  ;  (insert "<<\"\">>")
-  ;  (backward-char 3)
-  ;  )
-  ;(defun org-insert-header ()
-  ;  (interactive)
-  ;  (insert "<<\"\">>")
-  ;  (backward-char 3)
-  ;  )
   (use-package erlang
     :mode (("\\.erl?$" . erlang-mode)
-       ("rebar\\.config$" . erlang-mode)
-       ("relx\\.config$" . erlang-mode)
-       ("sys\\.config\\.src$" . erlang-mode)
-       ("sys\\.config$" . erlang-mode)
-       ("\\.config\\.src?$" . erlang-mode)
-       ("\\.config\\.script?$" . erlang-mode)
-       ("\\.hrl?$" . erlang-mode)
-       ("\\.app?$" . erlang-mode)
-       ("\\.app.src?$" . erlang-mode)
-       ("\\Emakefile" . erlang-mode)))
+	   ("rebar\\.config$" . erlang-mode)
+	   ("relx\\.config$" . erlang-mode)
+	   ("sys\\.config\\.src$" . erlang-mode)
+	   ("sys\\.config$" . erlang-mode)
+	   ("\\.config\\.src?$" . erlang-mode)
+	   ("\\.config\\.script?$" . erlang-mode)
+	   ("\\.hrl?$" . erlang-mode)
+	   ("\\.app?$" . erlang-mode)
+	   ("\\.app.src?$" . erlang-mode)
+	   ("\\Emakefile" . erlang-mode)))
 
   ;;---------------------------------------------------------
   ;; C/C++ Mode
@@ -1964,75 +1937,12 @@
   ;;---------------------------------------------------------
   ;; rust
   ;;---------------------------------------------------------
-  ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ;; rustic = basic rust-mode + additions
-  
-  (use-package rustic
-    :ensure
-    :bind (:map rustic-mode-map
-                ("C-]" . lsp-find-defination)
-                ("C-T" . lsp-find-defination)
-                ("M-j" . lsp-ui-imenu)
-                ("M-?" . lsp-find-references)
-                ("C-c C-c l" . flycheck-list-errors)
-                ("C-c C-c a" . lsp-execute-code-action)
-                ("C-c C-c r" . lsp-rename)
-                ("C-c C-c q" . lsp-workspace-restart)
-                ("C-c C-c Q" . lsp-workspace-shutdown)
-                ("C-c C-c s" . lsp-rust-analyzer-status)
-                ("C-c C-c e" . lsp-rust-analyzer-expand-macro)
-                ("C-c C-c d" . dap-hydra)
-                ("C-c C-c h" . lsp-ui-doc-glance))
+
+  (use-package rust-mode
     :config
-    ;; uncomment for less flashiness
-    ;; (setq lsp-eldoc-hook nil)
-    ;; (setq lsp-enable-symbol-highlighting nil)
-    ;; (setq lsp-signature-auto-activate nil)
-  
-    ;; comment to disable rustfmt on save
-    ;;(add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
-    ) 
-  (defun rk/rustic-mode-hook ()
-    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-    ;; save rust buffers that are not file visiting. Once
-    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-    ;; no longer be necessary.
-    (when buffer-file-name
-      (setq-local buffer-save-without-query t))
-    (add-hook 'before-save-hook 'lsp-format-buffer nil t))
-  
-  ;; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ;; for rust-analyzer integration
-  
-  (use-package lsp-mode
-    :ensure
-    :commands lsp
-    :custom
-    ;; what to use when checking on-save. "check" is default, I prefer clippy
-    (lsp-rust-analyzer-cargo-watch-command "clippy")
-    (lsp-eldoc-render-all t)
-    (lsp-idle-delay 0.6)
-    ;; This controls the overlays that display type and other hints inline. Enable
-    ;; / disable as you prefer. Well require a `lsp-workspace-restart' to have an
-    ;; effect on open projects.
-    (lsp-rust-analyzer-server-display-inlay-hints t)
-    (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-    (lsp-rust-analyzer-display-chaining-hints t)
-    (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-    (lsp-rust-analyzer-display-closure-return-type-hints t)
-    (lsp-rust-analyzer-display-parameter-hints nil)
-    (lsp-rust-analyzer-display-reborrow-hints nil)
-    :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
-  
-  (use-package lsp-ui
-    :ensure t
-    :commands lsp-ui-mode
-    :custom
-    (lsp-ui-peek-always-show t)
-    (lsp-ui-sideline-show-hover t)
-    (lsp-ui-doc-enable nil))
-  ;
+    (setq rust-format-on-save t)
+    )
+
   ;;---------------------------------------------------------
   ;; Other languages
   ;;---------------------------------------------------------
@@ -2042,47 +1952,12 @@
   (use-package flycheck-yamllint
     :defer t
     :init
-    (progn
- 
-      (eval-after-load 'flycheck
- '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
-  (use-package slime-company :defer)
-  (use-package slime
-    :init (setq inferior-lisp-program "sbcl")
-  )
- 
+    (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
+
   ;;---------------------------------------------------------
-  ;; Nox
-  ;; 1. M-x -> eshell 进入 eshell
-  ;; 2. ~ $ (nox-print-mspyls-download-url)
-  ;;    https://pvsc.blob.core.windows.net/python-language-server-stable/Python-Language-Server-osx-x64.0.5.59.nupkg
-  ;; 3. 下载并解压文件到 ~/.emacs.d/nox/mspyls 目录下，保证目录的根位置有 Microsoft.Python.LanguageServer 这个文件
-  ;;      mkdir -p ~/.emacs.d/nox/mspyls
-  ;;      unzip Python-Language-Server-osx-x64.0.5.59.nupkg -d ~/.emacs.d/nox/mspyls/
-  ;; 4. 给mspyls索引权限: sudo chmod +x -R ~/.emacs.d/nox/mspyls
-  ;; 5. 直接打开 python 文件，即可快速进行语法补全
-  ;; 6. for rust: rustup component add rls rust-analysis rust-src
+  ;; Dash
   ;;---------------------------------------------------------
-  (use-package nox
-    :ensure nil
-    :load-path "~/.emacs.d/vendor/nox"
-    :config
-    (dolist (hook (list
-		   'js-mode-hook
-		   'rust-mode-hook
-		   'python-mode-hook
-		   'ruby-mode-hook
-		   'java-mode-hook
-		   'sh-mode-hook
-		   'php-mode-hook
-		   'c-mode-common-hook
-		   'c-mode-hook
-		   'csharp-mode-hook
-		   'c++-mode-hook
-		   'haskell-mode-hook
-		   ))
-      (add-hook hook '(lambda () (nox-ensure))))
-    (add-to-list 'nox-server-programs `(erlang-mode . (,erlang-ls))))
+  (use-package dash-at-point :ensure t)
 
 #+END_SRC
 * AutoInsert
@@ -2211,22 +2086,6 @@
      (format "%s:pixelsize=%d:antialias=true:autohint=true" font-name size)
      nil frames))
 
-
-  ;; Font set
-  ;(let ((emacs-font-size 12)
-  ;      emacs-font-name)
-  ;  (cond
-  ;   ((featurep 'cocoa)
-  ;    (setq emacs-font-name "Monaco"))
-  ;   ((string-equal system-type "gnu/linux")
-  ;    (setq emacs-font-name "WenQuanYi Micro Hei Mono")))
-  ;  (when (display-grayscale-p)
-  ;    (set-frame-font (format "%s-%s" (eval emacs-font-name) (eval emacs-font-size)))
-  ;    (set-fontset-font (frame-parameter nil 'font) 'unicode (eval emacs-font-name))
-
-  ;    (setq nox-doc-tooltip-font (format "%s-%s" emacs-font-name emacs-font-size))
-  ;    ))
-
 ;; stolen from https://github.com/cabins/.emacs.d/blob/dev/lisp/init-ui.el
 ;; adjust the fonts
 (defun get-font-available (font-list)
@@ -2304,72 +2163,72 @@
       )
   #+END_SRC
 * Platform
-#+BEGIN_SRC emacs-lisp :tangle yes
+  #+BEGIN_SRC emacs-lisp :tangle yes
 
-(defun peng-use-mac-original-keyboard ()
-  "这样使用苹果原生的键盘比较符和我的习惯"
-  (interactive)
-  (setq mac-command-modifier 'control)
-  (setq mac-right-command-modifier 'meta)
-  (setq mac-right-option-modifier 'control)
-  (setq mac-control-modifier 'control)
-  (setq mac-right-control-modifier 'control)
-  )
+    (defun peng-use-mac-original-keyboard ()
+      "这样使用苹果原生的键盘比较符和我的习惯"
+      (interactive)
+      (setq mac-command-modifier 'control)
+      (setq mac-right-command-modifier 'meta)
+      (setq mac-right-option-modifier 'control)
+      (setq mac-control-modifier 'control)
+      (setq mac-right-control-modifier 'control)
+      )
 
-(defun peng-use-filco-keyboard ()
-  "这样使用`filco'键盘时符合我的按键习惯。"
-  (interactive)
-  (setq mac-command-modifier 'control)
-  (setq mac-right-command-modifier 'control)
-  (setq mac-right-option-modifier 'meta)
-  (setq mac-control-modifier 'control)
-  )
+    (defun peng-use-filco-keyboard ()
+      "这样使用`filco'键盘时符合我的按键习惯。"
+      (interactive)
+      (setq mac-command-modifier 'control)
+      (setq mac-right-command-modifier 'control)
+      (setq mac-right-option-modifier 'meta)
+      (setq mac-control-modifier 'control)
+      )
 
 
-(when (x/system-is-mac)
-  (setq mac-command-modifier 'meta
-        mac-option-modifier 'none)
-  ;(peng-use-mac-original-keyboard)
-  ;(set-face-attribute 'default nil :height 140)
+    (when (x/system-is-mac)
+      (setq mac-command-modifier 'meta
+	    mac-option-modifier 'none)
+					    ;(peng-use-mac-original-keyboard)
+					    ;(set-face-attribute 'default nil :height 140)
 
-  (defun copy-from-osx ()
-    (shell-command-to-string "pbpaste"))
-  (defun paste-to-osx (text &optional push)
-    (let ((process-connection-type nil))
-      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-        (process-send-string proc text)
-        (process-send-eof proc))))
-  (setq interprogram-cut-function 'paste-to-osx)
-  (setq interprogram-paste-function 'copy-from-osx)
+      (defun copy-from-osx ()
+	(shell-command-to-string "pbpaste"))
+      (defun paste-to-osx (text &optional push)
+	(let ((process-connection-type nil))
+	  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+	    (process-send-string proc text)
+	    (process-send-eof proc))))
+      (setq interprogram-cut-function 'paste-to-osx)
+      (setq interprogram-paste-function 'copy-from-osx)
 
-  ;; Trash for safe
-  (defun move-file-to-trash (file)
-    "Use `trash' to move FILE to the system trash.
-    When using Homebrew, install it using \"brew install trash\"."
-    (call-process (executable-find "trash")
-                  nil 0 nil
-                  file))
-    (setq trash-directory "~/.Trash/emacs")
-    (setq delete-by-moving-to-trash t)
-    (defun system-move-file-to-trash (file)
-      "Use \"trash\" to move FILE to the system trash.
-      When using Homebrew, install it using \"brew install trash\"."
-      (call-process (executable-find "trash")
-                    nil 0 nil
-                    file))
+      ;; Trash for safe
+      (defun move-file-to-trash (file)
+	"Use `trash' to move FILE to the system trash.
+	When using Homebrew, install it using \"brew install trash\"."
+	(call-process (executable-find "trash")
+		      nil 0 nil
+		      file))
+      (setq trash-directory "~/.Trash/emacs")
+      (setq delete-by-moving-to-trash t)
+      (defun system-move-file-to-trash (file)
+	"Use \"trash\" to move FILE to the system trash.
+	  When using Homebrew, install it using \"brew install trash\"."
+	(call-process (executable-find "trash")
+		      nil 0 nil
+		      file))
       (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
-(when (x/system-is-linux)
-  (defun yank-to-x-clipboard ()
-    (interactive)
-    (if (region-active-p)
-      (progn
-        (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-        (message "Yanked region to clipboard!")
-        (deactivate-mark))
-      (message "No region active; can't yank to clipboard!"))))
+    (when (x/system-is-linux)
+      (defun yank-to-x-clipboard ()
+	(interactive)
+	(if (region-active-p)
+	    (progn
+	      (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+	      (message "Yanked region to clipboard!")
+	      (deactivate-mark))
+	  (message "No region active; can't yank to clipboard!"))))
 
-#+END_SRC
+  #+END_SRC
 * Key-maps
 
   #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2434,9 +2293,6 @@
     (define-key evil-normal-state-map "\C-b" 'evil-backward-char)
     (define-key evil-insert-state-map "\C-b" 'evil-backward-char)
     (define-key evil-visual-state-map "\C-b" 'evil-backward-char)
-    ;(define-key evil-normal-state-map "\C-d" 'evil-delete-char)
-    ;(define-key evil-insert-state-map "\C-d" 'evil-delete-char)
-    ;(define-key evil-visual-state-map "\C-d" 'evil-delete-char)
     (define-key evil-normal-state-map "\C-n" 'evil-next-line)
     (define-key evil-insert-state-map "\C-n" 'evil-next-line)
     (define-key evil-visual-state-map "\C-n" 'evil-next-line)
@@ -2492,13 +2348,27 @@
       (define-key company-active-map (kbd "M-n") 'company-select-next)
       (define-key company-active-map (kbd "M-p") 'company-select-previous)
       (define-key company-active-map (kbd "M-i") 'yas-expand)
-    )
+      )
 
     ;; glolal
-    (global-set-key (kbd "M-]") 'dumb-jump-go)
-    (global-set-key (kbd "M-t") 'dumb-jump-back)
-    (global-set-key (kbd "M-n") 'hold-line-scroll-up)
-    (global-set-key (kbd "M-p") 'hold-line-scroll-down)
+    (global-set-key (kbd "M-]")   'dumb-jump-go)
+    (global-set-key (kbd "M-t")   'dumb-jump-back)
+    (global-set-key (kbd "M-n")   'hold-line-scroll-up)
+    (global-set-key (kbd "M-p")   'hold-line-scroll-down)
+    (global-set-key (kbd "C-6")   'lsp-bridge-popup-documentation)
+    (global-set-key (kbd "C-7")   'lsp-bridge-jump-back) 
+    (global-set-key (kbd "C-8")   'lsp-bridge-jump) 
+    (global-set-key (kbd "M-,")   'lsp-bridge-jump-back) 
+    (global-set-key (kbd "M-.")   'lsp-bridge-jump) 
+    (global-set-key (kbd "C-9")   'lsp-bridge-find-references) 
+    (global-set-key (kbd "C-0")   'lsp-bridge-rename) 
+    (global-set-key (kbd "M-s-j") 'lsp-bridge-diagnostic-jump-next) ;显示下一个错误 
+    (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev) ;显示上一个错误) 
+    (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore) ;忽略当前的错误
+    (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up) ;向下滚动文档
+    (global-set-key (kbd "M-s-p") 'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+    (global-set-key (kbd "C-x y") 'dash-at-point)
 
-  #+END_SRC
+
+#+END_SRC
   
