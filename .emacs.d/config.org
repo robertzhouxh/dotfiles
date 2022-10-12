@@ -2297,7 +2297,7 @@
     (define-key company-active-map       (kbd "C-n") 'company-select-next)
     (define-key company-active-map       (kbd "C-p") 'company-select-previous)
     (define-key evil-insert-state-map    (kbd "C-g") 'evil-normal-state)
-    (define-key rust-mode-map            (kbd "C-c C-c") 'rust-run)
+    (define-key rust-mode-map            (kbd "M-1") 'rust-run)
 
     ;; company
     (with-eval-after-load 'company
