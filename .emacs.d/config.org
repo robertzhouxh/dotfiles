@@ -585,10 +585,6 @@
 
     ;;;;;;;;;;;;;;;;;;;;;;;;; Font ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (defun font-installed-p (font-name)
-    "Check if font with FONT-NAME is available."
-    (find-font (font-spec :name font-name)))
-
   ;; Dos2Unix/Unix2Dos
   (defun dos2unix ()
     "Convert the current buffer to UNIX file format."
@@ -2061,73 +2057,46 @@
 #+END_SRC
 * Font
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;Download official fonts https://go.googlesource.com/image/+archive/master/font/gofont/ttfs.tar.gz
-  ;tar -xvzf image-master-font-gofont-ttfs.tar.gz
-  ;Click on ttf file to install respective font.
-  ;In Mac, Font Book will open by default.
-  ;Ubuntu has font application too. Click on install.
 
-  ;; Use the Hack font from chrissimpkins: https://github.com/source-foundry/Hack
-  (if (condition-case nil
-	  (x-list-fonts "Hack")
-	(error nil))
-      (progn
-	(add-to-list 'default-frame-alist '(font . "Hack"))
-	(set-face-attribute 'default nil :font "Hack")))
+  ;; stolen from https://github.com/cabins/.emacs.d/blob/dev/lisp/init-ui.el
+  ;; adjust the fonts
+  (require 'subr-x)
 
-  (setq my-font-list '("Hack" "Source Code Pro" "monaco" "menlo" "Go Mono" "Sarasa Mono SC Nerd"))
-  (defun my-set-frame-font (font-name size &optional frames)
-    "Set font to one of the fonts from `my-font-list'
-    Argument FRAMES has the same meaning as for `set-frame-font'"
-    (interactive
-     (list (ivy-read "Font name: " my-font-list)
-	   (read-number "Font size: ")))
-    (set-frame-font
-     (format "%s:pixelsize=%d:antialias=true:autohint=true" font-name size)
-     nil frames))
+  (defun font-installed-p (font-name)
+    "Check if font with FONT-NAME is available."
+    (find-font (font-spec :name font-name)))
 
-;; stolen from https://github.com/cabins/.emacs.d/blob/dev/lisp/init-ui.el
-;; adjust the fonts
-(defun get-font-available (font-list)
-  "Get the first available font from FONT-LIST."
-  (catch 'font
-    (dolist (font font-list)
-      (if (member font (font-family-list))
-	  (throw 'font font)))))
+  (defun cabins/font-setup ()
+    "Font setup."
 
-(defun cabins/setup-font ()
-  "Font setup."
+    (interactive)
+    (when (display-graphic-p)
+      ;; Default font
+      (cl-loop for font in '("Consolas" "Monaco" "Hack" "Source Code Pro" "Menlo" "DejaVu Sans Mono")
+	       when (font-installed-p font)
+	       return (set-face-attribute 'default nil :family font))
 
-  (setq enfonts '("Cascadia Code"	; Windows 10
-		  "Source Code Pro"	; Common
-		  "Consolas"		; Windows
-		  "Courier New"		; Windows or macOS
-		  "Ubuntu Mono"		; Ubuntu
-		  "Monaco"		; macOS
-		  ))
-  (setq cnfonts '("STKaiti"		; macOS
-		  "华文楷体"		; Windows
-		  "STHeiti"		; macOS
-		  "微软雅黑"		; Windows
-		  "华文黑体"		; maybe macOS
-		  "文泉驿微米黑"	; GNU/Linux
-		  ))
+      ;; Unicode characters
+      (cl-loop for font in '("Segoe UI Symbol" "Symbola" "Symbol")
+	       when (font-installed-p font)
+	       return (set-fontset-font t 'unicode font nil 'prepend))
 
-  (let ((cnfont (get-font-available cnfonts))
-	(enfont (get-font-available enfonts)))
-    (if enfont
-	(set-face-attribute 'default nil
-			    :font (format "%s" enfont))
-      (message "Failed to set default font."))
-    (when cnfont
-      (dolist (charset '(kana han cjk-misc bopomofo))
-	(set-fontset-font t charset cnfont))
-      (setq face-font-rescale-alist
-	    (mapcar (lambda (item)
-		      (cons item 1.2))
-		    cnfonts)))))
+      ;; Emoji
+      (cl-loop for font in '("Noto Color Emoji" "Apple Color Emoji")
+	       when (font-installed-p font)
+	       return (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend))
 
-(cabins/setup-font)
+      ;; Chinese characters
+      (cl-loop for font in '("WenQuanYi Micro Hei" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
+	       when (font-installed-p font)
+	       return (progn
+			(setq face-font-rescale-alist `((,font . 1.2)))
+			(set-fontset-font t '(#x4e00 . #x9fff) (font-spec :family font))))))
+
+  (add-hook 'emacs-startup-hook 'cabins/font-setup)
+  (when (daemonp) (add-hook 'after-make-frame-functions (lambda (frame) (with-selected-frame frame (cabins/font-setup)))))
+
+  (set-face-attribute 'default nil :height 140)
 
 
 #+END_SRC
@@ -2328,7 +2297,7 @@
     (define-key company-active-map       (kbd "C-n") 'company-select-next)
     (define-key company-active-map       (kbd "C-p") 'company-select-previous)
     (define-key evil-insert-state-map    (kbd "C-g") 'evil-normal-state)
-
+    (define-key rust-mode-map            (kbd "C-c C-c") 'rust-run)
 
     ;; company
     (with-eval-after-load 'company
