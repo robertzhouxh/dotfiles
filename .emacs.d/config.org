@@ -2319,6 +2319,18 @@
       (define-key company-active-map (kbd "M-i") 'yas-expand)
       )
 
+    ;; C-h b 找到快捷键bind function---remap
+    (with-eval-after-load 'evil
+      (define-key evil-motion-state-map (kbd "C-]") nil)
+      (define-key evil-motion-state-map (kbd "C-t") nil)
+
+      (define-key evil-motion-state-map "\C-]"  'lsp-bridge-jump)
+      (define-key evil-motion-state-map "g\C-]" 'lsp-bridge-jump)
+
+      (define-key evil-normal-state-map "\C-t"  'lsp-bridge-jump-back)
+      (define-key evil-motion-state-map "g\C-t" 'lsp-bridge-jump-back)
+       )
+
     ;; glolal
     (global-set-key (kbd "M-]")   'dumb-jump-go)
     (global-set-key (kbd "M-t")   'dumb-jump-back)
