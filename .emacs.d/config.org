@@ -231,7 +231,6 @@
 		;(not cl-functions)          ;`CL' 包中的运行时调用的函数
 		)))
   (setq echo-keystrokes 0.1)                ;加快快捷键提示的速度
-  (tooltip-mode -1)                         ;不要显示任何 tooltips
 
 #+END_SRC
 * Const
