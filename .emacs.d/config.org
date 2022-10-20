@@ -80,26 +80,26 @@
 
   (if (featurep 'cocoa)
       (progn
-        ;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
-        ;; 所以先设置 `ns-use-native-fullscreen' 和 `ns-use-fullscreen-animation' 禁止Emacs使用Mac原生的全屏模式.
-        ;; 而是采用传统的全屏模式, 传统的全屏模式, 只会在当前工作区全屏,而不是切换到Mac那种单独的全屏工作区,
-        ;; 这样执行 `make-frame' 先关代码或插件时,就不会因为Mac单独工作区左右滑动产生的bug.
-        ;;
-        ;; Mac平台下,不能直接使用 `set-frame-parameter' 和 `fullboth' 来设置全屏,
-        ;; 那样也会导致Mac窗口管理器直接把Emacs窗口扔到单独的工作区, 从而对 `make-frame' 产生同样的Bug.
-        ;; 所以, 启动的时候通过 `set-frame-parameter' 和 `maximized' 先设置Emacs为最大化窗口状态, 启动5秒以后再设置成全屏状态,
-        ;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
-        (setq ns-use-native-fullscreen nil)
-        (setq ns-use-fullscreen-animation nil)
+	;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
+	;; 所以先设置 `ns-use-native-fullscreen' 和 `ns-use-fullscreen-animation' 禁止Emacs使用Mac原生的全屏模式.
+	;; 而是采用传统的全屏模式, 传统的全屏模式, 只会在当前工作区全屏,而不是切换到Mac那种单独的全屏工作区,
+	;; 这样执行 `make-frame' 先关代码或插件时,就不会因为Mac单独工作区左右滑动产生的bug.
+	;;
+	;; Mac平台下,不能直接使用 `set-frame-parameter' 和 `fullboth' 来设置全屏,
+	;; 那样也会导致Mac窗口管理器直接把Emacs窗口扔到单独的工作区, 从而对 `make-frame' 产生同样的Bug.
+	;; 所以, 启动的时候通过 `set-frame-parameter' 和 `maximized' 先设置Emacs为最大化窗口状态, 启动5秒以后再设置成全屏状态,
+	;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
+	(setq ns-use-native-fullscreen nil)
+	(setq ns-use-fullscreen-animation nil)
 
-        ;; 默认先最大化。
-        (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+	;; 默认先最大化。
+	(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 
-        (run-at-time "2sec" nil
-                     (lambda ()
-                       (toggle-frame-fullscreen)
-                       ))
-        )
+	(run-at-time "2sec" nil
+		     (lambda ()
+		       (toggle-frame-fullscreen)
+		       ))
+	)
 
     ;; 非Mac平台直接全屏
     (require 'fullscreen)
@@ -114,12 +114,12 @@
   ;; UTF-8 as the default coding system
   (when (fboundp 'set-charset-priority)
     (set-charset-priority 'unicode))
-  
+
   ;; Explicitly set the prefered coding systems to avoid annoying prompt
   ;; from emacs (especially on Microsoft Windows)
   (prefer-coding-system 'utf-8)
   (setq locale-coding-system 'utf-8)
-  
+
   (set-language-environment 'utf-8)
   (set-default-coding-systems 'utf-8)
   (set-buffer-file-coding-system 'utf-8)
@@ -161,29 +161,47 @@
   (setq async-bytecomp-allowed-packages nil) ;避免magit报错
   (setq word-wrap-by-category t)             ;按照中文折行
   (setq profiler-report-cpu-line-format      ;让 profiler-report 第一列宽一点
-        '((100 left)
-          (24 right ((19 right)
-                     (5 right)))))
+	'((100 left)
+	  (24 right ((19 right)
+		     (5 right)))))
   (setq profiler-report-memory-line-format
-        '((100 left)
-          (19 right ((14 right profiler-format-number)
-                     (5 right)))))
+	'((100 left)
+	  (19 right ((14 right profiler-format-number)
+		     (5 right)))))
 
   (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
   (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq-default scroll-step 1
-  	    scroll-preserve-screen-position t
-  	    scroll-up-aggressively 0.01
-  	    scroll-down-aggressively 0.01
-  	    redisplay-dont-pause t
-  	    auto-window-vscroll nil
-  	    ;; Mouse wheel scroll behavior
-  	    mouse-wheel-scroll-amount '(1 ((shift) . 1))
-  	    mouse-wheel-progressive-speed nil
-  	    mouse-wheel-follow-mouse 't
-  	    fast-but-imprecise-scrolling nil)
+	    scroll-preserve-screen-position t
+	    scroll-up-aggressively 0.01
+	    scroll-down-aggressively 0.01
+	    redisplay-dont-pause t
+	    auto-window-vscroll nil
+	    ;; Mouse wheel scroll behavior
+	    mouse-wheel-scroll-amount '(1 ((shift) . 1))
+	    mouse-wheel-progressive-speed nil
+	    mouse-wheel-follow-mouse 't
+	    fast-but-imprecise-scrolling nil)
+
+  ;; 禁用鼠标: http://endlessparentheses.com/disable-mouse-only-inside-emacs.html
+  (define-minor-mode disable-mouse-mode
+    "A minor-mode that disables all mouse keybinds."
+    :global t
+    :lighter " 🐭"
+    :keymap (make-sparse-keymap))
+
+  (dolist (type '(mouse down-mouse drag-mouse
+			double-mouse triple-mouse))
+    (dolist (prefix '("" C- M- S- M-S- C-M- C-S- C-M-S-))
+      ;; Yes, I actually HAD to go up to 7 here.
+      (dotimes (n 7)
+	(let ((k (format "%s%s-%s" prefix type n)))
+	  (define-key disable-mouse-mode-map
+	    (vector (intern k)) #'ignore)))))
+    (disable-mouse-mode 1)
+
 
   ;; 不显示 *scratch*
   ;(defun remove-scratch-buffer ()
@@ -232,21 +250,21 @@
   (setq tramp-default-method "ssh")         ;设置传送文件默认的方法
   (setq void-text-area-pointer nil)         ;禁止显示鼠标指针
   (setq byte-compile-warnings
-        (quote (
-                ;; 显示的警告
-                free-vars                   ;不在当前范围的引用变量
-                unresolved                  ;不知道的函数
-                callargs                    ;函数调用的参数和定义的不匹配
-                obsolete                    ;荒废的变量和函数
-                noruntime                   ;函数没有定义在运行时期
-                interactive-only            ;正常不被调用的命令
-                make-local ;调用 `make-variable-buffer-local' 可能会不正确的
-                mapcar     ;`mapcar' 调用
-                ;;
-                ;; 抑制的警告
-                (not redefine)              ;重新定义的函数 (比如参数数量改变)
-                ;(not cl-functions)          ;`CL' 包中的运行时调用的函数
-                )))
+	(quote (
+		;; 显示的警告
+		free-vars                   ;不在当前范围的引用变量
+		unresolved                  ;不知道的函数
+		callargs                    ;函数调用的参数和定义的不匹配
+		obsolete                    ;荒废的变量和函数
+		noruntime                   ;函数没有定义在运行时期
+		interactive-only            ;正常不被调用的命令
+		make-local ;调用 `make-variable-buffer-local' 可能会不正确的
+		mapcar     ;`mapcar' 调用
+		;;
+		;; 抑制的警告
+		(not redefine)              ;重新定义的函数 (比如参数数量改变)
+		;(not cl-functions)          ;`CL' 包中的运行时调用的函数
+		)))
   (setq echo-keystrokes 0.1)                ;加快快捷键提示的速度
   (tooltip-mode -1)                         ;不要显示任何 tooltips
 
@@ -948,53 +966,61 @@
 #+END_SRC
 * Company
 #+BEGIN_SRC emacs-lisp :tangle yes
-; auto-completion and code snippets
-(use-package yasnippet
-  :ensure
-  :config
-  (yas-reload-all)
-  (add-hook 'prog-mode-hook 'yas-minor-mode)
-  (add-hook 'text-mode-hook 'yas-minor-mode))
 
-(use-package company
-  :ensure
-  :bind
-  (:map company-active-map
-              ("C-n". company-select-next)
-              ("C-p". company-select-previous)
-              ("M-<". company-select-first)
-              ("M->". company-select-last))
-  (:map company-mode-map
-        ("<tab>". tab-indent-or-complete)
-        ("TAB". tab-indent-or-complete)))
+					  ; auto-completion and code snippets
+  (use-package yasnippet
+    :ensure
+    :config
+    (yas-reload-all)
+    (add-hook 'prog-mode-hook 'yas-minor-mode)
+    (add-hook 'text-mode-hook 'yas-minor-mode))
 
-(defun company-yasnippet-or-completion ()
-  (interactive)
-  (or (do-yas-expand)
-      (company-complete-common)))
+  (use-package company
+    :ensure
+    :bind
+    (:map company-mode-map
+	  ("<tab>". tab-indent-or-complete)
+	  ("TAB". tab-indent-or-complete)))
 
-(defun check-expansion ()
-  (save-excursion
-    (if (looking-at "\\_>") t
-      (backward-char 1)
-      (if (looking-at "\\.") t
-        (backward-char 1)
-        (if (looking-at "::") t nil)))))
+  (defun company-yasnippet-or-completion ()
+    (interactive)
+    (or (do-yas-expand)
+	(company-complete-common)))
 
-(defun do-yas-expand ()
-  (let ((yas/fallback-behavior 'return-nil))
-    (yas/expand)))
+  (defun check-expansion ()
+    (save-excursion
+      (if (looking-at "\\_>") t
+	(backward-char 1)
+	(if (looking-at "\\.") t
+	  (backward-char 1)
+	  (if (looking-at "::") t nil)))))
 
-(defun tab-indent-or-complete ()
-  (interactive)
-  (if (minibufferp)
-      (minibuffer-complete)
-    (if (or (not yas/minor-mode)
-            (null (do-yas-expand)))
-        (if (check-expansion)
-            (company-complete-common)
-          (indent-for-tab-command)))))
+  (defun do-yas-expand ()
+    (let ((yas/fallback-behavior 'return-nil))
+      (yas/expand)))
 
+  (defun tab-indent-or-complete ()
+    (interactive)
+    (if (minibufferp)
+	(minibuffer-complete)
+      (if (or (not yas/minor-mode)
+	      (null (do-yas-expand)))
+	  (if (check-expansion)
+	      (company-complete-common)
+	    (indent-for-tab-command)))))
+
+  (use-package expand-region
+    :ensure t
+    :bind ("C-=" . er/expand-region))
+
+  (defun er/add-text-mode-expansions ()
+    (make-variable-buffer-local 'er/try-expand-list)
+    (setq er/try-expand-list (append
+			      er/try-expand-list
+			      '(mark-paragraph
+				mark-page))))
+
+  (add-hook 'text-mode-hook 'er/add-text-mode-expansions)
 #+END_SRC
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2248,9 +2274,9 @@
     (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
     (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
     (define-key minibuffer-local-isearch-map    [escape] 'minibuffer-keyboard-quit)
-    (define-key evil-normal-state-map "\C-a" 'evil-begin-of-line)
-    (define-key evil-insert-state-map "\C-a" 'evil-begin-of-line)
-    (define-key evil-visual-state-map "\C-a" 'evil-begin-of-line)
+    (define-key evil-normal-state-map "\C-a" 'evil-beginning-of-line)
+    (define-key evil-insert-state-map "\C-a" 'evil-beginning-of-line)
+    (define-key evil-visual-state-map "\C-a" 'evil-beginning-of-line)
     (define-key evil-motion-state-map "\C-a" 'evil-begin-of-line)
     (define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
     (define-key evil-insert-state-map "\C-e" 'evil-end-of-line)
@@ -2299,25 +2325,6 @@
     (define-key evil-insert-state-map    (kbd "C-g") 'evil-normal-state)
     (define-key rust-mode-map            (kbd "M-1") 'rust-run)
 
-    ;; company
-    (with-eval-after-load 'company
-      (define-key company-active-map (kbd "<return>") nil)
-      (define-key company-active-map (kbd "<tab>") nil)
-      (define-key company-active-map (kbd "RET") nil)
-      (define-key company-active-map (kbd "M-n") nil)
-      (define-key company-active-map (kbd "M-p") nil)
-      (define-key company-active-map (kbd "C-m") nil)
-
-      (define-key company-active-map (kbd "TAB") 'company-complete-selection)
-      (define-key company-active-map (kbd "M-h") 'company-complete-selection)
-      (define-key company-active-map (kbd "M-H") 'company-complete-common)
-      (define-key company-active-map (kbd "M-w") 'company-show-location)
-      (define-key company-active-map (kbd "M-s") 'company-search-candidates)
-      (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
-      (define-key company-active-map (kbd "M-n") 'company-select-next)
-      (define-key company-active-map (kbd "M-p") 'company-select-previous)
-      (define-key company-active-map (kbd "M-i") 'yas-expand)
-      )
 
     ;; C-h b 找到快捷键bind function---remap
     (with-eval-after-load 'evil
@@ -2328,8 +2335,34 @@
       (define-key evil-motion-state-map "g\C-]" 'lsp-bridge-jump)
 
       (define-key evil-normal-state-map "\C-t"  'lsp-bridge-jump-back)
+
       (define-key evil-motion-state-map "g\C-t" 'lsp-bridge-jump-back)
-       )
+
+      (with-eval-after-load 'company
+
+	(define-key company-active-map (kbd "<return>") nil)
+	(define-key company-active-map (kbd "<tab>") nil)
+	(define-key company-active-map (kbd "RET") nil)
+	(define-key company-active-map (kbd "M-n") nil)
+	(define-key company-active-map (kbd "M-p") nil)
+	(define-key company-active-map (kbd "C-m") nil)
+
+	(define-key company-active-map (kbd "TAB") 'company-complete-selection)
+	(define-key company-active-map (kbd "M-h") 'company-complete-selection)
+	(define-key company-active-map (kbd "M-H") 'company-complete-common)
+	(define-key company-active-map (kbd "M-w") 'company-show-location)
+	(define-key company-active-map (kbd "M-s") 'company-search-candidates)
+	(define-key company-active-map (kbd "M-S") 'company-filter-candidates)
+	(define-key company-active-map (kbd "M-n") 'company-select-next)
+	(define-key company-active-map (kbd "M-p") 'company-select-previous)
+	(define-key company-active-map (kbd "M-i") 'yas-expand)
+
+
+	(define-key evil-insert-state-map (kbd "C-n") nil)
+	(define-key evil-insert-state-map (kbd "C-p") nil)
+	(evil-define-key nil company-active-map (kbd "C-n") #'company-select-next)
+	(evil-define-key nil company-active-map (kbd "C-p") #'company-select-previous))
+      )
 
     ;; glolal
     (global-set-key (kbd "M-]")   'dumb-jump-go)
