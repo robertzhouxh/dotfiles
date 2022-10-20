@@ -185,41 +185,6 @@
 	    mouse-wheel-follow-mouse 't
 	    fast-but-imprecise-scrolling nil)
 
-  ;; 禁用鼠标: http://endlessparentheses.com/disable-mouse-only-inside-emacs.html
-  (define-minor-mode disable-mouse-mode
-    "A minor-mode that disables all mouse keybinds."
-    :global t
-    :lighter " 🐭"
-    :keymap (make-sparse-keymap))
-
-  (dolist (type '(mouse down-mouse drag-mouse
-			double-mouse triple-mouse))
-    (dolist (prefix '("" C- M- S- M-S- C-M- C-S- C-M-S-))
-      ;; Yes, I actually HAD to go up to 7 here.
-      (dotimes (n 7)
-	(let ((k (format "%s%s-%s" prefix type n)))
-	  (define-key disable-mouse-mode-map
-	    (vector (intern k)) #'ignore)))))
-    (disable-mouse-mode 1)
-
-
-  ;; 不显示 *scratch*
-  ;(defun remove-scratch-buffer ()
-  ;  (if (get-buffer "*scratch*")
-  ;      (kill-buffer "*scratch*")))
-  ;(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
-
-  ;;; Don't ask me when close emacs with process is running
-  ;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-  ;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
-  ;  (require 'noflet)
-  ;  (noflet ((process-list ())) ad-do-it))
-
-  ;;; Don't ask me when kill process buffer
-  ;(setq kill-buffer-query-functions
-  ;      (remq 'process-kill-buffer-query-function
-  ;            kill-buffer-query-functions))
-
   ;; idle
   (custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
   (setq max-lisp-eval-depth 40000)          ;lisp最大执行深度
