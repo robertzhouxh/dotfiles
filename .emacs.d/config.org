@@ -674,6 +674,38 @@
 	  (template-file "/Users/glodon/githubs/dotfiles/.emacs.d/template.docx"))
       (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
       (message "Convert finish: %s" docx-file)))
+
+
+  ;; -------------------------------------------------------------
+  ;; functions for company from lazycat
+  ;; -------------------------------------------------------------
+  (defun company-yasnippet-or-completion ()
+    (interactive)
+    (or (do-yas-expand)
+	(company-complete-common)))
+
+  (defun check-expansion ()
+    (save-excursion
+      (if (looking-at "\\_>") t
+	(backward-char 1)
+	(if (looking-at "\\.") t
+	  (backward-char 1)
+	  (if (looking-at "::") t nil)))))
+
+  (defun do-yas-expand ()
+    (let ((yas/fallback-behavior 'return-nil))
+      (yas/expand)))
+
+  (defun tab-indent-or-complete ()
+    (interactive)
+    (if (minibufferp)
+	(minibuffer-complete)
+      (if (or (not yas/minor-mode)
+	      (null (do-yas-expand)))
+	  (if (check-expansion)
+	      (company-complete-common)
+	    (indent-for-tab-command)))))
+
 #+END_SRC
 * Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -703,18 +735,7 @@
     :config
     ;; since `url-cookies-list' is lack of flexibility
     (setq restclient-inhibit-cookies t))
-  (use-package company-restclient)
   (use-package nginx-mode :ensure t)
-  (use-package company-nginx
-    :after (nginx-mode)
-    :hook((nginx-mode . company-nginx-keywords))
-    :config)
-  ;(use-package edwina
-  ;  :config
-  ;  (setq display-buffer-base-action '(display-buffer-below-selected))
-  ;  (edwina-setup-dwm-keys)
-  ;  (edwina-mode 1))
-
   (use-package avy
     :bind
     (("C-c SPC" . avy-goto-char-2)
@@ -931,7 +952,12 @@
 * Company
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-					  ; auto-completion and code snippets
+  (use-package company-restclient)
+  (use-package company-nginx
+    :after (nginx-mode)
+    :hook((nginx-mode . company-nginx-keywords))
+    :config)
+
   (use-package yasnippet
     :ensure
     :config
@@ -940,38 +966,20 @@
     (add-hook 'text-mode-hook 'yas-minor-mode))
 
   (use-package company
-    :ensure
+    :ensure t
     :bind
     (:map company-mode-map
 	  ("<tab>". tab-indent-or-complete)
-	  ("TAB". tab-indent-or-complete)))
+	  ("TAB". tab-indent-or-complete))
+    :config
+    (setq company-idle-delay 0)
+    (setq company-show-numbers t))
 
-  (defun company-yasnippet-or-completion ()
-    (interactive)
-    (or (do-yas-expand)
-	(company-complete-common)))
-
-  (defun check-expansion ()
-    (save-excursion
-      (if (looking-at "\\_>") t
-	(backward-char 1)
-	(if (looking-at "\\.") t
-	  (backward-char 1)
-	  (if (looking-at "::") t nil)))))
-
-  (defun do-yas-expand ()
-    (let ((yas/fallback-behavior 'return-nil))
-      (yas/expand)))
-
-  (defun tab-indent-or-complete ()
-    (interactive)
-    (if (minibufferp)
-	(minibuffer-complete)
-      (if (or (not yas/minor-mode)
-	      (null (do-yas-expand)))
-	  (if (check-expansion)
-	      (company-complete-common)
-	    (indent-for-tab-command)))))
+  ;;Run M-x company-tabnine-install-binary to install the TabNine binary for your system.
+  (use-package company-tabnine
+    :defer t 
+    :ensure t 
+    :config (add-to-list 'company-backends #'company-tabnine))
 
   (use-package expand-region
     :ensure t
@@ -985,6 +993,7 @@
 				mark-page))))
 
   (add-hook 'text-mode-hook 'er/add-text-mode-expansions)
+
 #+END_SRC
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
