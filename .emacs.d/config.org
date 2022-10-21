@@ -949,8 +949,12 @@
 	(youdao-dictionary-search-at-point))))
 
 #+END_SRC
-* Company
+* Company && Yasnippet
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package posframe :ensure t)
+  (use-package expand-region
+    :ensure t
+    :bind ("C-=" . er/expand-region))
 
   (use-package company-restclient)
   (use-package company-nginx
@@ -972,7 +976,7 @@
 	  ("<tab>". tab-indent-or-complete)
 	  ("TAB". tab-indent-or-complete))
     :config
-    (setq company-idle-delay 0)
+    (setq company-idle-delay 0.5)
     (setq company-show-numbers t))
 
   ;;Run M-x company-tabnine-install-binary to install the TabNine binary for your system.
@@ -981,18 +985,6 @@
     :ensure t 
     :config (add-to-list 'company-backends #'company-tabnine))
 
-  (use-package expand-region
-    :ensure t
-    :bind ("C-=" . er/expand-region))
-
-  (defun er/add-text-mode-expansions ()
-    (make-variable-buffer-local 'er/try-expand-list)
-    (setq er/try-expand-list (append
-			      er/try-expand-list
-			      '(mark-paragraph
-				mark-page))))
-
-  (add-hook 'text-mode-hook 'er/add-text-mode-expansions)
 
 #+END_SRC
 * Dired
@@ -1730,229 +1722,258 @@
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;;---------------------------------------------------------
-  ;; lsp-bridge config
-  ;;---------------------------------------------------------
-    ;;; Require
-  (require 'lsp-bridge)
-  (require 'lsp-bridge-jdtls)
+   ;;---------------------------------------------------------
+   ;; lsp-bridge config
+   ;;---------------------------------------------------------
+     ;;; Require
+   (require 'lsp-bridge)
+   (require 'lsp-bridge-jdtls)
 
-    ;;; Code:
+     ;;; Code:
 
-  (global-lsp-bridge-mode)
+   (global-lsp-bridge-mode)
 
-  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
-  (defun lsp-bridge-jump ()
-    (interactive)
-    (cond
-     ((eq major-mode 'emacs-lisp-mode)
-      (let ((symb (function-called-at-point)))
-	(when symb
-	  (find-function symb))))
-     (lsp-bridge-mode
-      (lsp-bridge-find-def))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-go))))
+   ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+   (defun lsp-bridge-jump ()
+     (interactive)
+     (cond
+      ((eq major-mode 'emacs-lisp-mode)
+       (let ((symb (function-called-at-point)))
+	 (when symb
+	   (find-function symb))))
+      (lsp-bridge-mode
+       (lsp-bridge-find-def))
+      (t
+       (require 'dumb-jump)
+       (dumb-jump-go))))
 
-  (defun lsp-bridge-jump-back ()
-    (interactive)
-    (cond
-     (lsp-bridge-mode
-      (lsp-bridge-find-def-return))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-back))))
+   (defun lsp-bridge-jump-back ()
+     (interactive)
+     (cond
+      (lsp-bridge-mode
+       (lsp-bridge-find-def-return))
+      (t
+       (require 'dumb-jump)
+       (dumb-jump-back))))
 
-  (setq lsp-bridge-get-single-lang-server-by-project
-	(lambda (project-path filepath)
-	  (when (member (file-name-base project-path) '("deno-bridge" "deno-bridge-ts"))
-	    "deno")))
+   (setq lsp-bridge-get-single-lang-server-by-project
+	 (lambda (project-path filepath)
+	   (when (member (file-name-base project-path) '("deno-bridge" "deno-bridge-ts"))
+	     "deno")))
 
-  ;; 打开日志，开发者才需要
-  ;; (setq lsp-bridge-enable-log t)
+   ;; 打开日志，开发者才需要
+   ;; (setq lsp-bridge-enable-log t)
 
-  ;;---------------------------------------------------------
-  ;; Golang
-  ;;---------------------------------------------------------
-  (use-package go-mode
-    :functions (go-packages-gopkgs go-update-tools)
-    :bind (:map go-mode-map
-		("C-c R" . go-remove-unused-imports)
-		("<f1>" . godoc-at-point))
-    :config
-    ;; Env vars
-    (with-eval-after-load 'exec-path-from-shell
-      (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
+   ;;---------------------------------------------------------
+   ;; Golang
+   ;;---------------------------------------------------------
+   (use-package go-mode
+     :functions (go-packages-gopkgs go-update-tools)
+     :bind (:map go-mode-map
+		 ("C-c R" . go-remove-unused-imports)
+		 ("<f1>" . godoc-at-point))
+     :config
+     ;; Env vars
+     (with-eval-after-load 'exec-path-from-shell
+       (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
-    ;; Install or update tools
-    (defvar go--tools '("golang.org/x/tools/cmd/goimports"
-			"github.com/go-delve/delve/cmd/dlv"
-			"github.com/josharian/impl"
-			"github.com/cweill/gotests/..."
-			"github.com/fatih/gomodifytags"
-			"github.com/davidrjenni/reftools/cmd/fillstruct")
-      "All necessary go tools.")
+     ;; Install or update tools
+     (defvar go--tools '("golang.org/x/tools/cmd/goimports"
+			 "github.com/go-delve/delve/cmd/dlv"
+			 "github.com/josharian/impl"
+			 "github.com/cweill/gotests/..."
+			 "github.com/fatih/gomodifytags"
+			 "github.com/davidrjenni/reftools/cmd/fillstruct")
+       "All necessary go tools.")
 
-    ;; Do not use the -u flag for gopls, as it will update the dependencies to incompatible versions
-    ;; https://github.com/golang/tools/blob/master/gopls/doc/user.md#installation
-    (defvar go--tools-no-update '("golang.org/x/tools/gopls@latest")
-      "All necessary go tools without update the dependencies.")
+     ;; Do not use the -u flag for gopls, as it will update the dependencies to incompatible versions
+     ;; https://github.com/golang/tools/blob/master/gopls/doc/user.md#installation
+     (defvar go--tools-no-update '("golang.org/x/tools/gopls@latest")
+       "All necessary go tools without update the dependencies.")
 
-    (defun go-update-tools ()
-      "Install or update go tools."
-      (interactive)
-      (unless (executable-find "go")
-	(user-error "Unable to find `go' in `exec-path'!"))
+     (defun go-update-tools ()
+       "Install or update go tools."
+       (interactive)
+       (unless (executable-find "go")
+	 (user-error "Unable to find `go' in `exec-path'!"))
 
-      (message "Installing go tools...")
-      (let ((proc-name "go-tools")
-	    (proc-buffer "*Go Tools*"))
-	(dolist (pkg go--tools-no-update)
-	  (set-process-sentinel
-	   (start-process proc-name proc-buffer "go" "get" "-v" pkg)
-	   (lambda (proc _)
-	     (let ((status (process-exit-status proc)))
-	       (if (= 0 status)
-		   (message "Installed %s" pkg)
-		 (message "Failed to install %s: %d" pkg status))))))
+       (message "Installing go tools...")
+       (let ((proc-name "go-tools")
+	     (proc-buffer "*Go Tools*"))
+	 (dolist (pkg go--tools-no-update)
+	   (set-process-sentinel
+	    (start-process proc-name proc-buffer "go" "get" "-v" pkg)
+	    (lambda (proc _)
+	      (let ((status (process-exit-status proc)))
+		(if (= 0 status)
+		    (message "Installed %s" pkg)
+		  (message "Failed to install %s: %d" pkg status))))))
 
-	(dolist (pkg go--tools)
-	  (set-process-sentinel
-	   (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
-	   (lambda (proc _)
-	     (let ((status (process-exit-status proc)))
-	       (if (= 0 status)
-		   (message "Installed %s" pkg)
-		 (message "Failed to install %s: %d" pkg status))))))))
+	 (dolist (pkg go--tools)
+	   (set-process-sentinel
+	    (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
+	    (lambda (proc _)
+	      (let ((status (process-exit-status proc)))
+		(if (= 0 status)
+		    (message "Installed %s" pkg)
+		  (message "Failed to install %s: %d" pkg status))))))))
 
-    ;; Try to install go tools if `gopls' is not found
-    (unless (executable-find "gopls")
-      (go-update-tools))
+     ;; Try to install go tools if `gopls' is not found
+     (unless (executable-find "gopls")
+       (go-update-tools))
 
-    ;; Misc
-					  ;(use-package go-dlv)
-    (use-package go-fill-struct)
-    (use-package go-impl)
+     (use-package go-fill-struct)
+     (use-package go-impl)
 
-    ;; Install: See https://github.com/golangci/golangci-lint#install
-    (use-package flycheck-golangci-lint
-      :if (executable-find "golangci-lint")
-      :after flycheck
-      :defines flycheck-disabled-checkers
-      :hook (go-mode . (lambda ()
-			 "Enable golangci-lint."
-			 (setq flycheck-disabled-checkers '(go-gofmt
-							    go-golint
-							    go-vet
-							    go-build
-							    go-test
-							    go-errcheck))
-			 (flycheck-golangci-lint-setup))))
+     ;; Install: See https://github.com/golangci/golangci-lint#install
+     (use-package flycheck-golangci-lint
+       :if (executable-find "golangci-lint")
+       :after flycheck
+       :defines flycheck-disabled-checkers
+       :hook (go-mode . (lambda ()
+			  "Enable golangci-lint."
+			  (setq flycheck-disabled-checkers '(go-gofmt
+							     go-golint
+							     go-vet
+							     go-build
+							     go-test
+							     go-errcheck))
+			  (flycheck-golangci-lint-setup))))
 
-    (use-package go-tag
-      :bind (:map go-mode-map
-		  ("C-c t t" . go-tag-add)
-		  ("C-c t T" . go-tag-remove))
-      :init (setq go-tag-args (list "-transform" "camelcase")))
+     (use-package go-tag
+       :bind (:map go-mode-map
+		   ("C-c t t" . go-tag-add)
+		   ("C-c t T" . go-tag-remove))
+       :init (setq go-tag-args (list "-transform" "camelcase")))
 
-    (use-package go-gen-test
-      :bind (:map go-mode-map
-		  ("C-c t g" . go-gen-test-dwim)))
+     (use-package go-gen-test
+       :bind (:map go-mode-map
+		   ("C-c t g" . go-gen-test-dwim)))
 
-    (use-package gotest
-      :bind (:map go-mode-map
-		  ("C-c t a" . go-test-current-project)
-		  ("C-c t m" . go-test-current-file)
-		  ("C-c t ." . go-test-current-test)
-		  ("C-c t x" . go-run))))
+     (use-package gotest
+       :bind (:map go-mode-map
+		   ("C-c t a" . go-test-current-project)
+		   ("C-c t m" . go-test-current-file)
+		   ("C-c t ." . go-test-current-test)
+		   ("C-c t x" . go-run))))
 
-  ;;---------------------------------------------------------
-  ;; Erlang
-  ;;---------------------------------------------------------
-  ;;---------------------------------------------------------
-  ;; wget http://erlang.org/download/otp_src_22.3.tar.gz
-  ;; tar zxvf otp_src_22.3.tar.gz
-  ;; cd otp_src_22.3
-  ;; ./configure --with-ssl && make && make install
-  ;;---------------------------------------------------------------
-  (use-package erlang
-    :mode (("\\.erl?$" . erlang-mode)
-	   ("rebar\\.config$" . erlang-mode)
-	   ("relx\\.config$" . erlang-mode)
-	   ("sys\\.config\\.src$" . erlang-mode)
-	   ("sys\\.config$" . erlang-mode)
-	   ("\\.config\\.src?$" . erlang-mode)
-	   ("\\.config\\.script?$" . erlang-mode)
-	   ("\\.hrl?$" . erlang-mode)
-	   ("\\.app?$" . erlang-mode)
-	   ("\\.app.src?$" . erlang-mode)
-	   ("\\Emakefile" . erlang-mode)))
+   ;;---------------------------------------------------------
+   ;; Erlang
+   ;;---------------------------------------------------------
+   ;;---------------------------------------------------------
+   ;; wget http://erlang.org/download/otp_src_22.3.tar.gz
+   ;; tar zxvf otp_src_22.3.tar.gz
+   ;; cd otp_src_22.3
+   ;; ./configure --with-ssl && make && make install
+   ;;---------------------------------------------------------------
+   (use-package erlang
+     :mode (("\\.erl?$" . erlang-mode)
+	    ("rebar\\.config$" . erlang-mode)
+	    ("relx\\.config$" . erlang-mode)
+	    ("sys\\.config\\.src$" . erlang-mode)
+	    ("sys\\.config$" . erlang-mode)
+	    ("\\.config\\.src?$" . erlang-mode)
+	    ("\\.config\\.script?$" . erlang-mode)
+	    ("\\.hrl?$" . erlang-mode)
+	    ("\\.app?$" . erlang-mode)
+	    ("\\.app.src?$" . erlang-mode)
+	    ("\\Emakefile" . erlang-mode)))
 
-  ;;---------------------------------------------------------
-  ;; C/C++ Mode
-  ;;---------------------------------------------------------
-  (use-package cc-mode
-    :ensure nil
-    :bind (:map c-mode-base-map
-		("C-c c" . compile))
-    :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
-    :init (setq-default c-basic-offset 4)
-    :config
-    (use-package modern-cpp-font-lock
-      :diminish
-      :init (modern-c++-font-lock-global-mode t)))
+   ;;---------------------------------------------------------
+   ;; C/C++ Mode
+   ;;---------------------------------------------------------
+   (use-package cc-mode
+     :ensure nil
+     :bind (:map c-mode-base-map
+		 ("C-c c" . compile))
+     :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
+     :init (setq-default c-basic-offset 4)
+     :config
+     (use-package modern-cpp-font-lock
+       :diminish
+       :init (modern-c++-font-lock-global-mode t)))
 
-  ;;---------------------------------------------------------
-  ;; Python Mode
-  ;; Install: pip install pyflakes autopep8
-  ;;---------------------------------------------------------
-  (use-package python
-    :ensure nil
-    :hook (inferior-python-mode . (lambda ()
-				    (process-query-on-exit-flag
-				     (get-process "Python"))))
-    :init
-    ;; Disable readline based native completion
-    (setq python-shell-completion-native-enable nil)
-    :config
-    ;; Default to Python 3. Prefer the versioned Python binaries since some
-    ;; systems stupidly make the unversioned one point at Python 2.
-    (when (and (executable-find "python3")
-	       (string= python-shell-interpreter "python"))
-      (setq python-shell-interpreter "python3"))
+   ;;---------------------------------------------------------
+   ;; Python Mode
+   ;; Install: pip install pyflakes autopep8
+   ;;---------------------------------------------------------
+   (use-package python
+     :ensure nil
+     :hook (inferior-python-mode . (lambda ()
+				     (process-query-on-exit-flag
+				      (get-process "Python"))))
+     :init
+     ;; Disable readline based native completion
+     (setq python-shell-completion-native-enable nil)
+     :config
+     ;; Default to Python 3. Prefer the versioned Python binaries since some
+     ;; systems stupidly make the unversioned one point at Python 2.
+     (when (and (executable-find "python3")
+		(string= python-shell-interpreter "python"))
+       (setq python-shell-interpreter "python3"))
 
-    ;; Env vars
-    (with-eval-after-load 'exec-path-from-shell
-      (exec-path-from-shell-copy-env "PYTHONPATH"))
+     ;; Env vars
+     (with-eval-after-load 'exec-path-from-shell
+       (exec-path-from-shell-copy-env "PYTHONPATH"))
 
-    ;; Live Coding in Python
-    (use-package live-py-mode))
+     ;; Live Coding in Python
+     (use-package live-py-mode))
 
-  ;;---------------------------------------------------------
-  ;; rust
-  ;;---------------------------------------------------------
+   ;;---------------------------------------------------------
+   ;; rust
+   ;;---------------------------------------------------------
 
-  (use-package rust-mode
-    :config
-    (setq rust-format-on-save t)
-    )
+   (use-package rust-mode
+     :config
+     (setq rust-format-on-save t)
+     )
 
-  ;;---------------------------------------------------------
-  ;; Other languages
-  ;;---------------------------------------------------------
-  (use-package sh-script :defer t :config (setq sh-basic-offset 4))
-  (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
-  (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook #'flycheck-mode))
-  (use-package flycheck-yamllint
-    :defer t
-    :init
-    (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
+   ;;---------------------------------------------------------
+   ;; Other languages
+   ;;---------------------------------------------------------
+   (use-package sh-script :defer t :config (setq sh-basic-offset 4))
+   (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
+   (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook #'flycheck-mode))
+   (use-package flycheck-yamllint
+     :defer t
+     :init
+     (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
 
-  ;;---------------------------------------------------------
-  ;; Dash
-  ;;---------------------------------------------------------
-  (use-package dash-at-point :ensure t)
+   ;;---------------------------------------------------------
+   ;; Dash
+   ;;---------------------------------------------------------
+   (use-package dash-at-point :ensure t)
+
+
+   ;; https://robert.kra.hn/posts/rust-emacs-setup/
+   ;; DEBUGGING
+   ;; brew install cmake llvm
+   ;; git clone https://github.com/lldb-tools/lldb-mi
+   ;; mkdir -p lldb-mi/build
+   ;; cd lldb-mi/build
+   ;; cmake ..
+   ;; cmake --build .
+   ;; ln -s $PWD/src/lldb-mi /usr/local/bin/lldb-mi
+  (when (executable-find "lldb-mi")
+   (use-package dap-mode
+     :ensure
+     :config
+     (dap-ui-mode)
+     (dap-ui-controls-mode 1)
+
+     (require 'dap-lldb)
+     (require 'dap-gdb-lldb)
+     ;; installs .extension/vscode
+     (dap-gdb-lldb-setup)
+     (dap-register-debug-template
+      "Rust::LLDB Run Configuration"
+      (list :type "lldb"
+	    :request "launch"
+	    :name "LLDB::Run"
+	    :gdbpath "rust-lldb"
+	    ;; uncomment if lldb-mi is not in PATH
+	    ;; :lldbmipath "path/to/lldb-mi"
+	    ))))
 
 #+END_SRC
 * AutoInsert
