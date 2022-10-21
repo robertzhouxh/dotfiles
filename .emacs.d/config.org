@@ -131,46 +131,59 @@
   (modify-coding-system-alist 'process "*" 'utf-8)
 
   ;; Restore emacs session.
-  ;(setq initial-buffer-choice t)
-  ;(run-with-timer 1 nil #'(lambda () (bury-buffer)))
-
+  (setq initial-buffer-choice t)
+  (run-with-timer 1 nil #'(lambda () (bury-buffer)))
+  
   ;; 增加长行处理性能
   (setq bidi-inhibit-bpa t)
   (setq-default bidi-paragraph-direction 'left-to-right)
-
+  
   ;; 增加IO性能
   (setq process-adaptive-read-buffering nil)
   (setq read-process-output-max (* 1024 1024))
-  (setq make-backup-files nil) 
-
-  (fset 'yes-or-no-p 'y-or-n-p)              ;以 y/n代表 yes/no
-  (blink-cursor-mode -1)                     ;指针不闪动
-  (transient-mark-mode 1)                    ;标记高亮
-  (global-subword-mode 1)                    ;Word移动支持 FooBar 的格式
-  (setq use-dialog-box nil)                  ;never pop dialog
-  ;(setq inhibit-startup-screen t)            ;inhibit start screen
-  ;(setq initial-scratch-message "")          ;关闭启动空白buffer, 这个buffer会干扰session恢复
-  (setq-default comment-style 'indent)       ;设定自动缩进的注释风格
-  (setq ring-bell-function 'ignore)          ;关闭烦人的出错时的提示声
-  ;(setq default-major-mode 'text-mode)       ;设置默认地主模式为TEXT模式
-  (setq mouse-yank-at-point t)               ;粘贴于光标处,而不是鼠标指针处
-  (setq x-select-enable-clipboard t)         ;支持emacs和外部程序的粘贴
-  (setq split-width-threshold nil)           ;分屏的时候使用上下分屏
-  (setq inhibit-compacting-font-caches t)    ;使用字体缓存，避免卡顿
-  (setq confirm-kill-processes nil)          ;退出自动杀掉进程
+  
+  (fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
+  (blink-cursor-mode -1)                  ;指针不闪动
+  (transient-mark-mode 1)                 ;标记高亮
+  (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
+  (setq use-dialog-box nil)               ;never pop dialog
+  (setq inhibit-startup-screen t)         ;inhibit start screen
+  (setq initial-scratch-message "") ;关闭启动空白buffer, 这个buffer会干扰session恢复
+  (setq-default comment-style 'indent)    ;设定自动缩进的注释风格
+  (setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
+  (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
+  (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
+  (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
+  (setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+  (setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
+  (setq confirm-kill-processes nil)       ;退出自动杀掉进程
   (setq async-bytecomp-allowed-packages nil) ;避免magit报错
   (setq word-wrap-by-category t)             ;按照中文折行
-  (setq profiler-report-cpu-line-format      ;让 profiler-report 第一列宽一点
-	'((100 left)
-	  (24 right ((19 right)
-		     (5 right)))))
-  (setq profiler-report-memory-line-format
-	'((100 left)
-	  (19 right ((14 right profiler-format-number)
-		     (5 right)))))
-
+  (add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
+  
   (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
-  (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
+  (setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
+  
+  ;; 平滑地进行半屏滚动，避免滚动后recenter操作
+  (setq scroll-step 1
+        scroll-conservatively 10000)
+  
+  ;; 不显示 *scratch*
+  (defun remove-scratch-buffer ()
+    (if (get-buffer "*scratch*")
+        (kill-buffer "*scratch*")))
+  (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+  
+  ;; Don't ask me when close emacs with process is running
+  (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+    "Prevent annoying \"Active processes exist\" query when you quit Emacs."
+    (require 'noflet)
+    (noflet ((process-list ())) ad-do-it))
+  
+  ;; Don't ask me when kill process buffer
+  (setq kill-buffer-query-functions
+        (remq 'process-kill-buffer-query-function
+              kill-buffer-query-functions))
 
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq-default scroll-step 1
@@ -709,244 +722,244 @@
 #+END_SRC
 * Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package use-package-ensure-system-package :ensure t)
+    (use-package use-package-ensure-system-package :ensure t)
 
-  ;; Environment
-  (use-package exec-path-from-shell
-    :ensure t
-    :if (or sys/mac-x-p sys/linux-x-p)
-    :config
-    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize))
+    ;; Environment
+    (use-package exec-path-from-shell
+      :ensure t
+      :if (or sys/mac-x-p sys/linux-x-p)
+      :config
+      (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+      (setq exec-path-from-shell-arguments '("-l"))
+      (exec-path-from-shell-initialize))
+    (use-package noflet :ensure t)
+    (use-package json-reformat)
+    (use-package comment-dwim-2)
+    (use-package buffer-flip)
+    (use-package markdown-mode)
+    (use-package dockerfile-mode)
+    (use-package json-mode)
+    (use-package protobuf-mode)
+    (use-package async :ensure t :init (async-bytecomp-package-mode 1))
+    (use-package projectile :diminish :config (projectile-global-mode))
+    (use-package flycheck :diminish :config (global-flycheck-mode 1))
+    (use-package swiper :ensure t :bind (("C-s" . swiper)))
+    (use-package restclient
+      :config
+      ;; since `url-cookies-list' is lack of flexibility
+      (setq restclient-inhibit-cookies t))
+    (use-package nginx-mode :ensure t)
+    (use-package avy
+      :bind
+      (("C-c SPC" . avy-goto-char-2)
+       ("M-g f" . avy-goto-line)
+       ("M-g w" . avy-goto-word-1)))
 
-  (use-package json-reformat)
-  (use-package comment-dwim-2)
-  (use-package buffer-flip)
-  (use-package markdown-mode)
-  (use-package dockerfile-mode)
-  (use-package json-mode)
-  (use-package protobuf-mode)
-  (use-package async :ensure t :init (async-bytecomp-package-mode 1))
-  (use-package projectile :diminish :config (projectile-global-mode))
-  (use-package flycheck :diminish :config (global-flycheck-mode 1))
-  (use-package swiper :ensure t :bind (("C-s" . swiper)))
-  (use-package restclient
-    :config
-    ;; since `url-cookies-list' is lack of flexibility
-    (setq restclient-inhibit-cookies t))
-  (use-package nginx-mode :ensure t)
-  (use-package avy
-    :bind
-    (("C-c SPC" . avy-goto-char-2)
-     ("M-g f" . avy-goto-line)
-     ("M-g w" . avy-goto-word-1)))
+    (use-package which-key
+      :diminish which-key-mode
+      :hook (after-init . which-key-mode)
+      :config
+      (progn
+	(which-key-mode)
+	(which-key-setup-side-window-right)))
 
-  (use-package which-key
-    :diminish which-key-mode
-    :hook (after-init . which-key-mode)
-    :config
-    (progn
-      (which-key-mode)
-      (which-key-setup-side-window-right)))
+    (use-package volatile-highlights
+      :ensure t
+      :diminish
+      :hook
+      (after-init . volatile-highlights-mode)
+      :custom-face
+      (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
 
-  (use-package volatile-highlights
-    :ensure t
-    :diminish
-    :hook
-    (after-init . volatile-highlights-mode)
-    :custom-face
-    (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
+					    ;(use-package undo-tree
+					    ;  :ensure t
+					    ;  :diminish
+					    ;  :config
+					    ;  (progn
+					    ;    (global-undo-tree-mode)
+					    ;    (setq undo-tree-visualizer-timestamps t)
+					    ;    (setq undo-tree-visualizer-diff t)
+					    ;    ))
 
-					  ;(use-package undo-tree
-					  ;  :ensure t
-					  ;  :diminish
-					  ;  :config
-					  ;  (progn
-					  ;    (global-undo-tree-mode)
-					  ;    (setq undo-tree-visualizer-timestamps t)
-					  ;    (setq undo-tree-visualizer-diff t)
-					  ;    ))
+    (use-package multiple-cursors
+      :bind (("C-S-c" . mc/edit-lines) ;; 每行一个光标
+	     ("C->" . mc/mark-next-like-this-symbol) ;; 全选光标所在单词并在下一个单词增加一个光标。通常用来启动一个流程
+	     ("C-M->" . mc/skip-to-next-like-this) ;; 跳过当前单词并跳到下一个单词，和上面在同一个流程里。
+	     ("C-<" . mc/mark-previous-like-this-symbol) ;; 同样是开启一个多光标流程，但是是「向上找」而不是向下找。
+	     ("C-M-<" . mc/skip-to-previous-like-this) ;; 跳过当前单词并跳到上一个单词，和上面在同一个流程里。
+	     ("C-c C->" . mc/mark-all-symbols-like-this))) ;; 直接多选本 buffer 所有这个单词
 
-  (use-package multiple-cursors
-    :bind (("C-S-c" . mc/edit-lines) ;; 每行一个光标
-	   ("C->" . mc/mark-next-like-this-symbol) ;; 全选光标所在单词并在下一个单词增加一个光标。通常用来启动一个流程
-	   ("C-M->" . mc/skip-to-next-like-this) ;; 跳过当前单词并跳到下一个单词，和上面在同一个流程里。
-	   ("C-<" . mc/mark-previous-like-this-symbol) ;; 同样是开启一个多光标流程，但是是「向上找」而不是向下找。
-	   ("C-M-<" . mc/skip-to-previous-like-this) ;; 跳过当前单词并跳到上一个单词，和上面在同一个流程里。
-	   ("C-c C->" . mc/mark-all-symbols-like-this))) ;; 直接多选本 buffer 所有这个单词
+    (use-package paredit
+      :diminish paredit-mode
+      :init
+      (defun override-slime-del-key ()
+	(define-key slime-repl-mode-map
+	(read-kbd-macro paredit-backward-delete-key) nil))
+      (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+      (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
+      (add-hook 'ielm-mode-hook 'enable-paredit-mode)
+      (add-hook 'lisp-mode-hook 'enable-paredit-mode)
+      (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
+      (add-hook 'slime-repl-mode-hook 'override-slime-del-key)
+      (add-hook 'erlang-mode-hook 'enable-paredit-mode)
+      (add-hook 'go-mode-hook 'paredit-mode)
+      )
 
-  (use-package paredit
-    :diminish paredit-mode
-    :init
-    (defun override-slime-del-key ()
-      (define-key slime-repl-mode-map
-      (read-kbd-macro paredit-backward-delete-key) nil))
-    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
-    (add-hook 'ielm-mode-hook 'enable-paredit-mode)
-    (add-hook 'lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
-    (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
-    (add-hook 'slime-repl-mode-hook 'override-slime-del-key)
-    (add-hook 'erlang-mode-hook 'enable-paredit-mode)
-    (add-hook 'go-mode-hook 'paredit-mode)
-    )
+    (use-package rainbow-delimiters
+      :ensure t
+      :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-  (use-package rainbow-delimiters
-    :ensure t
-    :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+    (use-package yasnippet
+      :ensure t
+      :config
+      (yas-global-mode 1))
 
-  (use-package yasnippet
-    :ensure t
-    :config
-    (yas-global-mode 1))
+    ;; 再装一个通用模板库，省得没 template 用
+    (use-package yasnippet-snippets
+      :ensure t
+      :after (yasnippet))
 
-  ;; 再装一个通用模板库，省得没 template 用
-  (use-package yasnippet-snippets
-    :ensure t
-    :after (yasnippet))
+    ;; 模板生成工具，写代码时随手生成一个模板。强烈推荐使用
+    ;; 使用方法： https://github.com/abo-abo/auto-yasnippet#usage
+    (use-package auto-yasnippet
+      :ensure t
+      :bind
+      (("C-c & w" . aya-create)
+       ("C-c & y" . aya-expand))
+      :config
+      (setq aya-persist-snippets-dir (concat user-emacs-directory "my/snippets")))
 
-  ;; 模板生成工具，写代码时随手生成一个模板。强烈推荐使用
-  ;; 使用方法： https://github.com/abo-abo/auto-yasnippet#usage
-  (use-package auto-yasnippet
-    :ensure t
-    :bind
-    (("C-c & w" . aya-create)
-     ("C-c & y" . aya-expand))
-    :config
-    (setq aya-persist-snippets-dir (concat user-emacs-directory "my/snippets")))
+    (use-package ag
+      :defer t
+      :config
+      (progn
+	(setq ag-highlight-search t)
+	(bind-key "n" 'compilation-next-error ag-mode-map)
+	(bind-key "p" 'compilation-previous-error ag-mode-map)
+	(bind-key "N" 'compilation-next-file ag-mode-map)
+	(bind-key "P" 'compilation-previous-file ag-mode-map)))
 
-  (use-package ag
-    :defer t
-    :config
-    (progn
-      (setq ag-highlight-search t)
-      (bind-key "n" 'compilation-next-error ag-mode-map)
-      (bind-key "p" 'compilation-previous-error ag-mode-map)
-      (bind-key "N" 'compilation-next-file ag-mode-map)
-      (bind-key "P" 'compilation-previous-file ag-mode-map)))
+    (use-package ivy
+      :diminish ivy-mode
+      :ensure t
+      :preface (eval-when-compile (declare-function ivy-mode nil))
+      :init (setq ivy-use-virtual-buffers t)
+      :config (ivy-mode t))
 
-  (use-package ivy
-    :diminish ivy-mode
-    :ensure t
-    :preface (eval-when-compile (declare-function ivy-mode nil))
-    :init (setq ivy-use-virtual-buffers t)
-    :config (ivy-mode t))
-
-  ;; Cross-referencing commands
-;  (use-package xref
-;    :ensure nil
-;    :init
-;    (when (executable-find "rg")
-;      (setq xref-search-program 'ripgrep))
-;  
-;    (with-no-warnings
-;      ;; Select from xref candidates with Ivy
-;      (if emacs/>=28p
-;          (setq xref-show-definitions-function #'xref-show-definitions-completing-read
-;                xref-show-xrefs-function #'xref-show-definitions-completing-read)
-;        (use-package ivy-xref
-;          :after ivy
-;          :init
-;          (when emacs/>=27p
-;            (setq xref-show-definitions-function #'ivy-xref-show-defs))
-;          (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
-
-
-  (use-package counsel
-    :after ivy
-    :diminish counsel-mode
-    :init
-    (add-to-list 'ivy-ignore-buffers "^#")
-    (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
-    )
-  (use-package counsel-projectile
-    :after (counsel projectile)
-    :diminish counsel-projectile-mode
-    :preface
-    (eval-when-compile
-      (declare-function counsel-projectile-mode nil))
-    :commands
-    (counsel-projectile-rg
-     counsel-projectile-find-file
-     counsel-projectile-switch-project
-     counsel-projectile-switch-to-buffer)
-    :init
-    (with-eval-after-load 'evil-leader
-      (evil-leader/set-key
-	"p/" 'counsel-projectile-rg
-	"pf" 'counsel-projectile-find-file
-	"pp" 'counsel-projectile-switch-project
-	"pb" 'counsel-projectile-switch-to-buffer))
-    :config
-    (counsel-projectile-mode t))
+    ;; Cross-referencing commands
+  ;  (use-package xref
+  ;    :ensure nil
+  ;    :init
+  ;    (when (executable-find "rg")
+  ;      (setq xref-search-program 'ripgrep))
+  ;  
+  ;    (with-no-warnings
+  ;      ;; Select from xref candidates with Ivy
+  ;      (if emacs/>=28p
+  ;          (setq xref-show-definitions-function #'xref-show-definitions-completing-read
+  ;                xref-show-xrefs-function #'xref-show-definitions-completing-read)
+  ;        (use-package ivy-xref
+  ;          :after ivy
+  ;          :init
+  ;          (when emacs/>=27p
+  ;            (setq xref-show-definitions-function #'ivy-xref-show-defs))
+  ;          (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
 
 
-  ;; Automatically reload files was modified by external program
-  (use-package autorevert
-    :ensure nil
-    :diminish
-    :hook (after-init . global-auto-revert-mode))
+    (use-package counsel
+      :after ivy
+      :diminish counsel-mode
+      :init
+      (add-to-list 'ivy-ignore-buffers "^#")
+      (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
+      )
+    (use-package counsel-projectile
+      :after (counsel projectile)
+      :diminish counsel-projectile-mode
+      :preface
+      (eval-when-compile
+	(declare-function counsel-projectile-mode nil))
+      :commands
+      (counsel-projectile-rg
+       counsel-projectile-find-file
+       counsel-projectile-switch-project
+       counsel-projectile-switch-to-buffer)
+      :init
+      (with-eval-after-load 'evil-leader
+	(evil-leader/set-key
+	  "p/" 'counsel-projectile-rg
+	  "pf" 'counsel-projectile-find-file
+	  "pp" 'counsel-projectile-switch-project
+	  "pb" 'counsel-projectile-switch-to-buffer))
+      :config
+      (counsel-projectile-mode t))
 
-  ;; Jump
-  (use-package dumb-jump
-    :diminish dumb-jump-mode
-    :config
-    (setq dumb-jump-aggressive nil)
-    (setq dumb-jump-selector 'ivy)
-    (setq dumb-jump-prefer-searcher 'ag))
 
-  (use-package key-chord
-    :config
-    (progn
-      (key-chord-define-global "bn" 'buffer-flip-forward)
-      (key-chord-define-global "bp" 'buffer-flip-backward)
-      (key-chord-define-global "bf" 'buffer-flip)
-      (key-chord-define-global "bo" 'buffer-flip-other-window)
-      (key-chord-define-global "ba" 'buffer-flip-abort)
-      (key-chord-define-global "jk" 'evil-normal-state)
-      (key-chord-define-global "jb" 'ibuffer)
-      (key-chord-define-global "g]"  #'xref-find-definitions)
-      (key-chord-define-global "gj"  #'xref-find-references)
-      (key-chord-define-global "gb"  #'xref-pop-marker-stack)
-      (key-chord-define-global "j0" 'delete-window)
-      (key-chord-define-global "j1" 'delete-other-windows)
-      (key-chord-define-global "jz" 'magit-dispatch-popup)
-      (key-chord-define-global "kb" 'gh/kill-current-buffer)
-      (key-chord-mode 1)))
+    ;; Automatically reload files was modified by external program
+    (use-package autorevert
+      :ensure nil
+      :diminish
+      :hook (after-init . global-auto-revert-mode))
 
-  (require 'auto-save)
-  (auto-save-enable)
-  (setq auto-save-silent t)
-  (setq auto-save-delete-trailing-whitespace nil)
+    ;; Jump
+    (use-package dumb-jump
+      :diminish dumb-jump-mode
+      :config
+      (setq dumb-jump-aggressive nil)
+      (setq dumb-jump-selector 'ivy)
+      (setq dumb-jump-prefer-searcher 'ag))
 
-  (use-package all-the-icons :if (display-graphic-p))
+    (use-package key-chord
+      :config
+      (progn
+	(key-chord-define-global "bn" 'buffer-flip-forward)
+	(key-chord-define-global "bp" 'buffer-flip-backward)
+	(key-chord-define-global "bf" 'buffer-flip)
+	(key-chord-define-global "bo" 'buffer-flip-other-window)
+	(key-chord-define-global "ba" 'buffer-flip-abort)
+	(key-chord-define-global "jk" 'evil-normal-state)
+	(key-chord-define-global "jb" 'ibuffer)
+	(key-chord-define-global "g]"  #'xref-find-definitions)
+	(key-chord-define-global "gj"  #'xref-find-references)
+	(key-chord-define-global "gb"  #'xref-pop-marker-stack)
+	(key-chord-define-global "j0" 'delete-window)
+	(key-chord-define-global "j1" 'delete-other-windows)
+	(key-chord-define-global "jz" 'magit-dispatch-popup)
+	(key-chord-define-global "kb" 'gh/kill-current-buffer)
+	(key-chord-mode 1)))
 
-  (require 'watch-other-window)
+    (require 'auto-save)
+    (auto-save-enable)
+    (setq auto-save-silent t)
+    (setq auto-save-delete-trailing-whitespace nil)
 
-  (use-package color-rg
-    ;:straight (:host github :repo "manateelazycat/color-rg")
-    :load-path (lambda () (expand-file-name "vendor/color-rg/" user-emacs-directory))
-    :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
-    :if (executable-find "rg")
-    :bind ("C-M-s" . color-rg-search-input)
-    )
+    (use-package all-the-icons :if (display-graphic-p))
 
-  (require 'thing-edit)
+    (require 'watch-other-window)
 
-  (use-package youdao-dictionary
-    :commands youdao-dictionary-play-voice-of-current-word
-    :init
-    (setq url-automatic-caching t
-	  youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
+    (use-package color-rg
+      ;:straight (:host github :repo "manateelazycat/color-rg")
+      :load-path (lambda () (expand-file-name "vendor/color-rg/" user-emacs-directory))
+      :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
+      :if (executable-find "rg")
+      :bind ("C-M-s" . color-rg-search-input)
+      )
 
-    (defun my-youdao-search-at-point ()
-      "Search word at point and display result with `posframe', `pos-tip', or buffer."
-      (interactive)
-      (if (display-graphic-p)
-	  (youdao-dictionary-search-at-point-posframe)
-	(youdao-dictionary-search-at-point))))
+    (require 'thing-edit)
+
+    (use-package youdao-dictionary
+      :commands youdao-dictionary-play-voice-of-current-word
+      :init
+      (setq url-automatic-caching t
+	    youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
+
+      (defun my-youdao-search-at-point ()
+	"Search word at point and display result with `posframe', `pos-tip', or buffer."
+	(interactive)
+	(if (display-graphic-p)
+	    (youdao-dictionary-search-at-point-posframe)
+	  (youdao-dictionary-search-at-point))))
 
 #+END_SRC
 * Company && Yasnippet
@@ -1015,19 +1028,24 @@
 
 * UI
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package highlight-parentheses
+    :ensure t
+    :init
+    (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")) 
+    :config
+    (global-highlight-parentheses-mode t))
+
   (use-package modus-themes
-    ;:pin melpa
     :load-path "~/.emacs.d/vendor/modus-themes"
-    ;:ensure t
     :init
     (setq modus-themes-org-blocks 'gray-background
-	modus-themes-fringes 'subtle
-	modus-themes-italic-constructs t
-	modus-themes-bold-constructs t
-	modus-themes-syntax '(alt-syntax)
-	modus-themes-hl-line '(intense)
-	modus-themes-paren-match '(intense)
-	modus-themes-mode-line '(moody borderless))
+	  modus-themes-fringes 'subtle
+	  modus-themes-italic-constructs t
+	  modus-themes-bold-constructs t
+	  modus-themes-syntax '(alt-syntax)
+	  modus-themes-hl-line '(intense)
+	  modus-themes-paren-match '(intense)
+	  modus-themes-mode-line '(moody borderless))
     (setq modus-themes-headings
 	  (quote ((1 . (overline variable-pitch 1.4))
 		  (2 . (overline variable-pitch 1.25))
@@ -1036,8 +1054,8 @@
 
   (require 'lazycat-theme)
   (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-  ;(load-theme 'modus-vivendi)
-  ;(load-theme 'modus-operandi)
+  ;;(load-theme 'modus-vivendi)
+  ;;(load-theme 'modus-operandi)
   (lazycat-theme-load-dark)
 
   (require 'awesome-tray)
@@ -1059,8 +1077,8 @@
 
     (awesome-tray-mode 1)
     :custom
-    ;(awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-    ;(awesome-tray-active-modules '("awesome-tab" "mode-name" "file-path" "buffer-name" "git" "rime" "location" "battery" "date"))
+    ;;(awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+    ;;(awesome-tray-active-modules '("awesome-tab" "mode-name" "file-path" "buffer-name" "git" "rime" "location" "battery" "date"))
     (awesome-tray-active-modules '("location" "git" "file-path" "mode-name" "last-command" "battery" "date"))
     :config
     (add-hook 'circadian-after-load-theme-hook
