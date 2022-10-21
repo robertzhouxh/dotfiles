@@ -169,21 +169,21 @@
         scroll-conservatively 10000)
   
   ;; 不显示 *scratch*
-  (defun remove-scratch-buffer ()
-    (if (get-buffer "*scratch*")
-        (kill-buffer "*scratch*")))
-  (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+  ;(defun remove-scratch-buffer ()
+  ;  (if (get-buffer "*scratch*")
+  ;      (kill-buffer "*scratch*")))
+  ;(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
   
   ;; Don't ask me when close emacs with process is running
-  (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-    "Prevent annoying \"Active processes exist\" query when you quit Emacs."
-    (require 'noflet)
-    (noflet ((process-list ())) ad-do-it))
+  ;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+  ;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
+  ;  (require 'noflet)
+  ;  (noflet ((process-list ())) ad-do-it))
   
   ;; Don't ask me when kill process buffer
-  (setq kill-buffer-query-functions
-        (remq 'process-kill-buffer-query-function
-              kill-buffer-query-functions))
+  ;(setq kill-buffer-query-functions
+  ;      (remq 'process-kill-buffer-query-function
+  ;            kill-buffer-query-functions))
 
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq-default scroll-step 1
@@ -982,6 +982,23 @@
     (add-hook 'prog-mode-hook 'yas-minor-mode)
     (add-hook 'text-mode-hook 'yas-minor-mode))
 
+  ;(use-package company
+  ;  :commands company-mode imalison:company
+  ;  :bind
+  ;  (:map company-mode-map
+  ;	  ("<tab>". tab-indent-or-complete)
+  ;	  ("TAB". tab-indent-or-complete))
+  ;  :config
+  ;  (progn
+  ;    (emit-prefix-selector imalison:company
+  ;	company-complete
+  ;	company-yasnippet)
+ 
+  ;    (setq company-idle-delay .25)
+  ;    (global-company-mode)
+  ;    (diminish 'company-mode))
+  ;  :init
+  ;  (add-hook 'prog-mode-hook (lambda () (company-mode t))))
   (use-package company
     :ensure t
     :bind
@@ -989,8 +1006,8 @@
 	  ("<tab>". tab-indent-or-complete)
 	  ("TAB". tab-indent-or-complete))
     :config
-    (setq company-idle-delay 0.5)
-    (setq company-show-numbers t))
+    (progn (setq company-idle-delay 0.5)
+	   (setq company-show-numbers t)))
 
   ;;Run M-x company-tabnine-install-binary to install the TabNine binary for your system.
   (use-package company-tabnine
@@ -1740,16 +1757,12 @@
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-   ;;---------------------------------------------------------
-   ;; lsp-bridge config
-   ;;---------------------------------------------------------
-     ;;; Require
-   (require 'lsp-bridge)
-   (require 'lsp-bridge-jdtls)
-
-     ;;; Code:
-
-   (global-lsp-bridge-mode)
+  ;;---------------------------------------------------------
+  ;; lsp-bridge config: https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
+  ;;---------------------------------------------------------
+  (require 'lsp-bridge)
+  (require 'lsp-bridge-jdtls)
+  (global-lsp-bridge-mode)
 
   ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
   (defun lsp-bridge-jump ()
@@ -1757,14 +1770,14 @@
     (cond
      ((eq major-mode 'emacs-lisp-mode)
       (let ((symb (function-called-at-point)))
-        (when symb
-          (find-function symb))))
+	(when symb
+	  (find-function symb))))
      (lsp-bridge-mode
       (lsp-bridge-find-def))
      (t
       (require 'dumb-jump)
       (dumb-jump-go))))
-  
+
   (defun lsp-bridge-jump-back ()
     (interactive)
     (cond
@@ -1773,21 +1786,22 @@
      (t
       (require 'dumb-jump)
       (dumb-jump-back))))
-  
-  (setq lsp-bridge-get-single-lang-server-by-project
-        (lambda (project-path filepath)
-          ;; If typescript first line include deno.land, then use Deno LSP server.
-          (save-excursion
-            (when (string-equal (file-name-extension filepath) "ts")
-             (dolist (buf (buffer-list))
-               (when (string-equal (buffer-file-name buf) filepath)
-                 (with-current-buffer buf
-                   (goto-char (point-min))
-                   (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-                     (return "deno")))))))))
 
-   ;; 打开日志，开发者才需要
-   ;; (setq lsp-bridge-enable-log t)
+  (setq lsp-bridge-get-single-lang-server-by-project
+	(lambda (project-path filepath)
+	  ;; If typescript first line include deno.land, then use Deno LSP server.
+	  (save-excursion
+	    (when (string-equal (file-name-extension filepath) "ts")
+	     (dolist (buf (buffer-list))
+	       (when (string-equal (buffer-file-name buf) filepath)
+		 (with-current-buffer buf
+		   (goto-char (point-min))
+		   (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+		     (return "deno")))))))))
+
+  ;; 打开日志，开发者才需要
+  ;; (setq lsp-bridge-enable-log t)
+
 
    ;;---------------------------------------------------------
    ;; Golang
@@ -2349,12 +2363,12 @@
     (with-eval-after-load 'evil
       (define-key evil-motion-state-map (kbd "C-]") nil)
       (define-key evil-motion-state-map (kbd "C-t") nil)
+      (define-key evil-motion-state-map (kbd "C-6") nil)
 
       (define-key evil-motion-state-map "\C-]"  'lsp-bridge-jump)
       (define-key evil-motion-state-map "g\C-]" 'lsp-bridge-jump)
 
       (define-key evil-normal-state-map "\C-t"  'lsp-bridge-jump-back)
-
       (define-key evil-motion-state-map "g\C-t" 'lsp-bridge-jump-back)
 
       (with-eval-after-load 'company
@@ -2365,7 +2379,6 @@
 	(define-key company-active-map (kbd "M-n") nil)
 	(define-key company-active-map (kbd "M-p") nil)
 	(define-key company-active-map (kbd "C-m") nil)
-
 	(define-key company-active-map (kbd "TAB") 'company-complete-selection)
 	(define-key company-active-map (kbd "M-h") 'company-complete-selection)
 	(define-key company-active-map (kbd "M-H") 'company-complete-common)
@@ -2383,24 +2396,22 @@
 	(evil-define-key nil company-active-map (kbd "C-p") #'company-select-previous))
       )
 
-    ;; glolal
+    ;;see here: http://xahlee.info/emacs/emacs/keyboard_shortcuts_examples.html
+
+    (global-set-key (kbd "C-x y") 'dash-at-point)
     (global-set-key (kbd "M-]")   'dumb-jump-go)
     (global-set-key (kbd "M-t")   'dumb-jump-back)
-    (global-set-key (kbd "M-n")   'hold-line-scroll-up)
-    (global-set-key (kbd "M-p")   'hold-line-scroll-down)
+    (global-set-key (kbd "M-n")   'hold-line-scroll-down)
+    (global-set-key (kbd "M-p")   'hold-line-scroll-up)
+
     (global-set-key (kbd "C-6")   'lsp-bridge-popup-documentation)
-    (global-set-key (kbd "C-7")   'lsp-bridge-jump-back) 
-    (global-set-key (kbd "C-8")   'lsp-bridge-jump) 
-    (global-set-key (kbd "M-,")   'lsp-bridge-jump-back) 
-    (global-set-key (kbd "M-.")   'lsp-bridge-jump) 
     (global-set-key (kbd "C-9")   'lsp-bridge-find-references) 
     (global-set-key (kbd "C-0")   'lsp-bridge-rename) 
-    (global-set-key (kbd "M-s-j") 'lsp-bridge-diagnostic-jump-next) ;显示下一个错误 
-    (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev) ;显示上一个错误) 
-    (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore) ;忽略当前的错误
-    (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up) ;向下滚动文档
+
+    (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+    (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+    (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
     (global-set-key (kbd "M-s-p") 'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
-    (global-set-key (kbd "C-x y") 'dash-at-point)
 
 
 #+END_SRC
