@@ -720,260 +720,154 @@
 	    (indent-for-tab-command)))))
 
 #+END_SRC
-* Plugins
+* Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package use-package-ensure-system-package :ensure t)
+  (use-package use-package-ensure-system-package :ensure t)
 
-    ;; Environment
-    (use-package exec-path-from-shell
-      :ensure t
-      :if (or sys/mac-x-p sys/linux-x-p)
-      :config
-      (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-      (setq exec-path-from-shell-arguments '("-l"))
-      (exec-path-from-shell-initialize))
-    (use-package noflet :ensure t)
-    (use-package json-reformat)
-    (use-package comment-dwim-2)
-    (use-package buffer-flip)
-    (use-package markdown-mode)
-    (use-package dockerfile-mode)
-    (use-package json-mode)
-    (use-package protobuf-mode)
-    (use-package async :ensure t :init (async-bytecomp-package-mode 1))
-    (use-package projectile :diminish :config (projectile-global-mode))
-    (use-package flycheck :diminish :config (global-flycheck-mode 1))
-    (use-package swiper :ensure t :bind (("C-s" . swiper)))
-    (use-package restclient
-      :config
-      ;; since `url-cookies-list' is lack of flexibility
-      (setq restclient-inhibit-cookies t))
-    (use-package nginx-mode :ensure t)
-    (use-package avy
-      :bind
-      (("C-c SPC" . avy-goto-char-2)
-       ("M-g f" . avy-goto-line)
-       ("M-g w" . avy-goto-word-1)))
+  ;; Environment
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (or sys/mac-x-p sys/linux-x-p)
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize))
 
-    (use-package which-key
-      :diminish which-key-mode
-      :hook (after-init . which-key-mode)
-      :config
-      (progn
-	(which-key-mode)
-	(which-key-setup-side-window-right)))
+  (use-package noflet :ensure t)
+  (use-package json-reformat)
+  (use-package comment-dwim-2)
+  (use-package buffer-flip)
+  (use-package markdown-mode)
+  (use-package dockerfile-mode)
+  (use-package json-mode)
+  (use-package protobuf-mode)
+  (use-package swiper)
+  (use-package nginx-mode)
+  (use-package async :init (async-bytecomp-package-mode 1))
+  (use-package projectile :diminish :config (projectile-global-mode))
+  (use-package flycheck :diminish :config (global-flycheck-mode 1))
+  (use-package restclient :config (setq restclient-inhibit-cookies t))
+  (use-package key-chord :config (progn (key-chord-mode 1)))
+  (use-package all-the-icons :if (display-graphic-p))
 
-    (use-package volatile-highlights
-      :ensure t
-      :diminish
-      :hook
-      (after-init . volatile-highlights-mode)
-      :custom-face
-      (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
+  (use-package which-key
+    :diminish which-key-mode
+    :hook (after-init . which-key-mode)
+    :config
+    (progn
+      (which-key-mode)
+      (which-key-setup-side-window-right)))
 
-					    ;(use-package undo-tree
-					    ;  :ensure t
-					    ;  :diminish
-					    ;  :config
-					    ;  (progn
-					    ;    (global-undo-tree-mode)
-					    ;    (setq undo-tree-visualizer-timestamps t)
-					    ;    (setq undo-tree-visualizer-diff t)
-					    ;    ))
-
-    (use-package multiple-cursors
-      :bind (("C-S-c" . mc/edit-lines) ;; 每行一个光标
-	     ("C->" . mc/mark-next-like-this-symbol) ;; 全选光标所在单词并在下一个单词增加一个光标。通常用来启动一个流程
-	     ("C-M->" . mc/skip-to-next-like-this) ;; 跳过当前单词并跳到下一个单词，和上面在同一个流程里。
-	     ("C-<" . mc/mark-previous-like-this-symbol) ;; 同样是开启一个多光标流程，但是是「向上找」而不是向下找。
-	     ("C-M-<" . mc/skip-to-previous-like-this) ;; 跳过当前单词并跳到上一个单词，和上面在同一个流程里。
-	     ("C-c C->" . mc/mark-all-symbols-like-this))) ;; 直接多选本 buffer 所有这个单词
-
-    (use-package paredit
-      :diminish paredit-mode
-      :init
-      (defun override-slime-del-key ()
-	(define-key slime-repl-mode-map
+  (use-package paredit
+    :diminish paredit-mode
+    :init
+    (defun override-slime-del-key ()
+      (define-key slime-repl-mode-map
 	(read-kbd-macro paredit-backward-delete-key) nil))
-      (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-      (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
-      (add-hook 'ielm-mode-hook 'enable-paredit-mode)
-      (add-hook 'lisp-mode-hook 'enable-paredit-mode)
-      (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
-      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
-      (add-hook 'slime-repl-mode-hook 'override-slime-del-key)
-      (add-hook 'erlang-mode-hook 'enable-paredit-mode)
-      (add-hook 'go-mode-hook 'paredit-mode)
-      )
+    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
+    (add-hook 'ielm-mode-hook 'enable-paredit-mode)
+    (add-hook 'lisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+    (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
+    (add-hook 'slime-repl-mode-hook 'override-slime-del-key)
+    (add-hook 'erlang-mode-hook 'enable-paredit-mode)
+    (add-hook 'go-mode-hook 'paredit-mode)
+    )
 
-    (use-package rainbow-delimiters
-      :ensure t
-      :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  (use-package rainbow-delimiters
+    :ensure t
+    :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-    (use-package yasnippet
-      :ensure t
-      :config
-      (yas-global-mode 1))
+  (use-package volatile-highlights
+    :ensure t
+    :diminish
+    :hook
+    (after-init . volatile-highlights-mode)
+    :custom-face
+    (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
 
-    ;; 再装一个通用模板库，省得没 template 用
-    (use-package yasnippet-snippets
-      :ensure t
-      :after (yasnippet))
+  (use-package ivy
+    :diminish ivy-mode
+    :ensure t
+    :preface (eval-when-compile (declare-function ivy-mode nil))
+    :init (setq ivy-use-virtual-buffers t)
+    :config (ivy-mode t))
 
-    ;; 模板生成工具，写代码时随手生成一个模板。强烈推荐使用
-    ;; 使用方法： https://github.com/abo-abo/auto-yasnippet#usage
-    (use-package auto-yasnippet
-      :ensure t
-      :bind
-      (("C-c & w" . aya-create)
-       ("C-c & y" . aya-expand))
-      :config
-      (setq aya-persist-snippets-dir (concat user-emacs-directory "my/snippets")))
+  (use-package counsel
+    :after ivy
+    :diminish counsel-mode
+    :init
+    (add-to-list 'ivy-ignore-buffers "^#")
+    (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
+    )
+  (use-package counsel-projectile
+    :after (counsel projectile)
+    :diminish counsel-projectile-mode
+    :preface
+    (eval-when-compile
+      (declare-function counsel-projectile-mode nil))
+    :commands
+    (counsel-projectile-rg
+     counsel-projectile-find-file
+     counsel-projectile-switch-project
+     counsel-projectile-switch-to-buffer)
+    :init
+    (with-eval-after-load 'evil-leader
+      (evil-leader/set-key
+	"p/" 'counsel-projectile-rg
+	"pf" 'counsel-projectile-find-file
+	"pp" 'counsel-projectile-switch-project
+	"pb" 'counsel-projectile-switch-to-buffer))
+    :config
+    (counsel-projectile-mode t))
 
-    (use-package ag
-      :defer t
-      :config
-      (progn
-	(setq ag-highlight-search t)
-	(bind-key "n" 'compilation-next-error ag-mode-map)
-	(bind-key "p" 'compilation-previous-error ag-mode-map)
-	(bind-key "N" 'compilation-next-file ag-mode-map)
-	(bind-key "P" 'compilation-previous-file ag-mode-map)))
+  ;; Automatically reload files was modified by external program
+  (use-package autorevert
+    :ensure nil
+    :diminish
+    :hook (after-init . global-auto-revert-mode))
+#+END_SRC
+* Quick Search And Move
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package avy)
 
-    (use-package ivy
-      :diminish ivy-mode
-      :ensure t
-      :preface (eval-when-compile (declare-function ivy-mode nil))
-      :init (setq ivy-use-virtual-buffers t)
-      :config (ivy-mode t))
+  (use-package undo-tree
+    :ensure t
+    :diminish
+    :config
+    (progn
+      (global-undo-tree-mode)
+      (setq undo-tree-visualizer-timestamps t)
+      (setq undo-tree-visualizer-diff t)
+      ))
 
-    ;; Cross-referencing commands
-  ;  (use-package xref
-  ;    :ensure nil
-  ;    :init
-  ;    (when (executable-find "rg")
-  ;      (setq xref-search-program 'ripgrep))
-  ;  
-  ;    (with-no-warnings
-  ;      ;; Select from xref candidates with Ivy
-  ;      (if emacs/>=28p
-  ;          (setq xref-show-definitions-function #'xref-show-definitions-completing-read
-  ;                xref-show-xrefs-function #'xref-show-definitions-completing-read)
-  ;        (use-package ivy-xref
-  ;          :after ivy
-  ;          :init
-  ;          (when emacs/>=27p
-  ;            (setq xref-show-definitions-function #'ivy-xref-show-defs))
-  ;          (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)))))
+  (use-package ag
+    :defer t
+    :config
+    (progn
+      (setq ag-highlight-search t)
+      (bind-key "n" 'compilation-next-error ag-mode-map)
+      (bind-key "p" 'compilation-previous-error ag-mode-map)
+      (bind-key "N" 'compilation-next-file ag-mode-map)
+      (bind-key "P" 'compilation-previous-file ag-mode-map)))
 
-
-    (use-package counsel
-      :after ivy
-      :diminish counsel-mode
-      :init
-      (add-to-list 'ivy-ignore-buffers "^#")
-      (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
-      )
-    (use-package counsel-projectile
-      :after (counsel projectile)
-      :diminish counsel-projectile-mode
-      :preface
-      (eval-when-compile
-	(declare-function counsel-projectile-mode nil))
-      :commands
-      (counsel-projectile-rg
-       counsel-projectile-find-file
-       counsel-projectile-switch-project
-       counsel-projectile-switch-to-buffer)
-      :init
-      (with-eval-after-load 'evil-leader
-	(evil-leader/set-key
-	  "p/" 'counsel-projectile-rg
-	  "pf" 'counsel-projectile-find-file
-	  "pp" 'counsel-projectile-switch-project
-	  "pb" 'counsel-projectile-switch-to-buffer))
-      :config
-      (counsel-projectile-mode t))
-
-
-    ;; Automatically reload files was modified by external program
-    (use-package autorevert
-      :ensure nil
-      :diminish
-      :hook (after-init . global-auto-revert-mode))
-
-    ;; Jump
-    (use-package dumb-jump
-      :diminish dumb-jump-mode
-      :config
-      (setq dumb-jump-aggressive nil)
-      (setq dumb-jump-selector 'ivy)
-      (setq dumb-jump-prefer-searcher 'ag))
-
-    (use-package key-chord
-      :config
-      (progn
-	(key-chord-define-global "bn" 'buffer-flip-forward)
-	(key-chord-define-global "bp" 'buffer-flip-backward)
-	(key-chord-define-global "bf" 'buffer-flip)
-	(key-chord-define-global "bo" 'buffer-flip-other-window)
-	(key-chord-define-global "ba" 'buffer-flip-abort)
-	(key-chord-define-global "jk" 'evil-normal-state)
-	(key-chord-define-global "jb" 'ibuffer)
-	(key-chord-define-global "g]"  #'xref-find-definitions)
-	(key-chord-define-global "gj"  #'xref-find-references)
-	(key-chord-define-global "gb"  #'xref-pop-marker-stack)
-	(key-chord-define-global "j0" 'delete-window)
-	(key-chord-define-global "j1" 'delete-other-windows)
-	(key-chord-define-global "jz" 'magit-dispatch-popup)
-	(key-chord-define-global "kb" 'gh/kill-current-buffer)
-	(key-chord-mode 1)))
-
-    (require 'auto-save)
-    (auto-save-enable)
-    (setq auto-save-silent t)
-    (setq auto-save-delete-trailing-whitespace nil)
-
-    (use-package all-the-icons :if (display-graphic-p))
-
-    (require 'watch-other-window)
-
-    (use-package color-rg
-      ;:straight (:host github :repo "manateelazycat/color-rg")
-      :load-path (lambda () (expand-file-name "vendor/color-rg/" user-emacs-directory))
-      :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
-      :if (executable-find "rg")
-      :bind ("C-M-s" . color-rg-search-input)
-      )
-
-    (require 'thing-edit)
-
-    (use-package youdao-dictionary
-      :commands youdao-dictionary-play-voice-of-current-word
-      :init
-      (setq url-automatic-caching t
-	    youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
-
-      (defun my-youdao-search-at-point ()
-	"Search word at point and display result with `posframe', `pos-tip', or buffer."
-	(interactive)
-	(if (display-graphic-p)
-	    (youdao-dictionary-search-at-point-posframe)
-	  (youdao-dictionary-search-at-point))))
+  (use-package dumb-jump
+    :diminish dumb-jump-mode
+    :config
+    (setq dumb-jump-aggressive nil)
+    (setq dumb-jump-selector 'ivy)
+    (setq dumb-jump-prefer-searcher 'ag))
 
 #+END_SRC
 * Company && Yasnippet
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package posframe :ensure t)
-  (use-package expand-region
-    :ensure t
-    :bind ("C-=" . er/expand-region))
-
+  (use-package expand-region :bind ("C-=" . er/expand-region))
   (use-package company-restclient)
   (use-package company-nginx
     :after (nginx-mode)
-    :hook((nginx-mode . company-nginx-keywords))
-    :config)
+    :hook((nginx-mode . company-nginx-keywords)))
 
   (use-package yasnippet
     :ensure
@@ -981,6 +875,12 @@
     (yas-reload-all)
     (add-hook 'prog-mode-hook 'yas-minor-mode)
     (add-hook 'text-mode-hook 'yas-minor-mode))
+
+  ;; 模板生成工具，写代码时随手生成一个模板。强烈推荐使用
+  ;; 使用方法： https://github.com/abo-abo/auto-yasnippet#usage
+  (use-package auto-yasnippet :config (setq aya-persist-snippets-dir (concat user-emacs-directory "my/snippets")))
+  (use-package yasnippet :config (yas-global-mode 1))
+  (use-package yasnippet-snippets :after (yasnippet))
 
   ;(use-package company
   ;  :commands company-mode imalison:company
@@ -993,7 +893,6 @@
   ;    (emit-prefix-selector imalison:company
   ;	company-complete
   ;	company-yasnippet)
- 
   ;    (setq company-idle-delay .25)
   ;    (global-company-mode)
   ;    (diminish 'company-mode))
@@ -1001,6 +900,7 @@
   ;  (add-hook 'prog-mode-hook (lambda () (company-mode t))))
   (use-package company
     :ensure t
+    :diminish
     :bind
     (:map company-mode-map
 	  ("<tab>". tab-indent-or-complete)
@@ -1014,9 +914,82 @@
     :defer t 
     :ensure t 
     :config (add-to-list 'company-backends #'company-tabnine))
+#+END_SRC
+* Lazycat Plugins
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'watch-other-window)
+  (require 'thing-edit)
 
+  (require 'auto-save)
+  (auto-save-enable)
+  (setq auto-save-silent t)
+  (setq auto-save-delete-trailing-whitespace nil)
+
+  (use-package color-rg
+    :load-path (lambda () (expand-file-name "vendor/color-rg/" user-emacs-directory))
+    :commands (color-rg-search-input color-rg-search-project color-rg-search-symbol-in-project)
+    :if (executable-find "rg")
+    :bind ("C-M-s" . color-rg-search-input))
+
+  (use-package youdao-dictionary
+    :commands youdao-dictionary-play-voice-of-current-word
+    :init
+    (setq url-automatic-caching t
+	  youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
+
+    (defun my-youdao-search-at-point ()
+      "Search word at point and display result with `posframe', `pos-tip', or buffer."
+      (interactive)
+      (if (display-graphic-p)
+	  (youdao-dictionary-search-at-point-posframe)
+	(youdao-dictionary-search-at-point))))
+
+  ;; -----------------------------------------------------------------------------------------------
+  ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
+  (require 'lsp-bridge)
+  (require 'lsp-bridge-jdtls)
+  (global-lsp-bridge-mode)
+
+  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+  (defun lsp-bridge-jump ()
+    (interactive)
+    (cond
+     ((eq major-mode 'emacs-lisp-mode)
+      (let ((symb (function-called-at-point)))
+	(when symb
+	  (find-function symb))))
+     (lsp-bridge-mode
+      (lsp-bridge-find-def))
+     (t
+      (require 'dumb-jump)
+      (dumb-jump-go))))
+
+  (defun lsp-bridge-jump-back ()
+    (interactive)
+    (cond
+     (lsp-bridge-mode
+      (lsp-bridge-find-def-return))
+     (t
+      (require 'dumb-jump)
+      (dumb-jump-back))))
+
+  (setq lsp-bridge-get-single-lang-server-by-project
+	(lambda (project-path filepath)
+	  ;; If typescript first line include deno.land, then use Deno LSP server.
+	  (save-excursion
+	    (when (string-equal (file-name-extension filepath) "ts")
+	     (dolist (buf (buffer-list))
+	       (when (string-equal (buffer-file-name buf) filepath)
+		 (with-current-buffer buf
+		   (goto-char (point-min))
+		   (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+		     (return "deno")))))))))
+
+  ;; 打开日志，开发者才需要
+  ;; (setq lsp-bridge-enable-log t)
 
 #+END_SRC
+
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;https://www.emacswiki.org/emacs/download/dired+.el
@@ -1131,10 +1104,8 @@
 #+END_SRC
 * Magit
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-  ;; Magit is an Emacs interface to Git.
   (use-package magit
-    :bind ("C-M-;" . magit-status)
+    ;; :bind ("C-M-;" . magit-status)
     :commands (magit-status magit-get-current-branch)
     :config
     (magit-auto-revert-mode t)
@@ -1157,7 +1128,7 @@
   (setq magit-display-buffer-function #'my/magit-display-buffer)
 
   (use-package git-messenger
-    :bind ("C-x G" . git-messenger:popup-message)
+    ;; :bind ("C-x G" . git-messenger:popup-message)
     :config (setq git-messenger:show-detail t git-messenger:use-magit-popup t))
   (use-package blamer
     :ensure t
@@ -1756,53 +1727,6 @@
 
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-  ;;---------------------------------------------------------
-  ;; lsp-bridge config: https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
-  ;;---------------------------------------------------------
-  (require 'lsp-bridge)
-  (require 'lsp-bridge-jdtls)
-  (global-lsp-bridge-mode)
-
-  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
-  (defun lsp-bridge-jump ()
-    (interactive)
-    (cond
-     ((eq major-mode 'emacs-lisp-mode)
-      (let ((symb (function-called-at-point)))
-	(when symb
-	  (find-function symb))))
-     (lsp-bridge-mode
-      (lsp-bridge-find-def))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-go))))
-
-  (defun lsp-bridge-jump-back ()
-    (interactive)
-    (cond
-     (lsp-bridge-mode
-      (lsp-bridge-find-def-return))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-back))))
-
-  (setq lsp-bridge-get-single-lang-server-by-project
-	(lambda (project-path filepath)
-	  ;; If typescript first line include deno.land, then use Deno LSP server.
-	  (save-excursion
-	    (when (string-equal (file-name-extension filepath) "ts")
-	     (dolist (buf (buffer-list))
-	       (when (string-equal (buffer-file-name buf) filepath)
-		 (with-current-buffer buf
-		   (goto-char (point-min))
-		   (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-		     (return "deno")))))))))
-
-  ;; 打开日志，开发者才需要
-  ;; (setq lsp-bridge-enable-log t)
-
-
    ;;---------------------------------------------------------
    ;; Golang
    ;;---------------------------------------------------------
@@ -2259,159 +2183,182 @@
   #+END_SRC
 * Key-maps
 
-  #+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes
 
-    ;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
-    ;; You may delete this setup to use Evil NORMAL state always.
-    (dolist (p '((minibuffer-inactive-mode . emacs)
-		 (calendar-mode . emacs)
-		 (special-mode . emacs)
-		 (grep-mode . emacs)
-		 (Info-mode . emacs)
-		 (term-mode . emacs)
-		 (sdcv-mode . emacs)
-		 (anaconda-nav-mode . emacs)
-		 (log-edit-mode . emacs)
-		 (vc-log-edit-mode . emacs)
-		 (magit-log-edit-mode . emacs)
-		 (erc-mode . emacs)
-		 (neotree-mode . emacs)
-		 (w3m-mode . emacs)
-		 (gud-mode . emacs)
-		 (help-mode . emacs)
-		 (eshell-mode . emacs)
-		 (shell-mode . emacs)
-		 (xref--xref-buffer-mode . emacs)
-		 ;;(message-mode . emacs)
-		 (color-rg-mode . emacs)
-		 (fundamental-mode . normal)
-		 (woman-mode . emacs)
-		 (sr-mode . emacs)
-		 (profiler-report-mode . emacs)
-		 (dired-mode . normal)
-		 (compilation-mode . emacs)
-		 (speedbar-mode . emacs)
-		 (ivy-occur-mode . emacs)
-		 (ffip-file-mode . emacs)
-		 (ivy-occur-grep-mode . normal)
-		 (messages-buffer-mode . normal)
-		 ))
-      (evil-set-initial-state (car p) (cdr p)))
-
-
-    ;; evil
-    (define-key evil-normal-state-map           [escape] 'keyboard-quit)
-    (define-key evil-visual-state-map           [escape] 'keyboard-quit)
-    (define-key minibuffer-local-map            [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-ns-map         [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-    (define-key minibuffer-local-isearch-map    [escape] 'minibuffer-keyboard-quit)
-    (define-key evil-normal-state-map "\C-a" 'evil-beginning-of-line)
-    (define-key evil-insert-state-map "\C-a" 'evil-beginning-of-line)
-    (define-key evil-visual-state-map "\C-a" 'evil-beginning-of-line)
-    (define-key evil-motion-state-map "\C-a" 'evil-begin-of-line)
-    (define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
-    (define-key evil-insert-state-map "\C-e" 'evil-end-of-line)
-    (define-key evil-visual-state-map "\C-e" 'evil-end-of-line)
-    (define-key evil-motion-state-map "\C-e" 'evil-end-of-line)
-    (define-key evil-normal-state-map "\C-f" 'evil-forward-char)
-    (define-key evil-insert-state-map "\C-f" 'evil-forward-char)
-    (define-key evil-insert-state-map "\C-f" 'evil-forward-char)
-    (define-key evil-normal-state-map "\C-b" 'evil-backward-char)
-    (define-key evil-insert-state-map "\C-b" 'evil-backward-char)
-    (define-key evil-visual-state-map "\C-b" 'evil-backward-char)
-    (define-key evil-normal-state-map "\C-n" 'evil-next-line)
-    (define-key evil-insert-state-map "\C-n" 'evil-next-line)
-    (define-key evil-visual-state-map "\C-n" 'evil-next-line)
-    (define-key evil-normal-state-map "\C-p" 'evil-previous-line)
-    (define-key evil-insert-state-map "\C-p" 'evil-previous-line)
-    (define-key evil-visual-state-map "\C-p" 'evil-previous-line)
-    (define-key evil-normal-state-map "\C-w" 'evil-delete)
-    (define-key evil-insert-state-map "\C-w" 'evil-delete)
-    (define-key evil-visual-state-map "\C-w" 'evil-delete)
-    (define-key evil-normal-state-map "\C-y" 'yank)
-    (define-key evil-insert-state-map "\C-y" 'yank)
-    (define-key evil-visual-state-map "\C-y" 'yank)
-    (define-key evil-normal-state-map "\C-k" 'kill-line)
-    (define-key evil-insert-state-map "\C-k" 'kill-line)
-    (define-key evil-visual-state-map "\C-k" 'kill-line)
-    (defun evil-escape-or-quit (&optional prompt)
-      (interactive)
-      (cond
-       ((or (evil-normal-state-p) (evil-insert-state-p) (evil-visual-state-p)
-	    (evil-replace-state-p) (evil-visual-state-p)) [escape])
-       (t (kbd "C-g"))))
-    (define-key key-translation-map     (kbd "C-q") #'evil-escape-or-quit)
-    (define-key evil-operator-state-map (kbd "C-q") #'evil-escape-or-quit)
-    (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  ;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
+  ;; You may delete this setup to use Evil NORMAL state always.
+  (dolist (p '((minibuffer-inactive-mode . emacs)
+	       (calendar-mode . emacs)
+	       (special-mode . emacs)
+	       (grep-mode . emacs)
+	       (Info-mode . emacs)
+	       (term-mode . emacs)
+	       (sdcv-mode . emacs)
+	       (anaconda-nav-mode . emacs)
+	       (log-edit-mode . emacs)
+	       (vc-log-edit-mode . emacs)
+	       (magit-log-edit-mode . emacs)
+	       (erc-mode . emacs)
+	       (neotree-mode . emacs)
+	       (w3m-mode . emacs)
+	       (gud-mode . emacs)
+	       (help-mode . emacs)
+	       (eshell-mode . emacs)
+	       (shell-mode . emacs)
+	       (xref--xref-buffer-mode . emacs)
+	       ;;(message-mode . emacs)
+	       (color-rg-mode . emacs)
+	       (fundamental-mode . normal)
+	       (woman-mode . emacs)
+	       (sr-mode . emacs)
+	       (profiler-report-mode . emacs)
+	       (dired-mode . normal)
+	       (compilation-mode . emacs)
+	       (speedbar-mode . emacs)
+	       (ivy-occur-mode . emacs)
+	       (ffip-file-mode . emacs)
+	       (ivy-occur-grep-mode . normal)
+	       (messages-buffer-mode . normal)
+	       ))
+    (evil-set-initial-state (car p) (cdr p)))
 
 
-    (define-key dired-mode-map           (kbd "e")   'wdired-change-to-wdired-mode)
-    (define-key evil-normal-state-map    (kbd "/")   'swiper)
-    (define-key evil-normal-state-map    (kbd "_")   'projectile-dired)
-    (define-key evil-normal-state-map    (kbd "-")   'dired-jump)
-    (define-key evil-normal-state-map    (kbd "C-s") 'save-buffer)
-    (define-key company-active-map       (kbd "C-n") 'company-select-next)
-    (define-key company-active-map       (kbd "C-p") 'company-select-previous)
-    (define-key evil-insert-state-map    (kbd "C-g") 'evil-normal-state)
-    (define-key rust-mode-map            (kbd "M-1") 'rust-run)
+  ;; evil
+  (define-key evil-normal-state-map           [escape] 'keyboard-quit)
+  (define-key evil-visual-state-map           [escape] 'keyboard-quit)
+  (define-key minibuffer-local-map            [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map         [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map    [escape] 'minibuffer-keyboard-quit)
+  (define-key evil-normal-state-map "\C-a" 'evil-beginning-of-line)
+  (define-key evil-insert-state-map "\C-a" 'evil-beginning-of-line)
+  (define-key evil-visual-state-map "\C-a" 'evil-beginning-of-line)
+  (define-key evil-motion-state-map "\C-a" 'evil-begin-of-line)
+  (define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
+  (define-key evil-insert-state-map "\C-e" 'evil-end-of-line)
+  (define-key evil-visual-state-map "\C-e" 'evil-end-of-line)
+  (define-key evil-motion-state-map "\C-e" 'evil-end-of-line)
+  (define-key evil-normal-state-map "\C-f" 'evil-forward-char)
+  (define-key evil-insert-state-map "\C-f" 'evil-forward-char)
+  (define-key evil-insert-state-map "\C-f" 'evil-forward-char)
+  (define-key evil-normal-state-map "\C-b" 'evil-backward-char)
+  (define-key evil-insert-state-map "\C-b" 'evil-backward-char)
+  (define-key evil-visual-state-map "\C-b" 'evil-backward-char)
+  (define-key evil-normal-state-map "\C-n" 'evil-next-line)
+  (define-key evil-insert-state-map "\C-n" 'evil-next-line)
+  (define-key evil-visual-state-map "\C-n" 'evil-next-line)
+  (define-key evil-normal-state-map "\C-p" 'evil-previous-line)
+  (define-key evil-insert-state-map "\C-p" 'evil-previous-line)
+  (define-key evil-visual-state-map "\C-p" 'evil-previous-line)
+  (define-key evil-normal-state-map "\C-w" 'evil-delete)
+  (define-key evil-insert-state-map "\C-w" 'evil-delete)
+  (define-key evil-visual-state-map "\C-w" 'evil-delete)
+  (define-key evil-normal-state-map "\C-y" 'yank)
+  (define-key evil-insert-state-map "\C-y" 'yank)
+  (define-key evil-visual-state-map "\C-y" 'yank)
+  (define-key evil-normal-state-map "\C-k" 'kill-line)
+  (define-key evil-insert-state-map "\C-k" 'kill-line)
+  (define-key evil-visual-state-map "\C-k" 'kill-line)
+  (defun evil-escape-or-quit (&optional prompt)
+    (interactive)
+    (cond
+     ((or (evil-normal-state-p) (evil-insert-state-p) (evil-visual-state-p)
+	  (evil-replace-state-p) (evil-visual-state-p)) [escape])
+     (t (kbd "C-g"))))
+  (define-key key-translation-map     (kbd "C-q") #'evil-escape-or-quit)
+  (define-key evil-operator-state-map (kbd "C-q") #'evil-escape-or-quit)
+  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 
 
-    ;; C-h b 找到快捷键bind function---remap
-    (with-eval-after-load 'evil
-      (define-key evil-motion-state-map (kbd "C-]") nil)
-      (define-key evil-motion-state-map (kbd "C-t") nil)
-      (define-key evil-motion-state-map (kbd "C-6") nil)
-
-      (define-key evil-motion-state-map "\C-]"  'lsp-bridge-jump)
-      (define-key evil-motion-state-map "g\C-]" 'lsp-bridge-jump)
-
-      (define-key evil-normal-state-map "\C-t"  'lsp-bridge-jump-back)
-      (define-key evil-motion-state-map "g\C-t" 'lsp-bridge-jump-back)
-
-      (with-eval-after-load 'company
-
-	(define-key company-active-map (kbd "<return>") nil)
-	(define-key company-active-map (kbd "<tab>") nil)
-	(define-key company-active-map (kbd "RET") nil)
-	(define-key company-active-map (kbd "M-n") nil)
-	(define-key company-active-map (kbd "M-p") nil)
-	(define-key company-active-map (kbd "C-m") nil)
-	(define-key company-active-map (kbd "TAB") 'company-complete-selection)
-	(define-key company-active-map (kbd "M-h") 'company-complete-selection)
-	(define-key company-active-map (kbd "M-H") 'company-complete-common)
-	(define-key company-active-map (kbd "M-w") 'company-show-location)
-	(define-key company-active-map (kbd "M-s") 'company-search-candidates)
-	(define-key company-active-map (kbd "M-S") 'company-filter-candidates)
-	(define-key company-active-map (kbd "M-n") 'company-select-next)
-	(define-key company-active-map (kbd "M-p") 'company-select-previous)
-	(define-key company-active-map (kbd "M-i") 'yas-expand)
+  (define-key dired-mode-map           (kbd "e")   'wdired-change-to-wdired-mode)
+  (define-key evil-normal-state-map    (kbd "/")   'swiper)
+  (define-key evil-normal-state-map    (kbd "_")   'projectile-dired)
+  (define-key evil-normal-state-map    (kbd "-")   'dired-jump)
+  (define-key evil-normal-state-map    (kbd "C-s") 'save-buffer)
+  (define-key company-active-map       (kbd "C-n") 'company-select-next)
+  (define-key company-active-map       (kbd "C-p") 'company-select-previous)
+  (define-key evil-insert-state-map    (kbd "C-g") 'evil-normal-state)
+  (define-key rust-mode-map            (kbd "M-1") 'rust-run)
 
 
-	(define-key evil-insert-state-map (kbd "C-n") nil)
-	(define-key evil-insert-state-map (kbd "C-p") nil)
-	(evil-define-key nil company-active-map (kbd "C-n") #'company-select-next)
-	(evil-define-key nil company-active-map (kbd "C-p") #'company-select-previous))
-      )
+  ;; C-h b 找到快捷键bind function---remap
+  (with-eval-after-load 'evil
+    (define-key evil-motion-state-map (kbd "C-]") nil)
+    (define-key evil-motion-state-map (kbd "C-t") nil)
+    (define-key evil-motion-state-map (kbd "C-6") nil)
 
-    ;;see here: http://xahlee.info/emacs/emacs/keyboard_shortcuts_examples.html
+    (define-key evil-motion-state-map "\C-]"  'lsp-bridge-jump)
+    (define-key evil-motion-state-map "g\C-]" 'lsp-bridge-jump)
 
-    (global-set-key (kbd "C-x y") 'dash-at-point)
-    (global-set-key (kbd "M-]")   'dumb-jump-go)
-    (global-set-key (kbd "M-t")   'dumb-jump-back)
-    (global-set-key (kbd "M-n")   'hold-line-scroll-down)
-    (global-set-key (kbd "M-p")   'hold-line-scroll-up)
+    (define-key evil-normal-state-map "\C-t"  'lsp-bridge-jump-back)
+    (define-key evil-motion-state-map "g\C-t" 'lsp-bridge-jump-back)
 
-    (global-set-key (kbd "C-6")   'lsp-bridge-popup-documentation)
-    (global-set-key (kbd "C-9")   'lsp-bridge-find-references) 
-    (global-set-key (kbd "C-0")   'lsp-bridge-rename) 
+    (with-eval-after-load 'company
 
-    (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
-    (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-    (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-    (global-set-key (kbd "M-s-p") 'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+      (define-key company-active-map (kbd "<return>") nil)
+      (define-key company-active-map (kbd "<tab>") nil)
+      (define-key company-active-map (kbd "RET") nil)
+      (define-key company-active-map (kbd "M-n") nil)
+      (define-key company-active-map (kbd "M-p") nil)
+      (define-key company-active-map (kbd "C-m") nil)
+      (define-key company-active-map (kbd "TAB") 'company-complete-selection)
+      (define-key company-active-map (kbd "M-h") 'company-complete-selection)
+      (define-key company-active-map (kbd "M-H") 'company-complete-common)
+      (define-key company-active-map (kbd "M-w") 'company-show-location)
+      (define-key company-active-map (kbd "M-s") 'company-search-candidates)
+      (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
+      (define-key company-active-map (kbd "M-n") 'company-select-next)
+      (define-key company-active-map (kbd "M-p") 'company-select-previous)
+      (define-key company-active-map (kbd "M-i") 'yas-expand)
+
+
+      (define-key evil-insert-state-map (kbd "C-n") nil)
+      (define-key evil-insert-state-map (kbd "C-p") nil)
+      (evil-define-key nil company-active-map (kbd "C-n") #'company-select-next)
+      (evil-define-key nil company-active-map (kbd "C-p") #'company-select-previous))
+    )
+
+  ;;see here: http://xahlee.info/emacs/emacs/keyboard_shortcuts_examples.html
+
+  (key-chord-define-global "bn" 'buffer-flip-forward)
+  (key-chord-define-global "bp" 'buffer-flip-backward)
+  (key-chord-define-global "bf" 'buffer-flip)
+  (key-chord-define-global "bo" 'buffer-flip-other-window)
+  (key-chord-define-global "ba" 'buffer-flip-abort)
+  (key-chord-define-global "jk" 'evil-normal-state)
+  (key-chord-define-global "jb" 'ibuffer)
+  (key-chord-define-global "g]"  #'xref-find-definitions)
+  (key-chord-define-global "gj"  #'xref-find-references)
+  (key-chord-define-global "gb"  #'xref-pop-marker-stack)
+  (key-chord-define-global "j0" 'delete-window)
+  (key-chord-define-global "j1" 'delete-other-windows)
+  (key-chord-define-global "jz" 'magit-status)
+  (key-chord-define-global "kb" 'gh/kill-current-buffer)
+	   
+  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
+  (global-set-key (kbd "M-g f")   'avy-goto-line)
+  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
+
+  (global-set-key (kbd "C-M-s") 'color-rg-search-input)
+  (global-set-key (kbd "C-M-;") 'magit-status)
+  (global-set-key (kbd "C-x G") 'git-messenger:popup-message)
+
+  (global-set-key (kbd "C-x y") 'dash-at-point)
+  (global-set-key (kbd "M-]")   'dumb-jump-go)
+  (global-set-key (kbd "M-t")   'dumb-jump-back)
+  (global-set-key (kbd "M-n")   'hold-line-scroll-down)
+  (global-set-key (kbd "M-p")   'hold-line-scroll-up)
+
+  (global-set-key (kbd "C-6")   'lsp-bridge-popup-documentation)
+  (global-set-key (kbd "C-9")   'lsp-bridge-find-references) 
+  (global-set-key (kbd "C-0")   'lsp-bridge-rename) 
+
+  (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+  (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+  (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
+  (global-set-key (kbd "M-s-p") 'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
 
 #+END_SRC
