@@ -53,3 +53,4 @@ get-pip.py
 .savehist
 .emacs.d/smex-items
 .emacs.d/custom.el
+*.~undo-tree~
