@@ -680,23 +680,6 @@ If NEWNAME is a directory, move file to it."
       (which-key-mode)
       (which-key-setup-side-window-right)))
 
-  (use-package paredit
-    :diminish paredit-mode
-    :init
-    (defun override-slime-del-key ()
-      (define-key slime-repl-mode-map
-	(read-kbd-macro paredit-backward-delete-key) nil))
-    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
-    (add-hook 'ielm-mode-hook 'enable-paredit-mode)
-    (add-hook 'lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
-    (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
-    (add-hook 'slime-repl-mode-hook 'override-slime-del-key)
-    (add-hook 'erlang-mode-hook 'enable-paredit-mode)
-    (add-hook 'go-mode-hook 'paredit-mode)
-    )
-
   (use-package rainbow-delimiters
     :ensure t
     :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
@@ -1034,26 +1017,6 @@ If NEWNAME is a directory, move file to it."
     (add-hook hook (lambda () (display-line-numbers-mode))))
 
   ;; -----------------------------------------------------------------------------------------------
-  ;; eldoc init
-  (dolist (hook (list
-		 'ielm-mode-hook
-		 'emacs-lisp-mode-hook
-		 'lisp-interaction-mode-hook
-		 'message-mode-hook
-		 'Info-mode-hook
-		 'erc-mode-hook
-		 'org-mode-hook
-		 ))
-    (add-hook hook #'(lambda ()
-		       (require 'eldoc)
-		       (require 'eldoc-extension)
-		       (setq eldoc-idle-delay 0) ;显示延迟
-		       (setq eldoc-argument-case 'eldoc-argument-list) ;高亮函数参数
-		       (turn-on-eldoc-mode)
-		       )))
-
-
-  ;; -----------------------------------------------------------------------------------------------
   ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
   (require 'lsp-bridge)
   (require 'lsp-bridge-jdtls)
@@ -1359,7 +1322,7 @@ If NEWNAME is a directory, move file to it."
 	"G"  'aborn/simple-git-commit-push
 
 	;; project && proxy
-	"p"  'projectile-command-map
+	;"p"  'projectile-command-map
 	"pf" 'counsel-projectile-find-file
 	"pp" 'counsel-projectile-switch-project
 	"pb" 'counsel-projectile-switch-to-buffer
@@ -1385,7 +1348,7 @@ If NEWNAME is a directory, move file to it."
 	"tg" 'awesome-tab-counsel-switch-group
 
 	;; window && frame
-	"w"  'evil-window-map
+	;"w"  'evil-window-map
 	"wO" 'other-frame
 	"wo" 'other-window
 	"wd" 'kill-buffer-and-window
@@ -1576,7 +1539,6 @@ If NEWNAME is a directory, move file to it."
      (awk . t)
      (R . t)
      (org . t)
-     (erlang . t)
      (js . t)
      (sql . t)
      (go . t)
@@ -2356,47 +2318,6 @@ If NEWNAME is a directory, move file to it."
 	    (message "Yanked region to clipboard!")
 	    (deactivate-mark))
 	(message "No region active; can't yank to clipboard!"))))
-
-  (use-package emacs
-    :ensure nil
-    ;; CUA for MacOS
-    :bind (("H-v" . clipboard-yank)
-           ("H-c" . clipboard-kill-ring-save)
-           ("H-x" . clipboard-kill-region))
-    :config
-    ;; Make titlebar dark
-    (add-to-list 'default-frame-alist '(ns-appearance . dark))
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  
-    ;; Useful when use an external keyboard
-    (defun +osx-swap-option-and-command ()
-      "Swap `mac-option-modifier' and `mac-command-modifier'."
-      (interactive)
-      (cl-rotatef mac-option-modifier mac-command-modifier)
-      (message "mac-option-modifier: %s, mac-command-modifier: %s" mac-option-modifier mac-command-modifier))
-  
-    ;; Emoji support
-    (let ((fonts '("Apple Color Emoji")))
-      (cl-loop with script = (if (>= emacs-major-version 28) 'emoji 'unicode)
-               for font in fonts
-               when (member font (font-family-list))
-               return (set-fontset-font t script (font-spec :family font) nil 'prepend)))
-  
-    ;; Better variable-pitch font
-    (let ((fonts '("Bookerly" "Overpass" "Verdana" "Lucida Grande")))
-      (cl-loop for font in fonts
-               when (member font (font-family-list))
-               return (custom-set-faces `(variable-pitch ((t (:family ,font)))))))
-    :custom
-    (mac-option-modifier 'hyper)
-    (mac-command-modifier 'meta)
-    (delete-by-moving-to-trash t)
-    ;; Curse Lion and its sudden but inevitable fullscreen mode!
-    ;; NOTE Meaningless to railwaycat's emacs-mac build
-    (ns-use-native-fullscreen nil)
-    ;; Visit files opened outside of Emacs in existing frame, not a new one
-    (ns-pop-up-frames nil))
-
 
 #+END_SRC
 * Key-maps

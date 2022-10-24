@@ -13,9 +13,6 @@
 [submodule ".emacs.d/vendor/auto-save"]
 	path = .emacs.d/vendor/auto-save
 	url = https://github.com/manateelazycat/auto-save
-[submodule ".emacs.d/vendor/ob-erlang"]
-	path = .emacs.d/vendor/ob-erlang
-	url = https://github.com/xfwduke/ob-erlang
 [submodule ".emacs.d/vendor/watch-other-window"]
 	path = .emacs.d/vendor/watch-other-window
 	url = https://github.com/manateelazycat/watch-other-window
