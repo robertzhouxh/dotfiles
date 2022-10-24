@@ -339,81 +339,7 @@
       :group 'centaur
       :type 'string)
 
-  (defcustom centaur-prettify-symbols-alist
-    '(("lambda" . ?λ)
-      ("<-"     . ?←)
-      ("->"     . ?→)
-      ("->>"    . ?↠)
-      ("=>"     . ?⇒)
-      ("map"    . ?↦)
-      ("/="     . ?≠)
-      ("!="     . ?≠)
-      ("=="     . ?≡)
-      ("<="     . ?≤)
-      (">="     . ?≥)
-      ("=<<"    . (?= (Br . Bl) ?≪))
-      (">>="    . (?≫ (Br . Bl) ?=))
-      ("<=<"    . ?↢)
-      (">=>"    . ?↣)
-      ("&&"     . ?∧)
-      ("||"     . ?∨)
-      ("not"    . ?¬))
-    "A list of symbol prettifications.
-  Nil to use font supports ligatures."
-    :group 'centaur
-    :type '(alist :key-type string :value-type (choice character sexp)))
-  
-  (defcustom centaur-prettify-org-symbols-alist
-    '(("[ ]" . ?☐)
-      ("[X]" . ?☑)
-      ("[-]" . ?⛝)
-  
-      ("#+ARCHIVE:"     . ?📦)
-      ("#+AUTHOR:"      . ?👤)
-      ("#+CREATOR:"     . ?💁)
-      ("#+DATE:"        . ?📆)
-      ("#+DESCRIPTION:" . ?⸙)
-      ("#+EMAIL:"       . ?📧)
-      ("#+OPTIONS:"     . ?⛭)
-      ("#+SETUPFILE:"   . ?⛮)
-      ("#+TAGS:"        . ?🏷)
-      ("#+TITLE:"       . ?📓)
-  
-      ("#+BEGIN_SRC"   . ?✎)
-      ("#+END_SRC"     . ?□)
-      ("#+BEGIN_QUOTE" . ?»)
-      ("#+END_QUOTE"   . ?«)
-      ("#+HEADERS"     . ?☰)
-      ("#+RESULTS:"    . ?💻))
-    "A list of symbol prettifications for `org-mode'."
-    :group 'centaur
-    :type '(alist :key-type string :value-type (choice character sexp)))
-
 #+END_SRC
-* Macros
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-  (defmacro set-company-backends-for! (mode &rest backends)
-    "Set `company-backends' for MODE with BACKENDS."
-    `(add-hook (intern (format "%s-hook" ',mode))
-	       (lambda ()
-		 (company-mode +1)
-		 (setq-local company-backends ',backends))))
-
-  (defmacro shut-up! (func)
-    "Silence FUNC."
-    `(advice-add ,func :around
-		 (defun ,(intern (format "shut-up-%s" func)) (f &rest args)
-		   (let ((inhibit-message t))
-		     (ignore-errors (apply f args))))))
-
-  (defmacro lazy! (&rest body)
-    "Delay the evaluation of BODY."
-    `(lambda ()
-       ,@body))
-#+END_SRC
-
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;;; https://emacs-china.org/t/org-mode/79
@@ -486,42 +412,6 @@
       (line-move-to-column tmp)
       (forward-line -1)))
 
-  (defun scan-code-tags ()
-    "Scan code tags: @TODO: , @FIXME:, @BUG:, @NOTE:."
-    (interactive)
-    (split-window-horizontally)
-    (occur "@FIXME:\\|@TODO:\\|@BUG:\\|@NOTE:"))
-
-  (defun select-current-word ()
-    "Select the word under cursor.
-	“word” here is considered any alphanumeric sequence with “_” or “-”."
-    (interactive)
-    (let (pt)
-      (skip-chars-backward "-_A-Za-z0-9")
-      (setq pt (point))
-      (skip-chars-forward "-_A-Za-z0-9")
-      (set-mark pt)))
-
-  ;; Insert Src Block
-  (use-package ido-completing-read+)
-  (defun pkg-insert-src-block (src-code-type)
-    "Insert a `SRC-CODE-TYPE' type source code block in org-mode."
-    (interactive
-     (let ((src-code-types
-	    '("emacs-lisp" "python" "C" "sh" "java" "js" "clojure" "C++" "css"
-	      "calc" "asymptote" "dot" "gnuplot" "ledger" "lilypond" "mscgen"
-	      "octave" "oz" "plantuml" "R" "sass" "screen" "sql" "awk" "ditaa"
-	      "haskell" "latex" "lisp" "matlab" "ocaml" "org" "perl" "ruby"
-	      "scheme" "sqlite" "html")))
-       (list (ido-completing-read+ "Source code type: " src-code-types))))
-    (progn
-      (newline-and-indent)
-      (insert (format "#+BEGIN_SRC %s\n" src-code-type))
-      (newline-and-indent)
-      (insert "#+END_SRC\n")
-      (previous-line 2)
-      (org-edit-src-code)))
-
   (defun sudo ()
     "Use TRAMP to `sudo' the current buffer"
     (interactive)
@@ -529,12 +419,6 @@
       (find-alternate-file
        (concat "/sudo:root@localhost:"
 	       buffer-file-name))))
-
-  (defun rename-local-var (name)
-    (interactive "sEnter new name: ")
-    (let ((var (word-at-point)))
-      (mark-defun)
-      (replace-string var name nil (region-beginning) (region-end))))
 
   (defun format-function-parameters ()
     "Turn the list of function parameters into multiline."
@@ -549,46 +433,6 @@
     (insert " ")
     (search-backward ")")
     (newline-and-indent))
-
-    ;;;;;;;;;;;;;;;;;;;;;;;; File and buffer ;;;;;;;;;;;;;;;;;;;;;;;
-  (defun revert-this-buffer ()
-    "Revert the current buffer."
-    (interactive)
-    (unless (minibuffer-window-active-p (selected-window))
-      (revert-buffer t t)
-      (message "Reverted this buffer")))
-
-  (defun delete-this-file ()
-    "Delete the current file, and kill the buffer."
-    (interactive)
-    (unless (buffer-file-name)
-      (error "No file is currently being edited"))
-    (when (yes-or-no-p (format "Really delete '%s'?"
-			       (file-name-nondirectory buffer-file-name)))
-      (delete-file (buffer-file-name))
-      (kill-this-buffer)))
-  (global-set-key (kbd "C-x K") #'delete-this-file)
-
-  (defun rename-this-file (new-name)
-    "Renames both current buffer and file it's visiting to NEW-NAME."
-    (interactive "sNew name: ")
-    (let ((name (buffer-name))
-	  (filename (buffer-file-name)))
-      (unless filename
-	(error "Buffer '%s' is not visiting a file!" name))
-      (progn
-	(when (file-exists-p filename)
-	  (rename-file filename new-name 1))
-	(set-visited-file-name new-name)
-	(rename-buffer new-name))))
-
-  (defun create-scratch-buffer ()
-    "Create a scratch buffer."
-    (interactive)
-    (switch-to-buffer (get-buffer-create "*scratch*"))
-    (lisp-interaction-mode))
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;; Font ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; Dos2Unix/Unix2Dos
   (defun dos2unix ()
@@ -622,7 +466,7 @@
     (interactive)
     (save-buffer-as-utf8 'gbk))
 
-    ;;;;;;;;;;;;;;;;;;;;;; Network Proxy ;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;; Network Proxy ;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Network Proxy
   (defun proxy-http-show ()
     "Show HTTP/HTTPS proxy."
@@ -752,7 +596,6 @@ If NEWNAME is a directory, move file to it."
   (set-visited-file-name newname)
   (rename-buffer newname))
 
-;;;###autoload
 (defun +delete-current-file (file)
   "Delete current visiting FILE."
   (interactive
@@ -793,20 +636,6 @@ If NEWNAME is a directory, move file to it."
     (interactive)
     (kill-new (buffer-name))
     (message "Copying '%s' to clipboard" (buffer-name)))
-  
-  ;;;###autoload
-  (defun +transient-tab-bar-history ()
-    "Transient map of command `tab-bar-history'."
-    (interactive)
-    (let ((echo-keystrokes nil))
-      (tab-bar-history-back)
-      (message "tab-bar-history: [u]back [r]forward")
-      (set-transient-map
-       (let ((map (make-sparse-keymap)))
-         (define-key map "u" #'tab-bar-history-back)
-         (define-key map "r" #'tab-bar-history-forward)
-         map)
-       t)))
 
 #+END_SRC
 * Fundamental Plugins
@@ -905,13 +734,6 @@ If NEWNAME is a directory, move file to it."
      counsel-projectile-find-file
      counsel-projectile-switch-project
      counsel-projectile-switch-to-buffer)
-    :init
-    (with-eval-after-load 'evil-leader
-      (evil-leader/set-key
-	"p/" 'counsel-projectile-rg
-	"pf" 'counsel-projectile-find-file
-	"pp" 'counsel-projectile-switch-project
-	"pb" 'counsel-projectile-switch-to-buffer))
     :config
     (counsel-projectile-mode t))
 
@@ -920,11 +742,11 @@ If NEWNAME is a directory, move file to it."
     :ensure nil
     :diminish
     :hook (after-init . global-auto-revert-mode))
+
 #+END_SRC
 * Quick Search And Move
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package avy)
-
   (use-package undo-tree
     :ensure t
     :diminish
@@ -953,12 +775,6 @@ If NEWNAME is a directory, move file to it."
     (setq dumb-jump-prefer-searcher 'ag))
 
   ;; Hiding structured data
-  ;;
-  ;; zm hide-all
-  ;; zr show-all
-  ;; za toggle-fold
-  ;; zo show-block
-  ;; zc hide-block
   (use-package hideshow
     :ensure t
     :hook (prog-mode . hs-minor-mode)
@@ -1751,7 +1567,6 @@ If NEWNAME is a directory, move file to it."
 
   ;; 在 org 允许文件中执行代码块
   (use-package ob-http)
-  (require 'ob-erlang)
   (require 'ob-go)
   (org-babel-do-load-languages
    'org-babel-load-languages
