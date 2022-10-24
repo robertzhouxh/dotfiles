@@ -41,10 +41,17 @@ cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
 cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 ```
 
-For MacOS
+
+### For MacOS
 
 brew tap railwaycat/emacsmacport
 brew install --cask emacs-mac
+
+或者 
+
+brew tap daviderestivo/emacs-head
+brew install emacs-head@29 --with-cocoa --with-native-comp --with-native-full-aot --with-imagemagick --with-xwidgets
+
 
 ### Automatically depoly vim/emacs
 

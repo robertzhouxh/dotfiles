@@ -7,7 +7,7 @@
 
   ; /usr/local/lib/erlang/lib/tools-{erlang-version}
   ; /usr/local/opt/erlang@23/lib/erlang/lib/tools-
-  (setq erlang-version "3.5")
+  (setq erlang-version "3.5.2")
   (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
   (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
@@ -105,43 +105,18 @@
     (require 'fullscreen)
     (fullscreen))
 
-  ;; Code
-  (prefer-coding-system 'utf-8)
-  (setenv "LANG" "en_US.UTF-8")
-  (setenv "LC_ALL" "en_US.UTF-8")
-  (setenv "LC_CTYPE" "en_US.UTF-8")
-  ;; Encoding
-  ;; UTF-8 as the default coding system
-  (when (fboundp 'set-charset-priority)
-    (set-charset-priority 'unicode))
-
-  ;; Explicitly set the prefered coding systems to avoid annoying prompt
-  ;; from emacs (especially on Microsoft Windows)
-  (prefer-coding-system 'utf-8)
-  (setq locale-coding-system 'utf-8)
-
-  (set-language-environment 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
-  (set-clipboard-coding-system 'utf-8)
-  (set-file-name-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (modify-coding-system-alist 'process "*" 'utf-8)
-
   ;; Restore emacs session.
   (setq initial-buffer-choice t)
   (run-with-timer 1 nil #'(lambda () (bury-buffer)))
-  
+
   ;; 增加长行处理性能
   (setq bidi-inhibit-bpa t)
   (setq-default bidi-paragraph-direction 'left-to-right)
-  
+
   ;; 增加IO性能
   (setq process-adaptive-read-buffering nil)
   (setq read-process-output-max (* 1024 1024))
-  
+
   (fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
   (blink-cursor-mode -1)                  ;指针不闪动
   (transient-mark-mode 1)                 ;标记高亮
@@ -160,30 +135,30 @@
   (setq async-bytecomp-allowed-packages nil) ;避免magit报错
   (setq word-wrap-by-category t)             ;按照中文折行
   (add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
-  
+
   (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
   (setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
-  
+
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq scroll-step 1
-        scroll-conservatively 10000)
-  
+	scroll-conservatively 10000)
+
   ;; 不显示 *scratch*
-  ;(defun remove-scratch-buffer ()
-  ;  (if (get-buffer "*scratch*")
-  ;      (kill-buffer "*scratch*")))
-  ;(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
-  
-  ;; Don't ask me when close emacs with process is running
-  ;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-  ;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
-  ;  (require 'noflet)
-  ;  (noflet ((process-list ())) ad-do-it))
-  
-  ;; Don't ask me when kill process buffer
-  ;(setq kill-buffer-query-functions
-  ;      (remq 'process-kill-buffer-query-function
-  ;            kill-buffer-query-functions))
+  (defun remove-scratch-buffer ()
+    (if (get-buffer "*scratch*")
+        (kill-buffer "*scratch*")))
+  (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+
+  ; Don't ask me when close emacs with process is running
+  ;;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+  ;;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
+  ;;  (require 'noflet)
+  ;;  (noflet ((process-list ())) ad-do-it))
+
+  ; Don't ask me when kill process buffer
+  (setq kill-buffer-query-functions
+        (remq 'process-kill-buffer-query-function
+              kill-buffer-query-functions))
 
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq-default scroll-step 1
@@ -245,6 +220,18 @@
 		)))
   (setq echo-keystrokes 0.1)                ;加快快捷键提示的速度
 
+
+  ;;; ### Auto-fill ###
+  ;;; --- 自动换行
+  (setq default-fill-columndefault-fill-column 100)          ;默认显示 100列就换行
+  (dolist (hook (list
+                 'after-text-mode-hook
+                 'message-mode-hook
+                 ))
+    (add-hook hook #'(lambda () (auto-fill-mode 1))))
+
+  ;;设置tab为4个空格的宽度
+  (setq default-tab-width 4)
 #+END_SRC
 * Const
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -688,6 +675,10 @@
       (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
       (message "Convert finish: %s" docx-file)))
 
+  (defun switch-to-messages ()
+    "Select buffer *message* in the current window."
+    (interactive)
+    (switch-to-buffer "*Messages*"))
 
   ;; -------------------------------------------------------------
   ;; functions for company from lazycat
@@ -944,6 +935,161 @@
 	  (youdao-dictionary-search-at-point-posframe)
 	(youdao-dictionary-search-at-point))))
 
+  ;; auto mode
+  ;; -----------------------------------------------------------------------------------------------
+  (defun add-to-alist (alist-var elt-cons &optional no-replace)
+    "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
+    If an element with the same car as the car of ELT-CONS is already present,
+    replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
+    element is not already present, add ELT-CONS to the front of the alist.
+    The test for presence of the car of ELT-CONS is done with `equal'."
+    (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
+      (if existing-element
+	  (or no-replace
+	      (rplacd existing-element (cdr elt-cons)))
+	(set alist-var (cons elt-cons (symbol-value alist-var)))))
+    (symbol-value alist-var))
+
+  (dolist (elt-cons '(
+		      ("\\.markdown" . markdown-mode)
+		      ("\\.md" . markdown-mode)
+		      ("\\.stumpwmrc\\'" . lisp-mode)
+		      ("\\.[hg]s\\'" . haskell-mode)
+		      ("\\.hi\\'" . haskell-mode)
+		      ("\\.hs-boot\\'" . haskell-mode)
+		      ("\\.chs\\'" . haskell-mode)
+		      ("\\.l[hg]s\\'" . literate-haskell-mode)
+		      ("\\.inc\\'" . asm-mode)
+		      ("\\.max\\'" . maxima-mode)
+		      ("\\.org\\'" . org-mode)
+		      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
+		      ("cron\\(tab\\)?\\." . crontab-mode)
+		      ("\\.py$" . python-mode)
+		      ("SConstruct". python-mode)
+		      ("\\.jl\\'" . lisp-mode)
+		      ("\\.asdf\\'" . lisp-mode)
+		      ("CMakeLists\\.txt\\'" . cmake-mode)
+		      ("\\.cmake\\'" . cmake-mode)
+		      ("\\.php\\'" . php-mode)
+		      ("\\.vue" . web-mode)
+		      ("\\.wxml" . web-mode)
+		      ("\\.phtml\\'" . web-mode)
+		      ("\\.tpl\\.php\\'" . web-mode)
+		      ("\\.as[cp]x\\'" . web-mode)
+		      ("\\.erb\\'" . web-mode)
+		      ("\\.mustache\\'" . web-mode)
+		      ("\\.djhtml\\'" . web-mode)
+		      ("\\.html?\\'" . web-mode)
+		      ("\\.js.erb\\'" . js-mode)
+		      ("\\.css\\'" . css-mode)
+		      ("\\.wxss\\'" . css-mode)
+		      ("\\.jade" . jade-mode)
+		      ("\\.go$" . go-mode)
+		      ("\\.rs$" . rust-mode)
+		      ("\\.pro$" . qmake-mode)
+		      ("\\.js$" . js-mode)
+		      ("\\.wxs$" . js-mode)
+		      ("\\.jsx$" . web-mode)
+		      ("\\.lua$" . lua-mode)
+		      ("\\.y$" . bison-mode)
+		      ("\\.pdf$" . pdf-view-mode)
+		      ("\\.ts$" . typescript-mode)
+		      ("\\.tsx$" . typescript-mode)
+		      ("\\.cpp$" . c++-mode)
+		      ("\\.h$" . c++-mode)
+		      ("\\.ll$" . llvm-mode)
+		      ("\\.bc$" . hexl-mode)
+		      ("\\.nim$" . nim-mode)
+		      ("\\.nims$" . nim-mode)
+		      ("\\.nimble$" . nim-mode)
+		      ("\\.nim.cfg$" . nim-mode)
+		      ("\\.exs$" . elixir-mode)
+		      ("\\.erl$" . erlang-mode)
+		      ("rebar\\.config$" . erlang-mode)
+		      ("relx\\.config$" . erlang-mode)
+		      ("sys\\.config\\.src$" . erlang-mode)
+		      ("sys\\.config$" . erlang-mode)
+		      ("\\.config\\.src?$" . erlang-mode)
+		      ("\\.config\\.script?$" . erlang-mode)
+		      ("\\.hrl?$" . erlang-mode)
+		      ("\\.app?$" . erlang-mode)
+		      ("\\.app.src?$" . erlang-mode)
+		      ("\\Emakefile" . erlang-mode)
+		      ("\\.json$" . json-mode)
+		      ("\\.clj$" . clojure-mode)
+		      ))
+    (add-to-alist 'auto-mode-alist elt-cons))
+
+
+  ;; -----------------------------------------------------------------------------------------------
+  ;; Line numbers are not displayed when large files are used.
+  (setq line-number-display-limit large-file-warning-threshold)
+  (setq line-number-display-limit-width 1000)
+
+  (dolist (hook (list
+		 'c-mode-common-hook
+		 'c-mode-hook
+		 'emacs-lisp-mode-hook
+		 'lisp-interaction-mode-hook
+		 'lisp-mode-hook
+		 'java-mode-hook
+		 'asm-mode-hook
+		 'haskell-mode-hook
+		 'rcirc-mode-hook
+		 'erc-mode-hook
+		 'sh-mode-hook
+		 'makefile-gmake-mode-hook
+		 'python-mode-hook
+		 'js-mode-hook
+		 'html-mode-hook
+		 'css-mode-hook
+		 'tuareg-mode-hook
+		 'go-mode-hook
+		 'qml-mode-hook
+		 'markdown-mode-hook
+		 'slime-repl-mode-hook
+		 'package-menu-mode-hook
+		 'cmake-mode-hook
+		 'php-mode-hook
+		 'web-mode-hook
+		 'sws-mode-hook
+		 'jade-mode-hook
+		 'vala-mode-hook
+		 'rust-mode-hook
+		 'ruby-mode-hook
+		 'qmake-mode-hook
+		 'lua-mode-hook
+		 'swift-mode-hook
+		 'llvm-mode-hook
+		 'conf-toml-mode-hook
+		 'nxml-mode-hook
+		 'nim-mode-hook
+		 'typescript-mode-hook
+		 'elixir-mode-hook
+		 'clojure-mode-hook
+		 ))
+    (add-hook hook (lambda () (display-line-numbers-mode))))
+
+  ;; -----------------------------------------------------------------------------------------------
+  ;; eldoc init
+  (dolist (hook (list
+		 'ielm-mode-hook
+		 'emacs-lisp-mode-hook
+		 'lisp-interaction-mode-hook
+		 'message-mode-hook
+		 'Info-mode-hook
+		 'erc-mode-hook
+		 'org-mode-hook
+		 ))
+    (add-hook hook #'(lambda ()
+		       (require 'eldoc)
+		       (require 'eldoc-extension)
+		       (setq eldoc-idle-delay 0) ;显示延迟
+		       (setq eldoc-argument-case 'eldoc-argument-list) ;高亮函数参数
+		       (turn-on-eldoc-mode)
+		       )))
+
+
   ;; -----------------------------------------------------------------------------------------------
   ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
   (require 'lsp-bridge)
@@ -978,12 +1124,12 @@
 	  ;; If typescript first line include deno.land, then use Deno LSP server.
 	  (save-excursion
 	    (when (string-equal (file-name-extension filepath) "ts")
-	     (dolist (buf (buffer-list))
-	       (when (string-equal (buffer-file-name buf) filepath)
-		 (with-current-buffer buf
-		   (goto-char (point-min))
-		   (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-		     (return "deno")))))))))
+	      (dolist (buf (buffer-list))
+		(when (string-equal (buffer-file-name buf) filepath)
+		  (with-current-buffer buf
+		    (goto-char (point-min))
+		    (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+		      (return "deno")))))))))
 
   ;; 打开日志，开发者才需要
   ;; (setq lsp-bridge-enable-log t)
@@ -1025,28 +1171,13 @@
     :config
     (global-highlight-parentheses-mode t))
 
-  (use-package modus-themes
-    :load-path "~/.emacs.d/vendor/modus-themes"
-    :init
-    (setq modus-themes-org-blocks 'gray-background
-	  modus-themes-fringes 'subtle
-	  modus-themes-italic-constructs t
-	  modus-themes-bold-constructs t
-	  modus-themes-syntax '(alt-syntax)
-	  modus-themes-hl-line '(intense)
-	  modus-themes-paren-match '(intense)
-	  modus-themes-mode-line '(moody borderless))
-    (setq modus-themes-headings
-	  (quote ((1 . (overline variable-pitch 1.4))
-		  (2 . (overline variable-pitch 1.25))
-		  (3 . (overline 1.1))
-		  (t . (monochrome))))))
-
   (require 'lazycat-theme)
   (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
   ;;(load-theme 'modus-vivendi)
   ;;(load-theme 'modus-operandi)
+  ;; (lazycat-theme-load-light)
   (lazycat-theme-load-dark)
+  ;; (lazycat-theme-load-with-sunrise)
 
   (require 'awesome-tray)
   (use-package awesome-tray
@@ -1727,216 +1858,236 @@
 
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
-   ;;---------------------------------------------------------
-   ;; Golang
-   ;;---------------------------------------------------------
-   (use-package go-mode
-     :functions (go-packages-gopkgs go-update-tools)
-     :bind (:map go-mode-map
-		 ("C-c R" . go-remove-unused-imports)
-		 ("<f1>" . godoc-at-point))
-     :config
-     ;; Env vars
-     (with-eval-after-load 'exec-path-from-shell
-       (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
-     ;; Install or update tools
-     (defvar go--tools '("golang.org/x/tools/cmd/goimports"
-			 "github.com/go-delve/delve/cmd/dlv"
-			 "github.com/josharian/impl"
-			 "github.com/cweill/gotests/..."
-			 "github.com/fatih/gomodifytags"
-			 "github.com/davidrjenni/reftools/cmd/fillstruct")
-       "All necessary go tools.")
+  ;;---------------------------------------------------------
+  ;; Golang
+  ;;---------------------------------------------------------
+  (use-package go-mode
+    :functions (go-packages-gopkgs go-update-tools)
+    :bind (:map go-mode-map
+		("C-c R" . go-remove-unused-imports)
+		("<f1>" . godoc-at-point))
+    :config
+    ;; Env vars
+    (with-eval-after-load 'exec-path-from-shell
+      (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
-     ;; Do not use the -u flag for gopls, as it will update the dependencies to incompatible versions
-     ;; https://github.com/golang/tools/blob/master/gopls/doc/user.md#installation
-     (defvar go--tools-no-update '("golang.org/x/tools/gopls@latest")
-       "All necessary go tools without update the dependencies.")
+    ;; Install or update tools
+    (defvar go--tools '("golang.org/x/tools/cmd/goimports"
+			"github.com/go-delve/delve/cmd/dlv"
+			"github.com/josharian/impl"
+			"github.com/cweill/gotests/..."
+			"github.com/fatih/gomodifytags"
+			"github.com/davidrjenni/reftools/cmd/fillstruct")
+      "All necessary go tools.")
 
-     (defun go-update-tools ()
-       "Install or update go tools."
-       (interactive)
-       (unless (executable-find "go")
-	 (user-error "Unable to find `go' in `exec-path'!"))
+    ;; Do not use the -u flag for gopls, as it will update the dependencies to incompatible versions
+    ;; https://github.com/golang/tools/blob/master/gopls/doc/user.md#installation
+    (defvar go--tools-no-update '("golang.org/x/tools/gopls@latest")
+      "All necessary go tools without update the dependencies.")
 
-       (message "Installing go tools...")
-       (let ((proc-name "go-tools")
-	     (proc-buffer "*Go Tools*"))
-	 (dolist (pkg go--tools-no-update)
-	   (set-process-sentinel
-	    (start-process proc-name proc-buffer "go" "get" "-v" pkg)
-	    (lambda (proc _)
-	      (let ((status (process-exit-status proc)))
-		(if (= 0 status)
-		    (message "Installed %s" pkg)
-		  (message "Failed to install %s: %d" pkg status))))))
+    (defun go-update-tools ()
+      "Install or update go tools."
+      (interactive)
+      (unless (executable-find "go")
+	(user-error "Unable to find `go' in `exec-path'!"))
 
-	 (dolist (pkg go--tools)
-	   (set-process-sentinel
-	    (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
-	    (lambda (proc _)
-	      (let ((status (process-exit-status proc)))
-		(if (= 0 status)
-		    (message "Installed %s" pkg)
-		  (message "Failed to install %s: %d" pkg status))))))))
+      (message "Installing go tools...")
+      (let ((proc-name "go-tools")
+	    (proc-buffer "*Go Tools*"))
+	(dolist (pkg go--tools-no-update)
+	  (set-process-sentinel
+	   (start-process proc-name proc-buffer "go" "get" "-v" pkg)
+	   (lambda (proc _)
+	     (let ((status (process-exit-status proc)))
+	       (if (= 0 status)
+		   (message "Installed %s" pkg)
+		 (message "Failed to install %s: %d" pkg status))))))
 
-     ;; Try to install go tools if `gopls' is not found
-     (unless (executable-find "gopls")
-       (go-update-tools))
+	(dolist (pkg go--tools)
+	  (set-process-sentinel
+	   (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
+	   (lambda (proc _)
+	     (let ((status (process-exit-status proc)))
+	       (if (= 0 status)
+		   (message "Installed %s" pkg)
+		 (message "Failed to install %s: %d" pkg status))))))))
 
-     (use-package go-fill-struct)
-     (use-package go-impl)
+    ;; Try to install go tools if `gopls' is not found
+    (unless (executable-find "gopls")
+      (go-update-tools))
 
-     ;; Install: See https://github.com/golangci/golangci-lint#install
-     (use-package flycheck-golangci-lint
-       :if (executable-find "golangci-lint")
-       :after flycheck
-       :defines flycheck-disabled-checkers
-       :hook (go-mode . (lambda ()
-			  "Enable golangci-lint."
-			  (setq flycheck-disabled-checkers '(go-gofmt
-							     go-golint
-							     go-vet
-							     go-build
-							     go-test
-							     go-errcheck))
-			  (flycheck-golangci-lint-setup))))
+    (use-package go-fill-struct)
+    (use-package go-impl)
 
-     (use-package go-tag
-       :bind (:map go-mode-map
-		   ("C-c t t" . go-tag-add)
-		   ("C-c t T" . go-tag-remove))
-       :init (setq go-tag-args (list "-transform" "camelcase")))
+    ;; Install: See https://github.com/golangci/golangci-lint#install
+    (use-package flycheck-golangci-lint
+      :if (executable-find "golangci-lint")
+      :after flycheck
+      :defines flycheck-disabled-checkers
+      :hook (go-mode . (lambda ()
+			 "Enable golangci-lint."
+			 (setq flycheck-disabled-checkers '(go-gofmt
+							    go-golint
+							    go-vet
+							    go-build
+							    go-test
+							    go-errcheck))
+			 (flycheck-golangci-lint-setup))))
 
-     (use-package go-gen-test
-       :bind (:map go-mode-map
-		   ("C-c t g" . go-gen-test-dwim)))
+    (use-package go-tag
+      :bind (:map go-mode-map
+		  ("C-c t t" . go-tag-add)
+		  ("C-c t T" . go-tag-remove))
+      :init (setq go-tag-args (list "-transform" "camelcase")))
 
-     (use-package gotest
-       :bind (:map go-mode-map
-		   ("C-c t a" . go-test-current-project)
-		   ("C-c t m" . go-test-current-file)
-		   ("C-c t ." . go-test-current-test)
-		   ("C-c t x" . go-run))))
+    (use-package go-gen-test
+      :bind (:map go-mode-map
+		  ("C-c t g" . go-gen-test-dwim)))
 
-   ;;---------------------------------------------------------
-   ;; Erlang
-   ;;---------------------------------------------------------
-   ;;---------------------------------------------------------
-   ;; wget http://erlang.org/download/otp_src_22.3.tar.gz
-   ;; tar zxvf otp_src_22.3.tar.gz
-   ;; cd otp_src_22.3
-   ;; ./configure --with-ssl && make && make install
-   ;;---------------------------------------------------------------
-   (use-package erlang
-     :mode (("\\.erl?$" . erlang-mode)
-	    ("rebar\\.config$" . erlang-mode)
-	    ("relx\\.config$" . erlang-mode)
-	    ("sys\\.config\\.src$" . erlang-mode)
-	    ("sys\\.config$" . erlang-mode)
-	    ("\\.config\\.src?$" . erlang-mode)
-	    ("\\.config\\.script?$" . erlang-mode)
-	    ("\\.hrl?$" . erlang-mode)
-	    ("\\.app?$" . erlang-mode)
-	    ("\\.app.src?$" . erlang-mode)
-	    ("\\Emakefile" . erlang-mode)))
+    (use-package gotest
+      :bind (:map go-mode-map
+		  ("C-c t a" . go-test-current-project)
+		  ("C-c t m" . go-test-current-file)
+		  ("C-c t ." . go-test-current-test)
+		  ("C-c t x" . go-run))))
 
-   ;;---------------------------------------------------------
-   ;; C/C++ Mode
-   ;;---------------------------------------------------------
-   (use-package cc-mode
-     :ensure nil
-     :bind (:map c-mode-base-map
-		 ("C-c c" . compile))
-     :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
-     :init (setq-default c-basic-offset 4)
-     :config
-     (use-package modern-cpp-font-lock
-       :diminish
-       :init (modern-c++-font-lock-global-mode t)))
+  ;;---------------------------------------------------------
+  ;; Erlang
+  ;;---------------------------------------------------------
+  ;;---------------------------------------------------------
+  ;; wget http://erlang.org/download/otp_src_22.3.tar.gz
+  ;; tar zxvf otp_src_22.3.tar.gz
+  ;; cd otp_src_22.3
+  ;; ./configure --with-ssl && make && make install
+  ;;---------------------------------------------------------------
+  ; (use-package erlang)
 
-   ;;---------------------------------------------------------
-   ;; Python Mode
-   ;; Install: pip install pyflakes autopep8
-   ;;---------------------------------------------------------
-   (use-package python
-     :ensure nil
-     :hook (inferior-python-mode . (lambda ()
-				     (process-query-on-exit-flag
-				      (get-process "Python"))))
-     :init
-     ;; Disable readline based native completion
-     (setq python-shell-completion-native-enable nil)
-     :config
-     ;; Default to Python 3. Prefer the versioned Python binaries since some
-     ;; systems stupidly make the unversioned one point at Python 2.
-     (when (and (executable-find "python3")
-		(string= python-shell-interpreter "python"))
-       (setq python-shell-interpreter "python3"))
+  ;;; "/usr/local/opt/erlang@22/lib/tools-" for mac
+  (let* ((emacs-version erlang-version)
+	 (tools-path
+	  (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
+	  ;; (concat "/usr/local/opt/erlang@23/lib/erlang/lib/tools-" emacs-version "/emacs")))
+    (when (file-exists-p tools-path)
+      (setq load-path (cons tools-path load-path))
+      (setq erlang-root-dir "/usr/local/lib/erlang")
+      (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
+      (require 'erlang-start)
+      (defvar inferior-erlang-prompt-timeout t)))
+  (setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
 
-     ;; Env vars
-     (with-eval-after-load 'exec-path-from-shell
-       (exec-path-from-shell-copy-env "PYTHONPATH"))
+  (defun get-erl-man ()
+    (interactive)
+    (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
+	   (man-args (format "-M %s %s" man-path (current-word))))
+      (man man-args)))
 
-     ;; Live Coding in Python
-     (use-package live-py-mode))
+  (defun erlang-insert-binary ()
+    (interactive)
+    (insert "<<\"\">>")
+    (backward-char 3)
+    )
+  (defun org-insert-header ()
+    (interactive)
+    (insert "<<\"\">>")
+    (backward-char 3)
+    )
 
-   ;;---------------------------------------------------------
-   ;; rust
-   ;;---------------------------------------------------------
+  ;;---------------------------------------------------------
+  ;; C/C++ Mode
+  ;;---------------------------------------------------------
+  (use-package cc-mode
+    :ensure nil
+    :bind (:map c-mode-base-map
+		("C-c c" . compile))
+    :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
+    :init (setq-default c-basic-offset 4)
+    :config
+    (use-package modern-cpp-font-lock
+      :diminish
+      :init (modern-c++-font-lock-global-mode t)))
 
-   (use-package rust-mode
-     :config
-     (setq rust-format-on-save t)
-     )
+  ;;---------------------------------------------------------
+  ;; Python Mode
+  ;; Install: pip install pyflakes autopep8
+  ;;---------------------------------------------------------
+  (use-package python
+    :ensure nil
+    :hook (inferior-python-mode . (lambda ()
+				    (process-query-on-exit-flag
+				     (get-process "Python"))))
+    :init
+    ;; Disable readline based native completion
+    (setq python-shell-completion-native-enable nil)
+    :config
+    ;; Default to Python 3. Prefer the versioned Python binaries since some
+    ;; systems stupidly make the unversioned one point at Python 2.
+    (when (and (executable-find "python3")
+	       (string= python-shell-interpreter "python"))
+      (setq python-shell-interpreter "python3"))
 
-   ;;---------------------------------------------------------
-   ;; Other languages
-   ;;---------------------------------------------------------
-   (use-package sh-script :defer t :config (setq sh-basic-offset 4))
-   (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
-   (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook #'flycheck-mode))
-   (use-package flycheck-yamllint
-     :defer t
-     :init
-     (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
+    ;; Env vars
+    (with-eval-after-load 'exec-path-from-shell
+      (exec-path-from-shell-copy-env "PYTHONPATH"))
 
-   ;;---------------------------------------------------------
-   ;; Dash
-   ;;---------------------------------------------------------
-   (use-package dash-at-point :ensure t)
+    ;; Live Coding in Python
+    (use-package live-py-mode))
+
+  ;;---------------------------------------------------------
+  ;; rust
+  ;;---------------------------------------------------------
+
+  (use-package rust-mode
+    :config
+    (setq rust-format-on-save t)
+    )
+
+  ;;---------------------------------------------------------
+  ;; Other languages
+  ;;---------------------------------------------------------
+  (use-package sh-script :defer t :config (setq sh-basic-offset 4))
+  (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
+  (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook #'flycheck-mode))
+  (use-package flycheck-yamllint
+    :defer t
+    :init
+    (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
+
+  ;;---------------------------------------------------------
+  ;; Dash
+  ;;---------------------------------------------------------
+  (use-package dash-at-point :ensure t)
 
 
-   ;; https://robert.kra.hn/posts/rust-emacs-setup/
-   ;; DEBUGGING
-   ;; brew install cmake llvm
-   ;; git clone https://github.com/lldb-tools/lldb-mi
-   ;; mkdir -p lldb-mi/build
-   ;; cd lldb-mi/build
-   ;; cmake ..
-   ;; cmake --build .
-   ;; ln -s $PWD/src/lldb-mi /usr/local/bin/lldb-mi
+  ;; https://robert.kra.hn/posts/rust-emacs-setup/
+  ;; DEBUGGING
+  ;; brew install cmake llvm
+  ;; git clone https://github.com/lldb-tools/lldb-mi
+  ;; mkdir -p lldb-mi/build
+  ;; cd lldb-mi/build
+  ;; cmake ..
+  ;; cmake --build .
+  ;; ln -s $PWD/src/lldb-mi /usr/local/bin/lldb-mi
   (when (executable-find "lldb-mi")
-   (use-package dap-mode
-     :ensure
-     :config
-     (dap-ui-mode)
-     (dap-ui-controls-mode 1)
+    (use-package dap-mode
+      :ensure
+      :config
+      (dap-ui-mode)
+      (dap-ui-controls-mode 1)
 
-     (require 'dap-lldb)
-     (require 'dap-gdb-lldb)
-     ;; installs .extension/vscode
-     (dap-gdb-lldb-setup)
-     (dap-register-debug-template
-      "Rust::LLDB Run Configuration"
-      (list :type "lldb"
-	    :request "launch"
-	    :name "LLDB::Run"
-	    :gdbpath "rust-lldb"
-	    ;; uncomment if lldb-mi is not in PATH
-	    ;; :lldbmipath "path/to/lldb-mi"
-	    ))))
+      (require 'dap-lldb)
+      (require 'dap-gdb-lldb)
+      ;; installs .extension/vscode
+      (dap-gdb-lldb-setup)
+      (dap-register-debug-template
+       "Rust::LLDB Run Configuration"
+       (list :type "lldb"
+	     :request "launch"
+	     :name "LLDB::Run"
+	     :gdbpath "rust-lldb"
+	     ;; uncomment if lldb-mi is not in PATH
+	     ;; :lldbmipath "path/to/lldb-mi"
+	     ))))
 
 #+END_SRC
 * AutoInsert
@@ -2115,72 +2266,60 @@
       )
   #+END_SRC
 * Platform
-  #+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes
 
-    (defun peng-use-mac-original-keyboard ()
-      "这样使用苹果原生的键盘比较符和我的习惯"
-      (interactive)
-      (setq mac-command-modifier 'control)
-      (setq mac-right-command-modifier 'meta)
-      (setq mac-right-option-modifier 'control)
-      (setq mac-control-modifier 'control)
-      (setq mac-right-control-modifier 'control)
-      )
+  (defun peng-use-mac-original-keyboard ()
+    "这样使用苹果原生的键盘比较符和我的习惯"
+    (interactive)
+    (setq mac-command-modifier 'control)
+    (setq mac-right-command-modifier 'meta)
+    (setq mac-right-option-modifier 'control)
+    (setq mac-control-modifier 'control)
+    (setq mac-right-control-modifier 'control)
+    )
 
-    (defun peng-use-filco-keyboard ()
-      "这样使用`filco'键盘时符合我的按键习惯。"
-      (interactive)
-      (setq mac-command-modifier 'control)
-      (setq mac-right-command-modifier 'control)
-      (setq mac-right-option-modifier 'meta)
-      (setq mac-control-modifier 'control)
-      )
+  (when (x/system-is-mac)
+    (setq mac-command-modifier 'meta
+	  mac-option-modifier 'none)
 
+    (defun copy-from-osx ()
+      (shell-command-to-string "pbpaste"))
+    (defun paste-to-osx (text &optional push)
+      (let ((process-connection-type nil))
+	(let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+	  (process-send-string proc text)
+	  (process-send-eof proc))))
+    (setq interprogram-cut-function 'paste-to-osx)
+    (setq interprogram-paste-function 'copy-from-osx)
 
-    (when (x/system-is-mac)
-      (setq mac-command-modifier 'meta
-	    mac-option-modifier 'none)
-					    ;(peng-use-mac-original-keyboard)
-					    ;(set-face-attribute 'default nil :height 140)
-
-      (defun copy-from-osx ()
-	(shell-command-to-string "pbpaste"))
-      (defun paste-to-osx (text &optional push)
-	(let ((process-connection-type nil))
-	  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-	    (process-send-string proc text)
-	    (process-send-eof proc))))
-      (setq interprogram-cut-function 'paste-to-osx)
-      (setq interprogram-paste-function 'copy-from-osx)
-
-      ;; Trash for safe
-      (defun move-file-to-trash (file)
-	"Use `trash' to move FILE to the system trash.
+    ;; Trash for safe
+    (defun move-file-to-trash (file)
+      "Use `trash' to move FILE to the system trash.
+      When using Homebrew, install it using \"brew install trash\"."
+      (call-process (executable-find "trash")
+		    nil 0 nil
+		    file))
+    (setq trash-directory "~/.Trash/emacs")
+    (setq delete-by-moving-to-trash t)
+    (defun system-move-file-to-trash (file)
+      "Use \"trash\" to move FILE to the system trash.
 	When using Homebrew, install it using \"brew install trash\"."
-	(call-process (executable-find "trash")
-		      nil 0 nil
-		      file))
-      (setq trash-directory "~/.Trash/emacs")
-      (setq delete-by-moving-to-trash t)
-      (defun system-move-file-to-trash (file)
-	"Use \"trash\" to move FILE to the system trash.
-	  When using Homebrew, install it using \"brew install trash\"."
-	(call-process (executable-find "trash")
-		      nil 0 nil
-		      file))
-      (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
+      (call-process (executable-find "trash")
+		    nil 0 nil
+		    file))
+    (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
-    (when (x/system-is-linux)
-      (defun yank-to-x-clipboard ()
-	(interactive)
-	(if (region-active-p)
-	    (progn
-	      (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-	      (message "Yanked region to clipboard!")
-	      (deactivate-mark))
-	  (message "No region active; can't yank to clipboard!"))))
+  (when (x/system-is-linux)
+    (defun yank-to-x-clipboard ()
+      (interactive)
+      (if (region-active-p)
+	  (progn
+	    (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+	    (message "Yanked region to clipboard!")
+	    (deactivate-mark))
+	(message "No region active; can't yank to clipboard!"))))
 
-  #+END_SRC
+#+END_SRC
 * Key-maps
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2336,7 +2475,29 @@
   (key-chord-define-global "j1" 'delete-other-windows)
   (key-chord-define-global "jz" 'magit-status)
   (key-chord-define-global "kb" 'gh/kill-current-buffer)
-	   
+
+  ;; (global-set-key (kbd "s-x g") 'color-rg-search-symbol)
+  ;; (global-set-key (kbd "s-x h") 'color-rg-search-input)
+  ;; (global-set-key (kbd "s-x j") 'color-rg-search-symbol-in-project)
+  ;; (global-set-key (kbd "s-x k") 'color-rg-search-input-in-project)
+  ;; (global-set-key (kbd "s-x ,") 'color-rg-search-symbol-in-current-file)
+  ;; (global-set-key (kbd "s-x .") 'color-rg-search-input-in-current-file)
+
+  (global-set-key (kbd "C-x y") 'dash-at-point)
+  (global-set-key (kbd "M-]")   'dumb-jump-go)
+  (global-set-key (kbd "M-t")   'dumb-jump-back)
+
+  (global-set-key (kbd "M-n")   'hold-line-scroll-down)
+  (global-set-key (kbd "M-p")   'hold-line-scroll-up)
+
+  ;; (global-set-key (kbd "M-o")   'watch-other-window-up)
+  ;; (global-set-key (kbd "M-p")   'watch-other-window-down)
+  ;; (global-set-key (kbd "M-p")   'watch-other-window-up-line)
+  ;; (global-set-key (kbd "M-p")   'watch-other-window-down-line)
+
+  (global-set-key (kbd "C-/")   'undo-tree-undo)
+  (global-set-key (kbd "C-?")   'undo-tree-redo)
+
   (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
   (global-set-key (kbd "M-g f")   'avy-goto-line)
   (global-set-key (kbd "M-g w")   'avy-goto-word-1)
@@ -2345,16 +2506,9 @@
   (global-set-key (kbd "C-M-;") 'magit-status)
   (global-set-key (kbd "C-x G") 'git-messenger:popup-message)
 
-  (global-set-key (kbd "C-x y") 'dash-at-point)
-  (global-set-key (kbd "M-]")   'dumb-jump-go)
-  (global-set-key (kbd "M-t")   'dumb-jump-back)
-  (global-set-key (kbd "M-n")   'hold-line-scroll-down)
-  (global-set-key (kbd "M-p")   'hold-line-scroll-up)
-
   (global-set-key (kbd "C-6")   'lsp-bridge-popup-documentation)
   (global-set-key (kbd "C-9")   'lsp-bridge-find-references) 
   (global-set-key (kbd "C-0")   'lsp-bridge-rename) 
-
   (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
   (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
   (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
@@ -2362,4 +2516,3 @@
 
 
 #+END_SRC
-  
