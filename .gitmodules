@@ -37,3 +37,6 @@
 [submodule ".emacs.d/vendor/lsp-bridge"]
 	path = .emacs.d/vendor/lsp-bridge
 	url = https://github.com/manateelazycat/lsp-bridge
+[submodule ".emacs.d/vendor/org-bars"]
+	path = .emacs.d/vendor/org-bars
+	url = https://github.com/tonyaldon/org-bars

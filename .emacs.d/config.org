@@ -1456,10 +1456,12 @@ If NEWNAME is a directory, move file to it."
     :hook
     (org-mode . toc-org-enable))
 
-  (use-package org-superstar
-	  :if (and (display-graphic-p) (char-displayable-p ?◉))
-	  :hook (org-mode . org-superstar-mode)
-	  :init (setq org-superstar-headline-bullets-list '("◉""○""◈""◇""⁕")))
+  (use-package org-bars
+    :ensure nil
+    :load-path "~/.emacs.d/vendor/org-bars"
+    :defer t
+    :config
+    :hook (org-mode . org-bars-mode))
 
   (use-package valign
     :defer t
@@ -2149,7 +2151,7 @@ If NEWNAME is a directory, move file to it."
   (use-package tramp
     :ensure nil
     :defer t
-    :custom
+    
     ;; Always use file cache when using tramp
     (remote-file-name-inhibit-cache nil)
     (tramp-default-method "ssh"))
