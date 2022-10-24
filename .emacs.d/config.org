@@ -390,6 +390,30 @@
     :type '(alist :key-type string :value-type (choice character sexp)))
 
 #+END_SRC
+* Macros
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+  (defmacro set-company-backends-for! (mode &rest backends)
+    "Set `company-backends' for MODE with BACKENDS."
+    `(add-hook (intern (format "%s-hook" ',mode))
+	       (lambda ()
+		 (company-mode +1)
+		 (setq-local company-backends ',backends))))
+
+  (defmacro shut-up! (func)
+    "Silence FUNC."
+    `(advice-add ,func :around
+		 (defun ,(intern (format "shut-up-%s" func)) (f &rest args)
+		   (let ((inhibit-message t))
+		     (ignore-errors (apply f args))))))
+
+  (defmacro lazy! (&rest body)
+    "Delay the evaluation of BODY."
+    `(lambda ()
+       ,@body))
+#+END_SRC
+
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;;; https://emacs-china.org/t/org-mode/79
@@ -533,7 +557,6 @@
     (unless (minibuffer-window-active-p (selected-window))
       (revert-buffer t t)
       (message "Reverted this buffer")))
-  (global-set-key (kbd "s-r") #'revert-this-buffer)
 
   (defun delete-this-file ()
     "Delete the current file, and kill the buffer."
@@ -710,6 +733,81 @@
 	      (company-complete-common)
 	    (indent-for-tab-command)))))
 
+(defun +rename-current-file (newname)
+  "Rename current visiting file to NEWNAME.
+If NEWNAME is a directory, move file to it."
+  (interactive
+   (progn
+     (unless buffer-file-name
+       (user-error "No file is visiting"))
+     (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
+       (when (equal (file-truename name)
+                    (file-truename buffer-file-name))
+         (user-error "Can't rename file to itself"))
+       (list name))))
+  ;; NEWNAME is a directory
+  (when (equal newname (file-name-as-directory newname))
+    (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
+  (rename-file buffer-file-name newname)
+  (set-visited-file-name newname)
+  (rename-buffer newname))
+
+;;;###autoload
+(defun +delete-current-file (file)
+  "Delete current visiting FILE."
+  (interactive
+   (list (or buffer-file-name
+             (user-error "No file is visiting"))))
+  (when (y-or-n-p (format "Really delete '%s'? " file))
+    (kill-this-buffer)
+    (delete-file file)))
+
+  ;;;###autoload
+  (defun +copy-current-file (new-path &optional overwrite-p)
+    "Copy current buffer's file to `NEW-PATH'.
+  If `OVERWRITE-P', overwrite the destination file without
+  confirmation."
+    (interactive
+     (progn
+       (unless buffer-file-name
+         (user-error "No file is visiting"))
+       (list (read-file-name "Copy file to: ")
+             current-prefix-arg)))
+    (let ((old-path (buffer-file-name))
+          (new-path (expand-file-name new-path)))
+      (make-directory (file-name-directory new-path) t)
+      (copy-file old-path new-path (or overwrite-p 1))))
+  
+  ;;;###autoload
+  (defun +copy-current-filename (file)
+    "Copy the full path to the current FILE."
+    (interactive
+     (list (or buffer-file-name
+               (user-error "No file is visiting"))))
+    (kill-new file)
+    (message "Copying '%s' to clipboard" file))
+  
+  ;;;###autoload
+  (defun +copy-current-buffer-name ()
+    "Copy the name of current buffer."
+    (interactive)
+    (kill-new (buffer-name))
+    (message "Copying '%s' to clipboard" (buffer-name)))
+  
+  ;;;###autoload
+  (defun +transient-tab-bar-history ()
+    "Transient map of command `tab-bar-history'."
+    (interactive)
+    (let ((echo-keystrokes nil))
+      (tab-bar-history-back)
+      (message "tab-bar-history: [u]back [r]forward")
+      (set-transient-map
+       (let ((map (make-sparse-keymap)))
+         (define-key map "u" #'tab-bar-history-back)
+         (define-key map "r" #'tab-bar-history-forward)
+         map)
+       t)))
+
 #+END_SRC
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -740,6 +838,10 @@
   (use-package restclient :config (setq restclient-inhibit-cookies t))
   (use-package key-chord :config (progn (key-chord-mode 1)))
   (use-package all-the-icons :if (display-graphic-p))
+  (use-package so-long
+    :ensure nil ;; emacs27+ new feature
+    :hook (after-init . global-so-long-mode))
+
 
   (use-package which-key
     :diminish which-key-mode
@@ -849,6 +951,51 @@
     (setq dumb-jump-aggressive nil)
     (setq dumb-jump-selector 'ivy)
     (setq dumb-jump-prefer-searcher 'ag))
+
+  ;; Hiding structured data
+  ;;
+  ;; zm hide-all
+  ;; zr show-all
+  ;; za toggle-fold
+  ;; zo show-block
+  ;; zc hide-block
+  (use-package hideshow
+    :ensure t
+    :hook (prog-mode . hs-minor-mode)
+    :config
+    (defconst hideshow-folded-face '((t (:inherit 'font-lock-comment-face :box t))))
+  
+    (defface hideshow-border-face
+      '((((background light))
+         :background "rosy brown" :extend t)
+        (t
+         :background "sandy brown" :extend t))
+      "Face used for hideshow fringe."
+      :group 'hideshow)
+  
+    (define-fringe-bitmap 'hideshow-folded-fringe
+      (vector #b00000000
+              #b00000000
+              #b00000000
+              #b11000011
+              #b11100111
+              #b01111110
+              #b00111100
+              #b00011000))
+  
+    (defun hideshow-folded-overlay-fn (ov)
+      "Display a folded region indicator with the number of folded lines."
+      (when (eq 'code (overlay-get ov 'hs))
+        (let* ((nlines (count-lines (overlay-start ov) (overlay-end ov)))
+               (info (format " (%d)..." nlines)))
+          ;; fringe indicator
+          (overlay-put ov 'before-string (propertize " "
+                                                     'display '(left-fringe hideshow-folded-fringe
+                                                                            hideshow-border-face)))
+          ;; folding indicator
+          (overlay-put ov 'display (propertize info 'face hideshow-folded-face)))))
+    :custom
+    (hs-set-up-overlay #'hideshow-folded-overlay-fn))
 
 #+END_SRC
 * Company && Yasnippet
@@ -1209,6 +1356,36 @@
   (require 'awesome-tab)
   (require 'all-the-icons)
   (awesome-tab-mode t)
+
+  (use-package dashboard
+    :ensure t
+    :init
+    ;; Format: "(icon title help action face prefix suffix)"
+    (setq dashboard-navigator-buttons `(((,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "mark-github"      :height 1.0 :v-adjust  0.0) "★")
+                                          "GitHub" "Browse" (lambda (&rest _) (browse-url homepage-url)))
+                                         (,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "heart"            :height 1.1 :v-adjust  0.0) "♥")
+                                          "Stars" "Show stars" (lambda (&rest _) (browse-url stars-url)))
+                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "report_problem" :height 1.1 :v-adjust -0.2) "⚑")
+                                          "Issue" "Report issue" (lambda (&rest _) (browse-url issue-url)) warning)
+                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "update"         :height 1.1 :v-adjust -0.2) "♺")
+                                          "Update" "Update packages synchronously" (lambda (&rest _) (package-update-all nil)) success))))
+  
+    :hook ((after-init . dashboard-setup-startup-hook)
+           (dashboard-mode . (lambda ()
+                               (setq-local global-hl-line-mode nil))))
+    :config
+    (defconst homepage-url "https://github.com/robertzhouxh/dotfiles")
+    (defconst stars-url (concat homepage-url "/stargazers"))
+    (defconst issue-url (concat homepage-url "/issues/new"))
+    :custom
+    (dashboard-startup-banner 'logo)
+    (dashboard-set-heading-icons t)
+    (dashboard-set-file-icons t)
+    (dashboard-set-init-info t)
+    (dashboard-set-navigator t)
+    (dashboard-items '((recents   . 10)
+                       (projects  . 5)
+                       (bookmarks . 5))))
 #+END_SRC
 
 * Performance
@@ -1301,51 +1478,72 @@
 
 	"A"  'align-regexp
 
-	;"bb" 'ivy-switch-buffer
+	;; buffer & bookmark
 	"bb" 'switch-to-buffer
-	"br" 'counsel-recentf
+	"bB" 'switch-to-buffer-other-window
+	"bc" 'clone-indirect-buffer
+	"bC" 'clone-indirect-buffer-other-window
+	"by" '+copy-current-buffer-name
+	"bv" 'revert-buffer
+	"bx" 'scratch-buffer
+	"bz" 'bury-buffer
 	"b[" 'previous-buffer
 	"b]" 'next-buffer
-	"bs" 'basic-save-buffer
-	"bS" 'evil-write-all
+	;; --------------
+	"bm" 'bookmark-set
+	"bM" 'bookmark-set-no-overwrite
+	"bi" 'bookmark-insert
+	"br" 'bookmark-rename
+	"bd" 'bookmark-delete
+	"bw" 'bookmark-write
+	"bj" 'bookmark-jump
+	"bJ" 'bookmark-jump-other-window
+	"bl" 'bookmark-bmenu-list
+	"bs" 'bookmark-save
 
+	;; code
+	"cd" 'delete-trailing-whitespace
 	"cc" 'comment-dwim
+	"cl" 'toggle-truncate-lines
+	;"cC" 'compile
+	;"cR" 'recompile
+	;"ck" 'kill-compilation
+	;"cx" 'quickrun
 
-	"db" 'kill-this-buffer
-	"D"  'kill-buffer-and-window
-	"do" 'delete-other-windows
-	"dt" 'delete-trailing-whitespace
+	;; dired
+	"dj" 'dired-jump
+	"dJ" 'dired-jump-other-window
 
-	"es" 'ivy-erlang-complete-find-spec
-	"ef" 'ivy-erlang-complete-find-file
-	"eh" 'ivy-erlang-complete-show-doc-at-point
-	"ep" 'ivy-erlang-complete-set-project-root
-	"ea" 'ivy-erlang-complete-autosetup-project-root
-	"ek" 'get-erl-man
-	"es" 'eshell-here
-	"ec" 'eshell/clear
-	"ed" 'eshell/close
-
-	"ff" 'find-file-other-frame
-	"fp" 'format-function-parameters
-	"fd" 'dired-jump
-	"fn" 'find-name-dired
+	;; file
+	"fa" 'x/save-all
+	"fu" 'sudo
+	"ff" 'find-file
+	"fF" 'find-file-other-frame
+	"f/" 'find-file-other-window
+	"fs" 'my-org-screenshot 
+	"fc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+	"fC" '+copy-current-file
+	"fD" '+delete-current-file
+	"fd" '(lambda () (interactive) (find-file "./Dockerfile"))
+	"fy" '+copy-current-filename
+	"fR" '+rename-current-file
+	"fr" 'recentf-open-files
+	"fl" 'find-file-literally
 	"fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
 	"fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
 	"fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
 	"fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
+	"fp" 'format-function-parameters
 
+	;; magit
 	"gs" 'magit-status
 	"gb" 'magit-branch-checkout
 	"gp" 'magit-pull
 	"gB" 'global-blamer-mode
 	"G"  'aborn/simple-git-commit-push
 
-	"oy" 'my-youdao-search-at-point
-	"oY" 'youdao-dictionary-search-from-input
-	"of" 'other-frame
-	"ow" 'other-window
-
+	;; project && proxy
+	"p"  'projectile-command-map
 	"pf" 'counsel-projectile-find-file
 	"pp" 'counsel-projectile-switch-project
 	"pb" 'counsel-projectile-switch-to-buffer
@@ -1354,26 +1552,45 @@
 	"ps" 'proxy-socks-toggle
 	"ph" 'proxy-http-toggle
 
-	"rb" 'generate-scratch-buffer
-	"rv" 'rename-local-var
-
+	;; search
+	"sj" 'evil-show-jumps
+	"sm" 'evil-show-marks
+	"sr" 'evil-show-registers
+	"sI" 'imenu
 	"si" 'color-rg-search-input
 	"ss" 'color-rg-search-symbol-in-project
 	"sp" 'color-rg-search-project
 	"sl" 'counsel-projectile-rg
-	"sa" 'x/save-all
-	"su" 'sudo
-	"sc" 'my-org-screenshot 
 
-	"tl" 'toggle-truncate-lines
 	"tj" 'awesome-tab-backward-tab
 	"tk" 'awesome-tab-forward-tab
 	"th" 'awesome-tab-backward-group
 	"tl" 'awesome-tab-forward-group
 	"tg" 'awesome-tab-counsel-switch-group
 
-	"vd" '(lambda () (interactive) (find-file "./Dockerfile"))
-	"vc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+
+	;; window && frame
+	"w"  'evil-window-map
+	"wf" 'other-frame
+	"ww" 'other-window
+	"wd" 'kill-buffer-and-window
+	"wu" '+transient-tab-bar-history
+	"w-" 'split-window-vertically
+	"w/" 'split-window-horizontally
+
+	;; open App
+	"oY" 'youdao-dictionary-search-from-input
+
+	;; fold
+	"zm" 'evil-close-folds
+	"zr" 'evil-open-folds
+	"zo" 'evil-open-fold
+	"zO" 'evil-open-fold-rec
+	"zc" 'evil-close-fold
+	"zC" 'evil-close-fold-rec
+	"za" 'evil-toggle-fold
+
+
 	)
 
       (defun magit-blame-toggle ()
@@ -1388,7 +1605,8 @@
       :ensure t
       :init
       (progn
-
+	(setq evil-disable-insert-state-bindings t)
+	(setq evil-want-Y-yank-to-eol t)
 	;; before evil-mode
 	(setq evil-want-C-i-jump nil)
 	(setq evil-want-C-u-scroll t)
@@ -1400,6 +1618,7 @@
 	(setq evil-move-cursor-back nil)
 	(setq evil-esc-delay 0)
 	)
+      :hook (after-init . evil-mode)
       :config
       (progn
 	(use-package evil-visualstar
@@ -2143,50 +2362,54 @@
 * Tramp
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; Remote SSH
-;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
-;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
-;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
-;; C-x C-f /sudo::/etc/hosts
-;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
-;; but it’s sometimes useful if you are debugging a docker file or whatever and need a tigher feedback loop.
-(use-package tramp
-  :config
-  (setq tramp-default-method "ssh"
-	tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
-(use-package docker-tramp :after (tramp) :config)
-(use-package kubernetes-tramp :after (tramp) :config)
+  ;; Remote SSH
+  ;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
+  ;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
+  ;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
+  ;; C-x C-f /sudo::/etc/hosts
+  ;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
+  ;; but it’s sometimes useful if you are debugging a docker file or whatever and need a tigher feedback loop.
+  (use-package tramp
+    :ensure nil
+    :defer t
+    :custom
+    ;; Always use file cache when using tramp
+    (remote-file-name-inhibit-cache nil)
+    (tramp-default-method "ssh"))
 
-;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
-(push
- (cons
-  "docker"
-  '((tramp-login-program "docker")
-    (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
-    (tramp-remote-shell "/bin/sh")
-    (tramp-remote-shell-args ("-i") ("-c"))))
- tramp-methods)
+  (use-package docker-tramp :after (tramp) :config)
+  (use-package kubernetes-tramp :after (tramp) :config)
 
-(defadvice tramp-completion-handle-file-name-all-completions
-  (around dotemacs-completion-docker activate)
-  "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
-    a list of active Docker container names, followed by colons."
-  (if (equal (ad-get-arg 1) "/docker:")
-      (let* ((dockernames-raw (shell-command-to-string "docker ps | awk '$NF != \"NAMES\" { print $NF \":\" }'"))
-             (dockernames (cl-remove-if-not
-                           #'(lambda (dockerline) (string-match ":$" dockerline))
-                           (split-string dockernames-raw "\n"))))
-        (setq ad-return-value dockernames))
-    ad-do-it))
+  ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+  (push
+   (cons
+    "docker"
+    '((tramp-login-program "docker")
+      (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
+      (tramp-remote-shell "/bin/sh")
+      (tramp-remote-shell-args ("-i") ("-c"))))
+   tramp-methods)
 
-; To try this out, we can spin up a quick server like this
-; docker run --rm -p 6379:6379 --name redis_container redis
-; And then look at files inside of it using
-; C-x C-f /docker:redis_container:/
+  (defadvice tramp-completion-handle-file-name-all-completions
+    (around dotemacs-completion-docker activate)
+    "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
+      a list of active Docker container names, followed by colons."
+    (if (equal (ad-get-arg 1) "/docker:")
+	(let* ((dockernames-raw (shell-command-to-string "docker ps | awk '$NF != \"NAMES\" { print $NF \":\" }'"))
+	       (dockernames (cl-remove-if-not
+			     #'(lambda (dockerline) (string-match ":$" dockerline))
+			     (split-string dockernames-raw "\n"))))
+	  (setq ad-return-value dockernames))
+      ad-do-it))
 
-; Inside a docker container on a remote host
-; We can also chain things together! Lets say that we have a docker container named ssb-pub running on a remote host ssb.willschenk.com, we can connect to it using:
-; C-x C-f /ssh:root@ssb.willschenk.com|docker:ssb-pub:/
+  ; To try this out, we can spin up a quick server like this
+  ; docker run --rm -p 6379:6379 --name redis_container redis
+  ; And then look at files inside of it using
+  ; C-x C-f /docker:redis_container:/
+
+  ; Inside a docker container on a remote host
+  ; We can also chain things together! Lets say that we have a docker container named ssb-pub running on a remote host ssb.willschenk.com, we can connect to it using:
+  ; C-x C-f /ssh:root@ssb.willschenk.com|docker:ssb-pub:/
 
 #+END_SRC
 * Font
@@ -2318,6 +2541,47 @@
 	    (message "Yanked region to clipboard!")
 	    (deactivate-mark))
 	(message "No region active; can't yank to clipboard!"))))
+
+  (use-package emacs
+    :ensure nil
+    ;; CUA for MacOS
+    :bind (("H-v" . clipboard-yank)
+           ("H-c" . clipboard-kill-ring-save)
+           ("H-x" . clipboard-kill-region))
+    :config
+    ;; Make titlebar dark
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  
+    ;; Useful when use an external keyboard
+    (defun +osx-swap-option-and-command ()
+      "Swap `mac-option-modifier' and `mac-command-modifier'."
+      (interactive)
+      (cl-rotatef mac-option-modifier mac-command-modifier)
+      (message "mac-option-modifier: %s, mac-command-modifier: %s" mac-option-modifier mac-command-modifier))
+  
+    ;; Emoji support
+    (let ((fonts '("Apple Color Emoji")))
+      (cl-loop with script = (if (>= emacs-major-version 28) 'emoji 'unicode)
+               for font in fonts
+               when (member font (font-family-list))
+               return (set-fontset-font t script (font-spec :family font) nil 'prepend)))
+  
+    ;; Better variable-pitch font
+    (let ((fonts '("Bookerly" "Overpass" "Verdana" "Lucida Grande")))
+      (cl-loop for font in fonts
+               when (member font (font-family-list))
+               return (custom-set-faces `(variable-pitch ((t (:family ,font)))))))
+    :custom
+    (mac-option-modifier 'hyper)
+    (mac-command-modifier 'meta)
+    (delete-by-moving-to-trash t)
+    ;; Curse Lion and its sudden but inevitable fullscreen mode!
+    ;; NOTE Meaningless to railwaycat's emacs-mac build
+    (ns-use-native-fullscreen nil)
+    ;; Visit files opened outside of Emacs in existing frame, not a new one
+    (ns-pop-up-frames nil))
+
 
 #+END_SRC
 * Key-maps
@@ -2497,6 +2761,10 @@
 
   (global-set-key (kbd "C-/")   'undo-tree-undo)
   (global-set-key (kbd "C-?")   'undo-tree-redo)
+
+  (global-set-key (kbd "C-c p f")   'projectile-find-file)
+  (global-set-key (kbd "C-c p b")   'projectile-switch-to-buffer)
+  (global-set-key (kbd "C-c p p")   'projectile-switch-project)
 
   (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
   (global-set-key (kbd "M-g f")   'avy-goto-line)
