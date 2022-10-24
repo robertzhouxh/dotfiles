@@ -1568,12 +1568,12 @@ If NEWNAME is a directory, move file to it."
 	"tl" 'awesome-tab-forward-group
 	"tg" 'awesome-tab-counsel-switch-group
 
-
 	;; window && frame
 	"w"  'evil-window-map
-	"wf" 'other-frame
-	"ww" 'other-window
+	"wO" 'other-frame
+	"wo" 'other-window
 	"wd" 'kill-buffer-and-window
+	"wD" 'delete-other-windows
 	"wu" '+transient-tab-bar-history
 	"w-" 'split-window-vertically
 	"w/" 'split-window-horizontally
