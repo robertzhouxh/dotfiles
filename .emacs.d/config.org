@@ -1460,7 +1460,6 @@ If NEWNAME is a directory, move file to it."
     :ensure nil
     :load-path "~/.emacs.d/vendor/org-bars"
     :defer t
-    :config
     :hook (org-mode . org-bars-mode))
 
   (use-package valign
@@ -1487,8 +1486,8 @@ If NEWNAME is a directory, move file to it."
 
   ;; Babel
   (setq org-confirm-babel-evaluate nil
-	org-src-fontify-natively t
-	org-src-tab-acts-natively t)
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t)
 
   ;; Display
   (setq org-log-done 'time)
@@ -1510,11 +1509,11 @@ If NEWNAME is a directory, move file to it."
   ;; always resize inline images to 300 pixels, or use scale 0.8  in src plantuml
   (setq org-image-actual-width 200) 
   ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise resize to 400
-					  ;(setq org-image-actual-width '(400)) 
+                                          ;(setq org-image-actual-width '(400)) 
   ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise don’t resize
-					  ;(setq org-image-actual-width nil) 
+                                          ;(setq org-image-actual-width nil) 
   ;; Never resize and use original width (the default)
-					  ;(setq org-image-actual-width t) 
+                                          ;(setq org-image-actual-width t) 
   (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
   ;(setq org-latex-image-default-width "")
   (setq org-latex-default-figure-position "H")
@@ -2140,6 +2139,10 @@ If NEWNAME is a directory, move file to it."
 #+END_SRC
 * Tramp
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;; -----------------------------------------------------------------------------------------------------
+  ;; REFER: https://emacstalk.github.io/post/019/
+  ;; https://willschenk.com/articles/2020/tramp_tricks/
+  ;; -----------------------------------------------------------------------------------------------------
 
   ;; Remote SSH
   ;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
@@ -2151,7 +2154,7 @@ If NEWNAME is a directory, move file to it."
   (use-package tramp
     :ensure nil
     :defer t
-    
+    :config
     ;; Always use file cache when using tramp
     (remote-file-name-inhibit-cache nil)
     (tramp-default-method "ssh"))
