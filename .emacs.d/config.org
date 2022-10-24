@@ -30,12 +30,12 @@
    ;; 启动
    (require 'package)
    (setq package-enable-at-startup nil)
-   (setq package-archives '(("gnu" . "http://mirrors.163.com/elpa/gnu/")
-                         ("melpa" . "https://melpa.org/packages/")
-                         ("org" . "http://orgmode.org/elpa/")))
-  ; (setq package-archives '(("melpa" . "http://elpa.emacs-china.org/melpa/")
-	;		    ("org"   . "http://elpa.emacs-china.org/org/")
-	;		    ("gnu"   . "http://elpa.emacs-china.org/gnu/")))
+   (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+                            ("melpa" . "http://elpa.emacs-china.org/melpa/")))
+   (setq package-archives '(("gnu"   . "http://mirrors.cloud.tencent.com/elpa/gnu/")
+                            ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
+   (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
    (setq package-check-signature nil)
    (package-initialize)
