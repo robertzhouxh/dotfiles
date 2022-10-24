@@ -60,6 +60,7 @@ set noswapfile
 " Use the same symbols as TextMate for tabstops and EOLs
 set listchars=tab:▸\ ,eol:¬
 
+let g:coc_disable_startup_warning = 1
 
 " ----------- Shortcut Key Configuration ----------------------------------
 let mapleader=","
@@ -87,6 +88,8 @@ Plug 'jimenezrick/vimerl'
 Plug 'edkolev/erlang-motions.vim'
 Plug 'vim-erlang/vim-dialyzer'
 Plug 'vim-erlang/vim-erlang-tags'
+"Plug 'racer-rust/vim-racer'
+Plug 'rust-lang/rust.vim'
 call plug#end()
 
 " NERDTREE CONFIGS
@@ -144,6 +147,18 @@ endif
 " Auto closing pairs
 " :so ~/.dotfiles/vim/autopair.vim
 " :so ~/githubs/dotfiles/autopair.vim
+
+
+" Rust
+"" 开启rust的自动reformat的功能
+let g:rustfmt_autosave = 1
+
+"" 手动补全和定义跳转
+set hidden
+"" 这一行指的是你编译出来的racer所在的路径
+" let g:racer_cmd = "<path-to-racer>/target/release/racer"
+"" 这里填写的就是我们在1.2.1中让你记住的目录
+"let $RUST_SRC_PATH="<path-to-rust-srcdir>/src/"
 
 " UI
 set termguicolors
