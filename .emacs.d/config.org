@@ -2156,7 +2156,6 @@ If NEWNAME is a directory, move file to it."
     :defer t
     :config
     ;; Always use file cache when using tramp
-    (remote-file-name-inhibit-cache nil)
     (tramp-default-method "ssh"))
 #+END_SRC
 * Font
