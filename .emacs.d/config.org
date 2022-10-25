@@ -731,13 +731,14 @@ If NEWNAME is a directory, move file to it."
   (use-package avy)
   (use-package undo-tree
     :ensure t
-    :diminish
-    :config
-    (progn
-      (global-undo-tree-mode)
-      (setq undo-tree-visualizer-timestamps t)
-      (setq undo-tree-visualizer-diff t)
-      ))
+    :commands (global-undo-tree-mode
+               undo
+               undo-tree-redo)
+    :init (setq undo-tree-visualizer-timestamps t
+                undo-tree-visualizer-diff t
+                undo-tree-auto-save-history nil
+                undo-tree-history-directory-alist `(("." . ,(expand-file-name "ebackup/" emacs-d))))
+    :diminish undo-tree-mode)
 
   (use-package ag
     :defer t
@@ -762,7 +763,7 @@ If NEWNAME is a directory, move file to it."
     :hook (prog-mode . hs-minor-mode)
     :config
     (defconst hideshow-folded-face '((t (:inherit 'font-lock-comment-face :box t))))
-  
+
     (defface hideshow-border-face
       '((((background light))
          :background "rosy brown" :extend t)
@@ -770,7 +771,7 @@ If NEWNAME is a directory, move file to it."
          :background "sandy brown" :extend t))
       "Face used for hideshow fringe."
       :group 'hideshow)
-  
+
     (define-fringe-bitmap 'hideshow-folded-fringe
       (vector #b00000000
               #b00000000
@@ -780,7 +781,7 @@ If NEWNAME is a directory, move file to it."
               #b01111110
               #b00111100
               #b00011000))
-  
+
     (defun hideshow-folded-overlay-fn (ov)
       "Display a folded region indicator with the number of folded lines."
       (when (eq 'code (overlay-get ov 'hs))
