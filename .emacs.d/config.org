@@ -737,7 +737,7 @@ If NEWNAME is a directory, move file to it."
     :init (setq undo-tree-visualizer-timestamps t
                 undo-tree-visualizer-diff t
                 undo-tree-auto-save-history nil
-                undo-tree-history-directory-alist `(("." . ,(expand-file-name "ebackup/" emacs-d))))
+                undo-tree-history-directory-alist `(("." . ,(expand-file-name "ebackup/" user-emacs-directory))))
     :diminish undo-tree-mode)
 
   (use-package ag
