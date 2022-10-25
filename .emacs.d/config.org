@@ -1246,184 +1246,209 @@ If NEWNAME is a directory, move file to it."
     (global-git-gutter-mode +1))
 #+END_SRC
 * Evil-Mode
-  #+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes
     ;;; C-y => paste the things to minibuffer, then use consel-rg
-    (defun x/config-evil-leader ()
-      "Configure evil leader mode."
-      (evil-leader/set-leader ",")
-      (evil-leader/set-key
-	","  'avy-goto-char-2
-	":"  'eval-expression
+  (defun x/config-evil-leader ()
+    "Configure evil leader mode."
+    (evil-leader/set-leader ",")
+    (evil-leader/set-key
+      ","  'avy-goto-char-2
+      ":"  'eval-expression
 
-	"/"  'counsel-rg
+      "/"  'counsel-rg
 
-	"A"  'align-regexp
+      "A"  'align-regexp
 
-	;; buffer & bookmark
-	"bb" 'switch-to-buffer
-	"bB" 'switch-to-buffer-other-window
-	"bc" 'clone-indirect-buffer
-	"bC" 'clone-indirect-buffer-other-window
-	"by" '+copy-current-buffer-name
-	"bv" 'revert-buffer
-	"bx" 'scratch-buffer
-	"bz" 'bury-buffer
-	"b[" 'previous-buffer
-	"b]" 'next-buffer
-	;; --------------
-	"bm" 'bookmark-set
-	"bM" 'bookmark-set-no-overwrite
-	"bi" 'bookmark-insert
-	"br" 'bookmark-rename
-	"bd" 'bookmark-delete
-	"bw" 'bookmark-write
-	"bj" 'bookmark-jump
-	"bJ" 'bookmark-jump-other-window
-	"bl" 'bookmark-bmenu-list
-	"bs" 'bookmark-save
+      ;; buffer & bookmark
+      "bb" 'switch-to-buffer
+      "bB" 'switch-to-buffer-other-window
+      "bc" 'clone-indirect-buffer
+      "bC" 'clone-indirect-buffer-other-window
+      "by" '+copy-current-buffer-name
+      "bv" 'revert-buffer
+      "bx" 'scratch-buffer
+      "bz" 'bury-buffer
+      "b[" 'previous-buffer
+      "b]" 'next-buffer
+      ;; --------------
+      "bm" 'bookmark-set
+      "bM" 'bookmark-set-no-overwrite
+      "bi" 'bookmark-insert
+      "br" 'bookmark-rename
+      "bd" 'bookmark-delete
+      "bw" 'bookmark-write
+      "bj" 'bookmark-jump
+      "bJ" 'bookmark-jump-other-window
+      "bl" 'bookmark-bmenu-list
+      "bs" 'bookmark-save
 
-	;; code
-	"cd" 'delete-trailing-whitespace
-	"cc" 'comment-dwim
-	"cl" 'toggle-truncate-lines
-	;"cC" 'compile
-	;"cR" 'recompile
-	;"ck" 'kill-compilation
-	;"cx" 'quickrun
+      ;; code
+      "cd" 'delete-trailing-whitespace
+      "cc" 'comment-dwim
+      "cl" 'toggle-truncate-lines
+      ;;"cC" 'compile
+      ;;"cR" 'recompile
+      ;;"ck" 'kill-compilation
+      ;;"cx" 'quickrun
 
-	;; dired
-	"dj" 'dired-jump
-	"dJ" 'dired-jump-other-window
-
-	;; file
-	"fa" 'x/save-all
-	"fu" 'sudo
-	"ff" 'find-file
-	"fF" 'find-file-other-frame
-	"f/" 'find-file-other-window
-	"fs" 'my-org-screenshot 
-	"fc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
-	"fC" '+copy-current-file
-	"fD" '+delete-current-file
-	"fd" '(lambda () (interactive) (find-file "./Dockerfile"))
-	"fy" '+copy-current-filename
-	"fR" '+rename-current-file
-	"fr" 'recentf-open-files
-	"fl" 'find-file-literally
-	"fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-	"fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-	"fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
-	"fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
-	"fp" 'format-function-parameters
-
-	;; magit
-	"gs" 'magit-status
-	"gb" 'magit-branch-checkout
-	"gp" 'magit-pull
-	"gB" 'global-blamer-mode
-	"G"  'aborn/simple-git-commit-push
-
-	;; project && proxy
-	;"p"  'projectile-command-map
-	"pf" 'counsel-projectile-find-file
-	"pp" 'counsel-projectile-switch-project
-	"pb" 'counsel-projectile-switch-to-buffer
-	"pk" 'projectile-kill-buffers
-	"pr" 'projectile-recentf
-	"ps" 'proxy-socks-toggle
-	"ph" 'proxy-http-toggle
-
-	;; search
-	"sj" 'evil-show-jumps
-	"sm" 'evil-show-marks
-	"sr" 'evil-show-registers
-	"sI" 'imenu
-	"si" 'color-rg-search-input
-	"ss" 'color-rg-search-symbol-in-project
-	"sp" 'color-rg-search-project
-	"sl" 'counsel-projectile-rg
-
-	"tj" 'awesome-tab-backward-tab
-	"tk" 'awesome-tab-forward-tab
-	"th" 'awesome-tab-backward-group
-	"tl" 'awesome-tab-forward-group
-	"tg" 'awesome-tab-counsel-switch-group
-
-	;; window && frame
-	;"w"  'evil-window-map
-	"wO" 'other-frame
-	"wo" 'other-window
-	"wd" 'kill-buffer-and-window
-	"wD" 'delete-other-windows
-	"wu" '+transient-tab-bar-history
-	"w-" 'split-window-vertically
-	"w/" 'split-window-horizontally
-
-	;; open App
-	"oY" 'youdao-dictionary-search-from-input
-
-	;; fold
-	"zm" 'evil-close-folds
-	"zr" 'evil-open-folds
-	"zo" 'evil-open-fold
-	"zO" 'evil-open-fold-rec
-	"zc" 'evil-close-fold
-	"zC" 'evil-close-fold-rec
-	"za" 'evil-toggle-fold
+      ;; dired
+      "dj" 'dired-jump
+      "dJ" 'dired-jump-other-window
 
 
-	)
+      ;; file
+      "fa" 'x/save-all
+      "fu" 'sudo
+      "ff" 'find-file
+      "fF" 'find-file-other-frame
+      "f/" 'find-file-other-window
+      "fs" 'my-org-screenshot 
+      "fc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
+      "fC" '+copy-current-file
+      "fD" '+delete-current-file
+      "fd" '(lambda () (interactive) (find-file "./Dockerfile"))
+      "fy" '+copy-current-filename
+      "fR" '+rename-current-file
+      "fr" 'recentf-open-files
+      "fl" 'find-file-literally
+      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+      "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
+      "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
+      "fp" 'format-function-parameters
 
-      (defun magit-blame-toggle ()
-	"Toggle magit-blame-mode on and off interactively."
-	(interactive)
-	(if (and (boundp 'magit-blame-mode) magit-blame-mode)
-	    (magit-blame-quit)
-	  (call-interactively 'magit-blame)))
+      ;; magit
+      "gs" 'magit-status
+      "gb" 'magit-branch-checkout
+      "gp" 'magit-pull
+      "gB" 'global-blamer-mode
+      "gt" 'magit-blame-toggle
+      "G"  'aborn/simple-git-commit-push
+
+      ;; project && proxy
+      ;;"p"  'projectile-command-map
+      "pf" 'counsel-projectile-find-file
+      "pp" 'counsel-projectile-switch-project
+      "pb" 'counsel-projectile-switch-to-buffer
+      "pk" 'projectile-kill-buffers
+      "pr" 'projectile-recentf
+      "ps" 'proxy-socks-toggle
+      "ph" 'proxy-http-toggle
+
+      ;; search
+      "sj" 'evil-show-jumps
+      "sm" 'evil-show-marks
+      "sr" 'evil-show-registers
+      "sI" 'imenu
+      "si" 'color-rg-search-input
+      "ss" 'color-rg-search-symbol-in-project
+      "sp" 'color-rg-search-project
+      "sl" 'counsel-projectile-rg
+
+      "tj" 'awesome-tab-backward-tab
+      "tk" 'awesome-tab-forward-tab
+      "th" 'awesome-tab-backward-group
+      "tl" 'awesome-tab-forward-group
+      "tg" 'awesome-tab-counsel-switch-group
+
+      ;; window && frame
+      ;;"w" 'evil-window-map
+      "wf" 'other-frame
+      "wo" 'other-window
+      "wd" 'kill-buffer-and-window
+      "wD" 'delete-other-windows
+      "wu" '+transient-tab-bar-history
+      "w-" 'split-window-vertically
+      "w/" 'split-window-horizontally
+
+      ;; open external App
+      "oY" 'youdao-dictionary-search-from-input
+
+      ;; fold
+      "zA" 'evil-close-folds
+      "za" 'evil-open-folds
+      "zo" 'evil-open-fold
+      "zO" 'evil-open-fold-rec
+      "zc" 'evil-close-fold
+      "zC" 'evil-close-fold-rec
+      "zt" 'evil-toggle-fold
+
       )
 
-    (use-package evil
-      :ensure t
-      :init
-      (progn
-	(setq evil-disable-insert-state-bindings t)
-	(setq evil-want-Y-yank-to-eol t)
-	;; before evil-mode
-	(setq evil-want-C-i-jump nil)
-	(setq evil-want-C-u-scroll t)
-	(setq evil-want-C-i-jump nil)
+    ;; from https://emacs-china.org/t/magit-add-commit-push/22457
+    (defun aborn/simple-git-commit-push ()
+      "Simple commit current git project and push to its upstream."
+      ;; (interactive "sCommit Message: ")
+      (interactive)
+      (when (and buffer-file-name
+                 (buffer-modified-p))
+        (save-buffer))                   ;; save it first if modified.
+      (magit-diff-unstaged)
+      (when (yes-or-no-p "Do you really want to commit everything?")
+        (magit-stage-modified)
+        ;; (magit-mode-bury-buffer)
+        (magit-diff-staged)
+        (setq msg (read-string "Commit Message: "))
+        (when (= 0 (length msg))
+          (setq msg (format-time-string "commit by magit in emacs@%Y-%m-%d %H:%M:%S"
+                                        (current-time))))
+        (message "commit message is %s" msg)
+        ;;(magit-commit (list "-m" msg))
+        (magit-call-git "commit" "-m" msg)
+        (magit-push-current-to-upstream nil)
+        (message "now do async push to %s" (magit-get "remote" "origin" "url")))
+      (magit-mode-bury-buffer))
 
-	(evil-mode t)
+    (defun magit-blame-toggle ()
+      "Toggle magit-blame-mode on and off interactively."
+      (interactive)
+      (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+          (magit-blame-quit)
+        (call-interactively 'magit-blame)))
+    )
 
-	(setq evil-want-fine-undo t)
-	(setq evil-move-cursor-back nil)
-	(setq evil-esc-delay 0)
-	)
-      :hook (after-init . evil-mode)
-      :config
-      (progn
-	(use-package evil-visualstar
-	  :bind (:map evil-visual-state-map
-		      ("*" . evil-visualstar/begin-search-forward)
-		      ("#" . evil-visualstar/begin-search-backward)))
-	(use-package evil-leader
-	  :init
-	  (progn
-	    (global-evil-leader-mode)
-	    (setq evil-leader/in-all-states 1)
-	    (x/config-evil-leader)))
-	(use-package evil-surround
-	  :ensure t
-	  :config
-	  (progn
-	    (global-evil-surround-mode)))
-	(use-package evil-escape
-	  :ensure t
-	  :config
-	  (progn
-	    (evil-escape-mode)
-	    (setq-default evil-escape-key-sequence "tn")))))
-  #+END_SRC
+  (use-package evil
+    :ensure t
+    :init
+    (progn
+      (setq evil-disable-insert-state-bindings t)
+      (setq evil-want-Y-yank-to-eol t)
+      ;; before evil-mode
+      (setq evil-want-C-i-jump nil)
+      (setq evil-want-C-u-scroll t)
+      (setq evil-want-C-i-jump nil)
+
+      (evil-mode t)
+
+      (setq evil-want-fine-undo t)
+      (setq evil-move-cursor-back nil)
+      (setq evil-esc-delay 0)
+      )
+    :hook (after-init . evil-mode)
+    :config
+    (progn
+      (use-package evil-visualstar
+        :bind (:map evil-visual-state-map
+                    ("*" . evil-visualstar/begin-search-forward)
+                    ("#" . evil-visualstar/begin-search-backward)))
+      (use-package evil-leader
+        :init
+        (progn
+          (global-evil-leader-mode)
+          (setq evil-leader/in-all-states 1)
+          (x/config-evil-leader)))
+      (use-package evil-surround
+        :ensure t
+        :config
+        (progn
+          (global-evil-surround-mode)))
+      (use-package evil-escape
+        :ensure t
+        :config
+        (progn
+          (evil-escape-mode)
+          (setq-default evil-escape-key-sequence "tn")))))
+#+END_SRC
 * Org-Mode
   #+BEGIN_SRC emacs-lisp :tangle yes
   ;; --------------------------------------------------------------
