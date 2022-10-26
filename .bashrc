@@ -12,3 +12,5 @@ shopt -s nocaseglob;
 [[ `uname -s` == "Darwin" ]] && . /usr/local/share/liquidprompt && . /usr/local/etc/profile.d/z.sh
 
 
+. $HOME/.asdf/asdf.sh
+. $HOME/.asdf/completions/asdf.bash
