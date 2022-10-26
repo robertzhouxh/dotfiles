@@ -10,7 +10,3 @@ shopt -s nocaseglob;
 [ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
 [[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . /usr/local/etc/profile.d/z.sh
 [[ `uname -s` == "Darwin" ]] && . /usr/local/share/liquidprompt && . /usr/local/etc/profile.d/z.sh
-
-
-. $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash
