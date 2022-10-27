@@ -5,9 +5,9 @@
 * Custom Var
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ; /usr/local/lib/erlang/lib/tools-{erlang-version}
-  ; /usr/local/opt/erlang@23/lib/erlang/lib/tools-
-  (setq erlang-version "3.5.2")
+
+  (setq erlang-path-prefix "/usr/local/lib/erlang")
+  (setq erlang-lib-tools-version "3.5.2")
   (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
   (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
@@ -872,14 +872,14 @@ If NEWNAME is a directory, move file to it."
     :commands youdao-dictionary-play-voice-of-current-word
     :init
     (setq url-automatic-caching t
-	  youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
+          youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
 
     (defun my-youdao-search-at-point ()
       "Search word at point and display result with `posframe', `pos-tip', or buffer."
       (interactive)
       (if (display-graphic-p)
-	  (youdao-dictionary-search-at-point-posframe)
-	(youdao-dictionary-search-at-point))))
+          (youdao-dictionary-search-at-point-posframe)
+        (youdao-dictionary-search-at-point))))
 
   ;; auto mode
   ;; -----------------------------------------------------------------------------------------------
@@ -891,79 +891,80 @@ If NEWNAME is a directory, move file to it."
     The test for presence of the car of ELT-CONS is done with `equal'."
     (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
       (if existing-element
-	  (or no-replace
-	      (rplacd existing-element (cdr elt-cons)))
-	(set alist-var (cons elt-cons (symbol-value alist-var)))))
+          (or no-replace
+              (rplacd existing-element (cdr elt-cons)))
+        (set alist-var (cons elt-cons (symbol-value alist-var)))))
     (symbol-value alist-var))
 
   (dolist (elt-cons '(
-		      ("\\.markdown" . markdown-mode)
-		      ("\\.md" . markdown-mode)
-		      ("\\.stumpwmrc\\'" . lisp-mode)
-		      ("\\.[hg]s\\'" . haskell-mode)
-		      ("\\.hi\\'" . haskell-mode)
-		      ("\\.hs-boot\\'" . haskell-mode)
-		      ("\\.chs\\'" . haskell-mode)
-		      ("\\.l[hg]s\\'" . literate-haskell-mode)
-		      ("\\.inc\\'" . asm-mode)
-		      ("\\.max\\'" . maxima-mode)
-		      ("\\.org\\'" . org-mode)
-		      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
-		      ("cron\\(tab\\)?\\." . crontab-mode)
-		      ("\\.py$" . python-mode)
-		      ("SConstruct". python-mode)
-		      ("\\.jl\\'" . lisp-mode)
-		      ("\\.asdf\\'" . lisp-mode)
-		      ("CMakeLists\\.txt\\'" . cmake-mode)
-		      ("\\.cmake\\'" . cmake-mode)
-		      ("\\.php\\'" . php-mode)
-		      ("\\.vue" . web-mode)
-		      ("\\.wxml" . web-mode)
-		      ("\\.phtml\\'" . web-mode)
-		      ("\\.tpl\\.php\\'" . web-mode)
-		      ("\\.as[cp]x\\'" . web-mode)
-		      ("\\.erb\\'" . web-mode)
-		      ("\\.mustache\\'" . web-mode)
-		      ("\\.djhtml\\'" . web-mode)
-		      ("\\.html?\\'" . web-mode)
-		      ("\\.js.erb\\'" . js-mode)
-		      ("\\.css\\'" . css-mode)
-		      ("\\.wxss\\'" . css-mode)
-		      ("\\.jade" . jade-mode)
-		      ("\\.go$" . go-mode)
-		      ("\\.rs$" . rust-mode)
-		      ("\\.pro$" . qmake-mode)
-		      ("\\.js$" . js-mode)
-		      ("\\.wxs$" . js-mode)
-		      ("\\.jsx$" . web-mode)
-		      ("\\.lua$" . lua-mode)
-		      ("\\.y$" . bison-mode)
-		      ("\\.pdf$" . pdf-view-mode)
-		      ("\\.ts$" . typescript-mode)
-		      ("\\.tsx$" . typescript-mode)
-		      ("\\.cpp$" . c++-mode)
-		      ("\\.h$" . c++-mode)
-		      ("\\.ll$" . llvm-mode)
-		      ("\\.bc$" . hexl-mode)
-		      ("\\.nim$" . nim-mode)
-		      ("\\.nims$" . nim-mode)
-		      ("\\.nimble$" . nim-mode)
-		      ("\\.nim.cfg$" . nim-mode)
-		      ("\\.exs$" . elixir-mode)
-		      ("\\.erl$" . erlang-mode)
-		      ("rebar\\.config$" . erlang-mode)
-		      ("relx\\.config$" . erlang-mode)
-		      ("sys\\.config\\.src$" . erlang-mode)
-		      ("sys\\.config$" . erlang-mode)
-		      ("\\.config\\.src?$" . erlang-mode)
-		      ("\\.config\\.script?$" . erlang-mode)
-		      ("\\.hrl?$" . erlang-mode)
-		      ("\\.app?$" . erlang-mode)
-		      ("\\.app.src?$" . erlang-mode)
-		      ("\\Emakefile" . erlang-mode)
-		      ("\\.json$" . json-mode)
-		      ("\\.clj$" . clojure-mode)
-		      ))
+                      ("\\.markdown" . markdown-mode)
+                      ("\\.md" . markdown-mode)
+                      ("\\.stumpwmrc\\'" . lisp-mode)
+                      ("\\.[hg]s\\'" . haskell-mode)
+                      ("\\.hi\\'" . haskell-mode)
+                      ("\\.hs-boot\\'" . haskell-mode)
+                      ("\\.chs\\'" . haskell-mode)
+                      ("\\.l[hg]s\\'" . literate-haskell-mode)
+                      ("\\.inc\\'" . asm-mode)
+                      ("\\.max\\'" . maxima-mode)
+                      ("\\.org\\'" . org-mode)
+                      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
+                      ("cron\\(tab\\)?\\." . crontab-mode)
+                      ("\\.py$" . python-mode)
+                      ("SConstruct". python-mode)
+                      ("\\.jl\\'" . lisp-mode)
+                      ("\\.asdf\\'" . lisp-mode)
+                      ("CMakeLists\\.txt\\'" . cmake-mode)
+                      ("\\.cmake\\'" . cmake-mode)
+                      ("\\.php\\'" . php-mode)
+                      ("\\.vue" . web-mode)
+                      ("\\.wxml" . web-mode)
+                      ("\\.phtml\\'" . web-mode)
+                      ("\\.tpl\\.php\\'" . web-mode)
+                      ("\\.as[cp]x\\'" . web-mode)
+                      ("\\.erb\\'" . web-mode)
+                      ("\\.mustache\\'" . web-mode)
+                      ("\\.djhtml\\'" . web-mode)
+                      ("\\.html?\\'" . web-mode)
+                      ("\\.js.erb\\'" . js-mode)
+                      ("\\.css\\'" . css-mode)
+                      ("\\.wxss\\'" . css-mode)
+                      ("\\.jade" . jade-mode)
+                      ("\\.go$" . go-mode)
+                      ("\\.rs$" . rust-mode)
+                      ("\\.pro$" . qmake-mode)
+                      ("\\.js$" . js-mode)
+                      ("\\.wxs$" . js-mode)
+                      ("\\.jsx$" . web-mode)
+                      ("\\.lua$" . lua-mode)
+                      ("\\.y$" . bison-mode)
+                      ("\\.pdf$" . pdf-view-mode)
+                      ("\\.ts$" . typescript-mode)
+                      ("\\.tsx$" . typescript-mode)
+                      ("\\.cpp$" . c++-mode)
+                      ("\\.h$" . c++-mode)
+                      ("\\.ll$" . llvm-mode)
+                      ("\\.bc$" . hexl-mode)
+                      ("\\.nim$" . nim-mode)
+                      ("\\.nims$" . nim-mode)
+                      ("\\.nimble$" . nim-mode)
+                      ("\\.nim.cfg$" . nim-mode)
+                      ("\\.exs$" . elixir-mode)
+                      ("\\.erl$" . erlang-mode)
+                      ("\\.schema$" . erlang-mode)
+                      ("rebar\\.config$" . erlang-mode)
+                      ("relx\\.config$" . erlang-mode)
+                      ("sys\\.config\\.src$" . erlang-mode)
+                      ("sys\\.config$" . erlang-mode)
+                      ("\\.config\\.src?$" . erlang-mode)
+                      ("\\.config\\.script?$" . erlang-mode)
+                      ("\\.hrl?$" . erlang-mode)
+                      ("\\.app?$" . erlang-mode)
+                      ("\\.app.src?$" . erlang-mode)
+                      ("\\Emakefile" . erlang-mode)
+                      ("\\.json$" . json-mode)
+                      ("\\.clj$" . clojure-mode)
+                      ))
     (add-to-alist 'auto-mode-alist elt-cons))
 
 
@@ -973,47 +974,47 @@ If NEWNAME is a directory, move file to it."
   (setq line-number-display-limit-width 1000)
 
   (dolist (hook (list
-		 'c-mode-common-hook
-		 'c-mode-hook
-		 'emacs-lisp-mode-hook
-		 'lisp-interaction-mode-hook
-		 'lisp-mode-hook
-		 'java-mode-hook
-		 'asm-mode-hook
-		 'haskell-mode-hook
-		 'rcirc-mode-hook
-		 'erc-mode-hook
-		 'sh-mode-hook
-		 'makefile-gmake-mode-hook
-		 'python-mode-hook
-		 'js-mode-hook
-		 'html-mode-hook
-		 'css-mode-hook
-		 'tuareg-mode-hook
-		 'go-mode-hook
-		 'qml-mode-hook
-		 'markdown-mode-hook
-		 'slime-repl-mode-hook
-		 'package-menu-mode-hook
-		 'cmake-mode-hook
-		 'php-mode-hook
-		 'web-mode-hook
-		 'sws-mode-hook
-		 'jade-mode-hook
-		 'vala-mode-hook
-		 'rust-mode-hook
-		 'ruby-mode-hook
-		 'qmake-mode-hook
-		 'lua-mode-hook
-		 'swift-mode-hook
-		 'llvm-mode-hook
-		 'conf-toml-mode-hook
-		 'nxml-mode-hook
-		 'nim-mode-hook
-		 'typescript-mode-hook
-		 'elixir-mode-hook
-		 'clojure-mode-hook
-		 ))
+                 'c-mode-common-hook
+                 'c-mode-hook
+                 'emacs-lisp-mode-hook
+                 'lisp-interaction-mode-hook
+                 'lisp-mode-hook
+                 'java-mode-hook
+                 'asm-mode-hook
+                 'haskell-mode-hook
+                 'rcirc-mode-hook
+                 'erc-mode-hook
+                 'sh-mode-hook
+                 'makefile-gmake-mode-hook
+                 'python-mode-hook
+                 'js-mode-hook
+                 'html-mode-hook
+                 'css-mode-hook
+                 'tuareg-mode-hook
+                 'go-mode-hook
+                 'qml-mode-hook
+                 'markdown-mode-hook
+                 'slime-repl-mode-hook
+                 'package-menu-mode-hook
+                 'cmake-mode-hook
+                 'php-mode-hook
+                 'web-mode-hook
+                 'sws-mode-hook
+                 'jade-mode-hook
+                 'vala-mode-hook
+                 'rust-mode-hook
+                 'ruby-mode-hook
+                 'qmake-mode-hook
+                 'lua-mode-hook
+                 'swift-mode-hook
+                 'llvm-mode-hook
+                 'conf-toml-mode-hook
+                 'nxml-mode-hook
+                 'nim-mode-hook
+                 'typescript-mode-hook
+                 'elixir-mode-hook
+                 'clojure-mode-hook
+                 ))
     (add-hook hook (lambda () (display-line-numbers-mode))))
 
   ;; -----------------------------------------------------------------------------------------------
@@ -1028,8 +1029,8 @@ If NEWNAME is a directory, move file to it."
     (cond
      ((eq major-mode 'emacs-lisp-mode)
       (let ((symb (function-called-at-point)))
-	(when symb
-	  (find-function symb))))
+        (when symb
+          (find-function symb))))
      (lsp-bridge-mode
       (lsp-bridge-find-def))
      (t
@@ -1046,22 +1047,21 @@ If NEWNAME is a directory, move file to it."
       (dumb-jump-back))))
 
   (setq lsp-bridge-get-single-lang-server-by-project
-	(lambda (project-path filepath)
-	  ;; If typescript first line include deno.land, then use Deno LSP server.
-	  (save-excursion
-	    (when (string-equal (file-name-extension filepath) "ts")
-	      (dolist (buf (buffer-list))
-		(when (string-equal (buffer-file-name buf) filepath)
-		  (with-current-buffer buf
-		    (goto-char (point-min))
-		    (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
-		      (return "deno")))))))))
+        (lambda (project-path filepath)
+          ;; If typescript first line include deno.land, then use Deno LSP server.
+          (save-excursion
+            (when (string-equal (file-name-extension filepath) "ts")
+              (dolist (buf (buffer-list))
+                (when (string-equal (buffer-file-name buf) filepath)
+                  (with-current-buffer buf
+                    (goto-char (point-min))
+                    (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+                      (return "deno")))))))))
 
   ;; 打开日志，开发者才需要
   ;; (setq lsp-bridge-enable-log t)
 
 #+END_SRC
-
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;https://www.emacswiki.org/emacs/download/dired+.el
@@ -1958,8 +1958,8 @@ If NEWNAME is a directory, move file to it."
   (use-package go-mode
     :functions (go-packages-gopkgs go-update-tools)
     :bind (:map go-mode-map
-		("C-c R" . go-remove-unused-imports)
-		("<f1>" . godoc-at-point))
+                ("C-c R" . go-remove-unused-imports)
+                ("<f1>" . godoc-at-point))
     :config
     ;; Env vars
     (with-eval-after-load 'exec-path-from-shell
@@ -1967,11 +1967,11 @@ If NEWNAME is a directory, move file to it."
 
     ;; Install or update tools
     (defvar go--tools '("golang.org/x/tools/cmd/goimports"
-			"github.com/go-delve/delve/cmd/dlv"
-			"github.com/josharian/impl"
-			"github.com/cweill/gotests/..."
-			"github.com/fatih/gomodifytags"
-			"github.com/davidrjenni/reftools/cmd/fillstruct")
+                        "github.com/go-delve/delve/cmd/dlv"
+                        "github.com/josharian/impl"
+                        "github.com/cweill/gotests/..."
+                        "github.com/fatih/gomodifytags"
+                        "github.com/davidrjenni/reftools/cmd/fillstruct")
       "All necessary go tools.")
 
     ;; Do not use the -u flag for gopls, as it will update the dependencies to incompatible versions
@@ -1983,28 +1983,28 @@ If NEWNAME is a directory, move file to it."
       "Install or update go tools."
       (interactive)
       (unless (executable-find "go")
-	(user-error "Unable to find `go' in `exec-path'!"))
+        (user-error "Unable to find `go' in `exec-path'!"))
 
       (message "Installing go tools...")
       (let ((proc-name "go-tools")
-	    (proc-buffer "*Go Tools*"))
-	(dolist (pkg go--tools-no-update)
-	  (set-process-sentinel
-	   (start-process proc-name proc-buffer "go" "get" "-v" pkg)
-	   (lambda (proc _)
-	     (let ((status (process-exit-status proc)))
-	       (if (= 0 status)
-		   (message "Installed %s" pkg)
-		 (message "Failed to install %s: %d" pkg status))))))
+            (proc-buffer "*Go Tools*"))
+        (dolist (pkg go--tools-no-update)
+          (set-process-sentinel
+           (start-process proc-name proc-buffer "go" "get" "-v" pkg)
+           (lambda (proc _)
+             (let ((status (process-exit-status proc)))
+               (if (= 0 status)
+                   (message "Installed %s" pkg)
+                 (message "Failed to install %s: %d" pkg status))))))
 
-	(dolist (pkg go--tools)
-	  (set-process-sentinel
-	   (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
-	   (lambda (proc _)
-	     (let ((status (process-exit-status proc)))
-	       (if (= 0 status)
-		   (message "Installed %s" pkg)
-		 (message "Failed to install %s: %d" pkg status))))))))
+        (dolist (pkg go--tools)
+          (set-process-sentinel
+           (start-process proc-name proc-buffer "go" "get" "-u" "-v" pkg)
+           (lambda (proc _)
+             (let ((status (process-exit-status proc)))
+               (if (= 0 status)
+                   (message "Installed %s" pkg)
+                 (message "Failed to install %s: %d" pkg status))))))))
 
     ;; Try to install go tools if `gopls' is not found
     (unless (executable-find "gopls")
@@ -2019,72 +2019,75 @@ If NEWNAME is a directory, move file to it."
       :after flycheck
       :defines flycheck-disabled-checkers
       :hook (go-mode . (lambda ()
-			 "Enable golangci-lint."
-			 (setq flycheck-disabled-checkers '(go-gofmt
-							    go-golint
-							    go-vet
-							    go-build
-							    go-test
-							    go-errcheck))
-			 (flycheck-golangci-lint-setup))))
+                         "Enable golangci-lint."
+                         (setq flycheck-disabled-checkers '(go-gofmt
+                                                            go-golint
+                                                            go-vet
+                                                            go-build
+                                                            go-test
+                                                            go-errcheck))
+                         (flycheck-golangci-lint-setup))))
 
     (use-package go-tag
       :bind (:map go-mode-map
-		  ("C-c t t" . go-tag-add)
-		  ("C-c t T" . go-tag-remove))
+                  ("C-c t t" . go-tag-add)
+                  ("C-c t T" . go-tag-remove))
       :init (setq go-tag-args (list "-transform" "camelcase")))
 
     (use-package go-gen-test
       :bind (:map go-mode-map
-		  ("C-c t g" . go-gen-test-dwim)))
+                  ("C-c t g" . go-gen-test-dwim)))
 
     (use-package gotest
       :bind (:map go-mode-map
-		  ("C-c t a" . go-test-current-project)
-		  ("C-c t m" . go-test-current-file)
-		  ("C-c t ." . go-test-current-test)
-		  ("C-c t x" . go-run))))
+                  ("C-c t a" . go-test-current-project)
+                  ("C-c t m" . go-test-current-file)
+                  ("C-c t ." . go-test-current-test)
+                  ("C-c t x" . go-run))))
 
   ;;---------------------------------------------------------
-  ;; Erlang
-  ;;---------------------------------------------------------
-  ;;---------------------------------------------------------
-  ;; wget http://erlang.org/download/otp_src_22.3.tar.gz
-  ;; tar zxvf otp_src_22.3.tar.gz
-  ;; cd otp_src_22.3
-  ;; ./configure --with-ssl && make && make install
-  ;;---------------------------------------------------------------
-  ; (use-package erlang)
+  ;; Erlang Install
+  ;; MacOS && Unix
+  ;; use
+  ;;   brew install erlang@23
+  ;;   brew install erlang
 
-  ;;; "/usr/local/opt/erlang@22/lib/tools-" for mac
-  (let* ((emacs-version erlang-version)
-	 (tools-path
-	  (concat "/usr/local/lib/erlang/lib/tools-" emacs-version "/emacs")))
-	  ;; (concat "/usr/local/opt/erlang@23/lib/erlang/lib/tools-" emacs-version "/emacs")))
+  ;; use asdf
+  ;;   asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
+  ;;   asdf list all erlang
+  ;;   export CFLAGS="$CFLAGS -o0" && asdf install erlang 23.3.4
+  ;;   asdf install erlang 24.3.4
+  ;;   asdf global erlang 23.3.4
+  ;;   asdf local erlang erlang 23.3.4
+  ;;---------------------------------------------------------
+  (let* ((tools-version erlang-lib-tools-version)
+         (path-prefix erlang-path-prefix)
+         (tools-path
+          (concat path-prefix "/lib/tools-" tools-version "/emacs")))
     (when (file-exists-p tools-path)
       (setq load-path (cons tools-path load-path))
-      (setq erlang-root-dir "/usr/local/lib/erlang")
-      (setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
+      (setq erlang-root-dir (concat path-prefix "/erlang"))
+      (setq exec-path (cons (concat path-prefix "/bin") exec-path))
       (require 'erlang-start)
       (defvar inferior-erlang-prompt-timeout t)))
-  (setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
 
-  (defun get-erl-man ()
-    (interactive)
-    (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
-	   (man-args (format "-M %s %s" man-path (current-word))))
-      (man man-args)))
+  ;(setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
+  ;(defun get-erl-man ()
+  ;  (interactive)
+  ;  (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
+  ;         (man-args (format "-M %s %s" man-path (current-word))))
+  ;    (man man-args)))
 
-  (defun erlang-insert-binary ()
-    (interactive)
-    (insert "<<\"\">>")
-    (backward-char 3)
-    )
-  (defun org-insert-header ()
-    (interactive)
-    (insert "<<\"\">>")
-    (backward-char 3)
-    )
+  ;(defun erlang-insert-binary ()
+  ;  (interactive)
+  ;  (insert "<<\"\">>")
+  ;  (backward-char 3)
+  ;  )
+  ;(defun org-insert-header ()
+  ;  (interactive)
+  ;  (insert "<<\"\">>")
+  ;  (backward-char 3)
+  ;  )
 
   ;;---------------------------------------------------------
   ;; C/C++ Mode
@@ -2092,7 +2095,7 @@ If NEWNAME is a directory, move file to it."
   (use-package cc-mode
     :ensure nil
     :bind (:map c-mode-base-map
-		("C-c c" . compile))
+                ("C-c c" . compile))
     :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
     :init (setq-default c-basic-offset 4)
     :config
@@ -2107,8 +2110,8 @@ If NEWNAME is a directory, move file to it."
   (use-package python
     :ensure nil
     :hook (inferior-python-mode . (lambda ()
-				    (process-query-on-exit-flag
-				     (get-process "Python"))))
+                                    (process-query-on-exit-flag
+                                     (get-process "Python"))))
     :init
     ;; Disable readline based native completion
     (setq python-shell-completion-native-enable nil)
@@ -2116,7 +2119,7 @@ If NEWNAME is a directory, move file to it."
     ;; Default to Python 3. Prefer the versioned Python binaries since some
     ;; systems stupidly make the unversioned one point at Python 2.
     (when (and (executable-find "python3")
-	       (string= python-shell-interpreter "python"))
+               (string= python-shell-interpreter "python"))
       (setq python-shell-interpreter "python3"))
 
     ;; Env vars
@@ -2175,12 +2178,12 @@ If NEWNAME is a directory, move file to it."
       (dap-register-debug-template
        "Rust::LLDB Run Configuration"
        (list :type "lldb"
-	     :request "launch"
-	     :name "LLDB::Run"
-	     :gdbpath "rust-lldb"
-	     ;; uncomment if lldb-mi is not in PATH
-	     ;; :lldbmipath "path/to/lldb-mi"
-	     ))))
+             :request "launch"
+             :name "LLDB::Run"
+             :gdbpath "rust-lldb"
+             ;; uncomment if lldb-mi is not in PATH
+             ;; :lldbmipath "path/to/lldb-mi"
+             ))))
 
 #+END_SRC
 * AutoInsert
