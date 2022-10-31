@@ -1599,14 +1599,15 @@ If NEWNAME is a directory, move file to it."
     :load-path "~/.emacs.d/vendor/plantuml-emacs"
     :config
     (setq plantuml-jar-path plantuml-path
-	  plantuml-output-type "svg"
-	  plantuml-relative-path "./images/"
-	  plantuml-theme "plain"
-	  plantuml-font "somefont"
-	  plantuml-add-index-number t
-	  plantuml-log-command t
-	  plantuml-mindmap-contains-org-content t
-	  plantuml-org-headline-bold t))
+          ;plantuml-output-type "svg"
+          plantuml-output-type "png"
+          plantuml-relative-path "./images/"
+          plantuml-theme "plain"
+          plantuml-font "somefont"
+          plantuml-add-index-number t
+          plantuml-log-command t
+          plantuml-mindmap-contains-org-content t
+          plantuml-org-headline-bold t))
 
 #+END_SRC
 ** org-gerneral-config
@@ -1642,8 +1643,8 @@ If NEWNAME is a directory, move file to it."
 
   ;; Babel
   (setq org-confirm-babel-evaluate nil
-	org-src-fontify-natively t
-	org-src-tab-acts-natively t)
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t)
 
   ;; Display
   (setq org-log-done 'time)
@@ -1668,12 +1669,12 @@ If NEWNAME is a directory, move file to it."
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; from  https://github.com/zhcosin/dotemacs/blob/master/lisp/init-orgmode.el
   (add-hook 'org-mode-hook 
-	    (lambda () (setq truncate-lines nil))) 
+            (lambda () (setq truncate-lines nil))) 
 
   ;; 开启Org-mode文本内语法高亮
-					  ;(require 'org)
-					  ;(require 'ox-latex)
-					  ;(setq org-src-fontify-natively t)
+                                          ;(require 'org)
+                                          ;(require 'ox-latex)
+                                          ;(setq org-src-fontify-natively t)
 
   ;; 在 org 允许文件中执行代码块
   (use-package ob-http)
@@ -1699,80 +1700,80 @@ If NEWNAME is a directory, move file to it."
 
   ;; 设置 org 导出为 html 时公式的 mathjax 处理参数
   (setq org-html-mathjax-options
-	'((path "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
-	  (scale "100")
-	  (align "center")
-	  (indent "2em")
-	  (mathml nil)))
+        '((path "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+          (scale "100")
+          (align "center")
+          (indent "2em")
+          (mathml nil)))
 
   (setq org-html-mathjax-template
-	"<script type=\"text/javascript\" src=\"%PATH\"></script>")
+        "<script type=\"text/javascript\" src=\"%PATH\"></script>")
 
 
   ;; for export latex
   (add-to-list 'org-latex-classes
-	       '("ctexart"
-		 "\\documentclass[UTF8,a4paper]{ctexart}"
-		 ;;"\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexart}"
-		 ("\\section{%s}" . "\\section*{%s}")
-		 ("\\subsection{%s}" . "\\subsection*{%s}")
-		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")
-		 )
-	       )
+               '("ctexart"
+                 "\\documentclass[UTF8,a4paper]{ctexart}"
+                 ;;"\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexart}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")
+                 )
+               )
 
 
   (add-to-list 'org-latex-classes
-	       '("ctexrep"
-		 "\\documentclass[UTF8,a4paper]{ctexrep}"
-		 ("\\part{%s}" . "\\part*{%s}")
-		 ("\\chapter{%s}" . "\\chapter*{%s}")
-		 ("\\section{%s}" . "\\section*{%s}")
-		 ("\\subsection{%s}" . "\\subsection*{%s}")
-		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		 )
-	       )
+               '("ctexrep"
+                 "\\documentclass[UTF8,a4paper]{ctexrep}"
+                 ("\\part{%s}" . "\\part*{%s}")
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 )
+               )
 
   (add-to-list 'org-latex-classes
-	       '("ctexbook"
-		 "\\documentclass[UTF8,a4paper]{ctexbook}"
-		 ;;("\\part{%s}" . "\\part*{%s}")
-		 ("\\chapter{%s}" . "\\chapter*{%s}")
-		 ("\\section{%s}" . "\\section*{%s}")
-		 ("\\subsection{%s}" . "\\subsection*{%s}")
-		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		 )
-	       )
+               '("ctexbook"
+                 "\\documentclass[UTF8,a4paper]{ctexbook}"
+                 ;;("\\part{%s}" . "\\part*{%s}")
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 )
+               )
 
   (add-to-list 'org-latex-classes
-	       '("beamer"
-		 "\\documentclass{beamer}
-		   \\usepackage[fontset=none,UTF8,a4paper,zihao=-4]{ctex}"
-		 org-beamer-sectioning)
-	       )
+               '("beamer"
+                 "\\documentclass{beamer}
+                   \\usepackage[fontset=none,UTF8,a4paper,zihao=-4]{ctex}"
+                 org-beamer-sectioning)
+               )
 
 
   (setq org-latex-default-class "ctexart")
   (setq org-latex-compiler "xelatex")
   (setq org-latex-pdf-process
-	'("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-	  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-	  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-	  "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
-	  ))
+        '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
+          ))
 
-					  ;(setq org-latex-pdf-process
-					  ;  '("xelatex -interaction nonstopmode %f"
-					  ;    "bibtex %b"
-					  ;    "xelatex -interaction nonstopmode %f"
-					  ;    "xelatex -interaction nonstopmode %f"
-					  ;    "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
-					  ;    ))
-					  ;(setq org-latex-pdf-process
-					  ;  '("xelatex -interaction nonstopmode -output-directory %o %f"
-					  ;    "xelatex -interaction nonstopmode -output-directory %o %f"
-					  ;    "xelatex -interaction nonstopmode -output-directory %o %f"))
+                                          ;(setq org-latex-pdf-process
+                                          ;  '("xelatex -interaction nonstopmode %f"
+                                          ;    "bibtex %b"
+                                          ;    "xelatex -interaction nonstopmode %f"
+                                          ;    "xelatex -interaction nonstopmode %f"
+                                          ;    "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
+                                          ;    ))
+                                          ;(setq org-latex-pdf-process
+                                          ;  '("xelatex -interaction nonstopmode -output-directory %o %f"
+                                          ;    "xelatex -interaction nonstopmode -output-directory %o %f"
+                                          ;    "xelatex -interaction nonstopmode -output-directory %o %f"))
 
   ;; for math.
   (defun zhcosin/insert-inline-formulas()
@@ -1788,7 +1789,7 @@ If NEWNAME is a directory, move file to it."
   (use-package auctex :defer t :ensure t)
 
   (load "auctex.el" nil t t)
-					  ;(load "preview-latex.el" nil t t)
+                                          ;(load "preview-latex.el" nil t t)
   (if (string-equal system-type "windows-nt")
       (require 'tex-mik))
 
@@ -1797,20 +1798,20 @@ If NEWNAME is a directory, move file to it."
   (setq-default TeX-master nil) ; Query for master file.
 
   (mapc (lambda (mode)
-	  (add-hook 'LaTeX-mode-hook mode))
-	(list 'LaTeX-math-mode
-	      'turn-on-reftex
-	      'linum-mode))
+          (add-hook 'LaTeX-mode-hook mode))
+        (list 'LaTeX-math-mode
+              'turn-on-reftex
+              'linum-mode))
 
   (add-hook 'LaTeX-mode-hook
-	    (lambda ()
-	      (setq TeX-auto-untabify t     ; remove all tabs before saving
-		    TeX-engine 'xetex       ; use xelatex default
-		    TeX-show-compilation t) ; display compilation windows
-	      (TeX-global-PDF-mode t)       ; PDF mode enable, not plain
-	      (setq TeX-save-query nil)
-	      (imenu-add-menubar-index)
-	      (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
+            (lambda ()
+              (setq TeX-auto-untabify t     ; remove all tabs before saving
+                    TeX-engine 'xetex       ; use xelatex default
+                    TeX-show-compilation t) ; display compilation windows
+              (TeX-global-PDF-mode t)       ; PDF mode enable, not plain
+              (setq TeX-save-query nil)
+              (imenu-add-menubar-index)
+              (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
 #+END_SRC
 
 ** init-cdlatex
@@ -1835,53 +1836,53 @@ If NEWNAME is a directory, move file to it."
   (add-to-list 'org-latex-listings '("" "color"))
 
   (add-to-list 'org-latex-packages-alist
-	       '("" "xcolor" t))
+               '("" "xcolor" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "listings" t))
+               '("" "listings" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "fontspec" t))
+               '("" "fontspec" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "indentfirst" t))
+               '("" "indentfirst" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "xunicode" t))
+               '("" "xunicode" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "geometry"))
+               '("" "geometry"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "float"))
+               '("" "float"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "longtable"))
+               '("" "longtable"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "tikz"))
+               '("" "tikz"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "fancyhdr"))
+               '("" "fancyhdr"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "textcomp"))
+               '("" "textcomp"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "amsmath"))
+               '("" "amsmath"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "amsthm"))
+               '("" "amsthm"))
   (add-to-list 'org-latex-packages-alist
-	       '("" "tabularx" t))
+               '("" "tabularx" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "booktabs" t))
+               '("" "booktabs" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "grffile" t))
+               '("" "grffile" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "wrapfig" t))
+               '("" "wrapfig" t))
   (add-to-list 'org-latex-packages-alist
-	       '("normalem" "ulem" t))
+               '("normalem" "ulem" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "amssymb" t))
+               '("" "amssymb" t))
   (add-to-list 'org-latex-packages-alist
-	       '("" "capt-of" t))
+               '("" "capt-of" t))
   (add-to-list 'org-latex-packages-alist
-	       '("figuresright" "rotating" t))
+               '("figuresright" "rotating" t))
   (add-to-list 'org-latex-packages-alist
-	       '("Lenny" "fncychap" t))
+               '("Lenny" "fncychap" t))
 
   (add-to-list 'org-latex-classes
-	       '("zhcosin-org-book"
-		 "\\documentclass{ctexbook}
+               '("zhcosin-org-book"
+                 "\\documentclass{ctexbook}
   \\usepackage{titlesec}
   \\usepackage{hyperref}
   [NO-DEFAULT-PACKAGES]
@@ -1911,16 +1912,16 @@ If NEWNAME is a directory, move file to it."
   }
   [EXTRA]
   "
-		 ("\\chapter{%s}" . "\\chapter*{%s}")
-		 ("\\section{%s}" . "\\section*{%s}")
-		 ("\\subsection{%s}" . "\\subsection*{%s}")
-		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
   (add-to-list 'org-latex-classes
-	       '("zhcosin-org-article"
-		 "\\documentclass{ctexart}
+               '("zhcosin-org-article"
+                 "\\documentclass{ctexart}
   \\usepackage{titlesec}
   \\usepackage{hyperref}
   [NO-DEFAULT-PACKAGES]
@@ -1951,15 +1952,15 @@ If NEWNAME is a directory, move file to it."
   }
   [EXTRA]
   "
-		 ("\\section{%s}" . "\\section*{%s}")
-		 ("\\subsection{%s}" . "\\subsection*{%s}")
-		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
   (add-to-list 'org-latex-classes
-	       '("zhcosin-org-beamer"
-		 "\\documentclass{beamer}
+               '("zhcosin-org-beamer"
+                 "\\documentclass{beamer}
   \\usepackage[slantfont, boldfont]{xeCJK}
   % beamer set
   \\usepackage[none]{hyphenat}
@@ -1991,11 +1992,11 @@ If NEWNAME is a directory, move file to it."
   }
   [EXTRA]
   "
-		 ("\\section{%s}" . "\\section*{%s}")
-		 ("\\subsection{%s}" . "\\subsection*{%s}")
-		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
 #+END_SRC
 
