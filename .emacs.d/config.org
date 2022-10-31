@@ -1410,6 +1410,12 @@ If NEWNAME is a directory, move file to it."
 
       ;; open external App
       "oY" 'youdao-dictionary-search-from-input
+      "op" 'plantuml–parse-headlines
+      "oj" 'plantuml-display-json-open
+      "oy" 'plantuml-display-yaml-open
+      "om" 'plantuml-org-to-mindmap-open
+      "ow" 'plantuml-org-to-wbs-open
+      "oa" 'plantuml-auto-convert-open
 
       ;; fold
       "zA" 'evil-close-folds
