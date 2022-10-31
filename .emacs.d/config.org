@@ -27,47 +27,56 @@
    package-enable-at-startup nil
    package--init-file-ensured t)
 
-   ;; 启动
-   (require 'package)
-   (setq package-enable-at-startup nil)
-   (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-                            ("melpa" . "http://elpa.emacs-china.org/melpa/")))
-   (setq package-archives '(("gnu"   . "http://mirrors.cloud.tencent.com/elpa/gnu/")
-                            ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
-   (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+  ;; 启动
+  (require 'package)
+  (setq package-enable-at-startup nil)
+  (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+                           ("melpa" . "http://elpa.emacs-china.org/melpa/")))
+  (setq package-archives '(("gnu"   . "http://mirrors.cloud.tencent.com/elpa/gnu/")
+                           ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
+  (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                           ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
-   (setq package-check-signature nil)
-   (package-initialize)
+  (setq package-check-signature nil)
+  (package-initialize)
 
-   ;; Automatic package installation
-   (mapc
-    (lambda (package)
-      (if (not (package-installed-p package))
-	  (progn
-	    (package-refresh-contents)
-	    (package-install package))))
-    '(use-package diminish bind-key))
+  ;(unless (package-installed-p 'quelpa-use-package)
+  ;	(package-install 'quelpa-use-package))
+  ;(require 'quelpa-use-package)
+  ;(setq use-package-ensure-function 'quelpa)
+  (use-package quelpa :ensure
+    :init
+    (setq quelpa-update-melpa-p nil)
+    :config
+    (use-package quelpa-use-package :ensure))
+
+  ;; Automatic package installation
+  (mapc
+   (lambda (package)
+     (if (not (package-installed-p package))
+         (progn
+           (package-refresh-contents)
+           (package-install package))))
+   '(use-package diminish bind-key))
 
 
-   ;; trigger use-package, And force the install of missing packages.
-   (eval-when-compile (require 'use-package))
-   (require 'diminish)
-   (require 'bind-key)
+  ;; trigger use-package, And force the install of missing packages.
+  (eval-when-compile (require 'use-package))
+  (require 'diminish)
+  (require 'bind-key)
 
-   (setq use-package-always-ensure t)
-   (setq custom-file "~/.emacs.d/custom.el")
-   (if (file-exists-p custom-file)
-       (load custom-file))
+  (setq use-package-always-ensure t)
+  (setq custom-file "~/.emacs.d/custom.el")
+  (if (file-exists-p custom-file)
+      (load custom-file))
 
+  (defun add-subdirs-to-load-path (dir)
+    "Recursive add directories to `load-path'."
+    (let ((default-directory (file-name-as-directory dir)))
+      (add-to-list 'load-path dir)
+      (normal-top-level-add-subdirs-to-load-path)))
 
-   (defun add-subdirs-to-load-path (dir)
-     "Recursive add directories to `load-path'."
-     (let ((default-directory (file-name-as-directory dir)))
-       (add-to-list 'load-path dir)
-       (normal-top-level-add-subdirs-to-load-path)))
-
-   (add-subdirs-to-load-path "~/.emacs.d/vendor/")
+  (add-subdirs-to-load-path "~/.emacs.d/vendor/")
 
 #+END_SRC
 * Generic
@@ -80,34 +89,34 @@
 
   (if (featurep 'cocoa)
       (progn
-	;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
-	;; 所以先设置 `ns-use-native-fullscreen' 和 `ns-use-fullscreen-animation' 禁止Emacs使用Mac原生的全屏模式.
-	;; 而是采用传统的全屏模式, 传统的全屏模式, 只会在当前工作区全屏,而不是切换到Mac那种单独的全屏工作区,
-	;; 这样执行 `make-frame' 先关代码或插件时,就不会因为Mac单独工作区左右滑动产生的bug.
-	;;
-	;; Mac平台下,不能直接使用 `set-frame-parameter' 和 `fullboth' 来设置全屏,
-	;; 那样也会导致Mac窗口管理器直接把Emacs窗口扔到单独的工作区, 从而对 `make-frame' 产生同样的Bug.
-	;; 所以, 启动的时候通过 `set-frame-parameter' 和 `maximized' 先设置Emacs为最大化窗口状态, 启动5秒以后再设置成全屏状态,
-	;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
-	(setq ns-use-native-fullscreen nil)
-	(setq ns-use-fullscreen-animation nil)
+        ;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
+        ;; 所以先设置 `ns-use-native-fullscreen' 和 `ns-use-fullscreen-animation' 禁止Emacs使用Mac原生的全屏模式.
+        ;; 而是采用传统的全屏模式, 传统的全屏模式, 只会在当前工作区全屏,而不是切换到Mac那种单独的全屏工作区,
+        ;; 这样执行 `make-frame' 先关代码或插件时,就不会因为Mac单独工作区左右滑动产生的bug.
+        ;;
+        ;; Mac平台下,不能直接使用 `set-frame-parameter' 和 `fullboth' 来设置全屏,
+        ;; 那样也会导致Mac窗口管理器直接把Emacs窗口扔到单独的工作区, 从而对 `make-frame' 产生同样的Bug.
+        ;; 所以, 启动的时候通过 `set-frame-parameter' 和 `maximized' 先设置Emacs为最大化窗口状态, 启动5秒以后再设置成全屏状态,
+        ;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
+        (setq ns-use-native-fullscreen nil)
+        (setq ns-use-fullscreen-animation nil)
 
-	;; 默认先最大化。
-	(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+        ;; 默认先最大化。
+        (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 
-	(run-at-time "2sec" nil
-		     (lambda ()
-		       (toggle-frame-fullscreen)
-		       ))
-	)
+        (run-at-time "2sec" nil
+                     (lambda ()
+                       (toggle-frame-fullscreen)
+                       ))
+        )
 
     ;; 非Mac平台直接全屏
     (require 'fullscreen)
     (fullscreen))
 
   ;; Restore emacs session.
-  ;(setq initial-buffer-choice t)
-  ;(run-with-timer 1 nil #'(lambda () (bury-buffer)))
+  ;;(setq initial-buffer-choice t)
+  ;;(run-with-timer 1 nil #'(lambda () (bury-buffer)))
 
   ;; 增加长行处理性能
   (setq bidi-inhibit-bpa t)
@@ -141,7 +150,7 @@
 
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq scroll-step 1
-	scroll-conservatively 10000)
+        scroll-conservatively 10000)
 
   ;; 不显示 *scratch*
   (defun remove-scratch-buffer ()
@@ -149,29 +158,29 @@
         (kill-buffer "*scratch*")))
   (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
 
-  ; Don't ask me when close emacs with process is running
+                                          ; Don't ask me when close emacs with process is running
   ;;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
   ;;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
   ;;  (require 'noflet)
   ;;  (noflet ((process-list ())) ad-do-it))
 
-  ; Don't ask me when kill process buffer
+                                          ; Don't ask me when kill process buffer
   (setq kill-buffer-query-functions
         (remq 'process-kill-buffer-query-function
               kill-buffer-query-functions))
 
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq-default scroll-step 1
-	    scroll-preserve-screen-position t
-	    scroll-up-aggressively 0.01
-	    scroll-down-aggressively 0.01
-	    redisplay-dont-pause t
-	    auto-window-vscroll nil
-	    ;; Mouse wheel scroll behavior
-	    mouse-wheel-scroll-amount '(1 ((shift) . 1))
-	    mouse-wheel-progressive-speed nil
-	    mouse-wheel-follow-mouse 't
-	    fast-but-imprecise-scrolling nil)
+                scroll-preserve-screen-position t
+                scroll-up-aggressively 0.01
+                scroll-down-aggressively 0.01
+                redisplay-dont-pause t
+                auto-window-vscroll nil
+                ;; Mouse wheel scroll behavior
+                mouse-wheel-scroll-amount '(1 ((shift) . 1))
+                mouse-wheel-progressive-speed nil
+                mouse-wheel-follow-mouse 't
+                fast-but-imprecise-scrolling nil)
 
   ;; idle
   (custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
@@ -203,21 +212,21 @@
   (setq tramp-default-method "ssh")         ;设置传送文件默认的方法
   (setq void-text-area-pointer nil)         ;禁止显示鼠标指针
   (setq byte-compile-warnings
-	(quote (
-		;; 显示的警告
-		free-vars                   ;不在当前范围的引用变量
-		unresolved                  ;不知道的函数
-		callargs                    ;函数调用的参数和定义的不匹配
-		obsolete                    ;荒废的变量和函数
-		noruntime                   ;函数没有定义在运行时期
-		interactive-only            ;正常不被调用的命令
-		make-local ;调用 `make-variable-buffer-local' 可能会不正确的
-		mapcar     ;`mapcar' 调用
-		;;
-		;; 抑制的警告
-		(not redefine)              ;重新定义的函数 (比如参数数量改变)
-		;(not cl-functions)          ;`CL' 包中的运行时调用的函数
-		)))
+        (quote (
+                ;; 显示的警告
+                free-vars                   ;不在当前范围的引用变量
+                unresolved                  ;不知道的函数
+                callargs                    ;函数调用的参数和定义的不匹配
+                obsolete                    ;荒废的变量和函数
+                noruntime                   ;函数没有定义在运行时期
+                interactive-only            ;正常不被调用的命令
+                make-local ;调用 `make-variable-buffer-local' 可能会不正确的
+                mapcar     ;`mapcar' 调用
+                ;;
+                ;; 抑制的警告
+                (not redefine)              ;重新定义的函数 (比如参数数量改变)
+                ;(not cl-functions)         ;`CL' 包中的运行时调用的函数
+                )))
   (setq echo-keystrokes 0.1)                ;加快快捷键提示的速度
 
 
@@ -232,6 +241,31 @@
 
   ;;设置tab为4个空格的宽度
   (setq default-tab-width 4)
+  ;; Code
+  (prefer-coding-system 'utf-8)
+  (setenv "LANG" "en_US.UTF-8")
+  (setenv "LC_ALL" "en_US.UTF-8")
+  (setenv "LC_CTYPE" "en_US.UTF-8")
+  ;; Encoding
+  ;; UTF-8 as the default coding system
+  (when (fboundp 'set-charset-priority)
+    (set-charset-priority 'unicode))
+  
+  ;; Explicitly set the prefered coding systems to avoid annoying prompt
+  ;; from emacs (especially on Microsoft Windows)
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  
+  (set-language-environment 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-buffer-file-coding-system 'utf-8)
+  (set-clipboard-coding-system 'utf-8)
+  (set-file-name-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (modify-coding-system-alist 'process "*" 'utf-8)
+
 #+END_SRC
 * Const
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1064,7 +1098,19 @@ If NEWNAME is a directory, move file to it."
 #+END_SRC
 * Dired
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;https://www.emacswiki.org/emacs/download/dired+.el
+  ;; 直接 HTTP get 一个 elisp
+  ;; (use-package dired+
+  ;;   :quelpa (dired+ :fetcher url :url "https://www.emacswiki.org/emacs/download/dired+.el"))
+  
+  ;;; git clone 一个 GitHub repo
+  ;(use-package elixir-mode
+  ;  :quelpa (elixir-mode :fetcher github :repo "elixir-editors/emacs-elixir"))
+  ;
+  ;;; 只使用 repo 中的某些文件
+  ;(use-package mix
+  ;  :quelpa (mix.el :fetcher github :repo "ayrat555/mix.el" :files ("mix.el" "LICENSE"))
+  ;  :hook ((elixir-mode . mix-minor-mode)))
+
   (use-package dired
   :ensure nil
   :hook (dired-after-readin . dired-directory-sort)
@@ -1519,7 +1565,7 @@ If NEWNAME is a directory, move file to it."
           (setq-default evil-escape-key-sequence "tn")))))
 #+END_SRC
 * Org-Mode
-  #+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes
   ;; --------------------------------------------------------------
   ;; org -> latex -> pdf
   ;; --------------------------------------------------------------
@@ -1533,10 +1579,38 @@ If NEWNAME is a directory, move file to it."
   ;; sudo tlmgr update --self --all
   ;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
   ;; --------------------------------------------------------------
+  (use-package plantuml-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+    (setq plantuml-default-exec-mode 'jar)
+    (setq plantuml-options "-charset UTF-8")
+    (setq plantuml-jar-path plantuml-path))
+  (setq org-plantuml-jar-path plantuml-path)
+  (setq plantuml-default-exec-mode 'jar)
+  (use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
+  (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
+  (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
+
+  (use-package plantuml
+    ;; :quelpa (plantuml-emacs :fetcher github :repo "ginqi7/plantuml-emacs")
+    ;; :quelpa (mix.el :fetcher github :repo "ayrat555/mix.el" :files ("mix.el" "LICENSE"))
+    ;; :quelpa (plantuml-emacs :fetcher url :url "https://github.com.cnpmjs.org/ginqi7/plantuml-emacs"))
+    :load-path "~/.emacs.d/vendor/plantuml-emacs"
+    :config
+    (setq plantuml-jar-path plantuml-path
+	  plantuml-output-type "svg"
+	  plantuml-relative-path "./images/"
+	  plantuml-theme "plain"
+	  plantuml-font "somefont"
+	  plantuml-add-index-number t
+	  plantuml-log-command t
+	  plantuml-mindmap-contains-org-content t
+	  plantuml-org-headline-bold t))
+
 #+END_SRC
+** org-gerneral-config
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ; 参考: https://a358003542.github.io/articles/emacs-orgmode-learning-notes.html
-  ; 参考: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
   (use-package org-download
     :ensure t
     :after org
@@ -1563,27 +1637,13 @@ If NEWNAME is a directory, move file to it."
     :ensure t
     :hook ((org-mode . valign-mode))
     :custom ((valign-fancy-bar t)))
-
-  (use-package plantuml-mode
-    :ensure t
-    :config
-    (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
-    (setq plantuml-default-exec-mode 'jar)
-    (setq plantuml-options "-charset UTF-8")
-    (setq plantuml-jar-path plantuml-path))
-  (setq org-plantuml-jar-path plantuml-path)
-  (setq plantuml-default-exec-mode 'jar)
-  (use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
-  (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
-  (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
-
   ;; latex 设置
   (require 'ox-latex)
 
   ;; Babel
   (setq org-confirm-babel-evaluate nil
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t)
+	org-src-fontify-natively t
+	org-src-tab-acts-natively t)
 
   ;; Display
   (setq org-log-done 'time)
@@ -1597,21 +1657,11 @@ If NEWNAME is a directory, move file to it."
   (setq org-file-apps '(("pdf" . "open -a Skim %s")))
 
   ;; 表格
-  ; 长表格  longtable环境：   #+ATTR_LATEX: :environment longtable :align x{0.2\linewidth}x{0.2\linewidth}
-  ; 普通表格tabular环境： #+ATTR_LATEX: :align p{0.18\linewidth}|p{0.72\linewidth}
   (setq org-latex-tables-booktabs t)            ; 启用booktabs宏包模式, 额外支持插入一些属性设置
 
-  ;; 图片
-  ;; always resize inline images to 300 pixels, or use scale 0.8  in src plantuml
+  ;; 图片 always resize inline images to 300 pixels, or use scale 0.8  in src plantuml
   (setq org-image-actual-width 200) 
-  ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise resize to 400
-                                          ;(setq org-image-actual-width '(400)) 
-  ;; if there is a #+ATTR_*: :width 200, resize to 200, otherwise don’t resize
-                                          ;(setq org-image-actual-width nil) 
-  ;; Never resize and use original width (the default)
-                                          ;(setq org-image-actual-width t) 
   (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
-  ;(setq org-latex-image-default-width "")
   (setq org-latex-default-figure-position "H")
 #+END_SRC
 ** init-org-mode
@@ -1621,9 +1671,9 @@ If NEWNAME is a directory, move file to it."
 	    (lambda () (setq truncate-lines nil))) 
 
   ;; 开启Org-mode文本内语法高亮
-  ;(require 'org)
-  ;(require 'ox-latex)
-  ;(setq org-src-fontify-natively t)
+					  ;(require 'org)
+					  ;(require 'ox-latex)
+					  ;(setq org-src-fontify-natively t)
 
   ;; 在 org 允许文件中执行代码块
   (use-package ob-http)
@@ -1706,23 +1756,23 @@ If NEWNAME is a directory, move file to it."
   (setq org-latex-default-class "ctexart")
   (setq org-latex-compiler "xelatex")
   (setq org-latex-pdf-process
-  '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
-   ))
+	'("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	  "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
+	  ))
 
-  ;(setq org-latex-pdf-process
-  ;  '("xelatex -interaction nonstopmode %f"
-  ;    "bibtex %b"
-  ;    "xelatex -interaction nonstopmode %f"
-  ;    "xelatex -interaction nonstopmode %f"
-  ;    "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
-  ;    ))
-  ;(setq org-latex-pdf-process
-  ;  '("xelatex -interaction nonstopmode -output-directory %o %f"
-  ;    "xelatex -interaction nonstopmode -output-directory %o %f"
-  ;    "xelatex -interaction nonstopmode -output-directory %o %f"))
+					  ;(setq org-latex-pdf-process
+					  ;  '("xelatex -interaction nonstopmode %f"
+					  ;    "bibtex %b"
+					  ;    "xelatex -interaction nonstopmode %f"
+					  ;    "xelatex -interaction nonstopmode %f"
+					  ;    "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
+					  ;    ))
+					  ;(setq org-latex-pdf-process
+					  ;  '("xelatex -interaction nonstopmode -output-directory %o %f"
+					  ;    "xelatex -interaction nonstopmode -output-directory %o %f"
+					  ;    "xelatex -interaction nonstopmode -output-directory %o %f"))
 
   ;; for math.
   (defun zhcosin/insert-inline-formulas()
@@ -1738,29 +1788,29 @@ If NEWNAME is a directory, move file to it."
   (use-package auctex :defer t :ensure t)
 
   (load "auctex.el" nil t t)
-  ;(load "preview-latex.el" nil t t)
+					  ;(load "preview-latex.el" nil t t)
   (if (string-equal system-type "windows-nt")
-          (require 'tex-mik))
+      (require 'tex-mik))
 
 
   ;; Ask which tex file is master instead of always assume current file is master file.
   (setq-default TeX-master nil) ; Query for master file.
 
   (mapc (lambda (mode)
-        (add-hook 'LaTeX-mode-hook mode))
-        (list 'LaTeX-math-mode
-              'turn-on-reftex
-              'linum-mode))
+	  (add-hook 'LaTeX-mode-hook mode))
+	(list 'LaTeX-math-mode
+	      'turn-on-reftex
+	      'linum-mode))
 
   (add-hook 'LaTeX-mode-hook
-            (lambda ()
-              (setq TeX-auto-untabify t     ; remove all tabs before saving
-                    TeX-engine 'xetex       ; use xelatex default
-                    TeX-show-compilation t) ; display compilation windows
-              (TeX-global-PDF-mode t)       ; PDF mode enable, not plain
-              (setq TeX-save-query nil)
-              (imenu-add-menubar-index)
-                (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
+	    (lambda ()
+	      (setq TeX-auto-untabify t     ; remove all tabs before saving
+		    TeX-engine 'xetex       ; use xelatex default
+		    TeX-show-compilation t) ; display compilation windows
+	      (TeX-global-PDF-mode t)       ; PDF mode enable, not plain
+	      (setq TeX-save-query nil)
+	      (imenu-add-menubar-index)
+	      (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
 #+END_SRC
 
 ** init-cdlatex
@@ -1778,60 +1828,60 @@ If NEWNAME is a directory, move file to it."
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; org-latex-packages-alist 第一个元素是要加载宏包的选项，第二个参数是要加载宏包的名字，第三个选项设置为t或者nil，即要加载或者不加载。
   ;;org-mode export to latex, refer: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
-    (require 'ox-latex)
-    (setq org-export-latex-listings t)
-    ;;org-mode source code setup in exporting to latex
-    (add-to-list 'org-latex-listings '("" "listings"))
-    (add-to-list 'org-latex-listings '("" "color"))
+  (require 'ox-latex)
+  (setq org-export-latex-listings t)
+  ;;org-mode source code setup in exporting to latex
+  (add-to-list 'org-latex-listings '("" "listings"))
+  (add-to-list 'org-latex-listings '("" "color"))
 
-    (add-to-list 'org-latex-packages-alist
-		 '("" "xcolor" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "listings" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "fontspec" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "indentfirst" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "xunicode" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "geometry"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "float"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "longtable"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "tikz"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "fancyhdr"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "textcomp"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "amsmath"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "amsthm"))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "tabularx" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "booktabs" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "grffile" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "wrapfig" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("normalem" "ulem" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "amssymb" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("" "capt-of" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("figuresright" "rotating" t))
-    (add-to-list 'org-latex-packages-alist
-		 '("Lenny" "fncychap" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "xcolor" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "listings" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "fontspec" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "indentfirst" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "xunicode" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "geometry"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "float"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "longtable"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "tikz"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "fancyhdr"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "textcomp"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "amsmath"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "amsthm"))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "tabularx" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "booktabs" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "grffile" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "wrapfig" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("normalem" "ulem" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "amssymb" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("" "capt-of" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("figuresright" "rotating" t))
+  (add-to-list 'org-latex-packages-alist
+	       '("Lenny" "fncychap" t))
 
-    (add-to-list 'org-latex-classes
-		 '("zhcosin-org-book"
-		   "\\documentclass{ctexbook}
+  (add-to-list 'org-latex-classes
+	       '("zhcosin-org-book"
+		 "\\documentclass{ctexbook}
   \\usepackage{titlesec}
   \\usepackage{hyperref}
   [NO-DEFAULT-PACKAGES]
@@ -1861,16 +1911,16 @@ If NEWNAME is a directory, move file to it."
   }
   [EXTRA]
   "
-		   ("\\chapter{%s}" . "\\chapter*{%s}")
-		   ("\\section{%s}" . "\\section*{%s}")
-		   ("\\subsection{%s}" . "\\subsection*{%s}")
-		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+		 ("\\chapter{%s}" . "\\chapter*{%s}")
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-    (add-to-list 'org-latex-classes
-		 '("zhcosin-org-article"
-		   "\\documentclass{ctexart}
+  (add-to-list 'org-latex-classes
+	       '("zhcosin-org-article"
+		 "\\documentclass{ctexart}
   \\usepackage{titlesec}
   \\usepackage{hyperref}
   [NO-DEFAULT-PACKAGES]
@@ -1901,15 +1951,15 @@ If NEWNAME is a directory, move file to it."
   }
   [EXTRA]
   "
-		   ("\\section{%s}" . "\\section*{%s}")
-		   ("\\subsection{%s}" . "\\subsection*{%s}")
-		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-    (add-to-list 'org-latex-classes
-		 '("zhcosin-org-beamer"
-		   "\\documentclass{beamer}
+  (add-to-list 'org-latex-classes
+	       '("zhcosin-org-beamer"
+		 "\\documentclass{beamer}
   \\usepackage[slantfont, boldfont]{xeCJK}
   % beamer set
   \\usepackage[none]{hyphenat}
@@ -1941,11 +1991,11 @@ If NEWNAME is a directory, move file to it."
   }
   [EXTRA]
   "
-		   ("\\section{%s}" . "\\section*{%s}")
-		   ("\\subsection{%s}" . "\\subsection*{%s}")
-		   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
 #+END_SRC
 
