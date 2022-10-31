@@ -40,3 +40,6 @@
 [submodule ".emacs.d/vendor/org-bars"]
 	path = .emacs.d/vendor/org-bars
 	url = https://github.com/tonyaldon/org-bars
+[submodule ".emacs.d/vendor/plantuml-emacs"]
+	path = .emacs.d/vendor/plantuml-emacs
+	url = https://github.com/ginqi7/plantuml-emacs
