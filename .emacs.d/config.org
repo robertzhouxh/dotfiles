@@ -1047,6 +1047,7 @@ If NEWNAME is a directory, move file to it."
                  'nim-mode-hook
                  'typescript-mode-hook
                  'elixir-mode-hook
+                 'erlang-mode-hook
                  'clojure-mode-hook
                  ))
     (add-hook hook (lambda () (display-line-numbers-mode))))
