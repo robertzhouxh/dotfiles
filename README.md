@@ -44,13 +44,13 @@ cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 
 ### For MacOS
 
-brew tap railwaycat/emacsmacport
-brew install --cask emacs-mac
+- brew tap railwaycat/emacsmacport
+- brew install --cask emacs-mac
 
 或者 
 
-brew tap daviderestivo/emacs-head
-brew install emacs-head@29 --with-cocoa --with-native-comp --with-native-full-aot --with-imagemagick --with-xwidgets
+- brew tap daviderestivo/emacs-head
+- brew install emacs-head@29 --with-cocoa --with-native-comp --with-native-full-aot --with-imagemagick --with-xwidgets
 
 
 ### Automatically depoly vim/emacs
@@ -72,68 +72,6 @@ Note: if you encouter "Failed to verify signature xxx"
 2. download the package gnu-elpa-keyring-update and run the function with the same name, e.g. M-x package-install RET gnu-elpa-keyring-update RET.
 3. reset package-check-signature to the default value allow-unsigned，e.g. M-: (setq package-check-signature t) RET
 
-### 维护 emacs 配置 (~/.emacs.d/config.org)
-1. open .emacs.d/config.org with emacs in org-mode (,fe ---> M-X ---> org-mode)
-2. modify chapter: Evil-Mode, Kep-Map, ...
-3. reload: ,fr
-4. 准备golang 的依赖
-    ```
-    go get -v golang.org/x/tools/gopls@latest
-
-    go get -v -u golang.org/x/tools/cmd/goimports
-    go get -v -u github.com/go-delve/delve/cmd/dlv
-    go get -v -u github.com/josharian/impl
-    go get -v -u github.com/cweill/gotests/...
-    go get -v -u github.com/fatih/gomodifytags
-    go get -v -u github.com/davidrjenni/reftools/cmd/fillstruct
-    ```
-5. 修改 plantuml 路径: 
-
-   ```
-   (setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")~
-   (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.26/libexec/plantuml.jar")
-   ```
-
-6. 修改 erlang version: 路径: 
-
-   ```
-   ls /usr/local/lib/erlang/lib/tools-{version}/
-   emacs-version = ${version}
-   (add-to-list 'nox-server-programs '(erlang-mode . ("/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls"))))
-
-    ```
-7. 修改 代理设置
-    ```
-    (setq centaur-proxy "127.0.0.1:8123")          ; http_proxy
-    (setq centaur-proxy "127.0.0.1:1080")          ; Network proxy
-    (setq centaur-server nil)                      ; Enable `server-mode' or not: t or nil
-
-	```
-
-8. 根据需要调整 evil 键映射
-    ```
-    (defun x/config-evil-leader ()
-      "Configure evil leader mode."
-      (evil-leader/set-leader ",")
-      (evil-leader/set-key
-	    ","  'avy-goto-char-2
-	    ":"  'eval-expression
-
-	    "/"  'counsel-rg
-
-	    "A"  'align-regexp
-
-	    "bb" 'ivy-switch-buffer
-	    "br" 'counsel-recentf
-    ```
-### 安装 lsp-server
-
-  选择对应语言的安装包 -- https://github.com/manateelazycat/lsp-bridge#supported-language-servers
-```
-  - Rust: rustup component add rust-src
-  - Golang: go install golang.org/x/tools/gopls@latest
-  - Erlang: git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=/usr/local/bin make install
-  
 ## Files
 
 - .aliases: short name for frequence cmd
@@ -181,28 +119,38 @@ Note: if you encouter "Failed to verify signature xxx"
     ```
 
 
-## Emacs 配置
+## Emacs 启动与配置
 
-./emacs.sh
+启动 emacs 等待插件自动安装完毕!!!
 
-适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
+1. 编程语言跳转 lsp-server
+
+  选择对应语言的安装包 -- https://github.com/manateelazycat/lsp-bridge#supported-language-servers
+```
+  - Rust: rustup component add rust-src
+  - Golang: go install golang.org/x/tools/gopls@latest
+  - Erlang: git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=/usr/local/bin make install
+
+
+2. 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
 
 ```
+* Custom Var
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-    ; /usr/local/lib/erlang/lib/tools-{erlang-version}
-    (setq erlang-version "3.4.4")
-    (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
-    (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.5/libexec/plantuml.jar")
-    (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-    (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-    (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
+
+  (setq erlang-path-prefix "/usr/local/lib/erlang")
+  (setq erlang-lib-tools-version "3.5.2")
+  (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
+  (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
+  (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
+  (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
 
 #+END_SRC
-
 ```
 
-启动 emacs
+重新启动 emacs
 
 ## Elisp 
 
