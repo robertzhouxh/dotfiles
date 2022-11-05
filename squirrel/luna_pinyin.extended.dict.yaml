@@ -1,0 +1,9 @@
+#  luna_pinyin.extended.dict.yaml
+---
+name: luna_pinyin.extended
+version: "2022.05.04"
+sort: by_weight
+use_preset_vocabulary: true
+import_tables:
+  - luna_pinyin
+  - moegirl

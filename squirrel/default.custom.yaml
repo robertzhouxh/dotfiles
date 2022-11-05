@@ -1,0 +1,15 @@
+patch:
+  "menu/page_size": 7
+
+  "translator/enable_user_dict": true
+  "translator/enable_encoder": true #是否开启自动造词〔仅table_translator有效〕
+  "translator/encode_commit_history": true #是否对已上屛词自动成词〔仅table_translator效〕
+  "translator/enable_sentence": true #是否开启自动造句
+
+  ascii_composer/good_old_caps_lock: true
+  ascii_composer/switch_key:
+    Caps_Lock: noop
+    Shift_L: commit_code
+    Shift_R: noop
+    Control_L: noop
+    Control_R: noop

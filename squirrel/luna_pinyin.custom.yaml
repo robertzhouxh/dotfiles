@@ -1,0 +1,12 @@
+patch:
+  switches:                   # 注意缩进
+    - name: ascii_mode
+      reset: 0                # reset 0 的作用是当从其他输入法切换到本输入法重设为指定状态
+      states: [ 中文, 西文 ]   # 选择输入方案后通常需要立即输入中文，故重设 ascii_mode = 0
+    - name: full_shape
+      states: [ 半角, 全角 ]   # 而全／半角则可沿用之前方案的用法。
+    - name: simplification
+      reset: 1                # 增加这一行：默认启用「繁→簡」转换。
+      states: [ 漢字, 汉字 ]
+
+  "translator/dictionary": luna_pinyin.extended
