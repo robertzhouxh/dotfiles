@@ -131,6 +131,7 @@ Note: if you encouter "Failed to verify signature xxx"
   - Rust: rustup component add rust-src
   - Golang: go install golang.org/x/tools/gopls@latest
   - Erlang: git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=/usr/local/bin make install
+  - Yaml: npm install -g yaml-language-server
 
 
 2. 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
