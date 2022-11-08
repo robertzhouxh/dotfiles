@@ -2110,7 +2110,7 @@ If NEWNAME is a directory, move file to it."
   ;;   wget http://erlang.org/download/otp_src_22.3.tar.gz
   ;;   tar zxvf otp_src_22.3.tar.gz
   ;;   cd otp_src_22.3
-       ./configure --with-ssl --enable-threads --enable-smp-support --enable-kernel-poll --enable-hipe --without-java
+  ;;   ./configure --with-ssl --enable-threads --enable-smp-support --enable-kernel-poll --enable-hipe --without-java
   ;;   ./configure --with-ssl && sudo make && sudo  make install
   ;;
   ;; 2) MacOS && Unix use
