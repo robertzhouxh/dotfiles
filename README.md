@@ -90,7 +90,7 @@ Note: if you encouter "Failed to verify signature xxx"
 
 1. brew install --cask squirrel
 
-   cp -rf./squirrel/* ~/Library/Rime/
+   cp -rf ./squirrel/* ~/Library/Rime/
 
    # redeploy siquirrel
 
