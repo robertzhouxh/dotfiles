@@ -7,7 +7,6 @@
   ;; 注意: erlang 安装版本一定要大约24.3, 否则erlang mode 启动报错
   (setq erlang-path-prefix "/usr/local/lib/erlang")
   (setq erlang-lib-tools-version "3.5.2")
-  (setq erlang-ls "/Users/zxh/githubs/erlang_ls/_build/default/bin/erlang_ls")
   (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.8/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
   (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
@@ -1042,8 +1041,10 @@ If NEWNAME is a directory, move file to it."
   ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
   (require 'lsp-bridge)
   (require 'lsp-bridge-jdtls)
+  ;;; Code:
+  
   (global-lsp-bridge-mode)
-
+  
   ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
   (defun lsp-bridge-jump ()
     (interactive)
@@ -1057,7 +1058,7 @@ If NEWNAME is a directory, move file to it."
      (t
       (require 'dumb-jump)
       (dumb-jump-go))))
-
+  
   (defun lsp-bridge-jump-back ()
     (interactive)
     (cond
@@ -1066,19 +1067,19 @@ If NEWNAME is a directory, move file to it."
      (t
       (require 'dumb-jump)
       (dumb-jump-back))))
-
+  
   (setq lsp-bridge-get-single-lang-server-by-project
         (lambda (project-path filepath)
-          ;; If typescript first line include deno.land, then use Deno LSP server.
+          ;; If typescript file include deno.land url, then use Deno LSP server.
           (save-excursion
             (when (string-equal (file-name-extension filepath) "ts")
               (dolist (buf (buffer-list))
                 (when (string-equal (buffer-file-name buf) filepath)
                   (with-current-buffer buf
                     (goto-char (point-min))
-                    (when (string-match-p (regexp-quote "from \"https://deno.land") (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+                    (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
                       (return "deno")))))))))
-
+  
   ;; 打开日志，开发者才需要
   ;; (setq lsp-bridge-enable-log t)
 

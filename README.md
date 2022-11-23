@@ -125,6 +125,7 @@ Note: if you encouter "Failed to verify signature xxx"
 启动 emacs 等待插件自动安装完毕!!!
 
 1. 编程语言跳转 lsp-server
+  pip3 install epc orjson six
 
   选择对应语言的安装包 -- https://github.com/manateelazycat/lsp-bridge#supported-language-servers
 ```
@@ -137,9 +138,6 @@ Note: if you encouter "Failed to verify signature xxx"
 2. 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
 
 ```
-* Custom Var
-#+BEGIN_SRC emacs-lisp :tangle yes
-
 
   (setq erlang-path-prefix "/usr/local/lib/erlang")
   (setq erlang-lib-tools-version "3.5.2")
@@ -149,7 +147,6 @@ Note: if you encouter "Failed to verify signature xxx"
   (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
   (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
 
-#+END_SRC
 ```
 
 重新启动 emacs
