@@ -2132,7 +2132,7 @@ If NEWNAME is a directory, move file to it."
   ;(lsp-rust-analyzer-display-reborrow-hints nil)
   ;)
   (use-package rust-mode
-    :hook ((rust-mode . my/rust-lsp))
+    ;:hook ((rust-mode . my/rust-lsp))
     :config
     (setq rust-format-on-save t)
     (defun my/rust-lsp ()
