@@ -129,7 +129,7 @@ Note: if you encouter "Failed to verify signature xxx"
 
   选择对应语言的安装包 -- https://github.com/manateelazycat/lsp-bridge#supported-language-servers
 ```
-  - Rust: rustup component add rust-src
+  - Rust: brew install rust-analyzer && rustup component add rust-src rustfmt clippy rls rust-analysis
   - Golang: go install golang.org/x/tools/gopls@latest
   - Erlang: git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=/usr/local/bin make install
   - Yaml: npm install -g yaml-language-server
