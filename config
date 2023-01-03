@@ -25,7 +25,7 @@ Host github.com
     HostName github.com
     User git
     Port 22
-    ProxyCommand /usr/bin/ncat --proxy 127.0.0.1:1080 --proxy-type socks5 %h %p
+    ProxyCommand /usr/bin/ncat --proxy 127.0.0.1:7890 --proxy-type socks5 %h %p
 
 Host github.com
     HostName github.com
@@ -33,7 +33,7 @@ Host github.com
     # 走 HTTP 代理
     # ProxyCommand socat - PROXY:127.0.0.1:%h:%p,proxyport=8080
     # 走 socks5 代理（如 Shadowsocks）
-    ProxyCommand nc -v -x 127.0.0.1:1080 %h %p
+    ProxyCommand nc -v -x 127.0.0.1:7890 %h %p
 
 Host jumper
     HostName x.x.x.x

@@ -101,7 +101,7 @@ alias path='echo -e ${PATH//:/\\n}'
 alias hproxy='export http_proxy=http://127.0.0.1:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export FTP_PROXY=$http_proxy;export https_proxy=$http_proxy;export ftp_proxy=$http_proxy;'
 alias nohproxy='unset http_proxy;unset HTTPS_PROXY;unset HTTP_PROXY;unset FTP_PROXY;unset https_proxy;unset ftp_proxy'
 
-alias proxy='export ALL_PROXY=socks5://127.0.0.1:1080'
+alias proxy='export ALL_PROXY=socks5://127.0.0.1:7890'
 alias noproxy='unset ALL_PROXY'
 
 # ssh configuration

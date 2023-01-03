@@ -111,12 +111,17 @@ Note: if you encouter "Failed to verify signature xxx"
 ```
 ## Proxy(代理设置)
 
+	如果您使用 Trojan 则采用 1080， 如果您使用 ClashX 则采用 7890 作为 socks5 监听端口！
+	同时也要适配 .alias, .gitconfig 中的的 1080/7890
+
+
     ```
+	
 	1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
 	2. github 代理 vi ~/.gitconfig 适配sock5监听端口
 	3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
 	
-		youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+		youtube-dl --proxy socks5://127.0.0.1:7890 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
     ```
 
 
@@ -144,7 +149,7 @@ Note: if you encouter "Failed to verify signature xxx"
   (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
   (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-  (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq centaur-socks-proxy "127.0.0.1:7890")    ; SOCKS proxy, 如果您采用 trojan 则改为 1080
   (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
 
 ```
