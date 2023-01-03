@@ -7,9 +7,9 @@
   ;; 注意: erlang 安装版本一定要大约24.3, 否则erlang mode 启动报错
   (setq erlang-path-prefix "/usr/local/lib/erlang")
   (setq erlang-lib-tools-version "3.5.2")
-  (setq plantuml-path "/usr/local/Cellar/plantuml/1.2021.8/libexec/plantuml.jar")
+  (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
   (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-  (setq centaur-socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq centaur-socks-proxy "127.0.0.1:7890")    ; SOCKS proxy
   (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
 
 #+END_SRC
