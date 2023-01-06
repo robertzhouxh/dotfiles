@@ -836,10 +836,10 @@ If NEWNAME is a directory, move file to it."
   ;; -----------------------------------------------------------------------------------------------
   (defun add-to-alist (alist-var elt-cons &optional no-replace)
     "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
-    If an element with the same car as the car of ELT-CONS is already present,
-    replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
-    element is not already present, add ELT-CONS to the front of the alist.
-    The test for presence of the car of ELT-CONS is done with `equal'."
+      If an element with the same car as the car of ELT-CONS is already present,
+      replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
+      element is not already present, add ELT-CONS to the front of the alist.
+      The test for presence of the car of ELT-CONS is done with `equal'."
     (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
       (if existing-element
           (or no-replace
@@ -971,12 +971,20 @@ If NEWNAME is a directory, move file to it."
 
   ;; -----------------------------------------------------------------------------------------------
   ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
+  ;;; Require
   (require 'lsp-bridge)
   (require 'lsp-bridge-jdtls)
+
   ;;; Code:
-  
+
+  (setq acm-enable-quick-access t)
+  (setq acm-backend-yas-match-by-trigger-keyword t)
+
   (global-lsp-bridge-mode)
-  
+
+  ;; 打开日志，开发者才需要
+  ;; (setq lsp-bridge-enable-log t)
+
   ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
   (defun lsp-bridge-jump ()
     (interactive)
@@ -990,7 +998,7 @@ If NEWNAME is a directory, move file to it."
      (t
       (require 'dumb-jump)
       (dumb-jump-go))))
-  
+
   (defun lsp-bridge-jump-back ()
     (interactive)
     (cond
@@ -999,7 +1007,7 @@ If NEWNAME is a directory, move file to it."
      (t
       (require 'dumb-jump)
       (dumb-jump-back))))
-  
+
   (setq lsp-bridge-get-single-lang-server-by-project
         (lambda (project-path filepath)
           ;; If typescript file include deno.land url, then use Deno LSP server.
@@ -1011,9 +1019,8 @@ If NEWNAME is a directory, move file to it."
                     (goto-char (point-min))
                     (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
                       (return "deno")))))))))
-  
-  ;; 打开日志，开发者才需要
-  ;; (setq lsp-bridge-enable-log t)
+
+  (provide 'init-lsp-bridge)
 
 #+END_SRC
 * Dired
