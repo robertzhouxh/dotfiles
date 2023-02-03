@@ -19,6 +19,9 @@ function doIt() {
           --exclude ".emacs.d" \
           --exclude "brew.sh" \
 	  --exclude "apt.sh" \
+	  --exclude "rime-settings" \
+	  --exclude "squirrel" \
+	  --exclude ".macos" \
           -avh --no-perms . ~;
 	source ~/.bash_profile;
 }
@@ -34,14 +37,10 @@ else
 fi;
 unset doIt;
 
-
-echo ""
-
-echo -e "\033[40;32m start to install command line tools for your system ...\033[0m"
-
 sysType=`uname -s`
-
-echo -e "\033[40;32m Your system is $sysType \033[0m"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+echo -e "\033[40;32m start to install command line tools for your system ${sysType} \033[0m"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
 if [ $sysType = "Linux" ]; then
     source ./apt.sh;

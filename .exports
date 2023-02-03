@@ -1,44 +1,102 @@
+#!/usr/bin/env bash
+
+# Make vim the default editor.
+export EDITOR='vim';
+
+# Enable persistent REPL history for `node`.
+export NODE_REPL_HISTORY=~/.node_history;
+# Allow 32³ entries; the default is 1000.
+export NODE_REPL_HISTORY_SIZE='32768';
+# Use sloppy mode by default, matching web browsers.
+export NODE_REPL_MODE='sloppy';
+
+# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
+export PYTHONIOENCODING='UTF-8';
+
+# Increase Bash history size. Allow 32³ entries; the default is 500.
+export HISTSIZE='32768';
+export HISTFILESIZE="${HISTSIZE}";
+# Omit duplicates and commands that begin with a space from history.
+export HISTCONTROL='ignoreboth';
+
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8';
 export LC_ALL='en_US.UTF-8';
 
 # Highlight section titles in manual pages.
-# export LESS_TERMCAP_md="${yellow}";
+export LESS_TERMCAP_md="${yellow}";
+
+# Don’t clear the screen after quitting a manual page.
+export MANPAGER='less -X';
+
+# Avoid issues with `gpg` as installed via Homebrew.
+# https://stackoverflow.com/a/42265848/96656
+export GPG_TTY=$(tty);
+
+# Hide the “default interactive shell is now zsh” warning on macOS.
+export BASH_SILENCE_DEPRECATION_WARNING=1;
 
 
 # ===================== custom your exports here ... ======================
-export LD_LIBRARY_PATH=/usr/local/lib
+
+BREW_PREFIX=$(brew --prefix)
 
 # use Unix Style cmd for mac-osx
-# if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
-#   PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-# fi
 
-# if [ -d "$HOME/bin" ]; then
-#     PATH="$HOME/bin:$PATH"
-# fi
+#if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
+  PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+#fi
 
-# go
-export GOROOT=/usr/local/opt/go/libexec
-export GOPATH=$HOME/go-workspace
-export GO111MODULE=auto
-#GOPROXY=https://goproxy.io,direct
-go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 
-PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
-PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-PATH="/usr/local/sbin:$PATH"
-PATH="/usr/local/opt/openjdk/bin:$PATH"
+#if which brew &> /dev/null && brew list --formula | grep make > /dev/null; then
+  PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
+#fi
+
+#if which brew &> /dev/null && brew list --formula | grep gnu-sed > /dev/null; then
+  PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH"
+#fi
+
+#if which brew &> /dev/null && brew list --formula | grep openjdk > /dev/null; then
+  JDK_PREFIX=$(brew --prefix openjdk)
+  PATH="${JDK_PREFIX}/bin:$PATH"
+#fi
+
+
+#------------------------------------------------------------
+# erlang
 #PATH="/usr/local/Cellar/erlang@23/23.3.4.10/bin/:$PATH"
-PATH="/usr/local/lib/erlang/bin/:$PATH"
-PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
-export PATH="$PATH:/Library/TeX/texbin"
-export CFLAGS="-I/usr/local/opt/openssl/include/"
-export CPPFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/openjdk/include -I/usr/local/opt/icu4c/include"
-#export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/Cellar/erlang@23/23.3.4.10/lib -L/usr/local/opt/icu4c/lib"
-export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/lib/erlang/lib -L/usr/local/opt/icu4c/lib"
+#PATH="/usr/local/lib/erlang/bin/:$PATH"
+#PATH="/usr/local/opt/erlang@23/bin:$PATH"
 
-export HOMEBREW_NO_AUTO_UPDATE=1
 
-export CLASSPATH=".:/usr/local/Cellar/antlr/4.9.2/antlr-4.9.2-complete.jar:$CLASSPATH"
+#------------------------------------------------------------
+# golang
+# export GOROOT=/usr/local/opt/go/libexec
+# export GOPATH=$HOME/githubs/go
+# export GO111MODULE=auto
+# go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+# PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+
+#------------------------------------------------------------
+# others
+[ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
+PATH="$PATH:/Library/TeX/texbin"
+
+
+#for autojump : https://github.com/wting/autojump
+# [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+# export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ;} history -a"
+
+# for source liquidprompt && z awesome tools
+[[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh
+[[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh
+
+
+#------------------------------------------------------------
+# export
+
+#If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
+export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
+export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
+export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
+

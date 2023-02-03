@@ -1,6 +1,12 @@
 # Add `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
 
+
+#---------custom: For brew bin missing------------
+eval "$(/opt/homebrew/bin/brew shellenv)"
+#-------------------------------------------------
+
+
 # Load the shell dotfiles, and then some:
 # * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don’t want to commit.
@@ -26,14 +32,16 @@ for option in autocd globstar; do
 done;
 
 # Add tab completion for many Bash commands
-if which brew &> /dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
-	source "$(brew --prefix)/share/bash-completion/bash_completion";
+if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+	# Ensure existing Homebrew v1 completions continue to work
+	export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d";
+	source "$(brew --prefix)/etc/profile.d/bash_completion.sh";
 elif [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
 fi;
 
 # Enable tab completion for `g` by marking it as an alias for `git`
-if type _git &> /dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
+if type _git &> /dev/null; then
 	complete -o default -o nospace -F _git g;
 fi;
 
@@ -46,25 +54,3 @@ complete -W "NSGlobalDomain" defaults;
 
 # Add `killall` tab completion for common apps
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
-
-# # for autojump : https://github.com/wting/autojump
-# [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
-# export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ;} history -a"
-
-# for fzf does not loaded been in .bashrc
-[[ -f ~/.fzf.bash ]] && source ~/.fzf.bash
-
-# for source liquidprompt && z awesome tools
-[[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt
-[[ `uname -s` == "Linux" ]] && . ~/z/z.sh
-[[ `uname -s` == "Darwin" ]] && . /usr/local/share/liquidprompt
-[[ `uname -s` == "Darwin" ]] && . `brew --prefix`/etc/profile.d/z.sh
-
-if [ -e /Users/glodon/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/glodon/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-export PATH="/usr/local/opt/erlang@23/bin:$PATH"
-. "$HOME/.cargo/env"
-
-
-
-. $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash

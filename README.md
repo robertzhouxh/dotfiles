@@ -1,6 +1,15 @@
 # Quick Start
 ### syn submodules and dotfiles
 
+查找域名对应的ip: https://www.ipaddress.com/site/raw.githubusercontent.com
+
+185.199.108.133185.199.109.133185.199.110.133185.199.111.133
+
+sudo vi /etc/hosts 
+185.199.111.133 raw.githubusercontent.com
+xxx.xxx.xxx.xxx github.com
+
+
 ```bash
 git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
 # 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
@@ -45,12 +54,7 @@ cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 ### For MacOS
 
 - brew tap railwaycat/emacsmacport
-- brew install --cask emacs-mac
-
-或者 
-
-- brew tap daviderestivo/emacs-head
-- brew install emacs-head@29 --with-cocoa --with-native-comp --with-native-full-aot --with-imagemagick --with-xwidgets
+- brew install emacs-mac --with-rsvg --with-no-title-bars --with-imagemagick --with-dbus
 
 
 ### Automatically depoly vim/emacs

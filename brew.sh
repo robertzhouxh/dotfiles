@@ -24,143 +24,142 @@ cecho() {
   return
 }
 
-cecho "attension: make sure you have installed the command line tools use: xcode-select --install" $yellow
-# cecho "attension: make sure you have installed pip: wget https://bootstrap.pypa.io/get-pip.py && sudo -H python get-pip.py" $yellow
-# cecho "attension: make sure you have installed java: brew cask install java" $yellow
-
 # Homebrew
-# http://brew.sh
 if hash brew 2>/dev/null; then
 	cecho "Homebrew already installed" $green
 else
 	cecho "Installing Homebrew" $yellow
-	#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	#ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/zxh/.zprofile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
 	brew doctor
 fi
 
-# Homebrew Cask
-# http://caskroom.io
-if command brew cask 1>/dev/null; then
-	cecho "Homebrew Cask already installed, just conitnue ..." $green
-else
-	cecho "Installing Homebrew Cask" $yellow
-	brew tap homebrew/cask-cask
-	#brew install caskroom/cask/brew-cask
-fi
-
-# 使用 brew services start|stop|restart SERVICE_NAME 这样的命令来操作一切终端服务了 <=> LaunchRocket
-#brew tap homebrew/services
-
-# awesome font for programming
-brew tap homebrew/cask-fonts
-brew tap laishulu/cask-fonts
-
-#Sarasa Mono SC Nerd
-brew install --cask font-sarasa-nerd
-brew install --cask font-source-code-pro
-brew install --cask font-hack
-brew install --cask font-fira-code
+# For temminal proxy to socks5, brew services restart polipo
+# brew install polipo
 
 # Install command-line tools using Homebrew.
-# Ask for the administrator password upfront.
-# sudo -v
 
-# Keep-alive: update existing `sudo` time stamp until the script has finished.
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+# Make sure we’re using the latest Homebrew.
+# brew update
 
-cecho "Updating Homebrew" $yellow
-#brew update
-#brew upgrade
-cecho "Install command-line tools ... " $yellow
+# Upgrade any already-installed formulae.
+# brew upgrade
 
-# Install GNU core utilities (those that come with OS X are outdated).
+# Save Homebrew’s installed location.
+BREW_PREFIX=$(brew --prefix)
+
+# Install GNU core utilities (those that come with macOS are outdated).
 # Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
-# TODO: you'll get sed and a bunch of other GNU versions tar, date, etc installed in /usr/local/bin and given the prefix 'g'
 brew install coreutils
-# example
-# ln -s /usr/local/bin/gsha256sum /usr/local/bin/sha256sum
+ln -s "${BREW_PREFIX}/bin/gsha256sum" "${BREW_PREFIX}/bin/sha256sum"
 
 # Install some other useful utilities like `sponge`.
 brew install moreutils
 # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
 brew install findutils
-
-# for emacs org-pdf
- brew install Pygments
-
-# Install Bash 4.
-# Note: don’t forget to add `/usr/local/bin/bash` to `/etc/shells` before
-# running `chsh`.
+# Install GNU `sed`, overwriting the built-in `sed`.
+brew install gnu-sed
+# Install a modern version of Bash.
 brew install bash
 brew install bash-completion2
 
 # Switch to using brew-installed bash as default shell
-if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
-  echo '/usr/local/bin/bash' | sudo tee -a /etc/shells;
+if ! fgrep -q "${BREW_PREFIX}/bin/bash" /etc/shells; then
+  echo "${BREW_PREFIX}/bin/bash" | sudo tee -a /etc/shells;
+  chsh -s "${BREW_PREFIX}/bin/bash";
 fi;
 
+# Install `wget` with IRI support.
+#brew install wget --with-iri
 brew install wget
-brew install openssl
 
-read -p "custom command line tools ? [y/n]" -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-# gnu tools
-brew install gnu-sed
-brew install gnu-indent
-brew install gnutls
+# Install GnuPG to enable PGP-signing commits.
+#brew install gnupg
+
+# Install more recent versions of some macOS tools.
+brew install vim 
 brew install grep
-brew install gnu-tar
-brew install gawk
+brew install openssh
+#brew install screen
+#brew install gmp
 
-# other tools
-brew install make
-brew install graphicsmagick
+# Install font tools.
+#brew tap bramstein/webfonttools
+#brew install sfnt2woff
+#brew install sfnt2woff-zopfli
+#brew install woff2
+
+# Install some CTF tools; see https://github.com/ctfs/write-ups.
+#brew install aircrack-ng
+#brew install bfg
+#brew install binutils
+#brew install binwalk
+#brew install cifer
+#brew install dex2jar
+#brew install dns2tcp
+#brew install fcrackzip
+#brew install foremost
+#brew install hashpump
+#brew install hydra
+#brew install john
+#brew install knock
+#brew install netpbm
+#brew install nmap
+#brew install pngcheck
+#brew install socat
+#brew install sqlmap
+#brew install tcpflow
+#brew install tcpreplay
+#brew install tcptrace
+#brew install xpdf
+#brew install xz
+
+# Install other useful binaries.
+#brew install ack
+#brew install exiv2
+brew install git
+brew install git-lfs
+#brew install gs
+#brew install imagemagick --with-webp
+brew install imagemagick 
+brew install lua
+#brew install lynx
+#brew install p7zip
+#brew install pigz
+#brew install pv
+#brew install rename
+#brew install rlwrap
+brew install ssh-copy-id
 brew install tree
-brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
-brew install curl --force
-brew install git --force
-brew install ctags
-brew install fzf
+#brew install vbindiff
+#brew install zopfli
+
+
+# ====================== custom =============
+brew install graphicsmagick
 brew install trash
+#brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
 brew install pcre
 brew install liquidprompt
-brew install zsh
-brew install zsh-completions
 brew install graphviz
 brew install plantuml
 brew install the_silver_searcher
 brew install rg
-brew install ccls
-brew install imagemagick
-brew install pngpaste
 brew install z
 brew install protobuf
-# just abandon thunder
-brew install aria2
-# cool pdf reader 
-brew install aria2
 
-brew install antlr
-fi;
-brew cleanup
 
 apps=(
-    alfred
     caffeine
-    #appcleaner
-    #cheatsheet
-    #emacs
     gas-mask
     google-chrome
-    #iterm2
     #java
-    qq
-    smcfancontrol
-    #thunder
+    appcleaner
     vlc
-    #licecap
 )
+
 cecho "Install My Favorate Apps with brew install --cask xxx" $yellow
 for item in ${apps[@]}; do
 	cecho "> ${item}" $magenta
@@ -177,13 +176,12 @@ select yn in "Yes" "No"; do
 done
 
 
-read -p "Oh-My-ZSH ? [y/n]" -n 1;
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-#  git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-#  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-fi;
+# Remove outdated versions from the cellar.
 
-chsh -s /usr/local/bin/bash
-#chsh -s /bin/zsh
-cecho "Done!!! you can deploy vim( ./vim.sh ) or emacs( ./emacs.sh ) to bring you into cool coding environment!!!" $green
+cecho "cleaning ..." $yellow
+brew cleanup
+
+
+cecho "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" $yellow
+cecho "Done!!!" $yellow
+cecho "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" $yellow
