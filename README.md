@@ -10,6 +10,7 @@ sudo vi /etc/hosts
 xxx.xxx.xxx.xxx github.com
 
 
+
 ```bash
 git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
 # 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
@@ -64,6 +65,17 @@ cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
  # dragging Emacs to the Applications folder.
 
  # emacs-rime 输入法，需要文件 emacs-module.h, M2/M1 mac，路径是 /opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include
+```
+
+关于切换 openssl 版本
+
+```
+brew install openssl@3
+brew install openssl@1.1
+brew unlink openssl@3
+brew link openssl@1.1
+export PATH="/opt/homebrew/opt/openssl@1.1/bin:$PATH"
+
 ```
 
 ### Automatically depoly vim/emacs
@@ -126,7 +138,7 @@ rm -rf rime-1.7.3-osx.zip
 
 
 ```
-## Proxy(代理设置)
+## Proxy(http代理服务器，用来连接上游sock5)
 
 	如果您使用 Trojan 则采用 1080， 如果您使用 ClashX 则采用 7890 作为 socks5 监听端口！
 	同时也要适配 .alias, .gitconfig 中的的 1080/7890
@@ -134,11 +146,16 @@ rm -rf rime-1.7.3-osx.zip
 
     ```
 	
-	1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
-	2. github 代理 vi ~/.gitconfig 适配sock5监听端口
-	3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
-	
-		youtube-dl --proxy socks5://127.0.0.1:7890 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+    wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
+	tar zxvf polipo-1.1.1.tar.gz
+	cd polipo-1.1
+	make all
+
+	#  1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
+	#  2. github 代理 vi ~/.gitconfig 适配sock5监听端口
+	#  3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
+	youtube-dl --proxy socks5://127.0.0.1:7890 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+
     ```
 
 

@@ -4,13 +4,13 @@
 #+PROPERTY: header-args :results silent
 * Custom Var
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; 注意: erlang 安装版本一定要大约24.3, 否则erlang mode 启动报错
-  (setq erlang-path-prefix "/usr/local/lib/erlang")
+                            
+  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
   (setq erlang-lib-tools-version "3.5.2")
-  (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
-  (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-  (setq centaur-socks-proxy "127.0.0.1:7890")    ; SOCKS proxy
-  (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
+  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
+  (setq socks-proxy "127.0.0.1:7890")    ; SOCKS proxy
+  (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
 
 #+END_SRC
 * Bootstrap
@@ -252,7 +252,7 @@
 * Const
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-    (defconst centaur-homepage
+    (defconst zxh-homepage
       "https://github.com/robertzhouxh/dotfiles"
       "The Github page of my Emacs.")
 
@@ -283,7 +283,7 @@
   ;; Suppress warnings
     (defvar socks-noproxy)
     (defvar socks-server)
-    (defcustom centaur-proxy "127.0.0.1:8123"
+    (defcustom http-proxy "127.0.0.1:8123"
       "Set network proxy."
       :group 'centaur
       :type 'string)
@@ -421,15 +421,15 @@
     "Show HTTP/HTTPS proxy."
     (interactive)
     (if url-proxy-services
-	(message "Current HTTP proxy is `%s'" centaur-proxy)
+	(message "Current HTTP proxy is `%s'" http-proxy)
       (message "No HTTP proxy")))
 
   (defun proxy-http-enable ()
     "Enable HTTP/HTTPS proxy."
     (interactive)
     (setq url-proxy-services
-	  `(("http" . ,centaur-proxy)
-	    ("https" . ,centaur-proxy)
+	  `(("http" . ,http-proxy)
+	    ("https" . ,http-proxy)
 	    ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
     (proxy-http-show))
 
@@ -461,11 +461,11 @@
     (require 'socks)
     (setq url-gateway-method 'socks
 	  socks-noproxy '("localhost"))
-    (let* ((proxy (split-string centaur-socks-proxy ":"))
+    (let* ((proxy (split-string socks-proxy ":"))
 	   (host (car proxy))
 	   (port (cadr  proxy)))
       (setq socks-server `("Default server" ,host ,port 5)))
-    (setenv "all_proxy" (concat "socks5://" centaur-socks-proxy))
+    (setenv "all_proxy" (concat "socks5://" socks-proxy))
     (proxy-socks-show))
 
   (defun proxy-socks-disable ()
@@ -1502,14 +1502,19 @@ If NEWNAME is a directory, move file to it."
   ;; --------------------------------------------------------------
   ;; latex supporting deps
   ;; https://orgmode.org/worg/org-dependencies.html
-  ;; brew cask install basictex --verbose # verbose flag so I can see what is happening.
+
+  ;; brew install basictex --verbose
   ;; which pdflatex
   ;; export PATH=$PATH:/Library/TeX/texbin
-  ;; pip install pygments
-  ;; sudo tlmgr install minted
+
+  ;; Attention: shutdown teminal proxy
+
+  ;; pip3 install pysocks
+  ;; pip3 install pygments
   ;; sudo tlmgr update --self --all
+  ;; sudo tlmgr install minted
   ;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
-  ;; --------------------------------------------------------------
+
   (use-package plantuml-mode
     :ensure t
     :config
@@ -1540,9 +1545,6 @@ If NEWNAME is a directory, move file to it."
           plantuml-mindmap-contains-org-content t
           plantuml-org-headline-bold t))
 
-#+END_SRC
-** org-gerneral-config
-#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package org-download
     :ensure t
     :after org
@@ -1595,18 +1597,12 @@ If NEWNAME is a directory, move file to it."
   (setq org-image-actual-width 200) 
   (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
   (setq org-latex-default-figure-position "H")
-#+END_SRC
-** init-org-mode
-#+BEGIN_SRC emacs-lisp :tangle yes
+
   ;; from  https://github.com/zhcosin/dotemacs/blob/master/lisp/init-orgmode.el
   (add-hook 'org-mode-hook 
             (lambda () (setq truncate-lines nil))) 
 
   ;; 开启Org-mode文本内语法高亮
-                                          ;(require 'org)
-                                          ;(require 'ox-latex)
-                                          ;(setq org-src-fontify-natively t)
-
   ;; 在 org 允许文件中执行代码块
   (use-package ob-http)
   (require 'ob-go)
@@ -1713,10 +1709,7 @@ If NEWNAME is a directory, move file to it."
     (backward-char 3))
 
   (define-key org-mode-map (kbd "M-$") 'zhcosin/insert-inline-formulas)
-#+END_SRC
-** init-auctex
 
-#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package auctex :defer t :ensure t)
 
   (load "auctex.el" nil t t)
@@ -1743,21 +1736,15 @@ If NEWNAME is a directory, move file to it."
               (setq TeX-save-query nil)
               (imenu-add-menubar-index)
               (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
-#+END_SRC
 
-** init-cdlatex
 
-#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package cdlatex
     :ensure t
     :config
     (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
     (add-hook 'LaTeX-mode-hook 'turn-on-cdlatex))
-#+END_SRC
 
-** init-org2pdf
 
-#+BEGIN_SRC emacs-lisp :tangle yes
   ;; org-latex-packages-alist 第一个元素是要加载宏包的选项，第二个参数是要加载宏包的名字，第三个选项设置为t或者nil，即要加载或者不加载。
   ;;org-mode export to latex, refer: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
   (require 'ox-latex)
@@ -2040,13 +2027,19 @@ If NEWNAME is a directory, move file to it."
   ;; 2) MacOS && Unix use
   ;;   brew install erlang@23
   ;;   brew install erlang
+
   ;; 3) use asdf
   ;;   asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
-  ;;   asdf list all erlang
-  ;;   export CFLAGS="$CFLAGS -o0" && asdf install erlang 23.3.4
+
+  ;;   export KERL_BUILD_DOCS=yes                                                    
+  ;;   export KERL_INSTALL_MANPAGES=yes                                              
+  ;;   export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
+  ;;   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
+
   ;;   asdf install erlang 24.3.4
-  ;;   asdf global erlang 23.3.4
-  ;;   asdf local erlang erlang 23.3.4
+  ;;   asdf global erlang 24.3.4
+  ;;   asdf local  erlang 24.3.4
+  ;;
   ;;---------------------------------------------------------
   (let* ((tools-version erlang-lib-tools-version)
          (path-prefix erlang-path-prefix)
@@ -2283,25 +2276,25 @@ If NEWNAME is a directory, move file to it."
     (when (display-graphic-p)
       ;; Default font
       (cl-loop for font in '("Consolas" "Monaco" "Hack" "Source Code Pro" "Menlo" "DejaVu Sans Mono")
-	       when (font-installed-p font)
-	       return (set-face-attribute 'default nil :family font))
+               when (font-installed-p font)
+               return (set-face-attribute 'default nil :family font))
 
       ;; Unicode characters
       (cl-loop for font in '("Segoe UI Symbol" "Symbola" "Symbol")
-	       when (font-installed-p font)
-	       return (set-fontset-font t 'unicode font nil 'prepend))
+               when (font-installed-p font)
+               return (set-fontset-font t 'unicode font nil 'prepend))
 
       ;; Emoji
       (cl-loop for font in '("Noto Color Emoji" "Apple Color Emoji")
-	       when (font-installed-p font)
-	       return (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend))
+               when (font-installed-p font)
+               return (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend))
 
       ;; Chinese characters
       (cl-loop for font in '("FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
-	       when (font-installed-p font)
-	       return (progn
-			;(setq face-font-rescale-alist `((,font . 1.2)))
-			(set-fontset-font t '(#x4e00 . #x9fff) (font-spec :family font))))))
+               when (font-installed-p font)
+               return (progn
+                        ;(setq face-font-rescale-alist `((,font . 1.2)))
+                        (set-fontset-font t '(#x4e00 . #x9fff) (font-spec :family font))))))
 
   (add-hook 'emacs-startup-hook 'cabins/font-setup)
   (when (daemonp) (add-hook 'after-make-frame-functions (lambda (frame) (with-selected-frame frame (cabins/font-setup)))))
@@ -2311,36 +2304,39 @@ If NEWNAME is a directory, move file to it."
 
 #+END_SRC
 * Rime
-  #+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package posframe :ensure t)
 
-    ;使用 toggle-input-method 来激活，默认快捷键为 C-\
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package posframe :ensure t)
 
-    (use-package rime
-      :ensure t
-      :custom
-      (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-      (default-input-method "rime")
-      :config
-      (setq rime-user-data-dir "~/Library/Rime/")
-      (setq rime-show-candidate 'posframe)
-      (setq rime-posframe-style 'vertical) ;horizontal,simple
-      (setq rime-disable-predicates
-	    '(rime-predicate-evil-mode-p
-		  rime-predicate-after-alphabet-char-p
-		  rime-predicate-prog-in-code-p))
-      (setq rime-inline-ascii-trigger 'shift-l)
-      (define-key rime-active-mode-map (kbd "M-j") 'rime-inline-ascii)
-      (define-key rime-mode-map (kbd "C-`") 'rime-send-keybinding)
-      (setq mode-line-mule-info '((:eval (rime-lighter))))
-      (setq rime-posframe-properties
-	    (list :background-color "#333333"
-		  :foreground-color "#dcdccc"
-		  ;;:font "WenQuanYi Micro Hei Mono-14"
-		  :font "Sarasa Mono SC Nerd"
-		  :internal-border-width 10))
-      )
-  #+END_SRC
+  ;;使用 toggle-input-method 来激活，默认快捷键为 C-\
+  (use-package rime
+    :ensure t
+    :custom
+    (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+    (rime-emacs-module-header-root emacs-module-header-root)
+    (default-input-method "rime")
+    :config
+    ;(setq rime-emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0/include")
+    (setq rime-user-data-dir "~/Library/Rime/")
+    (setq rime-show-candidate 'posframe)
+    (setq rime-posframe-style 'vertical) ;horizontal,simple
+    (setq rime-disable-predicates
+          '(rime-predicate-evil-mode-p
+            rime-predicate-after-alphabet-char-p
+            rime-predicate-prog-in-code-p))
+    (setq rime-inline-ascii-trigger 'shift-l)
+    (define-key rime-active-mode-map (kbd "M-j") 'rime-inline-ascii)
+    (define-key rime-mode-map (kbd "C-`") 'rime-send-keybinding)
+    (setq mode-line-mule-info '((:eval (rime-lighter))))
+    (setq rime-posframe-properties
+          (list :background-color "#333333"
+                :foreground-color "#dcdccc"
+                ;:font "WenQuanYi Micro Hei Mono-14"
+                ;:font "Sarasa Mono SC Nerd"
+                :font "Menlo"
+                :internal-border-width 10))
+    )
+#+END_SRC
 * Platform
 #+BEGIN_SRC emacs-lisp :tangle yes
 

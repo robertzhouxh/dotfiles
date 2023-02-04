@@ -39,63 +39,49 @@ export BASH_SILENCE_DEPRECATION_WARNING=1;
 
 # ===================== custom your exports here ... ======================
 
-BREW_PREFIX=$(brew --prefix)
+if [[ `uname -s` == "Darwin" ]] then
 
-# use Unix Style cmd for mac-osx
+    BREW_PREFIX=$(brew --prefix)
 
-#if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
-  PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-#fi
+    #if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    #fi
 
+    #if which brew &> /dev/null && brew list --formula | grep make > /dev/null; then
+    PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
+    #fi
 
-#if which brew &> /dev/null && brew list --formula | grep make > /dev/null; then
-  PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
-#fi
+    #if which brew &> /dev/null && brew list --formula | grep gnu-sed > /dev/null; then
+    PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH"
+    #fi
 
-#if which brew &> /dev/null && brew list --formula | grep gnu-sed > /dev/null; then
-  PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH"
-#fi
-
-#if which brew &> /dev/null && brew list --formula | grep openjdk > /dev/null; then
-  JDK_PREFIX=$(brew --prefix openjdk)
-  PATH="${JDK_PREFIX}/bin:$PATH"
-#fi
-
-
-#------------------------------------------------------------
-# erlang
-#PATH="/usr/local/Cellar/erlang@23/23.3.4.10/bin/:$PATH"
-#PATH="/usr/local/lib/erlang/bin/:$PATH"
-#PATH="/usr/local/opt/erlang@23/bin:$PATH"
+    #if which brew &> /dev/null && brew list --formula | grep openjdk > /dev/null; then
+    JDK_PREFIX=$(brew --prefix openjdk)
+    PATH="${JDK_PREFIX}/bin:$PATH"
+    #fi
 
 
-#------------------------------------------------------------
-# golang
-# export GOROOT=/usr/local/opt/go/libexec
-# export GOPATH=$HOME/githubs/go
-# export GO111MODULE=auto
-# go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
-# PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+    #------------------------------------------------------------
+    # golang
+    # export GOROOT=/usr/local/opt/go/libexec
+    # export GOPATH=$HOME/githubs/go
+    # export GO111MODULE=auto
+    # PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+    # go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 
-#------------------------------------------------------------
-# others
-PATH="$PATH:/Library/TeX/texbin"
+    #------------------------------------------------------------
+    # latex
+    # PATH="$PATH:/Library/TeX/texbin"
 
 
-#for autojump : https://github.com/wting/autojump
-# [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
-# export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ;} history -a"
+    #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
+    export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
+    export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
+    export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
+    export HOMEBREW_NO_AUTO_UPDATE=1
 
-# for source liquidprompt && z awesome tools
+fi
+
+[[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && . /opt/homebrew/opt/asdf/libexec/asdf.sh
 [[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh
-[[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh
 
-
-#------------------------------------------------------------
-# export
-
-#If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
-export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
-export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
-export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
-export HOMEBREW_NO_AUTO_UPDATE=1

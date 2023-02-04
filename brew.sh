@@ -91,6 +91,11 @@ brew install openssh
 #brew install sfnt2woff-zopfli
 #brew install woff2
 
+brew tap homebrew/cask-fonts
+# brew tap laishulu/cask-fonts
+brew install --cask font-source-code-pro
+brew install --cask font-hack
+
 # Install some CTF tools; see https://github.com/ctfs/write-ups.
 #brew install aircrack-ng
 #brew install bfg
@@ -150,6 +155,10 @@ brew install rg
 brew install z
 brew install protobuf
 
+# for Erlang, Elixir
+brew install autoconf
+brew install fop
+brew install --build-from-source wxmac
 
 apps=(
     caffeine
