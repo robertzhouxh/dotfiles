@@ -1972,13 +1972,18 @@ If NEWNAME is a directory, move file to it."
 
   ;; 3) use asdf
   ;;   asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
+  ;;   asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
 
   ;;   export KERL_BUILD_DOCS=yes                                                    
   ;;   export KERL_INSTALL_MANPAGES=yes                                              
   ;;   export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
   ;;   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
 
+  ;;   asdf install rebar 3.20.0
+  ;;   which rebar3
   ;;   asdf install erlang 24.3.4
+
+  ;;   asdf global rebar  3.20.0
   ;;   asdf global erlang 24.3.4
   ;;   asdf local  erlang 24.3.4
   ;;

@@ -158,19 +158,63 @@ rm -rf rime-1.7.3-osx.zip
 
     ```
 
+## 编程语言（asdf）
 
+1. Erlang/Elixir
+```
+  asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
+  asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
+
+  export KERL_BUILD_DOCS=yes 
+  export KERL_INSTALL_MANPAGES=yes 
+  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
+  export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
+
+  asdf install rebar 3.20.0
+  which rebar3
+  asdf install erlang 24.3.4
+
+  asdf global rebar  3.20.0
+  asdf global erlang 24.3.4
+  asdf local  erlang 24.3.4
+
+```
+2. Golang
+
+```
+    asdf plugin-add golang
+    asdf install golang 1.19.5
+    asdf global golang 1.19.5
+```
+3. Rust
+
+```
+	asdf plugin-add rust
+	asdf list all rust
+    asdf install rust 1.58.0
+    asdf global rust 1.58.0
+
+```
 ## Emacs 启动与配置
 
 启动 emacs 等待插件自动安装完毕!!!
 
 1. 编程语言跳转 lsp-server
+
+```
   pip3 install epc orjson six
+```
 
   选择对应语言的安装包 -- https://github.com/manateelazycat/lsp-bridge#supported-language-servers
 ```
   - Rust: brew install rust-analyzer && rustup component add rust-src rustfmt clippy rls rust-analysis
   - Golang: go install golang.org/x/tools/gopls@latest
-  - Erlang: git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=/usr/local/bin make install
+  - Erlang: 
+    asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
+    asdf install erlang 24.3.4
+    asdf install rebar 3.20.0
+	which rebar3
+    git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=~/ make install
   - Yaml: npm install -g yaml-language-server
 
 
@@ -178,13 +222,12 @@ rm -rf rime-1.7.3-osx.zip
 
 
 ```
-  (setq erlang-path-prefix "/usr/local/lib/erlang")
+  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
   (setq erlang-lib-tools-version "3.5.2")
-  (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")
-  (setq plantuml-path "/usr/local/Cellar/plantuml/1.2022.1/libexec/plantuml.jar")
-  (setq centaur-proxy "127.0.0.1:8123")          ; HTTP/HTTPS proxy
-  (setq centaur-socks-proxy "127.0.0.1:7890")    ; SOCKS proxy, 如果您采用 trojan 则改为 1080
-  (setq centaur-server t)                        ; Enable `server-mode' or not: t or nil
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
+  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
+  (setq socks-proxy "127.0.0.1:7890")    ; SOCKS proxy
+  (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
 
 ```
 

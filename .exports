@@ -63,11 +63,15 @@ if [[ `uname -s` == "Darwin" ]] then
 
     #------------------------------------------------------------
     # golang
-    # export GOROOT=/usr/local/opt/go/libexec
-    # export GOPATH=$HOME/githubs/go
-    # export GO111MODULE=auto
-    # PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
-    # go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+    export GOPATH=$(go env GOPATH)
+    export GOROOT=$(go env GOROOT)
+    export GOBIN=$(go env GOBIN)
+
+    PATH=$PATH:$GOPATH/bin
+    PATH=$PATH:$GOROOT/bin
+    PATH=$PATH:$GOBIN
+
+    go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 
     #------------------------------------------------------------
     # latex
