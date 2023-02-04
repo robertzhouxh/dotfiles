@@ -150,6 +150,20 @@ rm -rf rime-1.7.3-osx.zip
 	tar zxvf polipo-1.1.1.tar.gz
 	cd polipo-1.1
 	make all
+    ./polipo -c ~/.polipo
+
+
+    # 建议做成 daemon
+
+    sudo cp polipo.plist  /Library/LaunchDaemons/
+    sudo chmod 644 /Library/LaunchDaemons/polipo.plist
+    plutil /Library/LaunchDaemons/polipo.plist
+    sudo launchctl load /Library/LaunchDaemons/polipo.plist
+    sudo launchctl start polipo
+	launchctl list | grep polipo
+
+	# 删除
+    launchctl unload /Library/LaunchDaemons/polipo.plist
 
 	#  1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
 	#  2. github 代理 vi ~/.gitconfig 适配sock5监听端口
@@ -183,6 +197,7 @@ rm -rf rime-1.7.3-osx.zip
 
 ```
     asdf plugin-add golang
+	asdf list all golang
     asdf install golang 1.19.5
     asdf global golang 1.19.5
 ```
