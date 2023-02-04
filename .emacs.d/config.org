@@ -913,6 +913,7 @@ If NEWNAME is a directory, move file to it."
                       ("\\Emakefile" . erlang-mode)
                       ("\\.json$" . json-mode)
                       ("\\.clj$" . clojure-mode)
+                      ("\\.plantuml$" . plantuml-mode)
                       ))
     (add-to-alist 'auto-mode-alist elt-cons))
 
@@ -1496,46 +1497,81 @@ If NEWNAME is a directory, move file to it."
           (setq-default evil-escape-key-sequence "tn")))))
 #+END_SRC
 * Org-Mode
+** Org
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; --------------------------------------------------------------
-  ;; org -> latex -> pdf
-  ;; --------------------------------------------------------------
-  ;; latex supporting deps
-  ;; https://orgmode.org/worg/org-dependencies.html
+  (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
+  (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
+  (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil))) 
 
-  ;; brew install basictex --verbose
-  ;; which pdflatex
-  ;; export PATH=$PATH:/Library/TeX/texbin
+  (use-package ob-http)
+  (require 'ob-go)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (C . t)
+     (http . t)
+     (awk . t)
+     (R . t)
+     (org . t)
+     (js . t)
+     (sql . t)
+     (go . t)
+     (python . t)
+     (shell . t)
+     (latex . t)
+     (plantuml . t)))
 
-  ;; Attention: shutdown teminal proxy
+  (setq org-confirm-babel-evaluate nil
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t)
 
-  ;; pip3 install pysocks
-  ;; pip3 install pygments
-  ;; sudo tlmgr update --self --all
-  ;; sudo tlmgr install minted
-  ;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
+  ;; Display
+  (setq org-log-done 'time)
+  (setq org-hide-leading-stars t)
+  (setq org-startup-folded t)                   ; t, 'overview, 'content, 'showall.
+  (setq org-pretty-entities nil)                ; 下划线不转下标
+  (setq org-export-babel-evaluate t)
+  (setq org-export-with-sub-superscripts nil)   ; 下划线不转下标
+  (setq org-export-headline-levels 5)           ; 5级结构
+  (setq org-highlight-latex-and-related '(latex)) ; 高亮latex代码
+  (setq org-file-apps '(("pdf" . "open -a Skim %s")))
 
+  ;; 表格
+  (setq org-latex-tables-booktabs t)            ; 启用booktabs宏包模式, 额外支持插入一些属性设置
+
+  ;; 图片
+  (setq org-image-actual-width 200) 
+  (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
+  (setq org-latex-default-figure-position "H")
+
+  ;; 设置 org 导出文本文件时的单行文本最大宽度.
+  (setq org-ascii-text-width 1000)
+
+  ;; 设置 org 导出为 html 时公式的 mathjax 处理参数
+  (setq org-html-mathjax-options
+        '((path "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+          (scale "100")
+          (align "center")
+          (indent "2em")
+          (mathml nil)))
+  (setq org-html-mathjax-template "<script type=\"text/javascript\" src=\"%PATH\"></script>")
+#+END_SRC
+** Plantuml
+#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package plantuml-mode
     :ensure t
+    :magic ("@startuml" . plantuml-mode)
     :config
-    (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
     (setq plantuml-default-exec-mode 'jar)
     (setq plantuml-options "-charset UTF-8")
     (setq plantuml-jar-path plantuml-path))
   (setq org-plantuml-jar-path plantuml-path)
   (setq plantuml-default-exec-mode 'jar)
-  (use-package plantuml-mode :magic ("@startuml" . plantuml-mode))
-  (defun recompile-plantuml () (add-hook 'after-save-hook (lambda () (call-process "plantuml" nil nil nil (buffer-name)))))
-  (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
 
   (use-package plantuml
-    ;; :quelpa (plantuml-emacs :fetcher github :repo "ginqi7/plantuml-emacs")
-    ;; :quelpa (mix.el :fetcher github :repo "ayrat555/mix.el" :files ("mix.el" "LICENSE"))
-    ;; :quelpa (plantuml-emacs :fetcher url :url "https://github.com.cnpmjs.org/ginqi7/plantuml-emacs"))
     :load-path "~/.emacs.d/vendor/plantuml-emacs"
     :config
     (setq plantuml-jar-path plantuml-path
-          ;plantuml-output-type "svg"
           plantuml-output-type "png"
           plantuml-relative-path "./images/"
           plantuml-theme "plain"
@@ -1571,72 +1607,25 @@ If NEWNAME is a directory, move file to it."
     :ensure t
     :hook ((org-mode . valign-mode))
     :custom ((valign-fancy-bar t)))
+
+#+END_SRC
+** Latex
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; --------------------------------------------------------------
+  ;; org -> latex -> pdf (先安装 latex gui 版本)
+  ;; --------------------------------------------------------------
+  ;; latex supporting deps
+  ;; https://orgmode.org/worg/org-dependencies.html
+  ;; Attention: shutdown teminal proxy
+
+  ;; pip3 install pysocks
+  ;; pip3 install pygments
+  ;; sudo tlmgr update --self --all
+  ;; sudo tlmgr install minted
+  ;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
+
   ;; latex 设置
   (require 'ox-latex)
-
-  ;; Babel
-  (setq org-confirm-babel-evaluate nil
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t)
-
-  ;; Display
-  (setq org-log-done 'time)
-  (setq org-hide-leading-stars t)
-  (setq org-startup-folded t)                   ; t, 'overview, 'content, 'showall.
-  (setq org-pretty-entities nil)                ; 下划线不转下标
-  (setq org-export-babel-evaluate t)
-  (setq org-export-with-sub-superscripts nil)   ; 下划线不转下标
-  (setq org-export-headline-levels 5)           ; 5级结构
-  (setq org-highlight-latex-and-related '(latex)) ; 高亮latex代码
-  (setq org-file-apps '(("pdf" . "open -a Skim %s")))
-
-  ;; 表格
-  (setq org-latex-tables-booktabs t)            ; 启用booktabs宏包模式, 额外支持插入一些属性设置
-
-  ;; 图片 always resize inline images to 300 pixels, or use scale 0.8  in src plantuml
-  (setq org-image-actual-width 200) 
-  (setq org-latex-image-default-option "keepaspectratio,max width=0.95\\linewidth")
-  (setq org-latex-default-figure-position "H")
-
-  ;; from  https://github.com/zhcosin/dotemacs/blob/master/lisp/init-orgmode.el
-  (add-hook 'org-mode-hook 
-            (lambda () (setq truncate-lines nil))) 
-
-  ;; 开启Org-mode文本内语法高亮
-  ;; 在 org 允许文件中执行代码块
-  (use-package ob-http)
-  (require 'ob-go)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (C . t)
-     (http . t)
-     (awk . t)
-     (R . t)
-     (org . t)
-     (js . t)
-     (sql . t)
-     (go . t)
-     (python . t)
-     (shell . t)
-     (latex . t)
-     (plantuml . t)))
-
-  ;; 设置 org 导出文本文件时的单行文本最大宽度.
-  (setq org-ascii-text-width 1000)
-
-  ;; 设置 org 导出为 html 时公式的 mathjax 处理参数
-  (setq org-html-mathjax-options
-        '((path "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
-          (scale "100")
-          (align "center")
-          (indent "2em")
-          (mathml nil)))
-
-  (setq org-html-mathjax-template
-        "<script type=\"text/javascript\" src=\"%PATH\"></script>")
-
-
   ;; for export latex
   (add-to-list 'org-latex-classes
                '("ctexart"
@@ -1690,36 +1679,10 @@ If NEWNAME is a directory, move file to it."
           "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
           ))
 
-                                          ;(setq org-latex-pdf-process
-                                          ;  '("xelatex -interaction nonstopmode %f"
-                                          ;    "bibtex %b"
-                                          ;    "xelatex -interaction nonstopmode %f"
-                                          ;    "xelatex -interaction nonstopmode %f"
-                                          ;    "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
-                                          ;    ))
-                                          ;(setq org-latex-pdf-process
-                                          ;  '("xelatex -interaction nonstopmode -output-directory %o %f"
-                                          ;    "xelatex -interaction nonstopmode -output-directory %o %f"
-                                          ;    "xelatex -interaction nonstopmode -output-directory %o %f"))
-
-  ;; for math.
-  (defun zhcosin/insert-inline-formulas()
-    (interactive)
-    (insert "\\(  \\)")
-    (backward-char 3))
-
-  (define-key org-mode-map (kbd "M-$") 'zhcosin/insert-inline-formulas)
-
   (use-package auctex :defer t :ensure t)
-
   (load "auctex.el" nil t t)
-                                          ;(load "preview-latex.el" nil t t)
-  (if (string-equal system-type "windows-nt")
-      (require 'tex-mik))
-
-
-  ;; Ask which tex file is master instead of always assume current file is master file.
-  (setq-default TeX-master nil) ; Query for master file.
+  (if (string-equal system-type "windows-nt") (require 'tex-mik))
+  (setq-default TeX-master nil) 
 
   (mapc (lambda (mode)
           (add-hook 'LaTeX-mode-hook mode))
@@ -1749,54 +1712,33 @@ If NEWNAME is a directory, move file to it."
   ;;org-mode export to latex, refer: https://emacs-china.org/t/spacemacs-org-mode-pdf/1577
   (require 'ox-latex)
   (setq org-export-latex-listings t)
+
   ;;org-mode source code setup in exporting to latex
   (add-to-list 'org-latex-listings '("" "listings"))
   (add-to-list 'org-latex-listings '("" "color"))
 
-  (add-to-list 'org-latex-packages-alist
-               '("" "xcolor" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "listings" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "fontspec" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "indentfirst" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "xunicode" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "geometry"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "float"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "longtable"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "tikz"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "fancyhdr"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "textcomp"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amsmath"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amsthm"))
-  (add-to-list 'org-latex-packages-alist
-               '("" "tabularx" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "booktabs" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "grffile" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "wrapfig" t))
-  (add-to-list 'org-latex-packages-alist
-               '("normalem" "ulem" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "amssymb" t))
-  (add-to-list 'org-latex-packages-alist
-               '("" "capt-of" t))
-  (add-to-list 'org-latex-packages-alist
-               '("figuresright" "rotating" t))
-  (add-to-list 'org-latex-packages-alist
-               '("Lenny" "fncychap" t))
+  (add-to-list 'org-latex-packages-alist '("" "xcolor" t))
+  (add-to-list 'org-latex-packages-alist '("" "listings" t))
+  (add-to-list 'org-latex-packages-alist '("" "fontspec" t))
+  (add-to-list 'org-latex-packages-alist '("" "indentfirst" t))
+  (add-to-list 'org-latex-packages-alist '("" "xunicode" t))
+  (add-to-list 'org-latex-packages-alist '("" "geometry"))
+  (add-to-list 'org-latex-packages-alist '("" "float"))
+  (add-to-list 'org-latex-packages-alist '("" "longtable"))
+  (add-to-list 'org-latex-packages-alist '("" "tikz"))
+  (add-to-list 'org-latex-packages-alist '("" "fancyhdr"))
+  (add-to-list 'org-latex-packages-alist '("" "textcomp"))
+  (add-to-list 'org-latex-packages-alist '("" "amsmath"))
+  (add-to-list 'org-latex-packages-alist '("" "amsthm"))
+  (add-to-list 'org-latex-packages-alist '("" "tabularx" t))
+  (add-to-list 'org-latex-packages-alist '("" "booktabs" t))
+  (add-to-list 'org-latex-packages-alist '("" "grffile" t))
+  (add-to-list 'org-latex-packages-alist '("" "wrapfig" t))
+  (add-to-list 'org-latex-packages-alist '("normalem" "ulem" t))
+  (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
+  (add-to-list 'org-latex-packages-alist '("" "capt-of" t))
+  (add-to-list 'org-latex-packages-alist '("figuresright" "rotating" t))
+  (add-to-list 'org-latex-packages-alist '("Lenny" "fncychap" t))
 
   (add-to-list 'org-latex-classes
                '("zhcosin-org-book"
