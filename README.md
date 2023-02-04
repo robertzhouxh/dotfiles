@@ -29,10 +29,11 @@ cd dotfiles
 git submodule update --init
 
 
-# -------------------------------------------------------------------------------
-# git clone --depth 1 git://git.savannah.gnu.org/emacs.git
+### For General
+
+```
 # 这里选择选择国内的同步镜像
-# -------------------------------------------------------------------------------
+# git clone --depth 1 git://git.savannah.gnu.org/emacs.git
 
 git clone --depth 1 https://mirrors.ustc.edu.cn/emacs.git
 brew install autoconf automake texinfo gnutls pkg-config libxml2 --debug --verbose
@@ -44,37 +45,46 @@ export PKG_CONFIG_PATH="/usr/local/opt/libxml2/lib/pkgconfig"
 
 ./configure && make && make install
 open -R nextstep/Emacs.app
-and dragging Emacs to the Applications folder.
+# dragging Emacs to the Applications folder.
 
 cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
 cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 ```
 
 
-### For MacOS
+### For MacOS(m1,m2)
 
-- brew tap railwaycat/emacsmacport
-- brew install emacs-mac --with-rsvg --with-no-title-bars --with-imagemagick --with-dbus
 
+```
+ brew tap railwaycat/emacsmacport
+ # brew install emacs-mac --with-modules
+ # brew install emacs-mac  --with-no-title-bars --with-imagemagick --with-dbus --with-modules
+ brew install emacs-mac  --with-imagemagick --with-dbus --with-modules
+ open -R /opt/homebrew/opt/emacs-mac/Emacs.app
+ # dragging Emacs to the Applications folder.
+
+ # emacs-rime 输入法，需要文件 emacs-module.h, M2/M1 mac，路径是 /opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include
+```
 
 ### Automatically depoly vim/emacs
 
-    ```bash
+```
+# 添加自己的插件到: .vimrc
+./vim.sh
 
-    # 可以添加自己的插件到: .vimrc
-    ./vim.sh
+# 添加自己的配置到: .emacs.d/config.org
+rm -rf ~/.emacs*
+./emacs.sh
 
-    # 可以添加自己的配置到: .emacs.d/config.org
-    rm -rf ~/.emacs
-	./emacs.sh
-    ```
+# Start emacs gui and wait for emacs pull all the plugins
+# 
+# Note: if you encouter "Failed to verify signature xxx"
+# 1. set package-check-signature to nil, e.g. M-: (setq package-check-signature nil) RET
+# 2. download the package gnu-elpa-keyring-update and run the function with the same name, e.g. M-x package-install RET gnu-elpa-keyring-update RET.
+# 3. reset package-check-signature to the default value allow-unsigned，e.g. M-: (setq package-check-signature t) RET
 
-Start emacs gui and wait for emacs pull all the plugins
+```
 
-Note: if you encouter "Failed to verify signature xxx"
-1. set package-check-signature to nil, e.g. M-: (setq package-check-signature nil) RET
-2. download the package gnu-elpa-keyring-update and run the function with the same name, e.g. M-x package-install RET gnu-elpa-keyring-update RET.
-3. reset package-check-signature to the default value allow-unsigned，e.g. M-: (setq package-check-signature t) RET
 
 ## Files
 
@@ -90,26 +100,29 @@ Note: if you encouter "Failed to verify signature xxx"
 
 ## Mac squirrel 中文
 	
-```bash
+1. 部署 mac
 
-1. brew install --cask squirrel
+```
+brew install --cask squirrel
+mkdir -p  ~/Library/Rime
+cp -rf ./squirrel/* ~/Library/Rime/
 
-   cp -rf ./squirrel/* ~/Library/Rime/
+# redeploy siquirrel
+```
 
-   # redeploy siquirrel
-
-2. cd ~/.emacs.d/
+2. 部署 emacs plugin
   
-  curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
-  unzip rime-1.7.3-osx.zip -d ~/.emacs.d/librime
-  rm -rf rime-1.7.3-osx.zip
-  
-  # 如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
-  # 
-  # sudo spctl --master-disable
-  # # later: sudo spctl --master-enable
+```
+curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
+unzip rime-1.7.3-osx.zip -d ~/.emacs.d/librime
+rm -rf rime-1.7.3-osx.zip
 
-  ;使用 toggle-input-method 来激活，默认快捷键为 C-\
+# 如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
+# 
+# sudo spctl --master-disable
+# # later: sudo spctl --master-enable
+
+# 使用 toggle-input-method 来激活，默认快捷键为 C-\
 
 
 ```
@@ -146,8 +159,8 @@ Note: if you encouter "Failed to verify signature xxx"
 
 2. 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
 
-```
 
+```
   (setq erlang-path-prefix "/usr/local/lib/erlang")
   (setq erlang-lib-tools-version "3.5.2")
   (setq erlang-ls "/Users/glodon/githubs/erlang_ls/_build/default/bin/erlang_ls")

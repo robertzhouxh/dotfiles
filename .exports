@@ -79,7 +79,6 @@ BREW_PREFIX=$(brew --prefix)
 
 #------------------------------------------------------------
 # others
-[ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
 PATH="$PATH:/Library/TeX/texbin"
 
 
@@ -99,4 +98,4 @@ PATH="$PATH:/Library/TeX/texbin"
 export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
 export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
 export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
-
+export HOMEBREW_NO_AUTO_UPDATE=1
