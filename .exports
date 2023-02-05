@@ -41,7 +41,7 @@ export BASH_SILENCE_DEPRECATION_WARNING=1;
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-if [[ `uname -s` == "Darwin" ]] then
+if [[ `uname -s` == "Darwin" ]]; then
 
     BREW_PREFIX=$(brew --prefix)
 
