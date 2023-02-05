@@ -142,7 +142,7 @@ brew install tree
 #brew install zopfli
 
 
-# ====================== custom =============
+# ----------------------custom----------------------
 brew install graphicsmagick
 brew install trash
 #brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
@@ -164,7 +164,6 @@ apps=(
     caffeine
     gas-mask
     google-chrome
-    #java
     appcleaner
     vlc
 )
@@ -184,12 +183,8 @@ select yn in "Yes" "No"; do
 	esac
 done
 
-
-# Remove outdated versions from the cellar.
-
-cecho "cleaning ..." $yellow
+cecho "Cleaning ..." $yellow
 brew cleanup
-
 
 cecho "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" $yellow
 cecho "Done!!!" $yellow

@@ -172,7 +172,9 @@ rm -rf rime-1.7.3-osx.zip
 
     ```
 
-## 编程语言（asdf）
+## 编程语言(Erlang/Elixir/Golang/Rust)
+
+采用 asdf 来管理语言多个版本(brew instlla asdf）
 
 1. Erlang/Elixir
 ```
@@ -206,8 +208,8 @@ rm -rf rime-1.7.3-osx.zip
 ```
 	asdf plugin-add rust
 	asdf list all rust
-    asdf install rust 1.58.0
-    asdf global rust 1.58.0
+    asdf install rust 1.67.0
+    asdf global rust 1.67.0
 
 ```
 ## Emacs 启动与配置

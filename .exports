@@ -39,6 +39,8 @@ export BASH_SILENCE_DEPRECATION_WARNING=1;
 
 # ===================== custom your exports here ... ======================
 
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 if [[ `uname -s` == "Darwin" ]] then
 
     BREW_PREFIX=$(brew --prefix)
@@ -60,34 +62,32 @@ if [[ `uname -s` == "Darwin" ]] then
     PATH="${JDK_PREFIX}/bin:$PATH"
     #fi
 
+    #------------------------------------------------------------
+    # Rust
+    if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
+	PATH=$PATH:$(asdf where rust)/bin 
+    fi
+
 
     #------------------------------------------------------------
     # golang
-    # export GOPATH=$(go env GOPATH)
-    # export GOROOT=$(go env GOROOT)
-    # export GOBIN=$(go env GOBIN)
-    # PATH=$PATH:$GOPATH/bin
-    # PATH=$PATH:$GOROOT/bin
-    # PATH=$PATH:$GOBIN
+    if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
+	export GOPATH="/Users/zxh/githubs/go"
+	export GOROOT=$(asdf where golang)
+	PATH=$PATH:${GOROOT}/bin 
+	PATH=$PATH:$GOPATH/bin
+        #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+    fi
 
-    export GOROOT="/Users/zxh/.asdf/installs/golang/1.19.5/go"
-    export GOPATH="/Users/zxh/githubs/go"
-
-    PATH=$PATH:$GOROOT/bin
-    PATH=$PATH:$GOPATH/bin
-    go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 
     #------------------------------------------------------------
     # latex
     # PATH="$PATH:/Library/TeX/texbin"
-
-
     #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
     export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
     export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
-    export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
-    export HOMEBREW_NO_AUTO_UPDATE=1
 
+    export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
 fi
 
 [[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && . /opt/homebrew/opt/asdf/libexec/asdf.sh
