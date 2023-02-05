@@ -1,13 +1,14 @@
 # Quick Start
 ### syn submodules and dotfiles
 
-查找域名对应的ip: https://www.ipaddress.com/site/raw.githubusercontent.com
+查找域名对应的ip
 
-185.199.108.133185.199.109.133185.199.110.133185.199.111.133
+https://www.ipaddress.com/site/raw.githubusercontent.com
+https://www.ipaddress.com/site/github.com
 
 sudo vi /etc/hosts 
-185.199.111.133 raw.githubusercontent.com
-xxx.xxx.xxx.xxx github.com
+x.x.x.x raw.githubusercontent.com
+x.x.x.x github.com
 
 
 
@@ -18,16 +19,15 @@ set -- -f; source bootsrap.sh
 ```
 ## Install emacs
 
-```bash
-
+```
 cd dotfiles
-
 # -------------------------------------------------------------------------------
 # 更新到最新 commit 可以使用  # git submodule update --init --remote
 # 修改 .gitmodules 后 可以执行 # git submodule sync 
 # 更新到 .gitmodules 中的 commit
 # -------------------------------------------------------------------------------
 git submodule update --init
+```
 
 
 ### For General
@@ -112,7 +112,7 @@ rm -rf ~/.emacs*
 
 ## Mac squirrel 中文
 	
-1. 部署 mac
+1. 部署 macos squirrel
 
 ```
 brew install --cask squirrel
@@ -122,7 +122,7 @@ cp -rf ./squirrel/* ~/Library/Rime/
 # redeploy siquirrel
 ```
 
-2. 部署 emacs plugin
+2. 部署 emacs squireel
   
 ```
 curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
@@ -136,8 +136,8 @@ rm -rf rime-1.7.3-osx.zip
 
 # 使用 toggle-input-method 来激活，默认快捷键为 C-\
 
-
 ```
+
 ## Proxy(http代理服务器，用来连接上游sock5)
 
 	如果您使用 Trojan 则采用 1080， 如果您使用 ClashX 则采用 7890 作为 socks5 监听端口！
