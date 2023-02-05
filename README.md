@@ -10,7 +10,7 @@ sudo vi /etc/hosts
 x.x.x.x raw.githubusercontent.com
 x.x.x.x github.com
 
-
+建议手动安装 brew, asdf, polipo, sock5 proxy
 
 ```bash
 git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles

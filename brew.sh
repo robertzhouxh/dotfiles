@@ -31,7 +31,6 @@ else
 	cecho "Installing Homebrew" $yellow
 	#ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/zxh/.zprofile
         eval "$(/opt/homebrew/bin/brew shellenv)"
 	brew doctor
 fi

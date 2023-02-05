@@ -90,6 +90,6 @@ if [[ `uname -s` == "Darwin" ]] then
     export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
 fi
 
-[[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && . /opt/homebrew/opt/asdf/libexec/asdf.sh
+[[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
 [[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh
 
