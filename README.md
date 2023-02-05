@@ -184,7 +184,8 @@ rm -rf rime-1.7.3-osx.zip
   export KERL_BUILD_DOCS=yes 
   export KERL_INSTALL_MANPAGES=yes 
   export EGREP=egrep 
-  export CPP="clang++ -E "
+  export CC=clang 
+  export CPP="clang -E" 
   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
   export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
 
@@ -193,9 +194,16 @@ rm -rf rime-1.7.3-osx.zip
   asdf global rebar  3.20.0
   asdf global erlang 24.3.4
   
-  或者一键安装：   export KERL_CONFIGURE_OPTIONS="--with-ssl=$(brew --prefix openssl)" EGREP=egrep CPP="clang++ -E " asdf install erlang 24.3.4
-
 ```
+
+如果遇到错误：  unable to find crypto OpenSSL lib
+参考： ttps://github.com/erlang/otp/issues/4821
+可以尝试以下方案
+
+1） export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
+2） vi ~/.asdf/plugins/erlang/kerl search  we need to      —>  795         Darwin)      改为： Darwin-disabled
+
+
 2. Golang
 
 ```
