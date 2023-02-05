@@ -74,7 +74,7 @@ brew install openssl@3
 brew install openssl@1.1
 brew unlink openssl@3
 brew link openssl@1.1
-export PATH="/opt/homebrew/opt/openssl@1.1/bin:$PATH"
+# 按照提示 export 对应的环境变量
 
 ```
 
@@ -233,6 +233,7 @@ rm -rf rime-1.7.3-osx.zip
 	which rebar3
     git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=~/ make install
   - Yaml: npm install -g yaml-language-server
+```
 
 
 2. 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
