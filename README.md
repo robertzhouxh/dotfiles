@@ -178,21 +178,22 @@ rm -rf rime-1.7.3-osx.zip
 
 1. Erlang/Elixir
 ```
-  asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
-  asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
+  asdf plugin add erlang 
+  asdf plugin-add rebar 
 
   export KERL_BUILD_DOCS=yes 
   export KERL_INSTALL_MANPAGES=yes 
-  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
+  export EGREP=egrep 
+  export CPP="clang++ -E "
   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
+  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
 
   asdf install rebar 3.20.0
-  which rebar3
   asdf install erlang 24.3.4
-
   asdf global rebar  3.20.0
   asdf global erlang 24.3.4
-  asdf local  erlang 24.3.4
+  
+  或者一键安装：   export KERL_CONFIGURE_OPTIONS="--with-ssl=$(brew --prefix openssl)" EGREP=egrep CPP="clang++ -E " asdf install erlang 24.3.4
 
 ```
 2. Golang
