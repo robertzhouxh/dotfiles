@@ -9,7 +9,7 @@
   (setq erlang-lib-tools-version "3.5.2")
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:7890")    ; SOCKS proxy
+  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
   (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
 
 #+END_SRC

@@ -188,6 +188,6 @@
   email = robertzhouxh@gmail.com
 
 [http "https://github.com"]
-  proxy = socks5://127.0.0.1:7890
+  proxy = socks5://127.0.0.1:1080
   postBuffer = 524288000
   sslVerify = false

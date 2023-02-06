@@ -153,17 +153,34 @@ rm -rf rime-1.7.3-osx.zip
     ./polipo -c ~/.polipo
 
 
-    # 建议做成 daemon
+    # 建议做成 daemon( 自行修改 plist 文件中的目录)
 
+    sudo cp trojan.plist  /Library/LaunchDaemons/
     sudo cp polipo.plist  /Library/LaunchDaemons/
+
     sudo chmod 644 /Library/LaunchDaemons/polipo.plist
+    sudo chmod 644 /Library/LaunchDaemons/trojan.plist
+
     plutil /Library/LaunchDaemons/polipo.plist
-    sudo launchctl load /Library/LaunchDaemons/polipo.plist
-    sudo launchctl start polipo
-	launchctl list | grep polipo
+    plutil /Library/LaunchDaemons/trojan.plist
+
+    sudo launchctl load -w /Library/LaunchDaemons/polipo.plist
+    sudo launchctl load -w /Library/LaunchDaemons/trojan.plist
+
+    sudo launchctl start polipo.plist
+    sudo launchctl stop  polipo.plist
+
+    sudo launchctl start trojan.plist
+    sudo launchctl stop  trojan.plist
+
+
+	sudo launchctl list | grep polipo
+	sudo launchctl list | grep trojan
 
 	# 删除
     launchctl unload /Library/LaunchDaemons/polipo.plist
+    launchctl unload /Library/LaunchDaemons/trojan.plist
+
 
 	#  1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
 	#  2. github 代理 vi ~/.gitconfig 适配sock5监听端口
@@ -253,7 +270,7 @@ rm -rf rime-1.7.3-osx.zip
   (setq erlang-lib-tools-version "3.5.2")
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:7890")    ; SOCKS proxy
+  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
   (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
 
 ```
