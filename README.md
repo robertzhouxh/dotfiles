@@ -145,7 +145,7 @@ rm -rf rime-1.7.3-osx.zip
 
 
     ```
-	
+    # 可以关闭 log, 设置 log_level 为 5	
     wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
 	tar zxvf polipo-1.1.1.tar.gz
 	cd polipo-1.1
@@ -155,17 +155,16 @@ rm -rf rime-1.7.3-osx.zip
 
     # 建议做成 daemon( 自行修改 plist 文件中的目录)
 
-    sudo cp trojan.plist  /Library/LaunchDaemons/
-    sudo cp polipo.plist  /Library/LaunchDaemons/
+    sudo cp polipo.plist  ~/Library/LaunchAgents/
+    sudo cp trojan.plist  ~/Library/LaunchAgents/
 
-    sudo chmod 644 /Library/LaunchDaemons/polipo.plist
-    sudo chmod 644 /Library/LaunchDaemons/trojan.plist
+    sudo chmod 644 ~/Library/LaunchAgents/polipo.plist
+    sudo chmod 644 ~/Library/LaunchAgents/trojan.plist
 
-    plutil /Library/LaunchDaemons/polipo.plist
-    plutil /Library/LaunchDaemons/trojan.plist
+    plutil ~/Library/LaunchAgents/trojan.plist
 
-    sudo launchctl load -w /Library/LaunchDaemons/polipo.plist
-    sudo launchctl load -w /Library/LaunchDaemons/trojan.plist
+    sudo launchctl load -w ~/Library/LaunchAgents/polipo.plist
+    sudo launchctl load -w ~/Library/LaunchAgents/trojan.plist
 
     sudo launchctl start polipo.plist
     sudo launchctl stop  polipo.plist
@@ -178,13 +177,14 @@ rm -rf rime-1.7.3-osx.zip
 	sudo launchctl list | grep trojan
 
 	# 删除
-    launchctl unload /Library/LaunchDaemons/polipo.plist
-    launchctl unload /Library/LaunchDaemons/trojan.plist
+    launchctl unload ~/Library/LaunchAgents/polipo.plist
+    launchctl unload ~/Library/LaunchAgents/trojan.plist
 
 
 	#  1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
 	#  2. github 代理 vi ~/.gitconfig 适配sock5监听端口
 	#  3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
+
 	youtube-dl --proxy socks5://127.0.0.1:7890 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
 
     ```
