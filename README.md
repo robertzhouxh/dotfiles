@@ -53,7 +53,6 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 	cd polipo-1.1
 	make all
 	./polipo -c ~/.polipo
-
 ```
 
 ### polipo/trojan as mac daemon ( 自行修改 plist 文件中的目录)
@@ -84,22 +83,25 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 	launchctl unload ~/Library/LaunchAgents/polipo.plist
 	launchctl unload ~/Library/LaunchAgents/trojan.plist
 
+```
 
-	#  1. 命令行代理 vi ~/.polipo 配置 http -〉socks5 (用於不支持sock5代理的應用)
-	#  2. github 代理 vi ~/.gitconfig 适配sock5监听端口
-	#  3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
+ - 命令行代理 vi ~/.polipo 配置 http -> socks5 (不支持sock5代理的app)
+ - github 代理 vi ~/.gitconfig 适配 sock5 监听端口
+ - .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
 
-	youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+test:
 
-	```
+youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+
 
 ## Syn dotfiles and quick useful tools
+
+同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 
 ```
 git clone https://github.com/robertzhouxh/dotfiles 
 cd dotfiles
 
-# 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 set -- -f; source bootsrap.sh
 ```
 
@@ -130,15 +132,15 @@ cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 
 ### For MacOS(m1,m2)
 
-
 ```
  brew tap railwaycat/emacsmacport
  # brew install emacs-mac --with-modules
  # brew install emacs-mac  --with-no-title-bars --with-imagemagick --with-dbus --with-modules
+
  brew install emacs-mac  --with-imagemagick --with-dbus --with-modules
  open -R /opt/homebrew/opt/emacs-mac/Emacs.app
- # dragging Emacs to the Applications folder.
 
+ # dragging Emacs to the Applications folder.
  # emacs-rime 输入法，需要文件 emacs-module.h, M2/M1 mac，路径是 /opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include
 ```
 
