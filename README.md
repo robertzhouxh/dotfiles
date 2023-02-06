@@ -1,16 +1,24 @@
 # Quick Start
-### syn submodules and dotfiles
+## Prepare
 
-查找域名对应的ip
+1. 查找域名对应的ip
 
 https://www.ipaddress.com/site/raw.githubusercontent.com
 https://www.ipaddress.com/site/github.com
 
+2. 修改 /etc/hosts 这样访问 github 页面就暂时不需要 FQ
+
+```
 sudo vi /etc/hosts 
 x.x.x.x raw.githubusercontent.com
 x.x.x.x github.com
+```
 
-建议手动安装 brew, asdf, polipo, sock5 proxy
+3. 建议手动安装 brew, asdf, polipo, sock5 proxy
+
+
+## syn submodules and dotfiles
+
 
 ```bash
 git clone https://github.com/robertzhouxh/dotfiles /path/to/dotfiles
@@ -81,20 +89,12 @@ brew link openssl@1.1
 ### Automatically depoly vim/emacs
 
 ```
-# 添加自己的插件到: .vimrc
 ./vim.sh
-
-# 添加自己的配置到: .emacs.d/config.org
 rm -rf ~/.emacs*
 ./emacs.sh
 
-# Start emacs gui and wait for emacs pull all the plugins
-# 
-# Note: if you encouter "Failed to verify signature xxx"
-# 1. set package-check-signature to nil, e.g. M-: (setq package-check-signature nil) RET
-# 2. download the package gnu-elpa-keyring-update and run the function with the same name, e.g. M-x package-install RET gnu-elpa-keyring-update RET.
-# 3. reset package-check-signature to the default value allow-unsigned，e.g. M-: (setq package-check-signature t) RET
-
+# start emacs and wait for plugins install complete
+ 
 ```
 
 
@@ -110,6 +110,7 @@ rm -rf ~/.emacs*
 - apt.sh: ubuntu scripts
 - brew.sh: macos scripts
 
+
 ## Mac squirrel 中文
 	
 1. 部署 macos squirrel
@@ -118,7 +119,6 @@ rm -rf ~/.emacs*
 brew install --cask squirrel
 mkdir -p  ~/Library/Rime
 cp -rf ./squirrel/* ~/Library/Rime/
-
 # redeploy siquirrel
 ```
 
@@ -140,12 +140,12 @@ rm -rf rime-1.7.3-osx.zip
 
 ## Proxy(http代理服务器，用来连接上游sock5)
 
-	如果您使用 Trojan 则采用 1080， 如果您使用 ClashX 则采用 7890 作为 socks5 监听端口！
-	同时也要适配 .alias, .gitconfig 中的的 1080/7890
+	- 如果您使用 Trojan 则采用 1080， 
+	- 如果您使用 ClashX 则采用 7890 
+	- 同时也要适配 .alias, .gitconfig 中的的 1080/7890
 
 
     ```
-    # 可以关闭 log, 设置 log_level 为 5	
     wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
 	tar zxvf polipo-1.1.1.tar.gz
 	cd polipo-1.1
@@ -185,7 +185,7 @@ rm -rf rime-1.7.3-osx.zip
 	#  2. github 代理 vi ~/.gitconfig 适配sock5监听端口
 	#  3. .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
 
-	youtube-dl --proxy socks5://127.0.0.1:7890 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
+	youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
 
     ```
 
@@ -217,8 +217,11 @@ rm -rf rime-1.7.3-osx.zip
 参考： ttps://github.com/erlang/otp/issues/4821
 可以尝试以下方案
 
-1） export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
-2） vi ~/.asdf/plugins/erlang/kerl search  we need to      —>  795         Darwin)      改为： Darwin-disabled
+```
+export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
+
+vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
+```
 
 
 2. Golang
@@ -238,9 +241,8 @@ rm -rf rime-1.7.3-osx.zip
     asdf global rust 1.67.0
 
 ```
-## Emacs 启动与配置
+## 配置 Emacs 支持多语言跳转
 
-启动 emacs 等待插件自动安装完毕!!!
 
 1. 编程语言跳转 lsp-server
 
@@ -276,6 +278,7 @@ rm -rf rime-1.7.3-osx.zip
 ```
 
 重新启动 emacs
+
 
 ## Elisp 
 
