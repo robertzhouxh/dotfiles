@@ -93,19 +93,16 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 
 	```
 
-- 如果您使用 ClashX 则采用 7890 
-- 同时也要适配 .alias, .gitconfig, .emacs.d
+## Syn dotfiles and quick useful tools
 
-
-## Syn dotfiles
-
-```bash
+```
 git clone https://github.com/robertzhouxh/dotfiles 
 cd dotfiles
 
 # 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 set -- -f; source bootsrap.sh
 ```
+
 ## Install emacs
 
 ### For General
