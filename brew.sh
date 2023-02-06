@@ -165,6 +165,7 @@ apps=(
     google-chrome
     appcleaner
     vlc
+    wechatwork
 )
 
 cecho "Install My Favorate Apps with brew install --cask xxx" $yellow
