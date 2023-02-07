@@ -43,3 +43,15 @@
 [submodule ".emacs.d/vendor/plantuml-emacs"]
 	path = .emacs.d/vendor/plantuml-emacs
 	url = https://github.com/ginqi7/plantuml-emacs
+[submodule ".emacs.d/vendor/sort-tab"]
+	path = .emacs.d/vendor/sort-tab
+	url = https://github.com/manateelazycat/sort-tab
+[submodule ".emacs.d/vendor/lazy-load"]
+	path = .emacs.d/vendor/lazy-load
+	url = https://github.com/manateelazycat/lazy-load.git
+[submodule ".emacs.d/vendor/posframe"]
+	path = .emacs.d/vendor/posframe
+	url = https://github.com/tumashu/posframe.git
+[submodule ".emacs.d/vendor/goto-line-preview"]
+	path = .emacs.d/vendor/goto-line-preview
+	url = https://github.com/jcs090218/goto-line-preview.git

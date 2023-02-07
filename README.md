@@ -16,7 +16,6 @@ x.x.x.x github.com
 ```
 
 ## 安装网络代理
-
 ### Install Trojan server on Debain(9,10.8)
 
 remember open 443 https port on remote debain vps
@@ -106,7 +105,6 @@ set -- -f; source bootsrap.sh
 ```
 
 ## Install emacs
-
 ### For General
 
 ```
