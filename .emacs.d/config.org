@@ -1592,7 +1592,8 @@ If NEWNAME is a directory, move file to it."
   (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
 
 #+END_SRC
-** Latex
+** OrgToLatex
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; 先安装 LaTex 完整版, MacTeX)
@@ -1604,37 +1605,37 @@ If NEWNAME is a directory, move file to it."
 
   (require 'ox-latex)
   (setq org-latex-classes
-        '(("article"
+        '(("zxh-latex-class"
            "
-    \\documentclass[12pt,a4paper]{article}
-    [DEFAULT-PACKAGES]
-    [PACKAGES]
-    \\setsansfont{Source Han Sans SC}
-    \\setromanfont{Source Han Serif SC}
-    \\setmonofont[Scale=0.9]{Inziu Iosevka Slab SC}
-    \\newfontfamily\\quotefont{Source Han Serif SC}
-    \\newfontfamily\\headfootfont{Source Han Sans SC}
-    \\AtBeginEnvironment{quote}{\\quotefont\\small}
-    \\XeTeXlinebreaklocale ``zh''
-    \\XeTeXlinebreakskip = 0pt plus 1pt
-    \\linespread{1.0}
-    \\hypersetup{
-      colorlinks=true,
-      linkcolor=[rgb]{0,0.37,0.53},
-      citecolor=[rgb]{0,0.47,0.68},
-      filecolor=[rgb]{0,0.37,0.53},
-      urlcolor=[rgb]{0,0.37,0.53},
-      pagebackref=true,
-      linktoc=all,}
-    \\renewcommand{\\headrulewidth}{0.4pt}
-    \\renewcommand{\\footrulewidth}{0.4pt}
-    \\pagestyle{fancy}
-    \\fancyfoot[C]{} % Clear page number
-    \\fancyhead[RE]{\\headfootfont\\small\\leftmark} % 在偶数页的右侧显示章名
-    \\fancyhead[LO]{\\headfootfont\\small\\rightmark} % 在奇数页的左侧显示小节名
-    \\fancyhead[LE,RO]{\\headfootfont\\small~\\thepage~} % 在偶数页的左侧，奇数页的右侧显示页码
-    [EXTRA]
-    "
+      \\documentclass[12pt,a4paper]{article}
+      [DEFAULT-PACKAGES]
+      [PACKAGES]
+      \\setsansfont{Source Han Sans SC}
+      \\setromanfont{Source Han Serif SC}
+      \\setmonofont[Scale=0.9]{Inziu Iosevka Slab SC}
+      \\newfontfamily\\quotefont{Source Han Serif SC}
+      \\newfontfamily\\headfootfont{Source Han Sans SC}
+      \\AtBeginEnvironment{quote}{\\quotefont\\small}
+      \\XeTeXlinebreaklocale ``zh''
+      \\XeTeXlinebreakskip = 0pt plus 1pt
+      \\linespread{1.0}
+      \\hypersetup{
+        colorlinks=true,
+        linkcolor=[rgb]{0,0.37,0.53},
+        citecolor=[rgb]{0,0.47,0.68},
+        filecolor=[rgb]{0,0.37,0.53},
+        urlcolor=[rgb]{0,0.37,0.53},
+        pagebackref=true,
+        linktoc=all,}
+      \\renewcommand{\\headrulewidth}{0.4pt}
+      \\renewcommand{\\footrulewidth}{0.4pt}
+      \\pagestyle{fancy}
+      \\fancyfoot[C]{} % Clear page number
+      \\fancyhead[RE]{\\headfootfont\\small\\leftmark} % 在偶数页的右侧显示章名
+      \\fancyhead[LO]{\\headfootfont\\small\\rightmark} % 在奇数页的左侧显示小节名
+      \\fancyhead[LE,RO]{\\headfootfont\\small~\\thepage~} % 在偶数页的左侧，奇数页的右侧显示页码
+      [EXTRA]
+      "
            ("\\section{%s}" . "\\section*{%s}")
            ("\\subsection{%s}" . "\\subsection*{%s}")
            ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -1687,10 +1688,46 @@ If NEWNAME is a directory, move file to it."
   (setq org-file-apps '((auto-mode . emacs)
                         ("\\.mm\\'" . default)
                         ("\\.x?html?\\'" . "xdg-open %s")
-                        ("\\.pdf\\'" . "skim %s")
+                        ("\\.pdf\\'" . "open -a Skim %s")
                         ("\\.jpg\\'" . "kde-open %s")))
 
 #+END_SRC
+** Latex
+#+begin_src emacs-lisp :tangle yes
+  (use-package cdlatex
+    :defer t
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
+    (add-hook 'LaTeX-mode-hook 'turn-on-cdlatex))
+
+  (use-package auctex :defer t :ensure t)
+  (load "auctex.el" nil t t)
+  ;;(load "preview-latex.el" nil t t)
+  (if (string-equal system-type "windows-nt")
+      (require 'tex-mik))
+
+
+  ;; Ask which tex file is master instead of always assume current file is master file.
+  (setq-default TeX-master nil) ; Query for master file.
+
+  (mapc (lambda (mode)
+          (add-hook 'LaTeX-mode-hook mode))
+        (list 'LaTeX-math-mode
+              'turn-on-reftex
+              'linum-mode))
+
+  (add-hook 'LaTeX-mode-hook
+            (lambda ()
+              (setq TeX-auto-untabify t     ; remove all tabs before saving
+                    TeX-engine 'xetex       ; use xelatex default
+                    TeX-show-compilation t) ; display compilation windows
+              (TeX-global-PDF-mode t)       ; PDF mode enable, not plain
+              (setq TeX-save-query nil)
+              (imenu-add-menubar-index)
+              (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
+
+#+end_src
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
 
@@ -2005,7 +2042,7 @@ If NEWNAME is a directory, move file to it."
 		     "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
 		     "#+OPTIONS: ^:nil\n"
 		     "#+OPTIONS: toc:nil\n"
-		     "#+LATEX_CLASS: zhcosin-org-article\n"
+		     "#+LATEX_CLASS: zxh-latex-class\n"
 		     "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
 		     "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
 		     "* 目录 :TOC_2_org:"
