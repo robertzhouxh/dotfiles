@@ -1244,6 +1244,8 @@ If NEWNAME is a directory, move file to it."
       "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
       "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
       "fp" 'format-function-parameters
+      "f-" 'text-scale-decrease        ;减小字体大小
+      "f=" 'text-scale-increase        ;增加字体大小
 
       ;; magit
       "gs" 'magit-status
@@ -2213,51 +2215,22 @@ If NEWNAME is a directory, move file to it."
       (evil-define-key nil company-active-map (kbd "C-p") #'company-select-previous))
     )
 
-  ;(lazy-load-set-keys
-  ; '(
-  ;   ("C-c v" . text-scale-decrease)        ;减小字体大小
-  ;   ("C-x ;" . text-scale-increase)        ;增加字体大小
-  ;   ))
+  ;;(lazy-load-global-keys
+  ;; '(
+  ;;   ("M-7" . sort-tab-select-prev-tab)    ;选择前一个标签
+  ;;   ("M-8" . sort-tab-select-next-tab)    ;选择后一个标签
+  ;;   ("M-s-7" . sort-tab-select-first-tab) ;选择第一个标签
+  ;;   ("M-s-8" . sort-tab-select-last-tab)  ;选择最后一个标签
+  ;;   ("C-;" . sort-tab-close-current-tab)  ;关闭当前标签
+  ;;   ("s-q" . sort-tab-close-mode-tabs)    ;关闭特定模式的标签
+  ;;   ("s-Q" . sort-tab-close-all-tabs)     ;关闭所有标签
+  ;;   )
+  ;; "sort-tab")
 
-  ;(lazy-load-global-keys
-  ; '(
-  ;   ("M-7" . sort-tab-select-prev-tab)    ;选择前一个标签
-  ;   ("M-8" . sort-tab-select-next-tab)    ;选择后一个标签
-  ;   ("M-s-7" . sort-tab-select-first-tab) ;选择第一个标签
-  ;   ("M-s-8" . sort-tab-select-last-tab)  ;选择最后一个标签
-  ;   ("C-;" . sort-tab-close-current-tab)  ;关闭当前标签
-  ;   ("s-q" . sort-tab-close-mode-tabs)    ;关闭特定模式的标签
-  ;   ("s-Q" . sort-tab-close-all-tabs)     ;关闭所有标签
-  ;   )
-  ; "sort-tab")
-
-
-  ;;;; ### Ido ###
-  ;;;; --- 交互式管理文件和缓存
-  ;(lazy-load-set-keys
-  ; '(
-  ;   ("C-x C-f" . ido-find-file)          ;交互式查找文件
-  ;   ("C-x b" . ido-switch-buffer)        ;交互式切换buffer
-  ;   ("C-x i" . ido-insert-buffer)        ;插入缓存
-  ;   ("C-x I" . ido-insert-file)          ;插入文件
-  ;   ))
-  ;(add-hook 'ido-setup-hook
-  ;          #'(lambda ()
-  ;              (interactive)
-  ;              (ido-my-keys ido-completion-map)))
-  ;(defun ido-my-keys (keymap)
-  ;  "Add my keybindings for ido."
-  ;  (lazy-load-set-keys
-  ;   '(
-  ;     ("M-s-p" . ido-prev-match)              ;上一个匹配
-  ;     ("M-s-n" . ido-next-match)              ;下一个匹配
-  ;     ("M-s-h" . ido-next-work-directory)     ;下一个工作目录
-  ;     ("M-s-l" . ido-prev-work-directory)     ;上一个工作目录
-  ;     ("M-o" . backward-delete-char-untabify) ;向前删除字符
-  ;     ("M-O" . ido-delete-backward-updir)     ;删除字符或进入上一级目录
-  ;     )
-  ;   keymap
-  ;   ))
+  (global-set-key (kbd "C-x C-f") 'ido-find-file)
+  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
+  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
+  (global-set-key (kbd "C-x I")   'ido-insert-file)
 
   (global-set-key (kbd "M-]")   'watch-other-window-up)
   (global-set-key (kbd "M-[")   'watch-other-window-down)
@@ -2298,4 +2271,4 @@ If NEWNAME is a directory, move file to it."
   (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
   (global-set-key (kbd "M-s-p") 'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
-#+END_SRC
+    #+END_SRC
