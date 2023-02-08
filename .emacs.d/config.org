@@ -4,13 +4,14 @@
 #+PROPERTY: header-args :results silent
 * Custom Var
 #+BEGIN_SRC emacs-lisp :tangle yes
-                            
+
   (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
   (setq erlang-lib-tools-version "3.5.2")
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
+  ;; (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
+  (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
 
 #+END_SRC
 * Bootstrap
@@ -2062,7 +2063,7 @@ If NEWNAME is a directory, move file to it."
     (interactive)
     (when (display-graphic-p)
       ;; Default font
-      (cl-loop for font in '("Consolas" "Monaco" "Hack" "Source Code Pro" "Menlo" "DejaVu Sans Mono")
+      (cl-loop for font in '("Monaco" "Hack" "Consolas" "Source Code Pro" "Menlo" "DejaVu Sans Mono")
                when (font-installed-p font)
                return (set-face-attribute 'default nil :family font))
 
@@ -2093,37 +2094,46 @@ If NEWNAME is a directory, move file to it."
 * Rime
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package posframe :ensure t)
-
-  ;;使用 toggle-input-method 来激活，默认快捷键为 C-\
   (use-package rime
-    :ensure t
+    :bind
+    (:map rime-active-mode-map
+          ("<tab>" . 'rime-inline-ascii)
+          :map rime-mode-map
+          ("C-`" . 'rime-send-keybinding) 
+          ("M-j" . 'rime-force-enable))
     :custom
-    (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-    (rime-emacs-module-header-root emacs-module-header-root)
-    (default-input-method "rime")
+    (when (x/system-is-mac)
+      (setq rime-librime-root "~/.emacs.d/librime/dist")
+      (setq rime-share-data-dir "~/Library/Rime")
+      (setq rime-emacs-module-header-root emacs-module-header-root))
+    (when (x/system-is-linux)
+      (when (and (x/system-is-mac) (executable-find "nix"))
+        (setq rime-emacs-module-header-root
+              (concat (shell-command-to-string "nix eval --raw 'nixpkgs#emacs.outPath'") "/include")
+              rime-librime-root
+              (shell-command-to-string "nix eval --raw 'nixpkgs#librime.outPath'")
+              rime-share-data-dir
+              (concat (shell-command-to-string "nix eval --raw 'nixpkgs#brise.outPath'") "/share/rime-data"))))
     :config
-    ;(setq rime-emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.1-mac-9.0/include")
-    (setq rime-user-data-dir "~/Library/Rime/")
-    (setq rime-show-candidate 'posframe)
-    (setq rime-posframe-style 'vertical) ;horizontal,simple
-    (setq rime-disable-predicates
-          '(rime-predicate-evil-mode-p
-            rime-predicate-after-alphabet-char-p
-            rime-predicate-prog-in-code-p))
-    (setq rime-inline-ascii-trigger 'shift-l)
-    (define-key rime-active-mode-map (kbd "M-j") 'rime-inline-ascii)
-    (define-key rime-mode-map (kbd "C-`") 'rime-send-keybinding)
-    (setq mode-line-mule-info '((:eval (rime-lighter))))
+    (setq rime-title " ㄓ")
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
-                ;:font "WenQuanYi Micro Hei Mono-14"
-                ;:font "Sarasa Mono SC Nerd"
-                :font "Menlo"
+                :font "PingFang SC"
                 :internal-border-width 10))
-    )
+    ;;;; (setq rime-translate-keybindings '("C-f" "C-b" "C-n" "C-p" "C-g"))
+    (setq default-input-method "rime"
+          rime-show-candidate 'posframe
+          rime-posframe-style 'vertical)
+    (setq rime-disable-predicates '(rime-predicate-evil-mode-p
+                                    rime-predicate-space-after-cc-p
+                                    rime-predicate-after-alphabet-char-p
+                                    rime-predicate-prog-in-code-p
+                                    rime-predicate-tex-math-or-command-p
+                                    rime-predicate-current-uppercase-letter-p
+                                    rime-predicate-after-ascii-char-p)))
 #+END_SRC
+
 * Platform
 #+BEGIN_SRC emacs-lisp :tangle yes
 
@@ -2245,12 +2255,13 @@ If NEWNAME is a directory, move file to it."
        (define-key evil-normal-state-map  (kbd "/")  'swiper)
        (set-control-w-shortcuts)))
 
-
   (with-eval-after-load 'evil (evil-define-key 'normal 'global (kbd "C-M-u") 'vundo))
 
   ;; --------------------------------
   ;; ### Global KeyBindings setup ###
   ;; C-h b 找到快捷键bind function ---> remap the target keybinding
+
+  (global-unset-key (kbd "C-z"))
 
   (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
   (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)

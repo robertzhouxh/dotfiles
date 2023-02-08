@@ -55,3 +55,6 @@
 [submodule ".emacs.d/vendor/goto-line-preview"]
 	path = .emacs.d/vendor/goto-line-preview
 	url = https://github.com/jcs090218/goto-line-preview.git
+[submodule ".emacs.d/vendor/emacs-rime"]
+	path = .emacs.d/vendor/emacs-rime
+	url = https://github.com/DogLooksGood/emacs-rime.git
