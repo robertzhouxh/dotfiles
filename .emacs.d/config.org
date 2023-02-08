@@ -1204,15 +1204,10 @@
       ;; buffer & bookmark
       "bb" 'switch-to-buffer
       "bB" 'switch-to-buffer-other-window
-      "bc" 'clone-indirect-buffer
-      "bC" 'clone-indirect-buffer-other-window
       "by" '+copy-current-buffer-name
       "bv" 'revert-buffer
       "bx" 'scratch-buffer
       "bz" 'bury-buffer
-      "b[" 'previous-buffer
-      "b]" 'next-buffer
-      "bm" 'switch-to-messages
       "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
 
       ;; --------------
