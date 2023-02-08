@@ -678,16 +678,33 @@ If NEWNAME is a directory, move file to it."
 * Quick Search And Move
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package avy)
-  (use-package undo-tree
-    :ensure t
-    :commands (global-undo-tree-mode
-               undo
-               undo-tree-redo)
-    :init (setq undo-tree-visualizer-timestamps t
-                undo-tree-visualizer-diff t
-                undo-tree-auto-save-history nil
-                undo-tree-history-directory-alist `(("." . ,(expand-file-name "ebackup/" user-emacs-directory))))
-    :diminish undo-tree-mode)
+
+  ;; (use-package undo-tree
+  ;;   :diminish undo-tree-mode
+  ;;   :config
+  ;;   (global-undo-tree-mode)
+  ;;   (setq undo-tree-auto-save-history t
+  ;;         undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+  (use-package vundo
+    :defer t
+    :commands (vundo)
+    :config
+    ;; Take less on-screen space.
+    (setq vundo-compact-display t)
+    (custom-set-faces
+     '(vundo-node ((t (:foreground "#808080"))))
+     '(vundo-stem ((t (:foreground "#808080"))))
+     '(vundo-highlight ((t (:foreground "#FFFF00")))))
+    ;; Use `HJKL` VIM-like motion
+    (define-key vundo-mode-map (kbd "l") #'vundo-forward)
+    (define-key vundo-mode-map (kbd "h") #'vundo-backward)
+    (define-key vundo-mode-map (kbd "j") #'vundo-next)
+    (define-key vundo-mode-map (kbd "k") #'vundo-previous)
+    (define-key vundo-mode-map (kbd "a") #'vundo-stem-root)
+    (define-key vundo-mode-map (kbd "e") #'vundo-stem-end)
+    (define-key vundo-mode-map (kbd "q") #'vundo-quit)
+    (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
+    (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
 
   (use-package ag
     :defer t
@@ -1215,10 +1232,6 @@ If NEWNAME is a directory, move file to it."
       "cd" 'delete-trailing-whitespace
       "cc" 'comment-dwim
       "cl" 'toggle-truncate-lines
-      ;;"cC" 'compile
-      ;;"cR" 'recompile
-      ;;"ck" 'kill-compilation
-      ;;"cx" 'quickrun
 
       ;; dired
       "dj" 'dired-jump
@@ -1231,18 +1244,14 @@ If NEWNAME is a directory, move file to it."
       "fF" 'find-file-other-frame
       "f/" 'find-file-other-window
       "fs" 'my-org-screenshot 
-      "fc" '(lambda () (interactive) (find-file "./docker-compose.yml"))
       "fC" '+copy-current-file
       "fD" '+delete-current-file
-      "fd" '(lambda () (interactive) (find-file "./Dockerfile"))
       "fy" '+copy-current-filename
       "fR" '+rename-current-file
       "fr" 'recentf-open-files
       "fl" 'find-file-literally
       "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
       "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-      "fx" '(lambda () (interactive) (find-file (expand-file-name "~/.exports")))
-      "fh" '(lambda () (interactive) (find-file (expand-file-name "~/")))
       "fp" 'format-function-parameters
       "f-" 'text-scale-decrease        ;减小字体大小
       "f=" 'text-scale-increase        ;增加字体大小
@@ -1255,15 +1264,14 @@ If NEWNAME is a directory, move file to it."
       "gt" 'magit-blame-toggle
       "G"  'aborn/simple-git-commit-push
 
-      "^M"  'delete-carrage-returns
+      ; Delete ^M
+      "mc"  'delete-carrage-returns
 
       ;; project && proxy
-      ;;"p"  'projectile-command-map
       "pf" 'counsel-projectile-find-file
       "pp" 'counsel-projectile-switch-project
       "pb" 'counsel-projectile-switch-to-buffer
       "pk" 'projectile-kill-buffers
-      "pr" 'projectile-recentf
       "ps" 'proxy-socks-toggle
       "ph" 'proxy-http-toggle
 
@@ -1284,11 +1292,6 @@ If NEWNAME is a directory, move file to it."
       "wo" 'other-window
       "wd" 'kill-buffer-and-window
       "wD" 'delete-other-windows
-      "wu" '+transient-tab-bar-history
-      "w-" 'split-window-vertically
-      "w/" 'split-window-horizontally
-      "wt" 'toggle-window-split
-      "wT" 'toggle-one-window
 
       ;; open external App
       "oY" 'youdao-dictionary-search-from-input
@@ -2178,97 +2181,126 @@ If NEWNAME is a directory, move file to it."
 #+END_SRC
 * Key-maps
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (define-key dired-mode-map           (kbd "e")   'wdired-change-to-wdired-mode)
-  (define-key evil-normal-state-map    (kbd "/")   'swiper)
-  (define-key evil-normal-state-map    (kbd "_")   'projectile-dired)
-  (define-key company-active-map       (kbd "C-n") 'company-select-next)
-  (define-key company-active-map       (kbd "C-p") 'company-select-previous)
 
-  ;; C-h b 找到快捷键bind function---remap
-  (with-eval-after-load 'evil
-    (define-key evil-motion-state-map (kbd "C-]") nil)
-    (define-key evil-motion-state-map (kbd "C-t") nil)
-    (define-key evil-motion-state-map (kbd "C-6") nil)
+  ;; ### X-mode KeyBindings Setup ###
+  ;; C-h b 找到快捷键bind function ---> remap the target keybinding
 
-    (define-key evil-motion-state-map "\C-]"  'lsp-bridge-jump)
-    (define-key evil-motion-state-map "g\C-]" 'lsp-bridge-jump)
-    (define-key evil-normal-state-map "\C-t"  'lsp-bridge-jump-back)
-    (define-key evil-motion-state-map "g\C-t" 'lsp-bridge-jump-back)
+  ;;-----------------------
+  ;;### Company, yas-expand ###
+  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
+  (define-key company-active-map (kbd "TAB") 'company-complete-selection)
+  (define-key company-active-map (kbd "M-h") 'company-complete-selection)
+  (define-key company-active-map (kbd "M-H") 'company-complete-common)
+  (define-key company-active-map (kbd "M-w") 'company-show-location)
+  (define-key company-active-map (kbd "M-s") 'company-search-candidates)
+  (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
+  (define-key company-active-map (kbd "M-n") 'company-select-next)
+  (define-key company-active-map (kbd "M-p") 'company-select-previous)
+  (define-key company-active-map (kbd "M-i") 'yas-expand)
 
-    (with-eval-after-load 'company
-      (define-key company-active-map (kbd "<return>") nil)
-      (define-key company-active-map (kbd "<tab>") nil)
-      (define-key company-active-map (kbd "RET") nil)
-      (define-key company-active-map (kbd "M-n") nil)
-      (define-key company-active-map (kbd "M-p") nil)
-      (define-key company-active-map (kbd "C-m") nil)
-      (define-key company-active-map (kbd "TAB") 'company-complete-selection)
-      (define-key company-active-map (kbd "M-h") 'company-complete-selection)
-      (define-key company-active-map (kbd "M-H") 'company-complete-common)
-      (define-key company-active-map (kbd "M-w") 'company-show-location)
-      (define-key company-active-map (kbd "M-s") 'company-search-candidates)
-      (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
-      (define-key company-active-map (kbd "M-n") 'company-select-next)
-      (define-key company-active-map (kbd "M-p") 'company-select-previous)
-      (define-key company-active-map (kbd "M-i") 'yas-expand)
-      (evil-define-key nil company-active-map (kbd "C-n") #'company-select-next)
-      (evil-define-key nil company-active-map (kbd "C-p") #'company-select-previous))
-    )
 
-  ;;(lazy-load-global-keys
-  ;; '(
-  ;;   ("M-7" . sort-tab-select-prev-tab)    ;选择前一个标签
-  ;;   ("M-8" . sort-tab-select-next-tab)    ;选择后一个标签
-  ;;   ("M-s-7" . sort-tab-select-first-tab) ;选择第一个标签
-  ;;   ("M-s-8" . sort-tab-select-last-tab)  ;选择最后一个标签
-  ;;   ("C-;" . sort-tab-close-current-tab)  ;关闭当前标签
-  ;;   ("s-q" . sort-tab-close-mode-tabs)    ;关闭特定模式的标签
-  ;;   ("s-Q" . sort-tab-close-all-tabs)     ;关闭所有标签
-  ;;   )
-  ;; "sort-tab")
+  ;;-----------------------
+  ;;### Window Mananger ###
+  (defvar toggle-one-window-window-configuration nil
+    "The window configuration use for `toggle-one-window'.")
+
+  (defun toggle-one-window ()
+    "Toggle between window layout and one window."
+    (interactive)
+    (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
+        (if toggle-one-window-window-configuration
+            (progn
+              (set-window-configuration toggle-one-window-window-configuration)
+              (setq toggle-one-window-window-configuration nil))
+          (message "No other windows exist."))
+      (setq toggle-one-window-window-configuration (current-window-configuration))
+      (delete-other-windows)))
+
+  (defun set-control-w-shortcuts ()
+    (define-prefix-command 'my-window-map)
+    (global-set-key (kbd "C-w") 'my-window-map)
+    (define-key my-window-map (kbd "h") 'windmove-left)
+    (define-key my-window-map (kbd "j") 'windmove-down)
+    (define-key my-window-map (kbd "k") 'windmove-up)
+    (define-key my-window-map (kbd "l") 'windmove-right)
+    (define-key my-window-map (kbd "v") 'split-window-right)
+    (define-key my-window-map (kbd "b") 'split-window-below)
+    (define-key my-window-map (kbd "d") 'delete-window)
+    (define-key my-window-map (kbd "D") 'delete-other-windows)
+    (define-key my-window-map (kbd "o") 'toggle-one-window))
+
+  (set-control-w-shortcuts)
+  (eval-after-load "evil-maps"
+    '(progn
+       (dolist (map '(evil-motion-state-map
+                      evil-insert-state-map
+                      evil-emacs-state-map
+                      evil-window-map))
+         (define-key (eval map) "\C-w" nil)
+         (define-key (eval map) "\C-]" nil)
+         (define-key (eval map) "\C-t" nil))
+       (define-key evil-motion-state-map (kbd "SPC") nil)
+       (define-key evil-motion-state-map (kbd "RET") nil)
+       (define-key evil-motion-state-map (kbd "TAB") nil)
+       (define-key evil-normal-state-map  (kbd "/")  'swiper)
+       (set-control-w-shortcuts)))
+
+
+  (with-eval-after-load 'evil (evil-define-key 'normal 'global (kbd "C-M-u") 'vundo))
+
+  ;; --------------------------------
+  ;; ### Global KeyBindings setup ###
+  ;; C-h b 找到快捷键bind function ---> remap the target keybinding
+
+  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
+  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
+  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
+  (global-set-key (kbd "M-s-8 ")  'sort-tab-select-last-tab)
+  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
+  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
+  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
 
   (global-set-key (kbd "C-x C-f") 'ido-find-file)
   (global-set-key (kbd "C-x b")   'ido-switch-buffer)
   (global-set-key (kbd "C-x i")   'ido-insert-buffer)
   (global-set-key (kbd "C-x I")   'ido-insert-file)
 
-  (global-set-key (kbd "M-]")   'watch-other-window-up)
-  (global-set-key (kbd "M-[")   'watch-other-window-down)
-  (global-set-key (kbd "M->")   'watch-other-window-up-line)
-  (global-set-key (kbd "M-<")   'watch-other-window-down-line)
+  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
+  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
+  (global-set-key (kbd "M-]")     'watch-other-window-up)
+  (global-set-key (kbd "M-[")     'watch-other-window-down)
+  (global-set-key (kbd "M->")     'watch-other-window-up-line)
+  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
 
-  (global-set-key (kbd "C-x y") 'dash-at-point)
-  (global-set-key (kbd "M-]")   'dumb-jump-go)
-  (global-set-key (kbd "M-t")   'dumb-jump-back)
+  (global-set-key (kbd "C-x y")   'dash-at-point)
+  (global-set-key (kbd "M-]")     'dumb-jump-go)
+  (global-set-key (kbd "M-t")     'dumb-jump-back)
 
-  (global-set-key (kbd "M-n")   'hold-line-scroll-down)
-  (global-set-key (kbd "M-p")   'hold-line-scroll-up)
+  (global-set-key (kbd "C-/")     'undo-tree-undo)
+  (global-set-key (kbd "C-?")     'undo-tree-redo)
 
-  (global-set-key (kbd "C-/")   'undo-tree-undo)
-  (global-set-key (kbd "C-?")   'undo-tree-redo)
-
-  (global-set-key (kbd "C-c p f")   'projectile-find-file)
-  (global-set-key (kbd "C-c p b")   'projectile-switch-to-buffer)
-  (global-set-key (kbd "C-c p p")   'projectile-switch-project)
+  (global-set-key (kbd "C-c p f") 'projectile-find-file)
+  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
+  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
 
   (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
   (global-set-key (kbd "M-g f")   'avy-goto-line)
   (global-set-key (kbd "M-g w")   'avy-goto-word-1)
 
-  (global-set-key (kbd "C-M-s") 'color-rg-search-input)
-  (global-set-key (kbd "C-M-;") 'magit-status)
-  (global-set-key (kbd "C-x G") 'git-messenger:popup-message)
+  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
+  (global-set-key (kbd "C-M-;")   'magit-status)
+  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
 
+  ;; 语法与跳转
+  (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
+  (global-set-key (kbd "C-8")     'lsp-bridge-jump)
+  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
+  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
+  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
+  (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
+  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
+  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
-  (global-set-key (kbd "C-7")   'lsp-bridge-jump-back)
-  (global-set-key (kbd "C-8")   'lsp-bridge-jump)
-  (global-set-key (kbd "M-,")   'lsp-bridge-code-action) 
-  (global-set-key (kbd "M-.")   'lsp-bridge-find-references) 
-  (global-set-key (kbd "C-9")   'lsp-bridge-popup-documentation)
-  (global-set-key (kbd "C-0")   'lsp-bridge-rename) 
-  (global-set-key (kbd "M-s-k") 'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
-  (global-set-key (kbd "M-s-l") 'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-  (global-set-key (kbd "M-s-n") 'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-  (global-set-key (kbd "M-s-p") 'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
-
-    #+END_SRC
+#+END_SRC

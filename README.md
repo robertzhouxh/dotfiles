@@ -18,7 +18,7 @@ x.x.x.x github.com
 ## 安装网络代理
 ### Install Trojan server on Debain(9,10.8)
 
-remember open 443 https port on remote debain vps
+Remember open 443 https port for the remote debain vps
 
 ```bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/mark-hans/trojan-wiz/master/ins.sh && chmod +x ins.sh && bash ins.sh
@@ -41,6 +41,7 @@ cd trojan
 scp root@xxx.xxx.xxx.xxx:/home/trojan/ca-cert.pem ./
 scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 
+# 建议在 client.json 中设置本地监听 IP: 0.0.0.0 
 ./trojan -c client.json
 ```
 
@@ -316,19 +317,19 @@ brew install sbcl
 
 ## Debug
 
-```
-;; Environment
-(use-package exec-path-from-shell
-:ensure t
-:if (or sys/mac-x-p sys/linux-x-p)
-:config
-(setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-(setq exec-path-from-shell-arguments '("-l"))
-(exec-path-from-shell-initialize))
-
-光标直接放到最后一个list  [ (exec-path-from-shell-initialize) ]括号上执行 c-x c-e
-
-如 (featurep 'cocoa)  c-x c-e 在minibuffer中输出 t
+```elisp
+  ;; Environment
+  (use-package exec-path-from-shell
+  :ensure t
+  :if (or sys/mac-x-p sys/linux-x-p)
+  :config
+  (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+  (setq exec-path-from-shell-arguments '("-l"))
+  (exec-path-from-shell-initialize))
+  
+  ; 光标直接放到最后一个list  [ (exec-path-from-shell-initialize) ]括号上执行 c-x c-e
+  
+  ; 如 (featurep 'cocoa)  c-x c-e 在minibuffer中输出 t
 
 ```
 ## To be continued...
