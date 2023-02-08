@@ -292,34 +292,33 @@
 #+END_SRC
 * Functions
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;; https://emacs-china.org/t/org-mode/79
+  ;; https://emacs-china.org/t/org-mode/79
   (defun my-org-screenshot ()
     "Take a screenshot into a time stamped unique-named file in the
-    same directory as the org-buffer and insert a link to this file."
+      same directory as the org-buffer and insert a link to this file."
     (interactive)
     (org-display-inline-images)
 
     (setq filename
-	  (concat
-	   (make-temp-name
-	    (concat (file-name-directory (buffer-file-name))
-		    "/imgs/"
-		    (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
+          (concat
+           (make-temp-name
+            (concat (file-name-directory (buffer-file-name))
+                    "/imgs/"
+                    (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
     (unless (file-exists-p (file-name-directory filename))
       (make-directory (file-name-directory filename)))
-					  ; take screenshot
+                                          ; take screenshot
     (if (eq system-type 'darwin)
-	(progn
-	  (call-process-shell-command "screencapture" nil nil nil nil " -s " (concat
-									      "\"" filename "\"" ))
-	  (call-process-shell-command "convert" nil nil nil nil (concat "\"" filename "\" -resize  \"50%\"" ) (concat "\"" filename "\"" ))
-	  ))
+        (progn
+          (call-process-shell-command "screencapture" nil nil nil nil " -s " (concat
+                                                                              "\"" filename "\"" ))
+          (call-process-shell-command "convert" nil nil nil nil (concat "\"" filename "\" -resize  \"50%\"" ) (concat "\"" filename "\"" ))
+          ))
 
     (setq relative-dir (concat "./imgs/" (file-name-nondirectory filename)))
     (if (file-exists-p filename)
-	(insert (concat "[[file:" relative-dir "]]")))
-    (org-display-inline-images)
-    )
+        (insert (concat "[[file:" relative-dir "]]")))
+    (org-display-inline-images))
 
   (defun x/save-all ()
     "Save all file-visiting buffers without prompting."
@@ -368,7 +367,7 @@
     (when buffer-file-name
       (find-alternate-file
        (concat "/sudo:root@localhost:"
-	       buffer-file-name))))
+               buffer-file-name))))
 
   (defun format-function-parameters ()
     "Turn the list of function parameters into multiline."
@@ -397,12 +396,12 @@
 
   (defun delete-carrage-returns ()
     "Delete `^M' characters in the buffer.
-      Same as `replace-string C-q C-m RET RET'."
+        Same as `replace-string C-q C-m RET RET'."
     (interactive)
     (save-excursion
       (goto-char 0)
       (while (search-forward "\r" nil :noerror)
-	(replace-match ""))))
+        (replace-match ""))))
 
   (defun save-buffer-as-utf8 (coding-system)
     "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
@@ -416,22 +415,20 @@
     (interactive)
     (save-buffer-as-utf8 'gbk))
 
-  ;;;;;;;;;;;;;;;;;;;;;; Network Proxy ;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Network Proxy
   (defun proxy-http-show ()
     "Show HTTP/HTTPS proxy."
     (interactive)
     (if url-proxy-services
-	(message "Current HTTP proxy is `%s'" http-proxy)
+        (message "Current HTTP proxy is `%s'" http-proxy)
       (message "No HTTP proxy")))
 
   (defun proxy-http-enable ()
     "Enable HTTP/HTTPS proxy."
     (interactive)
     (setq url-proxy-services
-	  `(("http" . ,http-proxy)
-	    ("https" . ,http-proxy)
-	    ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
+          `(("http" . ,http-proxy)
+            ("https" . ,http-proxy)
+            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
     (proxy-http-show))
 
   (defun proxy-http-disable ()
@@ -444,7 +441,7 @@
     "Toggle HTTP/HTTPS proxy."
     (interactive)
     (if (bound-and-true-p url-proxy-services)
-	(proxy-http-disable)
+        (proxy-http-disable)
       (proxy-http-enable)))
 
   (defun proxy-socks-show ()
@@ -452,19 +449,19 @@
     (interactive)
     (when (fboundp 'cadddr)                ; defined 25.2+
       (if (bound-and-true-p socks-noproxy)
-	  (message "Current SOCKS%d proxy is %s:%s"
-		   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-	(message "No SOCKS proxy"))))
+          (message "Current SOCKS%d proxy is %s:%s"
+                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+        (message "No SOCKS proxy"))))
 
   (defun proxy-socks-enable ()
     "Enable SOCKS proxy."
     (interactive)
     (require 'socks)
     (setq url-gateway-method 'socks
-	  socks-noproxy '("localhost"))
+          socks-noproxy '("localhost"))
     (let* ((proxy (split-string socks-proxy ":"))
-	   (host (car proxy))
-	   (port (cadr  proxy)))
+           (host (car proxy))
+           (port (cadr  proxy)))
       (setq socks-server `("Default server" ,host ,port 5)))
     (setenv "all_proxy" (concat "socks5://" socks-proxy))
     (proxy-socks-show))
@@ -473,8 +470,8 @@
     "Disable SOCKS proxy."
     (interactive)
     (setq url-gateway-method 'native
-	  socks-noproxy nil
-	  socks-server nil)
+          socks-noproxy nil
+          socks-server nil)
     (setenv "all_proxy" "")
     (proxy-socks-show))
 
@@ -482,13 +479,13 @@
     "Toggle SOCKS proxy."
     (interactive)
     (if (bound-and-true-p socks-noproxy)
-	(proxy-socks-disable)
+        (proxy-socks-disable)
       (proxy-socks-enable)))
 
   (defun org-export-docx ()
     (interactive)
     (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-	  (template-file "/Users/glodon/githubs/dotfiles/.emacs.d/template.docx"))
+          (template-file "（expand-file-name "template.docx" user-emacs-directory)"))
       (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
       (message "Convert finish: %s" docx-file)))
 
@@ -503,15 +500,15 @@
   (defun company-yasnippet-or-completion ()
     (interactive)
     (or (do-yas-expand)
-	(company-complete-common)))
+        (company-complete-common)))
 
   (defun check-expansion ()
     (save-excursion
       (if (looking-at "\\_>") t
-	(backward-char 1)
-	(if (looking-at "\\.") t
-	  (backward-char 1)
-	  (if (looking-at "::") t nil)))))
+        (backward-char 1)
+        (if (looking-at "\\.") t
+          (backward-char 1)
+          (if (looking-at "::") t nil)))))
 
   (defun do-yas-expand ()
     (let ((yas/fallback-behavior 'return-nil))
@@ -520,46 +517,46 @@
   (defun tab-indent-or-complete ()
     (interactive)
     (if (minibufferp)
-	(minibuffer-complete)
+        (minibuffer-complete)
       (if (or (not yas/minor-mode)
-	      (null (do-yas-expand)))
-	  (if (check-expansion)
-	      (company-complete-common)
-	    (indent-for-tab-command)))))
+              (null (do-yas-expand)))
+          (if (check-expansion)
+              (company-complete-common)
+            (indent-for-tab-command)))))
 
-(defun +rename-current-file (newname)
-  "Rename current visiting file to NEWNAME.
-If NEWNAME is a directory, move file to it."
-  (interactive
-   (progn
-     (unless buffer-file-name
-       (user-error "No file is visiting"))
-     (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
-       (when (equal (file-truename name)
-                    (file-truename buffer-file-name))
-         (user-error "Can't rename file to itself"))
-       (list name))))
-  ;; NEWNAME is a directory
-  (when (equal newname (file-name-as-directory newname))
-    (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
-  (rename-file buffer-file-name newname)
-  (set-visited-file-name newname)
-  (rename-buffer newname))
+  (defun +rename-current-file (newname)
+    "Rename current visiting file to NEWNAME.
+  If NEWNAME is a directory, move file to it."
+    (interactive
+     (progn
+       (unless buffer-file-name
+         (user-error "No file is visiting"))
+       (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
+         (when (equal (file-truename name)
+                      (file-truename buffer-file-name))
+           (user-error "Can't rename file to itself"))
+         (list name))))
+    ;; NEWNAME is a directory
+    (when (equal newname (file-name-as-directory newname))
+      (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
+    (rename-file buffer-file-name newname)
+    (set-visited-file-name newname)
+    (rename-buffer newname))
 
-(defun +delete-current-file (file)
-  "Delete current visiting FILE."
-  (interactive
-   (list (or buffer-file-name
-             (user-error "No file is visiting"))))
-  (when (y-or-n-p (format "Really delete '%s'? " file))
-    (kill-this-buffer)
-    (delete-file file)))
+  (defun +delete-current-file (file)
+    "Delete current visiting FILE."
+    (interactive
+     (list (or buffer-file-name
+               (user-error "No file is visiting"))))
+    (when (y-or-n-p (format "Really delete '%s'? " file))
+      (kill-this-buffer)
+      (delete-file file)))
 
-  ;;;###autoload
+    ;;;###autoload
   (defun +copy-current-file (new-path &optional overwrite-p)
     "Copy current buffer's file to `NEW-PATH'.
-  If `OVERWRITE-P', overwrite the destination file without
-  confirmation."
+    If `OVERWRITE-P', overwrite the destination file without
+    confirmation."
     (interactive
      (progn
        (unless buffer-file-name
@@ -570,8 +567,8 @@ If NEWNAME is a directory, move file to it."
           (new-path (expand-file-name new-path)))
       (make-directory (file-name-directory new-path) t)
       (copy-file old-path new-path (or overwrite-p 1))))
-  
-  ;;;###autoload
+
+    ;;;###autoload
   (defun +copy-current-filename (file)
     "Copy the full path to the current FILE."
     (interactive
@@ -579,8 +576,8 @@ If NEWNAME is a directory, move file to it."
                (user-error "No file is visiting"))))
     (kill-new file)
     (message "Copying '%s' to clipboard" file))
-  
-  ;;;###autoload
+
+    ;;;###autoload
   (defun +copy-current-buffer-name ()
     "Copy the name of current buffer."
     (interactive)
@@ -1192,6 +1189,7 @@ If NEWNAME is a directory, move file to it."
     (global-git-gutter-mode +1))
 #+END_SRC
 * Evil-Mode
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun x/config-evil-leader ()
     (evil-leader/set-leader ",")
@@ -1238,24 +1236,32 @@ If NEWNAME is a directory, move file to it."
       "dj" 'dired-jump
       "dJ" 'dired-jump-other-window
 
+      ;; open external App
+      "eY" 'youdao-dictionary-search-from-input
+      "ep" 'plantuml–parse-headlines
+      "ej" 'plantuml-display-json-open
+      "ey" 'plantuml-display-yaml-open
+      "em" 'plantuml-org-to-mindmap-open
+      "ew" 'plantuml-org-to-wbs-open
+      "ea" 'plantuml-auto-convert-open
+      "es" 'my-org-screenshot 
+
       ;; file
       "fa" 'x/save-all
       "fu" 'sudo
       "ff" 'find-file
       "fF" 'find-file-other-frame
       "f/" 'find-file-other-window
-      "fs" 'my-org-screenshot 
       "fC" '+copy-current-file
       "fD" '+delete-current-file
       "fy" '+copy-current-filename
       "fR" '+rename-current-file
       "fr" 'recentf-open-files
       "fl" 'find-file-literally
-      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-      "fp" 'format-function-parameters
       "f-" 'text-scale-decrease        ;减小字体大小
       "f=" 'text-scale-increase        ;增加字体大小
+      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
 
       ;; magit
       "gs" 'magit-status
@@ -1265,7 +1271,7 @@ If NEWNAME is a directory, move file to it."
       "gt" 'magit-blame-toggle
       "G"  'aborn/simple-git-commit-push
 
-      ; Delete ^M
+      ;; Delete ^M
       "mc"  'delete-carrage-returns
 
       ;; project && proxy
@@ -1288,20 +1294,10 @@ If NEWNAME is a directory, move file to it."
       "sk" 'kill-ring-search         ;kill ring 搜索
 
       ;; window && frame
-      ;;"w" 'evil-window-map
       "wf" 'other-frame
       "wo" 'other-window
       "wd" 'kill-buffer-and-window
       "wD" 'delete-other-windows
-
-      ;; open external App
-      "oY" 'youdao-dictionary-search-from-input
-      "op" 'plantuml–parse-headlines
-      "oj" 'plantuml-display-json-open
-      "oy" 'plantuml-display-yaml-open
-      "om" 'plantuml-org-to-mindmap-open
-      "ow" 'plantuml-org-to-wbs-open
-      "oa" 'plantuml-auto-convert-open
 
       ;; fold
       "zA" 'evil-close-folds
@@ -2189,7 +2185,7 @@ If NEWNAME is a directory, move file to it."
 	(message "No region active; can't yank to clipboard!"))))
 
 #+END_SRC
-* Key-maps
+* Key-Bindings
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; ### X-mode KeyBindings Setup ###
@@ -2261,12 +2257,12 @@ If NEWNAME is a directory, move file to it."
   ;; ### Global KeyBindings setup ###
   ;; C-h b 找到快捷键bind function ---> remap the target keybinding
 
-  (global-unset-key (kbd "C-z"))
+  ;; (global-unset-key (kbd "C-z"))
 
   (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
   (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
   (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
-  (global-set-key (kbd "M-s-8 ")  'sort-tab-select-last-tab)
+  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
   (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
   (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
   (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
