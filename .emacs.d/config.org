@@ -547,6 +547,25 @@
     (kill-new (buffer-name))
     (message "Copying '%s' to clipboard" (buffer-name)))
 
+
+  ;; --------------------------------------------
+  ;; Window 操作辅助函数
+  ;; --------------------------------------------
+  (defvar toggle-one-window-window-configuration nil
+    "The window configuration use for `toggle-one-window'.")
+
+  (defun toggle-one-window ()
+    "Toggle between window layout and one window."
+    (interactive)
+    (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
+        (if toggle-one-window-window-configuration
+            (progn
+              (set-window-configuration toggle-one-window-window-configuration)
+              (setq toggle-one-window-window-configuration nil))
+          (message "No other windows exist."))
+      (setq toggle-one-window-window-configuration (current-window-configuration))
+      (delete-other-windows)))
+
 #+END_SRC
 
 * Fundamental Plugins
@@ -782,7 +801,7 @@
   ;;(require 'visual-regexp)
   ;;(setq vr/match-separator-use-custom-face t)
   ;;(setq vr/match-separator-string "⇛")
-
+  (require 'goto-chg)
   (require 'watch-other-window)
   (require 'thing-edit)
   (require 'color-rg)
@@ -2142,12 +2161,14 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; ### X-mode KeyBindings Setup ###
-  ;; C-h b 找到快捷键bind function ---> remap the target keybinding
+  ;; ------------------------------------------------------------------------------------------------
+  ;;                   X-mode KeyBindings   C-h b/k 找到快捷键
+  ;; ------------------------------------------------------------------------------------------------
+
+  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
   ;;-----------------------
-  ;;### Company, yas-expand ###
-  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
+  ;;company-active-map
   (define-key company-active-map (kbd "TAB") 'company-complete-selection)
   (define-key company-active-map (kbd "M-h") 'company-complete-selection)
   (define-key company-active-map (kbd "M-H") 'company-complete-common)
@@ -2160,22 +2181,7 @@
 
 
   ;;-----------------------
-  ;;### Window Mananger ###
-  (defvar toggle-one-window-window-configuration nil
-    "The window configuration use for `toggle-one-window'.")
-
-  (defun toggle-one-window ()
-    "Toggle between window layout and one window."
-    (interactive)
-    (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
-        (if toggle-one-window-window-configuration
-            (progn
-              (set-window-configuration toggle-one-window-window-configuration)
-              (setq toggle-one-window-window-configuration nil))
-          (message "No other windows exist."))
-      (setq toggle-one-window-window-configuration (current-window-configuration))
-      (delete-other-windows)))
-
+  ;;my-window-map
   (defun set-control-w-shortcuts ()
     (define-prefix-command 'my-window-map)
     (global-set-key (kbd "C-w") 'my-window-map)
@@ -2198,27 +2204,84 @@
                       evil-emacs-state-map
                       evil-window-map))
          (define-key (eval map) "\C-w" nil)
-         (define-key (eval map) "\C-]" nil)
-         (define-key (eval map) "\C-t" nil))
-       (define-key evil-motion-state-map (kbd "SPC") nil)
-       (define-key evil-motion-state-map (kbd "RET") nil)
-       (define-key evil-motion-state-map (kbd "TAB") nil)
-       (define-key evil-normal-state-map  (kbd "/")  'swiper)
-       (set-control-w-shortcuts)))
+         (set-control-w-shortcuts))))
 
-  (with-eval-after-load 'evil (evil-define-key 'normal 'global (kbd "C-M-u") 'vundo))
+  ;;-----------------------
+  ;; org-mode-map
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "M-h") nil)
+    (define-key org-mode-map (kbd "C-,") nil))
 
-  ;; --------------------------------
-  ;; ### Global KeyBindings setup ###
-  ;; C-h b 找到快捷键bind function ---> remap the target keybinding
 
+  ;;-----------------------
+  ;; evilmode-map
+  (with-eval-after-load 'evil
+    (define-key evil-motion-state-map (kbd "SPC") nil)
+    (define-key evil-motion-state-map (kbd "RET") nil)
+    (define-key evil-motion-state-map (kbd "TAB") nil)
+    (define-key evil-normal-state-map (kbd "C-t") nil)
+    (define-key evil-normal-state-map (kbd "C-]") nil)
+    (define-key evil-normal-state-map (kbd "/")  'swiper)
+    (define-key evil-motion-state-map (kbd "C-6") nil))
+
+
+  ;; ------------------------------------------------------------------------------------------------
+  ;;                 Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
+  ;; ------------------------------------------------------------------------------------------------
   (require 'lazy-load)
-      ;;; ### Unset key ###
-      ;;; --- 卸载按键, 全局按键的卸载
-
+  ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
-   '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+   '("C-x C-f" "C-q" "M-h" "C-\\" "C-6" "M-." "M-,"))
+  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
+  (global-set-key (kbd "C-,")     'goto-last-change)
+
+  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
+  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
+  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
+  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
+  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
+  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
+  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
+
+  (global-set-key (kbd "C-x C-f") 'ido-find-file)
+  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
+  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
+  (global-set-key (kbd "C-x I")   'ido-insert-file)
+
+  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
+  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
+  (global-set-key (kbd "M-]")     'watch-other-window-up)
+  (global-set-key (kbd "M-[")     'watch-other-window-down)
+  (global-set-key (kbd "M->")     'watch-other-window-up-line)
+  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
+
+  (global-set-key (kbd "C-x y")   'dash-at-point)
+  (global-set-key (kbd "M-]")     'dumb-jump-go)
+  (global-set-key (kbd "M-t")     'dumb-jump-back)
+
+  (global-set-key (kbd "C-/")     'undo-tree-undo)
+  (global-set-key (kbd "C-?")     'undo-tree-redo)
+
+  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
+  (global-set-key (kbd "M-g f")   'avy-goto-line)
+  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
+
+  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
+  (global-set-key (kbd "C-M-;")   'magit-status)
+  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
+
+  ;; 语法跳转
+  (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
+  (global-set-key (kbd "C-8")     'lsp-bridge-jump)
+  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
+  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
+  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
+  (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
+  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
+  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
   ;; ### Fingertip ###
   ;; --- 结构化编程
@@ -2262,62 +2325,8 @@
           ))
   (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
 
-  (lazy-load-global-keys
-   '(
-     ("C-," . goto-last-change)           ;跳到最后编辑的地方
-     )
-   "goto-last-change")
-
-
-  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
-  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
-  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
-  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
-  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
-  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
-  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
-
-  (global-set-key (kbd "C-x C-f") 'ido-find-file)
-  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
-  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
-  (global-set-key (kbd "C-x I")   'ido-insert-file)
-
-  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
-  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
-  (global-set-key (kbd "M-]")     'watch-other-window-up)
-  (global-set-key (kbd "M-[")     'watch-other-window-down)
-  (global-set-key (kbd "M->")     'watch-other-window-up-line)
-  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
-
-  (global-set-key (kbd "C-x y")   'dash-at-point)
-  (global-set-key (kbd "M-]")     'dumb-jump-go)
-  (global-set-key (kbd "M-t")     'dumb-jump-back)
-
-  (global-set-key (kbd "C-/")     'undo-tree-undo)
-  (global-set-key (kbd "C-?")     'undo-tree-redo)
-
-  (global-set-key (kbd "C-c p f") 'projectile-find-file)
-  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
-  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
-
-  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
-  (global-set-key (kbd "M-g f")   'avy-goto-line)
-  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
-
-  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
-  (global-set-key (kbd "C-M-;")   'magit-status)
-  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
-
-  ;; 语法与跳转
-  (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
-  (global-set-key (kbd "C-8")     'lsp-bridge-jump)
-  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
-  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
-  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
-  (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
-  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
-  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+  ;; (global-set-key (kbd "C-c p f") 'projectile-find-file)
+  ;; (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
+  ;; (global-set-key (kbd "C-c p p") 'projectile-switch-project)
 
 #+END_SRC
