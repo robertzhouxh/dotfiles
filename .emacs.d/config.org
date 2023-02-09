@@ -3,6 +3,7 @@
 * Header
 #+PROPERTY: header-args :results silent
 * Custom Var
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
@@ -14,7 +15,9 @@
   (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
 
 #+END_SRC
+
 * Bootstrap
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; 加速
   (setq
@@ -725,6 +728,7 @@
 #+END_SRC
 
 * Company && Yasnippet
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package posframe)
   (use-package expand-region :bind ("C-=" . er/expand-region))
@@ -757,7 +761,9 @@
     :ensure t 
     :config (add-to-list 'company-backends #'company-tabnine))
 #+END_SRC
+
 * Lazycat Plugins
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;;(require 'visual-regexp)
   ;;(setq vr/match-separator-use-custom-face t)
@@ -986,7 +992,9 @@
                     (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
                       (return "deno")))))))))
 #+END_SRC
+
 * Dired
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package dired
   :ensure nil
@@ -1009,7 +1017,9 @@
          (dired-insert-set-properties (point-min) (point-max)))
     (set-buffer-modified-p nil)))
 #+END_SRC
+
 * Performance
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; -------------------------------------------------------------
 ;; Performance
@@ -1031,7 +1041,9 @@
   :config (keyfreq-mode 1) (keyfreq-autosave-mode 1))
 
 #+END_SRC
+
 * Magit
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package magit
     ;; :bind ("C-M-;" . magit-status)
@@ -1070,6 +1082,7 @@
     :config
     (global-git-gutter-mode +1))
 #+END_SRC
+
 * Evil-Mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1331,7 +1344,9 @@
 #+END_SRC
 
 * Org-Mode
+
 ** Org
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-log-done 'time
         org-hide-leading-stars t
@@ -1373,6 +1388,7 @@
 #+END_SRC
 
 ** Babel
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Babel
   (setq org-confirm-babel-evaluate nil
@@ -1403,6 +1419,7 @@
 #+END_SRC
 
 ** Plantuml
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package plantuml-mode
     :ensure t
@@ -1572,6 +1589,7 @@
 #+end_src
 
 * Programming
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;;---------------------------------------------------------
@@ -1844,7 +1862,9 @@
              ))))
 
 #+END_SRC
+
 * AutoInsert
+
   #+BEGIN_SRC emacs-lisp :tangle yes
     (load "autoinsert")
     (auto-insert-mode)
@@ -1894,7 +1914,9 @@
 		  auto-insert-alist))
 
 #+END_SRC
+
 * Tramp
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; -----------------------------------------------------------------------------------------------------
   ;; REFER: https://emacstalk.github.io/post/019/
@@ -1916,7 +1938,9 @@
     (setq tramp-default-method "ssh"))
 
 #+END_SRC
+
 * Font
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; stolen from https://github.com/cabins/.emacs.d/blob/dev/lisp/init-ui.el
@@ -1961,6 +1985,7 @@
 
 
 #+END_SRC
+
 * Rime
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2005,6 +2030,7 @@
 #+END_SRC
 
 * Platform
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (defun peng-use-mac-original-keyboard ()
@@ -2019,15 +2045,15 @@
 
   (when (x/system-is-mac)
     (setq mac-command-modifier 'meta
-	  mac-option-modifier 'none)
+          mac-option-modifier 'none)
 
     (defun copy-from-osx ()
       (shell-command-to-string "pbpaste"))
     (defun paste-to-osx (text &optional push)
       (let ((process-connection-type nil))
-	(let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-	  (process-send-string proc text)
-	  (process-send-eof proc))))
+        (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+          (process-send-string proc text)
+          (process-send-eof proc))))
     (setq interprogram-cut-function 'paste-to-osx)
     (setq interprogram-paste-function 'copy-from-osx)
 
@@ -2036,30 +2062,32 @@
       "Use `trash' to move FILE to the system trash.
       When using Homebrew, install it using \"brew install trash\"."
       (call-process (executable-find "trash")
-		    nil 0 nil
-		    file))
+                    nil 0 nil
+                    file))
     (setq trash-directory "~/.Trash/emacs")
     (setq delete-by-moving-to-trash t)
     (defun system-move-file-to-trash (file)
       "Use \"trash\" to move FILE to the system trash.
-	When using Homebrew, install it using \"brew install trash\"."
+        When using Homebrew, install it using \"brew install trash\"."
       (call-process (executable-find "trash")
-		    nil 0 nil
-		    file))
+                    nil 0 nil
+                    file))
     (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
   (when (x/system-is-linux)
     (defun yank-to-x-clipboard ()
       (interactive)
       (if (region-active-p)
-	  (progn
-	    (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-	    (message "Yanked region to clipboard!")
-	    (deactivate-mark))
-	(message "No region active; can't yank to clipboard!"))))
+          (progn
+            (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+            (message "Yanked region to clipboard!")
+            (deactivate-mark))
+        (message "No region active; can't yank to clipboard!"))))
 
 #+END_SRC
+
 * Key-Bindings
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; ### X-mode KeyBindings Setup ###
