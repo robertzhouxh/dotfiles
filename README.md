@@ -165,6 +165,12 @@ rm -rf ~/.emacs*
  
 ```
 
+ 手动安装 all-the-icons
+```
+M-x install-package all-the-icons
+M-x all-the-icons-install-fonts
+```
+
 
 ## Files
 

@@ -65,41 +65,15 @@
   (add-subdirs-to-load-path "~/.emacs.d/vendor/")
 
 #+END_SRC
+
 * Generic
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; startup
   (tool-bar-mode -1)                      ;禁用工具栏
   (menu-bar-mode -1)                      ;禁用菜单栏
   (scroll-bar-mode -1)                    ;禁用滚动条
-
-  ;(if (featurep 'cocoa)
-  ;    (progn
-  ;      ;; 在Mac平台, Emacs不能进入Mac原生的全屏模式,否则会导致 `make-frame' 创建时也集成原生全屏属性后造成白屏和左右滑动现象.
-  ;      ;; 所以先设置 `ns-use-native-fullscreen' 和 `ns-use-fullscreen-animation' 禁止Emacs使用Mac原生的全屏模式.
-  ;      ;; 而是采用传统的全屏模式, 传统的全屏模式, 只会在当前工作区全屏,而不是切换到Mac那种单独的全屏工作区,
-  ;      ;; 这样执行 `make-frame' 先关代码或插件时,就不会因为Mac单独工作区左右滑动产生的bug.
-  ;      ;;
-  ;      ;; Mac平台下,不能直接使用 `set-frame-parameter' 和 `fullboth' 来设置全屏,
-  ;      ;; 那样也会导致Mac窗口管理器直接把Emacs窗口扔到单独的工作区, 从而对 `make-frame' 产生同样的Bug.
-  ;      ;; 所以, 启动的时候通过 `set-frame-parameter' 和 `maximized' 先设置Emacs为最大化窗口状态, 启动5秒以后再设置成全屏状态,
-  ;      ;; Mac就不会移动Emacs窗口到单独的工作区, 最终解决Mac平台下原生全屏窗口导致 `make-frame' 左右滑动闪烁的问题.
-  ;      (setq ns-use-native-fullscreen nil)
-  ;      (setq ns-use-fullscreen-animation nil)
-
-  ;      ;; 默认先最大化。
-  ;      (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-
-  ;      (run-at-time "2sec" nil
-  ;                   (lambda ()
-  ;                     (toggle-frame-fullscreen)
-  ;                     ))
-  ;      )
-
-  ;  ;; 非Mac平台直接全屏
-  ;  (require 'fullscreen)
-  ;  (fullscreen))
-
 
   ;; 增加长行处理性能
   (setq bidi-inhibit-bpa t)
@@ -141,13 +115,13 @@
         (kill-buffer "*scratch*")))
   (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
 
-                                          ; Don't ask me when close emacs with process is running
+  ;; Don't ask me when close emacs with process is running
   ;;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
   ;;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
   ;;  (require 'noflet)
   ;;  (noflet ((process-list ())) ad-do-it))
 
-                                          ; Don't ask me when kill process buffer
+  ;; Don't ask me when kill process buffer
   (setq kill-buffer-query-functions
         (remq 'process-kill-buffer-query-function
               kill-buffer-query-functions))
@@ -250,49 +224,59 @@
   (modify-coding-system-alist 'process "*" 'utf-8)
 
 #+END_SRC
+
 * Const
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-    (defconst zxh-homepage
-      "https://github.com/robertzhouxh/dotfiles"
-      "The Github page of my Emacs.")
-
-    (defconst sys/linuxp
-      (eq system-type 'gnu/linux)
-      "Are we running on a GNU/Linux system?")
-
-    (defconst sys/macp
-      (eq system-type 'darwin)
-      "Are we running on a Mac system?")
-
-    (defconst sys/mac-x-p
-      (and (display-graphic-p) sys/macp)
-      "Are we running under X on a Mac system?")
-
-    (defconst sys/mac-cocoa-p
-      (featurep 'cocoa)
-      "Are we running with Cocoa on a Mac system?")
-
-    (defconst sys/mac-port-p
-      (eq window-system 'mac)
-      "Are we running a macport build on a Mac system?")
-
-    (defconst sys/linux-x-p
-      (and (display-graphic-p) sys/linuxp)
-      "Are we running under X on a GNU/Linux system?")
-
-  ;; Suppress warnings
-    (defvar socks-noproxy)
-    (defvar socks-server)
-    (defcustom http-proxy "127.0.0.1:8123"
-      "Set network proxy."
-      :group 'centaur
-      :type 'string)
+  (defconst zxh-homepage "https://github.com/robertzhouxh/dotfiles" "My Github Page")
+  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
+  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
+  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
+  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
+  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+  (defvar socks-noproxy)
+  (defvar socks-server)
+  (defcustom http-proxy "127.0.0.1:8123"
+    "Set network proxy."
+    :group 'centaur
+    :type 'string)
 
 #+END_SRC
+
 * Functions
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; https://emacs-china.org/t/org-mode/79
+
+  ;; --------------------------------------------
+  ;; 辅助函数
+  ;; --------------------------------------------
+  (defun x/system-is-mac () (interactive) (string-equal system-type "darwin"))
+
+  (defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
+
+  (defun org-export-docx ()
+    (interactive)
+    (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
+          (template-file "（expand-file-name "template.docx" user-emacs-directory)"))
+      (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
+      (message "Convert finish: %s" docx-file)))
+
+  (defun format-function-parameters ()
+    "Turn the list of function parameters into multiline."
+    (interactive)
+    (beginning-of-line)
+    (search-forward "(" (line-end-position))
+    (newline-and-indent)
+    (while (search-forward "," (line-end-position) t)
+      (newline-and-indent))
+    (end-of-line)
+    (c-hungry-delete-forward)
+    (insert " ")
+    (search-backward ")")
+    (newline-and-indent))
+
   (defun my-org-screenshot ()
     "Take a screenshot into a time stamped unique-named file in the
       same directory as the org-buffer and insert a link to this file."
@@ -320,101 +304,10 @@
         (insert (concat "[[file:" relative-dir "]]")))
     (org-display-inline-images))
 
-  (defun x/save-all ()
-    "Save all file-visiting buffers without prompting."
-    (interactive)
-    (save-some-buffers t))
 
-  (defun x/open-init-file ()
-    (interactive)
-    (find-file user-init-file))
-
-  (defun x/reload-init-file ()
-    "Reload init.el file."
-    (interactive)
-    (load user-init-file)
-    (message "Reloaded init.el OK."))
-
-  (defun x/system-is-mac ()
-    (interactive)
-    (string-equal system-type "darwin"))
-
-  (defun x/system-is-linux ()
-    (interactive)
-    (string-equal system-type "gnu/linux"))
-
-  (defun hold-line-scroll-up ()
-    "Scroll the page with the cursor in the same line"
-    (interactive)
-    ;; move the cursor also
-    (let ((tmp (current-column)))
-      (scroll-up 1)
-      (line-move-to-column tmp)
-      (forward-line 1)))
-
-  (defun hold-line-scroll-down ()
-    "Scroll the page with the cursor in the same line"
-    (interactive)
-    ;; move the cursor also
-    (let ((tmp (current-column)))
-      (scroll-down 1)
-      (line-move-to-column tmp)
-      (forward-line -1)))
-
-  (defun sudo ()
-    "Use TRAMP to `sudo' the current buffer"
-    (interactive)
-    (when buffer-file-name
-      (find-alternate-file
-       (concat "/sudo:root@localhost:"
-               buffer-file-name))))
-
-  (defun format-function-parameters ()
-    "Turn the list of function parameters into multiline."
-    (interactive)
-    (beginning-of-line)
-    (search-forward "(" (line-end-position))
-    (newline-and-indent)
-    (while (search-forward "," (line-end-position) t)
-      (newline-and-indent))
-    (end-of-line)
-    (c-hungry-delete-forward)
-    (insert " ")
-    (search-backward ")")
-    (newline-and-indent))
-
-  ;; Dos2Unix/Unix2Dos
-  (defun dos2unix ()
-    "Convert the current buffer to UNIX file format."
-    (interactive)
-    (set-buffer-file-coding-system 'undecided-unix nil))
-
-  (defun unix2dos ()
-    "Convert the current buffer to DOS file format."
-    (interactive)
-    (set-buffer-file-coding-system 'undecided-dos nil))
-
-  (defun delete-carrage-returns ()
-    "Delete `^M' characters in the buffer.
-        Same as `replace-string C-q C-m RET RET'."
-    (interactive)
-    (save-excursion
-      (goto-char 0)
-      (while (search-forward "\r" nil :noerror)
-        (replace-match ""))))
-
-  (defun save-buffer-as-utf8 (coding-system)
-    "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
-    (interactive "zCoding system for visited file (default nil):")
-    (revert-buffer-with-coding-system coding-system)
-    (set-buffer-file-coding-system 'utf-8)
-    (save-buffer))
-
-  (defun save-buffer-gbk-as-utf8 ()
-    "Revert a buffer with GBK and save as UTF-8."
-    (interactive)
-    (save-buffer-as-utf8 'gbk))
-
+  ;; --------------------------------------------
+  ;; proxy 操作辅助函数
+  ;; --------------------------------------------
   (defun proxy-http-show ()
     "Show HTTP/HTTPS proxy."
     (interactive)
@@ -482,34 +375,100 @@
         (proxy-socks-disable)
       (proxy-socks-enable)))
 
-  (defun org-export-docx ()
-    (interactive)
-    (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-          (template-file "（expand-file-name "template.docx" user-emacs-directory)"))
-      (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
-      (message "Convert finish: %s" docx-file)))
 
+  ;; --------------------------------------------
+  ;; FIle 操作与编码辅助函数
+  ;; --------------------------------------------
+  (defun x/save-all ()
+    "Save all file-visiting buffers without prompting."
+    (interactive)
+    (save-some-buffers t))
+
+  (defun x/open-init-file ()
+    (interactive)
+    (find-file user-init-file))
+
+  (defun x/reload-init-file ()
+    "Reload init.el file."
+    (interactive)
+    (load user-init-file)
+    (message "Reloaded init.el OK."))
+
+  (defun sudo ()
+    "Use TRAMP to `sudo' the current buffer"
+    (interactive)
+    (when buffer-file-name
+      (find-alternate-file
+       (concat "/sudo:root@localhost:"
+               buffer-file-name))))
+  (defun dos2unix ()
+    "Convert the current buffer to UNIX file format."
+    (interactive)
+    (set-buffer-file-coding-system 'undecided-unix nil))
+
+  (defun unix2dos ()
+    "Convert the current buffer to DOS file format."
+    (interactive)
+    (set-buffer-file-coding-system 'undecided-dos nil))
+
+  (defun delete-trailing-M()
+    "Delete `^M' characters in the buffer.
+        Same as `replace-string C-q C-m RET RET'."
+    (interactive)
+    (save-excursion
+      (goto-char 0)
+      (while (search-forward "\r" nil :noerror)
+        (replace-match ""))))
+
+  (defun save-buffer-as-utf8 (coding-system)
+    "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
+    (interactive "zCoding system for visited file (default nil):")
+    (revert-buffer-with-coding-system coding-system)
+    (set-buffer-file-coding-system 'utf-8)
+    (save-buffer))
+
+  (defun save-buffer-gbk-as-utf8 ()
+    "Revert a buffer with GBK and save as UTF-8."
+    (interactive)
+
+    (save-buffer-as-utf8 'gbk))
+
+
+  ;; --------------------------------------------
+  ;; buffer 操作辅助函数
+  ;; --------------------------------------------
   (defun switch-to-messages ()
     "Select buffer *message* in the current window."
     (interactive)
     (switch-to-buffer "*Messages*"))
 
-  ;; -------------------------------------------------------------
-  ;; functions for company from lazycat
-  ;; -------------------------------------------------------------
-  (defun company-yasnippet-or-completion ()
+  (defun switch-to-dashboard ()
+    "Select buffer *message* in the current window."
     (interactive)
-    (or (do-yas-expand)
-        (company-complete-common)))
+    (switch-to-buffer "*Dashboard*"))
 
-  (defun check-expansion ()
-    (save-excursion
-      (if (looking-at "\\_>") t
-        (backward-char 1)
-        (if (looking-at "\\.") t
-          (backward-char 1)
-          (if (looking-at "::") t nil)))))
+  (defun hold-line-scroll-up ()
+    "Scroll the page with the cursor in the same line"
+    (interactive)
+    ;; move the cursor also
+    (let ((tmp (current-column)))
+      (scroll-up 1)
+      (line-move-to-column tmp)
+      (forward-line 1)))
 
+  (defun hold-line-scroll-down ()
+    "Scroll the page with the cursor in the same line"
+    (interactive)
+    ;; move the cursor also
+    (let ((tmp (current-column)))
+      (scroll-down 1)
+      (line-move-to-column tmp)
+      (forward-line -1)))
+
+
+  ;; -------------------------------------------
+  ;; Company 辅助函数
+  ;; -------------------------------------------
   (defun do-yas-expand ()
     (let ((yas/fallback-behavior 'return-nil))
       (yas/expand)))
@@ -524,6 +483,10 @@
               (company-complete-common)
             (indent-for-tab-command)))))
 
+
+  ;; --------------------------------------------
+  ;; 文件操作辅助函数
+  ;; --------------------------------------------
   (defun +rename-current-file (newname)
     "Rename current visiting file to NEWNAME.
   If NEWNAME is a directory, move file to it."
@@ -552,7 +515,6 @@
       (kill-this-buffer)
       (delete-file file)))
 
-    ;;;###autoload
   (defun +copy-current-file (new-path &optional overwrite-p)
     "Copy current buffer's file to `NEW-PATH'.
     If `OVERWRITE-P', overwrite the destination file without
@@ -568,7 +530,6 @@
       (make-directory (file-name-directory new-path) t)
       (copy-file old-path new-path (or overwrite-p 1))))
 
-    ;;;###autoload
   (defun +copy-current-filename (file)
     "Copy the full path to the current FILE."
     (interactive
@@ -577,7 +538,6 @@
     (kill-new file)
     (message "Copying '%s' to clipboard" file))
 
-    ;;;###autoload
   (defun +copy-current-buffer-name ()
     "Copy the name of current buffer."
     (interactive)
@@ -585,7 +545,9 @@
     (message "Copying '%s' to clipboard" (buffer-name)))
 
 #+END_SRC
+
 * Fundamental Plugins
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package use-package-ensure-system-package :ensure t)
 
@@ -598,25 +560,23 @@
     (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize))
 
+  (use-package protobuf-mode)
+  (use-package markdown-mode)
+  (use-package dockerfile-mode)
+  (use-package nginx-mode)
+  (use-package json-mode)
   (use-package json-reformat)
   (use-package comment-dwim-2)
   (use-package buffer-flip)
-  (use-package markdown-mode)
-  (use-package dockerfile-mode)
-  (use-package json-mode)
-  (use-package protobuf-mode)
-  (use-package swiper)
-  (use-package nginx-mode)
   (use-package async :init (async-bytecomp-package-mode 1))
   (use-package projectile :diminish :config (projectile-global-mode))
   (use-package flycheck :diminish :config (global-flycheck-mode 1))
   (use-package restclient :config (setq restclient-inhibit-cookies t))
-  (use-package key-chord :config (progn (key-chord-mode 1)))
   (use-package all-the-icons :if (display-graphic-p))
-  (use-package so-long
-    :ensure nil ;; emacs27+ new feature
-    :hook (after-init . global-so-long-mode))
-
+  (use-package autorevert :ensure nil :diminish :hook (after-init . global-auto-revert-mode))
+  (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
+  (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
+  (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
   (use-package which-key
     :diminish which-key-mode
@@ -626,32 +586,46 @@
       (which-key-mode)
       (which-key-setup-side-window-right)))
 
-  (use-package rainbow-delimiters
-    :ensure t
-    :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-
-  (use-package volatile-highlights
-    :ensure t
+  (use-package dashboard
     :diminish
-    :hook
-    (after-init . volatile-highlights-mode)
-    :custom-face
-    (vhl/default-face ((nil (:foreground "#FF3333" :background "#FFCDCD")))))
+    :init
+    (setq dashboard-startup-banner "~/.emacs.d/logo.png")
+    (setq dashboard-navigator-buttons `(((,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "mark-github"      :height 1.0 :v-adjust  0.0) "★")
+                                          "GitHub" "Browse" (lambda (&rest _) (browse-url homepage-url)))
+                                         (,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "heart"            :height 1.1 :v-adjust  0.0) "♥")
+                                          "Stars" "Show stars" (lambda (&rest _) (browse-url stars-url)))
+                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "report_problem" :height 1.1 :v-adjust -0.2) "⚑")
+                                          "Issue" "Report issue" (lambda (&rest _) (browse-url issue-url)) warning)
+                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "update"         :height 1.1 :v-adjust -0.2) "♺")
+                                          "Update" "Update packages synchronously" (lambda (&rest _) (package-update-all nil)) success))))
 
+    :config
+    (dashboard-setup-startup-hook)
+    (when (< (length command-line-args) 2) (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+    (defconst homepage-url "https://github.com/robertzhouxh/dotfiles")
+    (defconst stars-url (concat homepage-url "/stargazers"))
+    (defconst issue-url (concat homepage-url "/issues/new"))
+    :custom
+    (dashboard-startup-banner 'logo)
+    (dashboard-set-heading-icons t)
+    (dashboard-set-file-icons t)
+    (dashboard-set-init-info t)
+    (dashboard-set-navigator t)
+    (dashboard-banner-logo-title "Welcome to ZXH-Emacs Dashboard")
+    (dashboard-items '((recents   . 10)
+                       (projects  . 5)
+                       (bookmarks . 5))))
+
+  ;; 其他原生接口的前端 
   (use-package ivy
     :diminish ivy-mode
-    :ensure t
-    :preface (eval-when-compile (declare-function ivy-mode nil))
-    :init (setq ivy-use-virtual-buffers t)
+    :init (setq ivy-use-virtual-buffers t
+                ivy-count-format "%d/%d ")
     :config (ivy-mode t))
-
-  (use-package counsel
-    :after ivy
-    :diminish counsel-mode
-    :init
-    (add-to-list 'ivy-ignore-buffers "^#")
-    (add-to-list 'ivy-ignore-buffers "^\\*irc\\-")
-    )
+  ;; 取代原生的一些常用指令
+  (use-package counsel :diminish counsel-mode :after ivy :config (counsel-mode))
+  ;; 取代原生的 I-search
+  (use-package swiper :after ivy)
   (use-package counsel-projectile
     :after (counsel projectile)
     :diminish counsel-projectile-mode
@@ -665,24 +639,12 @@
      counsel-projectile-switch-to-buffer)
     :config
     (counsel-projectile-mode t))
-
-  ;; Automatically reload files was modified by external program
-  (use-package autorevert
-    :ensure nil
-    :diminish
-    :hook (after-init . global-auto-revert-mode))
-
 #+END_SRC
+
 * Quick Search And Move
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package avy)
-
-  ;; (use-package undo-tree
-  ;;   :diminish undo-tree-mode
-  ;;   :config
-  ;;   (global-undo-tree-mode)
-  ;;   (setq undo-tree-auto-save-history t
-  ;;         undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   (use-package vundo
     :defer t
     :commands (vundo)
@@ -761,17 +723,15 @@
     (hs-set-up-overlay #'hideshow-folded-overlay-fn))
 
 #+END_SRC
+
 * Company && Yasnippet
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package posframe :ensure t)
+  (use-package posframe)
   (use-package expand-region :bind ("C-=" . er/expand-region))
   (use-package company-restclient)
-  (use-package company-nginx
-    :after (nginx-mode)
-    :hook((nginx-mode . company-nginx-keywords)))
+  (use-package company-nginx :after (nginx-mode) :hook((nginx-mode . company-nginx-keywords)))
 
   (use-package yasnippet
-    :ensure
     :config
     (yas-reload-all)
     (add-hook 'prog-mode-hook 'yas-minor-mode)
@@ -782,7 +742,6 @@
   ;;(use-package auto-yasnippet :config (setq aya-persist-snippets-dir (concat user-emacs-directory "my/snippets")))
 
   (use-package company
-    :ensure t
     :diminish
     :bind
     (:map company-mode-map
@@ -829,8 +788,17 @@
           (youdao-dictionary-search-at-point-posframe)
         (youdao-dictionary-search-at-point))))
 
+  (require 'lazycat-theme)
+  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+  (lazycat-theme-load-dark)
+  ;;(lazycat-theme-load-with-sunrise)
+
+  (require 'awesome-tray)
+  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  (awesome-tray-mode 1)
+
+  ;; ----------------------------------------------------------
   ;; auto mode
-  ;; -----------------------------------------------------------------------------------------------
   (defun add-to-alist (alist-var elt-cons &optional no-replace)
     "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
         If an element with the same car as the car of ELT-CONS is already present,
@@ -917,7 +885,7 @@
     (add-to-alist 'auto-mode-alist elt-cons))
 
 
-  ;; -----------------------------------------------------------------------------------------------
+  ;;---------------------------------------------------------
   ;; Line numbers are not displayed when large files are used.
   (setq line-number-display-limit large-file-warning-threshold)
   (setq line-number-display-limit-width 1000)
@@ -967,7 +935,7 @@
                  ))
     (add-hook hook (lambda () (display-line-numbers-mode))))
 
-  ;; -----------------------------------------------------------------------------------------------
+  ;;----------------------------------------------------------
   ;; https://github.com/manateelazycat/lazycat-emacs/blob/master/site-lisp/config/init-lsp-bridge.el
   ;;; Require
   (require 'lsp-bridge)
@@ -1041,77 +1009,6 @@
          (dired-insert-set-properties (point-min) (point-max)))
     (set-buffer-modified-p nil)))
 #+END_SRC
-* UI
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package highlight-parentheses
-    :ensure t
-    :init
-    (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")) 
-    :config
-    (global-highlight-parentheses-mode t))
-
-  (require 'lazycat-theme)
-  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-  (lazycat-theme-load-dark)
-  ;;(lazycat-theme-load-with-sunrise)
-
-  (use-package awesome-tray
-    :load-path "~/.emacs.d/vendor/awesome-tray"
-    :init
-    (require 'awesome-tray)
-    (defface awesome-tray-module-rime-face
-      '((((background light))
-         :foreground "#008080" :bold t)
-        (t
-         :foreground "#00ced1" :bold t))
-      "Rime ㄓ state face."
-      :group 'awesome-tray)
-    (defvar awesome-tray-rime-status-last-time 0)
-    (defvar awesome-tray-rime-status-cache "")
-    (defun awesome-tray-module-rime-info () (rime-lighter))
-    (add-to-list 'awesome-tray-module-alist
-                 '("rime" . (awesome-tray-module-rime-info awesome-tray-module-rime-face)))
-
-    (awesome-tray-mode 1)
-    :custom
-    ;;(awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-    ;;(awesome-tray-active-modules '("awesome-tab" "mode-name" "file-path" "buffer-name" "git" "rime" "location" "battery" "date"))
-    (awesome-tray-active-modules '("location" "git" "file-path" "mode-name" "last-command" "battery" "date"))
-    :config
-    (add-hook 'circadian-after-load-theme-hook
-              #'(lambda (_)
-                  (awesome-tray-mode 1))))
-
-  (use-package dashboard
-    :diminish
-    :init
-    (setq dashboard-startup-banner "~/.emacs.d/logo.png")
-    (setq dashboard-navigator-buttons `(((,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "mark-github"      :height 1.0 :v-adjust  0.0) "★")
-                                          "GitHub" "Browse" (lambda (&rest _) (browse-url homepage-url)))
-                                         (,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "heart"            :height 1.1 :v-adjust  0.0) "♥")
-                                          "Stars" "Show stars" (lambda (&rest _) (browse-url stars-url)))
-                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "report_problem" :height 1.1 :v-adjust -0.2) "⚑")
-                                          "Issue" "Report issue" (lambda (&rest _) (browse-url issue-url)) warning)
-                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "update"         :height 1.1 :v-adjust -0.2) "♺")
-                                          "Update" "Update packages synchronously" (lambda (&rest _) (package-update-all nil)) success))))
-
-    :config
-    (dashboard-setup-startup-hook)
-    (when (< (length command-line-args) 2) (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-    (defconst homepage-url "https://github.com/robertzhouxh/dotfiles")
-    (defconst stars-url (concat homepage-url "/stargazers"))
-    (defconst issue-url (concat homepage-url "/issues/new"))
-    :custom
-    (dashboard-startup-banner 'logo)
-    (dashboard-set-heading-icons t)
-    (dashboard-set-file-icons t)
-    (dashboard-set-init-info t)
-    (dashboard-set-navigator t)
-    (dashboard-banner-logo-title "Welcome to ZXH-Emacs Dashboard")
-    (dashboard-items '((recents   . 10)
-                       (projects  . 5)
-                       (bookmarks . 5))))
-#+END_SRC
 * Performance
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; -------------------------------------------------------------
@@ -1159,21 +1056,6 @@
 
   (setq magit-display-buffer-function #'my/magit-display-buffer)
 
-  (use-package git-messenger
-    ;; :bind ("C-x G" . git-messenger:popup-message)
-    :config (setq git-messenger:show-detail t git-messenger:use-magit-popup t))
-  (use-package blamer
-    :ensure t
-    :defer 20
-    :custom
-    (blamer-idle-time 0.3)
-    (blamer-min-offset 70)
-    :custom-face
-    (blamer-face ((t :foreground "#7a88cf"
-		     :background nil
-		     :height 140
-		     :italic t))))
-
   (use-package git-gutter
     :diminish
     :ensure t
@@ -1191,22 +1073,20 @@
 * Evil-Mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (defun x/config-evil-leader ()
     (evil-leader/set-leader ",")
     (evil-leader/set-key
       ","  'avy-goto-char-2
       ":"  'eval-expression
 
-      "/"  'counsel-rg
-
       "A"  'align-regexp
 
       ;; buffer & bookmark
       "bb" 'switch-to-buffer
-      "bB" 'switch-to-buffer-other-window
-      "by" '+copy-current-buffer-name
+      "bo" 'switch-to-buffer-other-window
+      "bn" '+copy-current-buffer-name
       "bv" 'revert-buffer
-      "bx" 'scratch-buffer
       "bz" 'bury-buffer
       "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
 
@@ -1224,6 +1104,7 @@
 
       ;; code
       "cd" 'delete-trailing-whitespace
+      "cm" 'delete-trailing-M
       "cc" 'comment-dwim
       "cl" 'toggle-truncate-lines
 
@@ -1266,9 +1147,6 @@
       "gt" 'magit-blame-toggle
       "G"  'aborn/simple-git-commit-push
 
-      ;; Delete ^M
-      "mc"  'delete-carrage-returns
-
       ;; project && proxy
       "pf" 'counsel-projectile-find-file
       "pp" 'counsel-projectile-switch-project
@@ -1278,21 +1156,19 @@
       "ph" 'proxy-http-toggle
 
       ;; search
+      "sI" 'imenu
+      "s/" 'counsel-rg
       "sj" 'evil-show-jumps
       "sm" 'evil-show-marks
       "sr" 'evil-show-registers
-      "sI" 'imenu
       "si" 'color-rg-search-input
       "ss" 'color-rg-search-symbol-in-project
       "sp" 'color-rg-search-project
       "sl" 'counsel-projectile-rg
-      "sk" 'kill-ring-search         ;kill ring 搜索
 
       ;; window && frame
+      "ww" 'other-window
       "wf" 'other-frame
-      "wo" 'other-window
-      "wd" 'kill-buffer-and-window
-      "wD" 'delete-other-windows
 
       ;; fold
       "zA" 'evil-close-folds
@@ -1390,7 +1266,6 @@
     )
 
   (use-package evil
-    :ensure t
     :init
     (progn
       (setq evil-disable-insert-state-bindings t)
@@ -1409,10 +1284,6 @@
     :hook (after-init . evil-mode)
     :config
     (progn
-      (use-package evil-visualstar
-        :bind (:map evil-visual-state-map
-                    ("*" . evil-visualstar/begin-search-forward)
-                    ("#" . evil-visualstar/begin-search-backward)))
       (use-package evil-leader
         :init
         (progn
@@ -1458,6 +1329,7 @@
     (evil-set-initial-state (car p) (cdr p)))
 
 #+END_SRC
+
 * Org-Mode
 ** Org
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1525,8 +1397,11 @@
 
   (use-package ob-go :init (cl-pushnew '(go . t) load-language-alist))
   (use-package ob-rust :init (cl-pushnew '(rust . t) load-language-alist))
+
   (org-babel-do-load-languages 'org-babel-load-languages load-language-alist)
+
 #+END_SRC
+
 ** Plantuml
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package plantuml-mode
@@ -1556,6 +1431,7 @@
   (add-hook 'org-babel-after-execute-hook (lambda () (when org-inline-image-overlays (org-redisplay-inline-images))))
 
 #+END_SRC
+
 ** OrgToLatex
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1656,7 +1532,9 @@
                         ("\\.jpg\\'" . "kde-open %s")))
 
 #+END_SRC
+
 ** Latex
+
 #+begin_src emacs-lisp :tangle yes
   (use-package cdlatex
     :defer t
@@ -1692,6 +1570,7 @@
               (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
 
 #+end_src
+
 * Programming
 #+BEGIN_SRC emacs-lisp :tangle yes
 
@@ -2228,6 +2107,7 @@
     (define-key my-window-map (kbd "b") 'split-window-below)
     (define-key my-window-map (kbd "d") 'delete-window)
     (define-key my-window-map (kbd "D") 'delete-other-windows)
+    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
     (define-key my-window-map (kbd "o") 'toggle-one-window))
 
   (set-control-w-shortcuts)
