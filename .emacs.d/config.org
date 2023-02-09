@@ -2262,7 +2262,7 @@
   (require 'lazy-load)
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
-   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
    ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
   (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
