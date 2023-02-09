@@ -55,3 +55,6 @@
 [submodule ".emacs.d/vendor/emacs-rime"]
 	path = .emacs.d/vendor/emacs-rime
 	url = https://github.com/DogLooksGood/emacs-rime.git
+[submodule ".emacs.d/vendor/fingertip"]
+	path = .emacs.d/vendor/fingertip
+	url = https://github.com/manateelazycat/fingertip
