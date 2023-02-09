@@ -22,9 +22,6 @@
 [submodule ".emacs.d/vendor/thing-edit"]
 	path = .emacs.d/vendor/thing-edit
 	url = https://github.com/manateelazycat/thing-edit
-[submodule ".emacs.d/vendor/snails"]
-	path = .emacs.d/vendor/snails
-	url = https://github.com/manateelazycat/snails
 [submodule ".emacs.d/vendor/C4-PlantUML"]
 	path = .emacs.d/vendor/C4-PlantUML
 	url = https://github.com/plantuml-stdlib/C4-PlantUML

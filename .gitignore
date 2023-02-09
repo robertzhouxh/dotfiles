@@ -51,6 +51,7 @@ GTAGS
 GRTAGS
 get-pip.py
 .savehist
+.emacs.d/.emacs*
 .emacs.d/smex-items
 .emacs.d/custom.el
 *.~undo-tree~

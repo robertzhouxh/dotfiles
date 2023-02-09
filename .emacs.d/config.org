@@ -608,36 +608,6 @@
       (which-key-mode)
       (which-key-setup-side-window-right)))
 
-  (use-package dashboard
-    :diminish
-    :init
-    (setq dashboard-startup-banner "~/.emacs.d/logo.png")
-    (setq dashboard-navigator-buttons `(((,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "mark-github"      :height 1.0 :v-adjust  0.0) "★")
-                                          "GitHub" "Browse" (lambda (&rest _) (browse-url homepage-url)))
-                                         (,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "heart"            :height 1.1 :v-adjust  0.0) "♥")
-                                          "Stars" "Show stars" (lambda (&rest _) (browse-url stars-url)))
-                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "report_problem" :height 1.1 :v-adjust -0.2) "⚑")
-                                          "Issue" "Report issue" (lambda (&rest _) (browse-url issue-url)) warning)
-                                         (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "update"         :height 1.1 :v-adjust -0.2) "♺")
-                                          "Update" "Update packages synchronously" (lambda (&rest _) (package-update-all nil)) success))))
-
-    :config
-    (dashboard-setup-startup-hook)
-    (when (< (length command-line-args) 2) (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-    (defconst homepage-url "https://github.com/robertzhouxh/dotfiles")
-    (defconst stars-url (concat homepage-url "/stargazers"))
-    (defconst issue-url (concat homepage-url "/issues/new"))
-    :custom
-    (dashboard-startup-banner 'logo)
-    (dashboard-set-heading-icons t)
-    (dashboard-set-file-icons t)
-    (dashboard-set-init-info t)
-    (dashboard-set-navigator t)
-    (dashboard-banner-logo-title "Welcome to ZXH-Emacs Dashboard")
-    (dashboard-items '((recents   . 10)
-                       (projects  . 5)
-                       (bookmarks . 5))))
-
   ;; 其他原生接口的前端 
   (use-package ivy
     :diminish ivy-mode
@@ -661,6 +631,37 @@
      counsel-projectile-switch-to-buffer)
     :config
     (counsel-projectile-mode t))
+
+  ;; (use-package dashboard
+  ;;   :diminish
+  ;;   :init
+  ;;   (setq dashboard-startup-banner "~/.emacs.d/logo.png")
+  ;;   (setq dashboard-navigator-buttons `(((,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "mark-github"      :height 1.0 :v-adjust  0.0) "★")
+  ;;                                         "GitHub" "Browse" (lambda (&rest _) (browse-url homepage-url)))
+  ;;                                        (,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "heart"            :height 1.1 :v-adjust  0.0) "♥")
+  ;;                                         "Stars" "Show stars" (lambda (&rest _) (browse-url stars-url)))
+  ;;                                        (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "report_problem" :height 1.1 :v-adjust -0.2) "⚑")
+  ;;                                         "Issue" "Report issue" (lambda (&rest _) (browse-url issue-url)) warning)
+  ;;                                        (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "update"         :height 1.1 :v-adjust -0.2) "♺")
+  ;;                                         "Update" "Update packages synchronously" (lambda (&rest _) (package-update-all nil)) success))))
+
+  ;;   :config
+  ;;   (dashboard-setup-startup-hook)
+  ;;   (when (< (length command-line-args) 2) (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+  ;;   (defconst homepage-url "https://github.com/robertzhouxh/dotfiles")
+  ;;   (defconst stars-url (concat homepage-url "/stargazers"))
+  ;;   (defconst issue-url (concat homepage-url "/issues/new"))
+  ;;   :custom
+  ;;   (dashboard-startup-banner 'logo)
+  ;;   (dashboard-set-heading-icons t)
+  ;;   (dashboard-set-file-icons t)
+  ;;   (dashboard-set-init-info t)
+  ;;   (dashboard-set-navigator t)
+  ;;   (dashboard-banner-logo-title "Welcome to ZXH-Emacs Dashboard")
+  ;;   (dashboard-items '((recents   . 10)
+  ;;                      (projects  . 5)
+  ;;                      (bookmarks . 5))))
+
 #+END_SRC
 
 * Quick Search And Move
@@ -793,273 +794,6 @@
           (youdao-dictionary-search-at-point-posframe)
         (youdao-dictionary-search-at-point))))
 
-#+END_SRC
-
-* Lazycat Plugins
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;;(require 'visual-regexp)
-  ;;(setq vr/match-separator-use-custom-face t)
-  ;;(setq vr/match-separator-string "⇛")
-  (require 'goto-chg)
-  (require 'watch-other-window)
-  (require 'thing-edit)
-  (require 'color-rg)
-
-  (require 'sort-tab)
-  (sort-tab-mode 1)
-
-  (require 'auto-save)
-  (auto-save-enable)
-  (setq auto-save-silent t)
-  (setq auto-save-delete-trailing-whitespace nil)
-
-  (require 'lazycat-theme)
-  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-  (lazycat-theme-load-dark)
-  ;;(lazycat-theme-load-with-sunrise)
-
-  (require 'awesome-tray)
-  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-  (awesome-tray-mode 1)
-
-  ;; ----------------------------------------------------------
-  ;; auto mode
-  (defun add-to-alist (alist-var elt-cons &optional no-replace)
-    "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
-          If an element with the same car as the car of ELT-CONS is already present,
-          replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
-          element is not already present, add ELT-CONS to the front of the alist.
-          The test for presence of the car of ELT-CONS is done with `equal'."
-    (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
-      (if existing-element
-          (or no-replace
-              (rplacd existing-element (cdr elt-cons)))
-        (set alist-var (cons elt-cons (symbol-value alist-var)))))
-    (symbol-value alist-var))
-
-  (dolist (elt-cons '(
-                      ("\\.markdown" . markdown-mode)
-                      ("\\.md" . markdown-mode)
-                      ("\\.stumpwmrc\\'" . lisp-mode)
-                      ("\\.[hg]s\\'" . haskell-mode)
-                      ("\\.hi\\'" . haskell-mode)
-                      ("\\.hs-boot\\'" . haskell-mode)
-                      ("\\.chs\\'" . haskell-mode)
-                      ("\\.l[hg]s\\'" . literate-haskell-mode)
-                      ("\\.inc\\'" . asm-mode)
-                      ("\\.max\\'" . maxima-mode)
-                      ("\\.org\\'" . org-mode)
-                      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
-                      ("cron\\(tab\\)?\\." . crontab-mode)
-                      ("\\.py$" . python-mode)
-                      ("SConstruct". python-mode)
-                      ("\\.jl\\'" . lisp-mode)
-                      ("\\.asdf\\'" . lisp-mode)
-                      ("CMakeLists\\.txt\\'" . cmake-mode)
-                      ("\\.cmake\\'" . cmake-mode)
-                      ("\\.php\\'" . php-mode)
-                      ("\\.vue" . web-mode)
-                      ("\\.wxml" . web-mode)
-                      ("\\.phtml\\'" . web-mode)
-                      ("\\.tpl\\.php\\'" . web-mode)
-                      ("\\.as[cp]x\\'" . web-mode)
-                      ("\\.erb\\'" . web-mode)
-                      ("\\.mustache\\'" . web-mode)
-                      ("\\.djhtml\\'" . web-mode)
-                      ("\\.html?\\'" . web-mode)
-                      ("\\.js.erb\\'" . js-mode)
-                      ("\\.css\\'" . css-mode)
-                      ("\\.wxss\\'" . css-mode)
-                      ("\\.jade" . jade-mode)
-                      ("\\.go$" . go-mode)
-                      ("\\.rs$" . rust-mode)
-                      ("\\.pro$" . qmake-mode)
-                      ("\\.js$" . js-mode)
-                      ("\\.wxs$" . js-mode)
-                      ("\\.jsx$" . web-mode)
-                      ("\\.lua$" . lua-mode)
-                      ("\\.y$" . bison-mode)
-                      ("\\.pdf$" . pdf-view-mode)
-                      ("\\.ts$" . typescript-mode)
-                      ("\\.tsx$" . typescript-mode)
-                      ("\\.cpp$" . c++-mode)
-                      ("\\.h$" . c++-mode)
-                      ("\\.ll$" . llvm-mode)
-                      ("\\.bc$" . hexl-mode)
-                      ("\\.nim$" . nim-mode)
-                      ("\\.nims$" . nim-mode)
-                      ("\\.nimble$" . nim-mode)
-                      ("\\.nim.cfg$" . nim-mode)
-                      ("\\.exs$" . elixir-mode)
-                      ("\\.erl$" . erlang-mode)
-                      ("\\.schema$" . erlang-mode)
-                      ("rebar\\.config$" . erlang-mode)
-                      ("relx\\.config$" . erlang-mode)
-                      ("sys\\.config\\.src$" . erlang-mode)
-                      ("sys\\.config$" . erlang-mode)
-                      ("\\.config\\.src?$" . erlang-mode)
-                      ("\\.config\\.script?$" . erlang-mode)
-                      ("\\.hrl?$" . erlang-mode)
-                      ("\\.app?$" . erlang-mode)
-                      ("\\.app.src?$" . erlang-mode)
-                      ("\\Emakefile" . erlang-mode)
-                      ("\\.json$" . json-mode)
-                      ("\\.clj$" . clojure-mode)
-                      ("\\.plantuml$" . plantuml-mode)
-                      ))
-    (add-to-alist 'auto-mode-alist elt-cons))
-
-
-  ;;---------------------------------------------------------
-  ;; Line numbers are not displayed when large files are used.
-  (setq line-number-display-limit large-file-warning-threshold)
-  (setq line-number-display-limit-width 1000)
-
-  (dolist (hook (list
-                 'c-mode-common-hook
-                 'c-mode-hook
-                 'emacs-lisp-mode-hook
-                 'lisp-interaction-mode-hook
-                 'lisp-mode-hook
-                 'java-mode-hook
-                 'asm-mode-hook
-                 'haskell-mode-hook
-                 'rcirc-mode-hook
-                 'erc-mode-hook
-                 'sh-mode-hook
-                 'makefile-gmake-mode-hook
-                 'python-mode-hook
-                 'js-mode-hook
-                 'html-mode-hook
-                 'css-mode-hook
-                 'tuareg-mode-hook
-                 'go-mode-hook
-                 'qml-mode-hook
-                 'markdown-mode-hook
-                 'slime-repl-mode-hook
-                 'package-menu-mode-hook
-                 'cmake-mode-hook
-                 'php-mode-hook
-                 'web-mode-hook
-                 'sws-mode-hook
-                 'jade-mode-hook
-                 'vala-mode-hook
-                 'rust-mode-hook
-                 'ruby-mode-hook
-                 'qmake-mode-hook
-                 'lua-mode-hook
-                 'swift-mode-hook
-                 'llvm-mode-hook
-                 'conf-toml-mode-hook
-                 'nxml-mode-hook
-                 'nim-mode-hook
-                 'typescript-mode-hook
-                 'elixir-mode-hook
-                 'erlang-mode-hook
-                 'clojure-mode-hook
-                 ))
-    (add-hook hook (lambda () (display-line-numbers-mode))))
-
-  ;;----------------------------------------------------------
-  ;; fingertip
-  (require 'fingertip)
-  (dolist (hook (list
-                 'c-mode-common-hook
-                 'c-mode-hook
-                 'c++-mode-hook
-                 'java-mode-hook
-                 'haskell-mode-hook
-                 'emacs-lisp-mode-hook
-                 'lisp-interaction-mode-hook
-                 'lisp-mode-hook
-                 'maxima-mode-hook
-                 'ielm-mode-hook
-                 'sh-mode-hook
-                 'makefile-gmake-mode-hook
-                 'php-mode-hook
-                 'python-mode-hook
-                 'js-mode-hook
-                 'go-mode-hook
-                 'qml-mode-hook
-                 'jade-mode-hook
-                 'css-mode-hook
-                 'ruby-mode-hook
-                 'coffee-mode-hook
-                 'rust-mode-hook
-                 'qmake-mode-hook
-                 'lua-mode-hook
-                 'swift-mode-hook
-                 'web-mode-hook
-                 'markdown-mode-hook
-                 'llvm-mode-hook
-                 'conf-toml-mode-hook
-                 'nim-mode-hook
-                 'typescript-mode-hook
-
-                 'c-ts-mode-hook
-                 'c++-ts-mode-hook
-                 'cmake-ts-mode-hook
-                 'toml-ts-mode-hook
-                 'css-ts-mode-hook
-                 'js-ts-mode-hook
-                 'json-ts-mode-hook
-                 'python-ts-mode-hook
-                 'bash-ts-mode-hook
-                 'typescript-ts-mode-hook
-                 ))
-    (add-hook hook #'(lambda () (fingertip-mode 1))))
-
-
-  ;;----------------------------------------------------------
-  ;; https://github.com/manateelazycat/lazycat-emacs
-  (require 'lsp-bridge)
-  (require 'lsp-bridge-jdtls)
-
-    ;;; Code:
-
-  (setq acm-enable-quick-access t)
-  (setq acm-backend-yas-match-by-trigger-keyword t)
-
-  (global-lsp-bridge-mode)
-
-  ;; 打开日志，开发者才需要
-  ;; (setq lsp-bridge-enable-log t)
-
-  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
-  (defun lsp-bridge-jump ()
-    (interactive)
-    (cond
-     ((eq major-mode 'emacs-lisp-mode)
-      (let ((symb (function-called-at-point)))
-        (when symb
-          (find-function symb))))
-     (lsp-bridge-mode
-      (lsp-bridge-find-def))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-go))))
-
-  (defun lsp-bridge-jump-back ()
-    (interactive)
-    (cond
-     (lsp-bridge-mode
-      (lsp-bridge-find-def-return))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-back))))
-
-  (setq lsp-bridge-get-single-lang-server-by-project
-        (lambda (project-path filepath)
-          ;; If typescript file include deno.land url, then use Deno LSP server.
-          (save-excursion
-            (when (string-equal (file-name-extension filepath) "ts")
-              (dolist (buf (buffer-list))
-                (when (string-equal (buffer-file-name buf) filepath)
-                  (with-current-buffer buf
-                    (goto-char (point-min))
-                    (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
-                      (return "deno")))))))))
 #+END_SRC
 
 * Dired
@@ -2157,6 +1891,308 @@
 
 #+END_SRC
 
+* Lazycat Plugins
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;;(require 'visual-regexp)
+  ;;(setq vr/match-separator-use-custom-face t)
+  ;;(setq vr/match-separator-string "⇛")
+  (require 'goto-chg)
+  (require 'watch-other-window)
+  (require 'thing-edit)
+  (require 'color-rg)
+
+  (require 'sort-tab)
+  (sort-tab-mode 1)
+
+  (require 'auto-save)
+  (auto-save-enable)
+  (setq auto-save-silent t)
+  (setq auto-save-delete-trailing-whitespace nil)
+
+  (require 'lazycat-theme)
+  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+  (lazycat-theme-load-dark)
+  ;;(lazycat-theme-load-with-sunrise)
+
+  (require 'awesome-tray)
+  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  (awesome-tray-mode 1)
+
+  ;; ----------------------------------------------------------
+  ;; auto mode
+  (defun add-to-alist (alist-var elt-cons &optional no-replace)
+    "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
+                If an element with the same car as the car of ELT-CONS is already present,
+                replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
+                element is not already present, add ELT-CONS to the front of the alist.
+                The test for presence of the car of ELT-CONS is done with `equal'."
+    (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
+      (if existing-element
+          (or no-replace
+              (rplacd existing-element (cdr elt-cons)))
+        (set alist-var (cons elt-cons (symbol-value alist-var)))))
+    (symbol-value alist-var))
+
+  (dolist (elt-cons '(
+                      ("\\.markdown" . markdown-mode)
+                      ("\\.md" . markdown-mode)
+                      ("\\.stumpwmrc\\'" . lisp-mode)
+                      ("\\.[hg]s\\'" . haskell-mode)
+                      ("\\.hi\\'" . haskell-mode)
+                      ("\\.hs-boot\\'" . haskell-mode)
+                      ("\\.chs\\'" . haskell-mode)
+                      ("\\.l[hg]s\\'" . literate-haskell-mode)
+                      ("\\.inc\\'" . asm-mode)
+                      ("\\.max\\'" . maxima-mode)
+                      ("\\.org\\'" . org-mode)
+                      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
+                      ("cron\\(tab\\)?\\." . crontab-mode)
+                      ("\\.py$" . python-mode)
+                      ("SConstruct". python-mode)
+                      ("\\.jl\\'" . lisp-mode)
+                      ("\\.asdf\\'" . lisp-mode)
+                      ("CMakeLists\\.txt\\'" . cmake-mode)
+                      ("\\.cmake\\'" . cmake-mode)
+                      ("\\.php\\'" . php-mode)
+                      ("\\.vue" . web-mode)
+                      ("\\.wxml" . web-mode)
+                      ("\\.phtml\\'" . web-mode)
+                      ("\\.tpl\\.php\\'" . web-mode)
+                      ("\\.as[cp]x\\'" . web-mode)
+                      ("\\.erb\\'" . web-mode)
+                      ("\\.mustache\\'" . web-mode)
+                      ("\\.djhtml\\'" . web-mode)
+                      ("\\.html?\\'" . web-mode)
+                      ("\\.js.erb\\'" . js-mode)
+                      ("\\.css\\'" . css-mode)
+                      ("\\.wxss\\'" . css-mode)
+                      ("\\.jade" . jade-mode)
+                      ("\\.go$" . go-mode)
+                      ("\\.rs$" . rust-mode)
+                      ("\\.pro$" . qmake-mode)
+                      ("\\.js$" . js-mode)
+                      ("\\.wxs$" . js-mode)
+                      ("\\.jsx$" . web-mode)
+                      ("\\.lua$" . lua-mode)
+                      ("\\.y$" . bison-mode)
+                      ("\\.pdf$" . pdf-view-mode)
+                      ("\\.ts$" . typescript-mode)
+                      ("\\.tsx$" . typescript-mode)
+                      ("\\.cpp$" . c++-mode)
+                      ("\\.h$" . c++-mode)
+                      ("\\.ll$" . llvm-mode)
+                      ("\\.bc$" . hexl-mode)
+                      ("\\.nim$" . nim-mode)
+                      ("\\.nims$" . nim-mode)
+                      ("\\.nimble$" . nim-mode)
+                      ("\\.nim.cfg$" . nim-mode)
+                      ("\\.exs$" . elixir-mode)
+                      ("\\.erl$" . erlang-mode)
+                      ("\\.schema$" . erlang-mode)
+                      ("rebar\\.config$" . erlang-mode)
+                      ("relx\\.config$" . erlang-mode)
+                      ("sys\\.config\\.src$" . erlang-mode)
+                      ("sys\\.config$" . erlang-mode)
+                      ("\\.config\\.src?$" . erlang-mode)
+                      ("\\.config\\.script?$" . erlang-mode)
+                      ("\\.hrl?$" . erlang-mode)
+                      ("\\.app?$" . erlang-mode)
+                      ("\\.app.src?$" . erlang-mode)
+                      ("\\Emakefile" . erlang-mode)
+                      ("\\.json$" . json-mode)
+                      ("\\.clj$" . clojure-mode)
+                      ("\\.plantuml$" . plantuml-mode)
+                      ))
+    (add-to-alist 'auto-mode-alist elt-cons))
+
+
+  ;;---------------------------------------------------------
+  ;; Line numbers are not displayed when large files are used.
+  (setq line-number-display-limit large-file-warning-threshold)
+  (setq line-number-display-limit-width 1000)
+
+  (dolist (hook (list
+                 'c-mode-common-hook
+                 'c-mode-hook
+                 'emacs-lisp-mode-hook
+                 'lisp-interaction-mode-hook
+                 'lisp-mode-hook
+                 'java-mode-hook
+                 'asm-mode-hook
+                 'haskell-mode-hook
+                 'rcirc-mode-hook
+                 'erc-mode-hook
+                 'sh-mode-hook
+                 'makefile-gmake-mode-hook
+                 'python-mode-hook
+                 'js-mode-hook
+                 'html-mode-hook
+                 'css-mode-hook
+                 'tuareg-mode-hook
+                 'go-mode-hook
+                 'qml-mode-hook
+                 'markdown-mode-hook
+                 'slime-repl-mode-hook
+                 'package-menu-mode-hook
+                 'cmake-mode-hook
+                 'php-mode-hook
+                 'web-mode-hook
+                 'sws-mode-hook
+                 'jade-mode-hook
+                 'vala-mode-hook
+                 'rust-mode-hook
+                 'ruby-mode-hook
+                 'qmake-mode-hook
+                 'lua-mode-hook
+                 'swift-mode-hook
+                 'llvm-mode-hook
+                 'conf-toml-mode-hook
+                 'nxml-mode-hook
+                 'nim-mode-hook
+                 'typescript-mode-hook
+                 'elixir-mode-hook
+                 'erlang-mode-hook
+                 'clojure-mode-hook
+                 ))
+    (add-hook hook (lambda () (display-line-numbers-mode))))
+
+  ;;----------------------------------------------------------
+  ;; fingertip
+  (require 'fingertip)
+  (dolist (hook (list
+                 'c-mode-common-hook
+                 'c-mode-hook
+                 'c++-mode-hook
+                 'java-mode-hook
+                 'haskell-mode-hook
+                 'emacs-lisp-mode-hook
+                 'lisp-interaction-mode-hook
+                 'lisp-mode-hook
+                 'maxima-mode-hook
+                 'ielm-mode-hook
+                 'sh-mode-hook
+                 'makefile-gmake-mode-hook
+                 'php-mode-hook
+                 'python-mode-hook
+                 'js-mode-hook
+                 'go-mode-hook
+                 'qml-mode-hook
+                 'jade-mode-hook
+                 'css-mode-hook
+                 'ruby-mode-hook
+                 'coffee-mode-hook
+                 'rust-mode-hook
+                 'qmake-mode-hook
+                 'lua-mode-hook
+                 'swift-mode-hook
+                 'web-mode-hook
+                 'markdown-mode-hook
+                 'llvm-mode-hook
+                 'conf-toml-mode-hook
+                 'nim-mode-hook
+                 'typescript-mode-hook
+
+                 'c-ts-mode-hook
+                 'c++-ts-mode-hook
+                 'cmake-ts-mode-hook
+                 'toml-ts-mode-hook
+                 'css-ts-mode-hook
+                 'js-ts-mode-hook
+                 'json-ts-mode-hook
+                 'python-ts-mode-hook
+                 'bash-ts-mode-hook
+                 'typescript-ts-mode-hook
+                 ))
+    (add-hook hook #'(lambda () (fingertip-mode 1))))
+
+
+  ;;----------------------------------------------------------
+  ;; https://github.com/manateelazycat/lazycat-emacs
+  (require 'lsp-bridge)
+  (require 'lsp-bridge-jdtls)
+
+          ;;; Code:
+
+  (setq acm-enable-quick-access t)
+  (setq acm-backend-yas-match-by-trigger-keyword t)
+
+  (global-lsp-bridge-mode)
+
+  ;; 打开日志，开发者才需要
+  ;; (setq lsp-bridge-enable-log t)
+
+  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+  (defun lsp-bridge-jump ()
+    (interactive)
+    (cond
+     ((eq major-mode 'emacs-lisp-mode)
+      (let ((symb (function-called-at-point)))
+        (when symb
+          (find-function symb))))
+     (lsp-bridge-mode
+      (lsp-bridge-find-def))
+     (t
+      (require 'dumb-jump)
+      (dumb-jump-go))))
+
+  (defun lsp-bridge-jump-back ()
+    (interactive)
+    (cond
+     (lsp-bridge-mode
+      (lsp-bridge-find-def-return))
+     (t
+      (require 'dumb-jump)
+      (dumb-jump-back))))
+
+  (setq lsp-bridge-get-single-lang-server-by-project
+        (lambda (project-path filepath)
+          ;; If typescript file include deno.land url, then use Deno LSP server.
+          (save-excursion
+            (when (string-equal (file-name-extension filepath) "ts")
+              (dolist (buf (buffer-list))
+                (when (string-equal (buffer-file-name buf) filepath)
+                  (with-current-buffer buf
+                    (goto-char (point-min))
+                    (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
+                      (return "deno")))))))))
+
+  ;; session 
+  (require 'basic-toolkit)
+  (setq desktop-load-locked-desktop t) ; don't popup dialog ask user, load anyway
+  (setq desktop-restore-frames nil)    ; don't restore any frame
+
+  (defun emacs-session-restore ()
+    "Restore emacs session."
+    (interactive)
+    (ignore-errors
+      ;; Kill other windows.
+      (delete-other-windows)
+      ;; Kill unused buffers.
+      (kill-unused-buffers)
+      ;; Restore session.
+      (desktop-read "~/.emacs.d/")
+      ))
+
+  (defun emacs-session-save (&optional arg)
+    "Save emacs session."
+    (interactive "p")
+    (ignore-errors
+      (if (equal arg 4)
+          ;; Kill all buffers if with prefix argument.
+          (mapc 'kill-buffer (buffer-list))
+        ;; Kill unused buffers.
+        (kill-unused-buffers)
+        ;; Save all buffers before exit.
+        (auto-save-buffers))
+      ;; Save session.
+      (make-directory "~/.emacs.d/" t)
+      (desktop-save "~/.emacs.d/")
+      ;; Exit emacs.
+      (kill-emacs)))
+  (emacs-session-restore)
+#+END_SRC
+
 * Key-Bindings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2231,10 +2267,14 @@
   (require 'lazy-load)
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
-   '("C-x C-f" "C-q" "M-h" "C-\\" "C-6" "M-." "M-,"))
-  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+   '("C-x C-f" "C-z" "C-q" "M-h" "C-x C-c" "C-\\" "C-6" "M-." "M-,"))
+   ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
+  (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
   (global-set-key (kbd "C-,")     'goto-last-change)
+  (global-set-key (kbd "C-4")     'insert-changelog-date)
+  (global-set-key (kbd "C-5")     'insert-standard-date)
+
 
   (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
   (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
