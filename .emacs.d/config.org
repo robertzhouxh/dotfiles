@@ -1891,6 +1891,7 @@
   ;;(require 'visual-regexp)
   ;;(setq vr/match-separator-use-custom-face t)
   ;;(setq vr/match-separator-string "⇛")
+  (require 'lazycat-toolkit)
   (require 'goto-chg)
   (require 'watch-other-window)
   (require 'thing-edit)
