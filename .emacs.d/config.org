@@ -1838,47 +1838,41 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (defun peng-use-mac-original-keyboard ()
-    "这样使用苹果原生的键盘比较符和我的习惯"
-    (interactive)
-    (setq mac-command-modifier 'control)
-    (setq mac-right-command-modifier 'meta)
-    (setq mac-right-option-modifier 'control)
-    (setq mac-control-modifier 'control)
-    (setq mac-right-control-modifier 'control)
-    )
-
+  ;; macos
   (when (x/system-is-mac)
-    (setq mac-command-modifier 'meta
-          mac-option-modifier 'none)
 
+    ;; Keyboard 
+    (setq mac-option-modifier 'super)
+    (setq mac-command-modifier 'meta)
+
+    ;; Copy/Paste
     (defun copy-from-osx ()
       (shell-command-to-string "pbpaste"))
+
     (defun paste-to-osx (text &optional push)
       (let ((process-connection-type nil))
         (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
           (process-send-string proc text)
           (process-send-eof proc))))
+
     (setq interprogram-cut-function 'paste-to-osx)
     (setq interprogram-paste-function 'copy-from-osx)
 
-    ;; Trash for safe
-    (defun move-file-to-trash (file)
-      "Use `trash' to move FILE to the system trash.
-      When using Homebrew, install it using \"brew install trash\"."
-      (call-process (executable-find "trash")
-                    nil 0 nil
-                    file))
-    (setq trash-directory "~/.Trash/emacs")
+    ;; Move to Trash
     (setq delete-by-moving-to-trash t)
+    (setq trash-directory "~/.Trash/emacs")
     (defun system-move-file-to-trash (file)
       "Use \"trash\" to move FILE to the system trash.
         When using Homebrew, install it using \"brew install trash\"."
       (call-process (executable-find "trash")
                     nil 0 nil
                     file))
+
+    ;; Done
     (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
+
+  ;; linux
   (when (x/system-is-linux)
     (defun yank-to-x-clipboard ()
       (interactive)
@@ -2198,7 +2192,7 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; ------------------------------------------------------------------------------------------------
-  ;;                   X-mode KeyBindings   C-h b/k 找到快捷键
+  ;;           X-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
   ;; ------------------------------------------------------------------------------------------------
 
   (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
@@ -2267,7 +2261,7 @@
   (require 'lazy-load)
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
-   '("C-x C-f" "C-z" "C-q" "M-h" "C-x C-c" "C-\\" "C-6" "M-." "M-,"))
+   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
    ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
   (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
