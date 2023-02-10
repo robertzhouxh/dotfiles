@@ -2110,83 +2110,11 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(setq eaf-python-command "python3.11")
-
-;;; Require
+;(setq eaf-python-command "python3.10")
+(require 'epc)
 (require 'eaf)
-(require 'eaf-2048)
-(require 'eaf-camera)
-(require 'eaf-terminal)
-(require 'eaf-image-viewer)
-(require 'eaf-pdf-viewer)
 (require 'eaf-browser)
-(require 'eaf-vue-mindmap)
-(require 'eaf-markdown-previewer)
-(require 'eaf-file-manager)
-(require 'eaf-mindmap)
-(require 'eaf-video-player)
-(require 'eaf-org-previewer)
-(require 'eaf-jupyter)
 (require 'eaf-git)
-
-;;; Code:
-
-;; You need configuration your own local proxy program first.
-;; (setq eaf-proxy-type "socks5")
-;; (setq eaf-proxy-host "127.0.0.1")
-;; (setq eaf-proxy-port "1080")
-
-;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
-(setq eaf-browser-continue-where-left-off t)
-
-(eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
-(eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
-(eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
-(eaf-bind-key scroll_down "M-k" eaf-browser-keybinding)
-(eaf-bind-key scroll_up_page "M-n" eaf-browser-keybinding)
-(eaf-bind-key scroll_down_page "M-p" eaf-browser-keybinding)
-(eaf-bind-key open_link "M-h" eaf-browser-keybinding)
-(eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
-(eaf-bind-key insert_or_open_link_new_buffer "D" eaf-browser-keybinding)
-(eaf-bind-key insert_or_open_link_background_buffer "F" eaf-browser-keybinding)
-(eaf-bind-key watch-other-window-up-line "M-<" eaf-browser-keybinding)
-(eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
-(eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
-(eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
-
-(setq eaf-browser-aria2-proxy-host "127.0.0.1")
-(setq eaf-browser-aria2-proxy-port "8123")
-(setq eaf-browser-enable-adblocker t)
-(setq eaf-browser-enable-autofill t)
-;; (setq eaf-music-play-order "random")
-(setq eaf-marker-letters "JKHLNMUIOYPFDSAVCRREW")
-(setq eaf-terminal-font-size 18)
-(setq eaf-file-manager-show-hidden-file nil)
-;(setq eaf-music-default-file "~/Music/")
-
-(defun eaf-goto-left-tab ()
-  (interactive)
-  (sort-tab-select-prev-tab))
-
-(defun eaf-goto-right-tab ()
-  (interactive)
-  (sort-tab-select-next-tab))
-
-(defun eaf-translate-text (text)
-  (popweb-dict-bing-input text))
-
-(setq eaf-goto-right-after-close-buffer t)
-
-;; (one-key-create-menu
-;;  "GIT"
-;;  '(
-;;    (("s" . "Git status") . eaf-open-git)
-;;    (("u" . "Git push to remote") . eaf-git-push)
-;;    (("i" . "Git pull") . eaf-git-pull)
-;;    (("c" . "Git clone") . eaf-git-clone)
-;;    (("h" . "Git history") . eaf-git-show-history)
-;;    )
-;;  t)
 
 #+END_SRC
 
@@ -2317,12 +2245,6 @@
 (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
 (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
 (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
-
-;;; EAF
-(global-set-key (kbd "M-j")   'eaf-open-in-file-manager)
-(global-set-key (kbd "s-'")   'eaf-open)
-(global-set-key (kbd "s-\"")  'eaf-open-browser)
-(global-set-key (kbd "s-n")   'eaf-open-terminal)
 
 
 (when (or (string-match "Emacs 30." (emacs-version))
