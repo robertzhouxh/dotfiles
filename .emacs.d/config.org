@@ -2063,7 +2063,7 @@
   ;;----------------------------------------------------------
   ;; fingertip
   (when (or (string-match "Emacs 30." (emacs-version))
-            (string-match "31." (emacs-version)))
+            (string-match "Emacs 31." (emacs-version)))
     (require 'fingertip)
     (message "For Emacs 29+, load fingertip")
     (dolist (hook (list
@@ -2207,7 +2207,6 @@
   ;; ------------------------------------------------------------------------------------------------
   ;;           X-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
   ;; ------------------------------------------------------------------------------------------------
-
   (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
   ;;-----------------------
@@ -2221,7 +2220,6 @@
   (define-key company-active-map (kbd "M-n") 'company-select-next)
   (define-key company-active-map (kbd "M-p") 'company-select-previous)
   (define-key company-active-map (kbd "M-i") 'yas-expand)
-
 
   ;;-----------------------
   ;;my-window-map
@@ -2275,7 +2273,7 @@
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
    '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
-   ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
   (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
   (global-set-key (kbd "C-,")     'goto-last-change)
@@ -2330,47 +2328,50 @@
   (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
   (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
-  ;; ### Fingertip ###
-  ;; --- 结构化编程
-  (lazy-load-unset-keys
-   '("M-J" "M-r" "M-s" "M-;" "C-M-f" "C-M-b" "M-)")
-   fingertip-mode-map)             ;卸载按键
-  (defvar fingertip-key-alist nil)
-  (setq fingertip-key-alist
-        '(
-          ;; 移动
-          ("M-n" . fingertip-jump-left)
-          ("M-p" . fingertip-jump-right)
-          ;; 符号插入
-          ("%" . fingertip-match-paren)       ;括号跳转
-          ("(" . fingertip-open-round)        ;智能 (
-          ("[" . fingertip-open-bracket)      ;智能 [
-          ("{" . fingertip-open-curly)        ;智能 {
-          (")" . fingertip-close-round)       ;智能 )
-          ("]" . fingertip-close-bracket)     ;智能 ]
-          ("}" . fingertip-close-curly)       ;智能 }
-          ("\"" . fingertip-double-quote)     ;智能 "
-          ("'" . fingertip-single-quote)      ;智能 '
-          ("=" . fingertip-equal)             ;智能 =
-          ("SPC" . fingertip-space)           ;智能 space
-          ("RET" . fingertip-newline)         ;智能 newline
-          ;; 删除
-          ("M-o" . fingertip-backward-delete) ;向后删除
-          ("C-d" . fingertip-forward-delete)  ;向前删除
-          ("C-k" . fingertip-kill)            ;向前kill
-          ;; 包围
-          ("M-\"" . fingertip-wrap-double-quote) ;用 " " 包围对象, 或跳出字符串
-          ("M-'" . fingertip-wrap-single-quote) ;用 ' ' 包围对象, 或跳出字符串
-          ("M-[" . fingertip-wrap-bracket)      ;用 [ ] 包围对象
-          ("M-{" . fingertip-wrap-curly)        ;用 { } 包围对象
-          ("M-(" . fingertip-wrap-round)        ;用 ( ) 包围对象
-          ("M-)" . fingertip-unwrap)            ;去掉包围对象
-          ;; 跳出并换行缩进
-          ("M-:" . fingertip-jump-out-pair-and-newline) ;跳出括号并换行
-          ;; 向父节点跳动
-          ("C-j" . fingertip-jump-up)
-          ))
-  (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
+  (when (or (string-match "Emacs 30." (emacs-version))
+            (string-match "Emacs 31." (emacs-version)))
+    ;; ### Fingertip ###
+    ;; --- 结构化编程
+    (lazy-load-unset-keys
+     '("M-J" "M-r" "M-s" "M-;" "C-M-f" "C-M-b" "M-)")
+     fingertip-mode-map)             ;卸载按键
+    (defvar fingertip-key-alist nil)
+    (setq fingertip-key-alist
+          '(
+            ;; 移动
+            ("M-n" . fingertip-jump-left)
+            ("M-p" . fingertip-jump-right)
+            ;; 符号插入
+            ("%" . fingertip-match-paren)       ;括号跳转
+            ("(" . fingertip-open-round)        ;智能 (
+            ("[" . fingertip-open-bracket)      ;智能 [
+            ("{" . fingertip-open-curly)        ;智能 {
+            (")" . fingertip-close-round)       ;智能 )
+            ("]" . fingertip-close-bracket)     ;智能 ]
+            ("}" . fingertip-close-curly)       ;智能 }
+            ("\"" . fingertip-double-quote)     ;智能 "
+            ("'" . fingertip-single-quote)      ;智能 '
+            ("=" . fingertip-equal)             ;智能 =
+            ("SPC" . fingertip-space)           ;智能 space
+            ("RET" . fingertip-newline)         ;智能 newline
+            ;; 删除
+            ("M-o" . fingertip-backward-delete) ;向后删除
+            ("C-d" . fingertip-forward-delete)  ;向前删除
+            ("C-k" . fingertip-kill)            ;向前kill
+            ;; 包围
+            ("M-\"" . fingertip-wrap-double-quote) ;用 " " 包围对象, 或跳出字符串
+            ("M-'" . fingertip-wrap-single-quote) ;用 ' ' 包围对象, 或跳出字符串
+            ("M-[" . fingertip-wrap-bracket)      ;用 [ ] 包围对象
+            ("M-{" . fingertip-wrap-curly)        ;用 { } 包围对象
+            ("M-(" . fingertip-wrap-round)        ;用 ( ) 包围对象
+            ("M-)" . fingertip-unwrap)            ;去掉包围对象
+            ;; 跳出并换行缩进
+            ("M-:" . fingertip-jump-out-pair-and-newline) ;跳出括号并换行
+            ;; 向父节点跳动
+            ("C-j" . fingertip-jump-up)
+            ))
+    (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
+    )
 
   ;; (global-set-key (kbd "C-c p f") 'projectile-find-file)
   ;; (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
