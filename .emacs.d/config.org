@@ -11,8 +11,9 @@
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  ;; (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
   (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+  (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
+  (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
 
 #+END_SRC
 
@@ -96,7 +97,7 @@
   ;;     (add-to-list 'load-path dir)
   ;;     (normal-top-level-add-subdirs-to-load-path)))
 
-  (add-subdirs-to-load-path "~/.emacs.d/vendor/")
+  (add-subdirs-to-load-path zxh-emacs-vendor-dir)
 
 #+END_SRC
 
@@ -1200,8 +1201,9 @@
     (defun org-export-docx ()
       (interactive)
       (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-            (template-file (concat (file-name-as-directory user-emacs-directory)
+            (template-file (concat (file-name-as-directory zxh-emacs-root-dir)
                                    "template.docx")))
+        (message (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file)) 
         (shell-command (format "pandoc %s -o %s --reference-doc=%s"
                                (buffer-file-name)
                                docx-file
