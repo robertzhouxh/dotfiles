@@ -1183,7 +1183,10 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (with-eval-after-load 'org
-    (use-package org-auto-tangle :ensure nil :hook (org-mode . org-auto-tangle-mode))
+
+    (require 'org-auto-tangle)
+    (add-hook 'org-mode-hook 'org-auto-tangle-mode)
+
     (setq org-odt-preferred-output-format "docx") ;ODT转换格式默认为docx
     (setq org-startup-folded nil)                 ;默认展开内容
     (setq org-startup-indented t)                 ;默认缩进内容
@@ -1240,10 +1243,11 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; Babel
-  (setq org-confirm-babel-evaluate nil
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t)
+  ;; ---- org代码块相关的设置
+  (setq org-src-fontify-natively 1);代码块语法高亮
+  (setq org-src-tab-acts-natively 1);开启代码块语法缩进
+  (setq org-edit-src-content-indentation 0);代码块初始缩进范围
+  (setq org-confirm-babel-evaluate nil)
 
   (defconst load-language-alist
     '((emacs-lisp . t)
@@ -1743,8 +1747,13 @@
   (when (x/system-is-mac)
 
     ;; Keyboard 
+    (setq echo-keystrokes 0.1)
     (setq mac-option-modifier 'super)
     (setq mac-command-modifier 'meta)
+    ;; (setq mac-command-modifier       'super   ;; s: super(Command/Win)
+    ;;       mac-control-modifier       'control ;; C: Ctrl
+    ;;       mac-option-modifier        'meta    ;; M: Meta (Option/Alt)
+    ;;       )
 
     ;; Copy/Paste
     (defun copy-from-osx ()
