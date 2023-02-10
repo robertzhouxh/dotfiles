@@ -2062,8 +2062,8 @@
 
   ;;----------------------------------------------------------
   ;; fingertip
-  (when (or (string-match "Emacs 29." (emacs-version))
-            (string-match "Emacs 30." (emacs-version)))
+  (when (or (string-match "Emacs 30." (emacs-version))
+            (string-match "31." (emacs-version)))
     (require 'fingertip)
     (message "For Emacs 29+, load fingertip")
     (dolist (hook (list
