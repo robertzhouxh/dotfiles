@@ -43,6 +43,7 @@ Thumbs.db
 .emacs.d/nox
 .emacs.d/squirrel*
 .emacs.d/rime*
+.emacs.d/.org-*
 
 htop
 .tmux

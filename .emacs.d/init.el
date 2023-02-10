@@ -1,4 +1,3 @@
-(require 'cl)          
 (require 'org)
 (require 'cl-lib)
 (setq gc-cons-threshold (* 200 1024 1024))

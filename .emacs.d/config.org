@@ -1,11 +1,11 @@
 :PROPERTIES: header-args:emacs-lisp :tangle
-:ID:       B66F5EBD-339C-4D38-B505-372EFB1B1AC6
+:ID:       E7980AE6-D0E5-4796-83D5-2A0F81400FC2
 :END:
 #+title: 我的 Emacs 配置
 #+date: 2023-02-10 15:21:00 
 #+auto_tangle: t
 
-* Custom Var
+* Custom Vars and Const
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
@@ -15,14 +15,26 @@
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
   (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+
+  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
+  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
+  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
+  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
+  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+
   (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
   (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
+  (defvar socks-noproxy)
+  (defvar socks-server)
+  (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
 
 #+END_SRC
 
 * Bootstrap
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   ;; 加速
   (setq
    ;; 不要缩放frame.
@@ -40,10 +52,8 @@
                            ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
                            ("melpa-stable" . "http://mirrors.ustc.edu.cn/elpa/melpa-stable/")
                            ("org" . "http://mirrors.ustc.edu.cn/elpa/org/")))
-
   (package-initialize)
 
-  ;; Automatic package installation
   (mapc
    (lambda (package)
      (if (not (package-installed-p package))
@@ -51,7 +61,6 @@
            (package-refresh-contents)
            (package-install package))))
    '(use-package diminish bind-key))
-
 
   ;; trigger use-package, And force the install of missing packages.
   (eval-when-compile (require 'use-package))
@@ -93,12 +102,6 @@
 
           ;; 继续递归搜索子目录
           (add-subdirs-to-load-path subdir-path)))))
-
-  ;; (defun add-subdirs-to-load-path (dir)
-  ;;   "Recursive add directories to `load-path'."
-  ;;   (let ((default-directory (file-name-as-directory dir)))
-  ;;     (add-to-list 'load-path dir)
-  ;;     (normal-top-level-add-subdirs-to-load-path)))
 
   (add-subdirs-to-load-path zxh-emacs-vendor-dir)
 
@@ -254,26 +257,6 @@
   (set-terminal-coding-system 'utf-8)
   (set-selection-coding-system 'utf-8)
   (modify-coding-system-alist 'process "*" 'utf-8)
-
-#+END_SRC
-
-* Const
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-  (defconst zxh-homepage "https://github.com/robertzhouxh/dotfiles" "My Github Page")
-  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
-  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
-  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
-  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
-  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
-  (defvar socks-noproxy)
-  (defvar socks-server)
-  (defcustom http-proxy "127.0.0.1:8123"
-    "Set network proxy."
-    :group 'centaur
-    :type 'string)
 
 #+END_SRC
 
@@ -592,13 +575,8 @@
 * Fundamental Plugins
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package use-package-ensure-system-package :ensure t)
-  (use-package exec-path-from-shell
-    :if (or sys/mac-x-p sys/linux-x-p)
-    :config
-    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize))
   (use-package protobuf-mode)
   (use-package markdown-mode)
   (use-package dockerfile-mode)
@@ -617,6 +595,12 @@
   (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
   (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
   (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  (use-package exec-path-from-shell
+    :if (or sys/mac-x-p sys/linux-x-p)
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize))
   (use-package which-key
     :diminish which-key-mode
     :hook (after-init . which-key-mode)
@@ -648,6 +632,63 @@
      counsel-projectile-switch-to-buffer)
     :config
     (counsel-projectile-mode t))
+
+#+END_SRC
+
+* Indent Tab
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+
+  (defun adjust-languages-indent (n)
+    (setq-local c-basic-offset n)
+
+    (setq-local coffee-tab-width n)
+    (setq-local javascript-indent-level n)
+    (setq-local js-indent-level n)
+    (setq-local js2-basic-offset n)
+
+    (setq-local web-mode-attr-indent-offset n)
+    (setq-local web-mode-attr-value-indent-offset n)
+    (setq-local web-mode-code-indent-offset n)
+    (setq-local web-mode-css-indent-offset n)
+    (setq-local web-mode-markup-indent-offset n)
+    (setq-local web-mode-sql-indent-offset n)
+
+    (setq-local css-indent-offset n)
+
+    (setq-local typescript-indent-level n))
+
+  (dolist (hook (list
+                 'c-mode-hook
+                 'c++-mode-hook
+                 'java-mode-hook
+                 'haskell-mode-hook
+                 'asm-mode-hook
+                 'sh-mode-hook
+                 'haskell-cabal-mode-hook
+                 'ruby-mode-hook
+                 'qml-mode-hook
+                 'scss-mode-hook
+                 'coffee-mode-hook
+                 'rust-mode-hook
+                 ))
+    (add-hook hook #'(lambda ()
+                       (setq indent-tabs-mode nil)
+                       (adjust-languages-indent 4)
+                       )))
+
+  (dolist (hook (list
+                 'web-mode-hook
+                 'js-mode-hook
+                 'typescript-mode-hook
+                 ))
+    (add-hook hook #'(lambda ()
+                       (setq indent-tabs-mode nil)
+                       (adjust-languages-indent 2)
+                       )))
 
 #+END_SRC
 
@@ -783,25 +824,25 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (use-package dired
-  :ensure nil
-  :hook (dired-after-readin . dired-directory-sort)
-  :config
-  (require 'dired-x)
+    :ensure nil
+    :hook (dired-after-readin . dired-directory-sort)
+    :config
+    (require 'dired-x)
 
-  (setq dired-dwim-target t
-        ;; Humanize file size
-        dired-listing-switches "-alh")
-  ;; Sort directories ahead of files
-  (defun dired-directory-sort ()
-    "Dired sort hook to list directories first."
-    (save-excursion
-      (let (buffer-read-only)
-        (forward-line 2) ;; beyond dir. header
-        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
-    (and (featurep 'xemacs)
-         (fboundp 'dired-insert-set-properties)
-         (dired-insert-set-properties (point-min) (point-max)))
-    (set-buffer-modified-p nil)))
+    (setq dired-dwim-target t
+          ;; Humanize file size
+          dired-listing-switches "-alh")
+    ;; Sort directories ahead of files
+    (defun dired-directory-sort ()
+      "Dired sort hook to list directories first."
+      (save-excursion
+        (let (buffer-read-only)
+          (forward-line 2) ;; beyond dir. header
+          (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
+      (and (featurep 'xemacs)
+           (fboundp 'dired-insert-set-properties)
+           (dired-insert-set-properties (point-min) (point-max)))
+      (set-buffer-modified-p nil)))
 
 #+END_SRC
 
