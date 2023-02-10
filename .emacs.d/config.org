@@ -1799,486 +1799,577 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;;(require 'visual-regexp)
-  ;;(setq vr/match-separator-use-custom-face t)
-  ;;(setq vr/match-separator-string "⇛")
-  (require 'posframe)
-  (require 'lazycat-toolkit)
-  (require 'goto-chg)
-  (require 'watch-other-window)
-  (require 'thing-edit)
-  (require 'color-rg)
+;;(require 'visual-regexp)
+;;(setq vr/match-separator-use-custom-face t)
+;;(setq vr/match-separator-string "⇛")
+(require 'posframe)
+(require 'lazycat-toolkit)
+(require 'goto-chg)
+(require 'watch-other-window)
+(require 'thing-edit)
+(require 'color-rg)
 
-  (require 'sort-tab)
-  (sort-tab-mode 1)
+(require 'sort-tab)
+(sort-tab-mode 1)
 
-  (require 'auto-save)
-  (auto-save-enable)
-  (setq auto-save-silent t)
-  (setq auto-save-delete-trailing-whitespace nil)
+(require 'auto-save)
+(auto-save-enable)
+(setq auto-save-silent t)
+(setq auto-save-delete-trailing-whitespace nil)
 
-  (require 'lazycat-theme)
-  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-  (lazycat-theme-load-dark)
-  ;;(lazycat-theme-load-with-sunrise)
+(require 'lazycat-theme)
+(setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+(lazycat-theme-load-dark)
+;;(lazycat-theme-load-with-sunrise)
 
-  (require 'awesome-tray)
-  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-  (awesome-tray-mode 1)
+(require 'awesome-tray)
+(setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+(awesome-tray-mode 1)
 
-  ;; ----------------------------------------------------------
-  ;; auto mode
-  (defun add-to-alist (alist-var elt-cons &optional no-replace)
-    "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
-                  If an element with the same car as the car of ELT-CONS is already present,
-                  replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
-                  element is not already present, add ELT-CONS to the front of the alist.
-                  The test for presence of the car of ELT-CONS is done with `equal'."
-    (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
-      (if existing-element
-          (or no-replace
-              (rplacd existing-element (cdr elt-cons)))
-        (set alist-var (cons elt-cons (symbol-value alist-var)))))
-    (symbol-value alist-var))
+;; ----------------------------------------------------------
+;; auto mode
+(defun add-to-alist (alist-var elt-cons &optional no-replace)
+  "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
+                If an element with the same car as the car of ELT-CONS is already present,
+                replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
+                element is not already present, add ELT-CONS to the front of the alist.
+                The test for presence of the car of ELT-CONS is done with `equal'."
+  (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
+    (if existing-element
+        (or no-replace
+            (rplacd existing-element (cdr elt-cons)))
+      (set alist-var (cons elt-cons (symbol-value alist-var)))))
+  (symbol-value alist-var))
 
-  (dolist (elt-cons '(
-                      ("\\.markdown" . markdown-mode)
-                      ("\\.md" . markdown-mode)
-                      ("\\.stumpwmrc\\'" . lisp-mode)
-                      ("\\.[hg]s\\'" . haskell-mode)
-                      ("\\.hi\\'" . haskell-mode)
-                      ("\\.hs-boot\\'" . haskell-mode)
-                      ("\\.chs\\'" . haskell-mode)
-                      ("\\.l[hg]s\\'" . literate-haskell-mode)
-                      ("\\.inc\\'" . asm-mode)
-                      ("\\.max\\'" . maxima-mode)
-                      ("\\.org\\'" . org-mode)
-                      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
-                      ("cron\\(tab\\)?\\." . crontab-mode)
-                      ("\\.py$" . python-mode)
-                      ("SConstruct". python-mode)
-                      ("\\.jl\\'" . lisp-mode)
-                      ("\\.asdf\\'" . lisp-mode)
-                      ("CMakeLists\\.txt\\'" . cmake-mode)
-                      ("\\.cmake\\'" . cmake-mode)
-                      ("\\.php\\'" . php-mode)
-                      ("\\.vue" . web-mode)
-                      ("\\.wxml" . web-mode)
-                      ("\\.phtml\\'" . web-mode)
-                      ("\\.tpl\\.php\\'" . web-mode)
-                      ("\\.as[cp]x\\'" . web-mode)
-                      ("\\.erb\\'" . web-mode)
-                      ("\\.mustache\\'" . web-mode)
-                      ("\\.djhtml\\'" . web-mode)
-                      ("\\.html?\\'" . web-mode)
-                      ("\\.js.erb\\'" . js-mode)
-                      ("\\.css\\'" . css-mode)
-                      ("\\.wxss\\'" . css-mode)
-                      ("\\.jade" . jade-mode)
-                      ("\\.go$" . go-mode)
-                      ("\\.rs$" . rust-mode)
-                      ("\\.pro$" . qmake-mode)
-                      ("\\.js$" . js-mode)
-                      ("\\.wxs$" . js-mode)
-                      ("\\.jsx$" . web-mode)
-                      ("\\.lua$" . lua-mode)
-                      ("\\.y$" . bison-mode)
-                      ("\\.pdf$" . pdf-view-mode)
-                      ("\\.ts$" . typescript-mode)
-                      ("\\.tsx$" . typescript-mode)
-                      ("\\.cpp$" . c++-mode)
-                      ("\\.h$" . c++-mode)
-                      ("\\.ll$" . llvm-mode)
-                      ("\\.bc$" . hexl-mode)
-                      ("\\.nim$" . nim-mode)
-                      ("\\.nims$" . nim-mode)
-                      ("\\.nimble$" . nim-mode)
-                      ("\\.nim.cfg$" . nim-mode)
-                      ("\\.exs$" . elixir-mode)
-                      ("\\.erl$" . erlang-mode)
-                      ("\\.schema$" . erlang-mode)
-                      ("rebar\\.config$" . erlang-mode)
-                      ("relx\\.config$" . erlang-mode)
-                      ("sys\\.config\\.src$" . erlang-mode)
-                      ("sys\\.config$" . erlang-mode)
-                      ("\\.config\\.src?$" . erlang-mode)
-                      ("\\.config\\.script?$" . erlang-mode)
-                      ("\\.hrl?$" . erlang-mode)
-                      ("\\.app?$" . erlang-mode)
-                      ("\\.app.src?$" . erlang-mode)
-                      ("\\Emakefile" . erlang-mode)
-                      ("\\.json$" . json-mode)
-                      ("\\.clj$" . clojure-mode)
-                      ("\\.plantuml$" . plantuml-mode)
-                      ))
-    (add-to-alist 'auto-mode-alist elt-cons))
+(dolist (elt-cons '(
+                    ("\\.markdown" . markdown-mode)
+                    ("\\.md" . markdown-mode)
+                    ("\\.stumpwmrc\\'" . lisp-mode)
+                    ("\\.[hg]s\\'" . haskell-mode)
+                    ("\\.hi\\'" . haskell-mode)
+                    ("\\.hs-boot\\'" . haskell-mode)
+                    ("\\.chs\\'" . haskell-mode)
+                    ("\\.l[hg]s\\'" . literate-haskell-mode)
+                    ("\\.inc\\'" . asm-mode)
+                    ("\\.max\\'" . maxima-mode)
+                    ("\\.org\\'" . org-mode)
+                    ("\\.cron\\(tab\\)?\\'" . crontab-mode)
+                    ("cron\\(tab\\)?\\." . crontab-mode)
+                    ("\\.py$" . python-mode)
+                    ("SConstruct". python-mode)
+                    ("\\.jl\\'" . lisp-mode)
+                    ("\\.asdf\\'" . lisp-mode)
+                    ("CMakeLists\\.txt\\'" . cmake-mode)
+                    ("\\.cmake\\'" . cmake-mode)
+                    ("\\.php\\'" . php-mode)
+                    ("\\.vue" . web-mode)
+                    ("\\.wxml" . web-mode)
+                    ("\\.phtml\\'" . web-mode)
+                    ("\\.tpl\\.php\\'" . web-mode)
+                    ("\\.as[cp]x\\'" . web-mode)
+                    ("\\.erb\\'" . web-mode)
+                    ("\\.mustache\\'" . web-mode)
+                    ("\\.djhtml\\'" . web-mode)
+                    ("\\.html?\\'" . web-mode)
+                    ("\\.js.erb\\'" . js-mode)
+                    ("\\.css\\'" . css-mode)
+                    ("\\.wxss\\'" . css-mode)
+                    ("\\.jade" . jade-mode)
+                    ("\\.go$" . go-mode)
+                    ("\\.rs$" . rust-mode)
+                    ("\\.pro$" . qmake-mode)
+                    ("\\.js$" . js-mode)
+                    ("\\.wxs$" . js-mode)
+                    ("\\.jsx$" . web-mode)
+                    ("\\.lua$" . lua-mode)
+                    ("\\.y$" . bison-mode)
+                    ("\\.pdf$" . pdf-view-mode)
+                    ("\\.ts$" . typescript-mode)
+                    ("\\.tsx$" . typescript-mode)
+                    ("\\.cpp$" . c++-mode)
+                    ("\\.h$" . c++-mode)
+                    ("\\.ll$" . llvm-mode)
+                    ("\\.bc$" . hexl-mode)
+                    ("\\.nim$" . nim-mode)
+                    ("\\.nims$" . nim-mode)
+                    ("\\.nimble$" . nim-mode)
+                    ("\\.nim.cfg$" . nim-mode)
+                    ("\\.exs$" . elixir-mode)
+                    ("\\.erl$" . erlang-mode)
+                    ("\\.schema$" . erlang-mode)
+                    ("rebar\\.config$" . erlang-mode)
+                    ("relx\\.config$" . erlang-mode)
+                    ("sys\\.config\\.src$" . erlang-mode)
+                    ("sys\\.config$" . erlang-mode)
+                    ("\\.config\\.src?$" . erlang-mode)
+                    ("\\.config\\.script?$" . erlang-mode)
+                    ("\\.hrl?$" . erlang-mode)
+                    ("\\.app?$" . erlang-mode)
+                    ("\\.app.src?$" . erlang-mode)
+                    ("\\Emakefile" . erlang-mode)
+                    ("\\.json$" . json-mode)
+                    ("\\.clj$" . clojure-mode)
+                    ("\\.plantuml$" . plantuml-mode)
+                    ))
+  (add-to-alist 'auto-mode-alist elt-cons))
 
 
-  ;;---------------------------------------------------------
-  ;; Line numbers are not displayed when large files are used.
-  (setq line-number-display-limit large-file-warning-threshold)
-  (setq line-number-display-limit-width 1000)
+;;---------------------------------------------------------
+;; Line numbers are not displayed when large files are used.
+(setq line-number-display-limit large-file-warning-threshold)
+(setq line-number-display-limit-width 1000)
 
+(dolist (hook (list
+               'c-mode-common-hook
+               'c-mode-hook
+               'emacs-lisp-mode-hook
+               'lisp-interaction-mode-hook
+               'lisp-mode-hook
+               'java-mode-hook
+               'asm-mode-hook
+               'haskell-mode-hook
+               'rcirc-mode-hook
+               'erc-mode-hook
+               'sh-mode-hook
+               'makefile-gmake-mode-hook
+               'python-mode-hook
+               'js-mode-hook
+               'html-mode-hook
+               'css-mode-hook
+               'tuareg-mode-hook
+               'go-mode-hook
+               'qml-mode-hook
+               'markdown-mode-hook
+               'slime-repl-mode-hook
+               'package-menu-mode-hook
+               'cmake-mode-hook
+               'php-mode-hook
+               'web-mode-hook
+               'sws-mode-hook
+               'jade-mode-hook
+               'vala-mode-hook
+               'rust-mode-hook
+               'ruby-mode-hook
+               'qmake-mode-hook
+               'lua-mode-hook
+               'swift-mode-hook
+               'llvm-mode-hook
+               'conf-toml-mode-hook
+               'nxml-mode-hook
+               'nim-mode-hook
+               'typescript-mode-hook
+               'elixir-mode-hook
+               'erlang-mode-hook
+               'clojure-mode-hook
+               ))
+  (add-hook hook (lambda () (display-line-numbers-mode))))
+
+;;----------------------------------------------------------
+;; fingertip
+(when (or (string-match "Emacs 30." (emacs-version))
+          (string-match "Emacs 31." (emacs-version)))
+  (require 'fingertip)
+  (message "For Emacs 29+, load fingertip")
   (dolist (hook (list
                  'c-mode-common-hook
                  'c-mode-hook
+                 'c++-mode-hook
+                 'java-mode-hook
+                 'haskell-mode-hook
                  'emacs-lisp-mode-hook
                  'lisp-interaction-mode-hook
                  'lisp-mode-hook
-                 'java-mode-hook
-                 'asm-mode-hook
-                 'haskell-mode-hook
-                 'rcirc-mode-hook
-                 'erc-mode-hook
+                 'maxima-mode-hook
+                 'ielm-mode-hook
                  'sh-mode-hook
                  'makefile-gmake-mode-hook
+                 'php-mode-hook
                  'python-mode-hook
                  'js-mode-hook
-                 'html-mode-hook
-                 'css-mode-hook
-                 'tuareg-mode-hook
                  'go-mode-hook
                  'qml-mode-hook
-                 'markdown-mode-hook
-                 'slime-repl-mode-hook
-                 'package-menu-mode-hook
-                 'cmake-mode-hook
-                 'php-mode-hook
-                 'web-mode-hook
-                 'sws-mode-hook
                  'jade-mode-hook
-                 'vala-mode-hook
-                 'rust-mode-hook
+                 'css-mode-hook
                  'ruby-mode-hook
+                 'coffee-mode-hook
+                 'rust-mode-hook
                  'qmake-mode-hook
                  'lua-mode-hook
                  'swift-mode-hook
+                 'web-mode-hook
+                 'markdown-mode-hook
                  'llvm-mode-hook
                  'conf-toml-mode-hook
-                 'nxml-mode-hook
                  'nim-mode-hook
                  'typescript-mode-hook
-                 'elixir-mode-hook
-                 'erlang-mode-hook
-                 'clojure-mode-hook
+
+                 'c-ts-mode-hook
+                 'c++-ts-mode-hook
+                 'cmake-ts-mode-hook
+                 'toml-ts-mode-hook
+                 'css-ts-mode-hook
+                 'js-ts-mode-hook
+                 'json-ts-mode-hook
+                 'python-ts-mode-hook
+                 'bash-ts-mode-hook
+                 'typescript-ts-mode-hook
                  ))
-    (add-hook hook (lambda () (display-line-numbers-mode))))
-
-  ;;----------------------------------------------------------
-  ;; fingertip
-  (when (or (string-match "Emacs 30." (emacs-version))
-            (string-match "Emacs 31." (emacs-version)))
-    (require 'fingertip)
-    (message "For Emacs 29+, load fingertip")
-    (dolist (hook (list
-                   'c-mode-common-hook
-                   'c-mode-hook
-                   'c++-mode-hook
-                   'java-mode-hook
-                   'haskell-mode-hook
-                   'emacs-lisp-mode-hook
-                   'lisp-interaction-mode-hook
-                   'lisp-mode-hook
-                   'maxima-mode-hook
-                   'ielm-mode-hook
-                   'sh-mode-hook
-                   'makefile-gmake-mode-hook
-                   'php-mode-hook
-                   'python-mode-hook
-                   'js-mode-hook
-                   'go-mode-hook
-                   'qml-mode-hook
-                   'jade-mode-hook
-                   'css-mode-hook
-                   'ruby-mode-hook
-                   'coffee-mode-hook
-                   'rust-mode-hook
-                   'qmake-mode-hook
-                   'lua-mode-hook
-                   'swift-mode-hook
-                   'web-mode-hook
-                   'markdown-mode-hook
-                   'llvm-mode-hook
-                   'conf-toml-mode-hook
-                   'nim-mode-hook
-                   'typescript-mode-hook
-
-                   'c-ts-mode-hook
-                   'c++-ts-mode-hook
-                   'cmake-ts-mode-hook
-                   'toml-ts-mode-hook
-                   'css-ts-mode-hook
-                   'js-ts-mode-hook
-                   'json-ts-mode-hook
-                   'python-ts-mode-hook
-                   'bash-ts-mode-hook
-                   'typescript-ts-mode-hook
-                   ))
-      (add-hook hook #'(lambda () (fingertip-mode 1))))
-    )
+    (add-hook hook #'(lambda () (fingertip-mode 1))))
+  )
 
 
-  ;;----------------------------------------------------------
-  ;; https://github.com/manateelazycat/lazycat-emacs
-  (require 'lsp-bridge)
-  (require 'lsp-bridge-jdtls)
+;;----------------------------------------------------------
+;; https://github.com/manateelazycat/lazycat-emacs
+(require 'lsp-bridge)
+(require 'lsp-bridge-jdtls)
 
-            ;;; Code:
+          ;;; Code:
 
-  (setq acm-enable-quick-access t)
-  (setq acm-backend-yas-match-by-trigger-keyword t)
+(setq acm-enable-quick-access t)
+(setq acm-backend-yas-match-by-trigger-keyword t)
 
-  (global-lsp-bridge-mode)
+(global-lsp-bridge-mode)
 
-  ;; 打开日志，开发者才需要
-  ;; (setq lsp-bridge-enable-log t)
+;; 打开日志，开发者才需要
+;; (setq lsp-bridge-enable-log t)
 
-  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
-  (defun lsp-bridge-jump ()
-    (interactive)
-    (cond
-     ((eq major-mode 'emacs-lisp-mode)
-      (let ((symb (function-called-at-point)))
-        (when symb
-          (find-function symb))))
-     (lsp-bridge-mode
-      (lsp-bridge-find-def))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-go))))
+;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+(defun lsp-bridge-jump ()
+  (interactive)
+  (cond
+   ((eq major-mode 'emacs-lisp-mode)
+    (let ((symb (function-called-at-point)))
+      (when symb
+        (find-function symb))))
+   (lsp-bridge-mode
+    (lsp-bridge-find-def))
+   (t
+    (require 'dumb-jump)
+    (dumb-jump-go))))
 
-  (defun lsp-bridge-jump-back ()
-    (interactive)
-    (cond
-     (lsp-bridge-mode
-      (lsp-bridge-find-def-return))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-back))))
+(defun lsp-bridge-jump-back ()
+  (interactive)
+  (cond
+   (lsp-bridge-mode
+    (lsp-bridge-find-def-return))
+   (t
+    (require 'dumb-jump)
+    (dumb-jump-back))))
 
-  (setq lsp-bridge-get-single-lang-server-by-project
-        (lambda (project-path filepath)
-          ;; If typescript file include deno.land url, then use Deno LSP server.
-          (save-excursion
-            (when (string-equal (file-name-extension filepath) "ts")
-              (dolist (buf (buffer-list))
-                (when (string-equal (buffer-file-name buf) filepath)
-                  (with-current-buffer buf
-                    (goto-char (point-min))
-                    (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
-                      (return "deno")))))))))
+(setq lsp-bridge-get-single-lang-server-by-project
+      (lambda (project-path filepath)
+        ;; If typescript file include deno.land url, then use Deno LSP server.
+        (save-excursion
+          (when (string-equal (file-name-extension filepath) "ts")
+            (dolist (buf (buffer-list))
+              (when (string-equal (buffer-file-name buf) filepath)
+                (with-current-buffer buf
+                  (goto-char (point-min))
+                  (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
+                    (return "deno")))))))))
 
-  ;; session 
-  (require 'basic-toolkit)
-  (setq desktop-load-locked-desktop t) ; don't popup dialog ask user, load anyway
-  (setq desktop-restore-frames nil)    ; don't restore any frame
+;; session 
+(require 'basic-toolkit)
+(setq desktop-load-locked-desktop t) ; don't popup dialog ask user, load anyway
+(setq desktop-restore-frames nil)    ; don't restore any frame
 
-  (defun emacs-session-restore ()
-    "Restore emacs session."
-    (interactive)
-    (ignore-errors
-      ;; Kill other windows.
-      (delete-other-windows)
+(defun emacs-session-restore ()
+  "Restore emacs session."
+  (interactive)
+  (ignore-errors
+    ;; Kill other windows.
+    (delete-other-windows)
+    ;; Kill unused buffers.
+    (kill-unused-buffers)
+    ;; Restore session.
+    (desktop-read "~/.emacs.d/")
+    ))
+
+(defun emacs-session-save (&optional arg)
+  "Save emacs session."
+  (interactive "p")
+  (ignore-errors
+    (if (equal arg 4)
+        ;; Kill all buffers if with prefix argument.
+        (mapc 'kill-buffer (buffer-list))
       ;; Kill unused buffers.
       (kill-unused-buffers)
-      ;; Restore session.
-      (desktop-read "~/.emacs.d/")
-      ))
+      ;; Save all buffers before exit.
+      (auto-save-buffers))
+    ;; Save session.
+    (make-directory "~/.emacs.d/" t)
+    (desktop-save "~/.emacs.d/")
+    ;; Exit emacs.
+    (kill-emacs)))
+(emacs-session-restore)
 
-  (defun emacs-session-save (&optional arg)
-    "Save emacs session."
-    (interactive "p")
-    (ignore-errors
-      (if (equal arg 4)
-          ;; Kill all buffers if with prefix argument.
-          (mapc 'kill-buffer (buffer-list))
-        ;; Kill unused buffers.
-        (kill-unused-buffers)
-        ;; Save all buffers before exit.
-        (auto-save-buffers))
-      ;; Save session.
-      (make-directory "~/.emacs.d/" t)
-      (desktop-save "~/.emacs.d/")
-      ;; Exit emacs.
-      (kill-emacs)))
-  (emacs-session-restore)
+#+END_SRC
+
+* Eaf
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+;;; Require
+
+(require 'eaf)
+(require 'eaf-2048)
+(require 'eaf-camera)
+(require 'eaf-terminal)
+(require 'eaf-image-viewer)
+(require 'eaf-pdf-viewer)
+(require 'eaf-browser)
+(require 'eaf-vue-mindmap)
+(require 'eaf-markdown-previewer)
+(require 'eaf-file-manager)
+(require 'eaf-mindmap)
+(require 'eaf-video-player)
+(require 'eaf-org-previewer)
+(require 'eaf-jupyter)
+(require 'eaf-git)
+
+;;; Code:
+
+;; You need configuration your own local proxy program first.
+;; (setq eaf-proxy-type "socks5")
+;; (setq eaf-proxy-host "127.0.0.1")
+;; (setq eaf-proxy-port "1080")
+
+;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
+(setq eaf-browser-continue-where-left-off t)
+
+(eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
+(eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
+(eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
+(eaf-bind-key scroll_down "M-k" eaf-browser-keybinding)
+(eaf-bind-key scroll_up_page "M-n" eaf-browser-keybinding)
+(eaf-bind-key scroll_down_page "M-p" eaf-browser-keybinding)
+(eaf-bind-key open_link "M-h" eaf-browser-keybinding)
+(eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
+(eaf-bind-key insert_or_open_link_new_buffer "D" eaf-browser-keybinding)
+(eaf-bind-key insert_or_open_link_background_buffer "F" eaf-browser-keybinding)
+(eaf-bind-key watch-other-window-up-line "M-<" eaf-browser-keybinding)
+(eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
+(eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
+(eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
+
+(setq eaf-browser-aria2-proxy-host "127.0.0.1")
+(setq eaf-browser-aria2-proxy-port "8123")
+(setq eaf-browser-enable-adblocker t)
+(setq eaf-browser-enable-autofill t)
+;; (setq eaf-music-play-order "random")
+(setq eaf-marker-letters "JKHLNMUIOYPFDSAVCRREW")
+(setq eaf-terminal-font-size 18)
+(setq eaf-file-manager-show-hidden-file nil)
+;(setq eaf-music-default-file "~/Music/")
+
+(defun eaf-goto-left-tab ()
+  (interactive)
+  (sort-tab-select-prev-tab))
+
+(defun eaf-goto-right-tab ()
+  (interactive)
+  (sort-tab-select-next-tab))
+
+(defun eaf-translate-text (text)
+  (popweb-dict-bing-input text))
+
+(setq eaf-goto-right-after-close-buffer t)
+
+;; (one-key-create-menu
+;;  "GIT"
+;;  '(
+;;    (("s" . "Git status") . eaf-open-git)
+;;    (("u" . "Git push to remote") . eaf-git-push)
+;;    (("i" . "Git pull") . eaf-git-pull)
+;;    (("c" . "Git clone") . eaf-git-clone)
+;;    (("h" . "Git history") . eaf-git-show-history)
+;;    )
+;;  t)
+
 #+END_SRC
 
 * Key-Bindings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; ------------------------------------------------------------------------------------------------
-  ;;           X-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
-  ;; ------------------------------------------------------------------------------------------------
-  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
+;; ------------------------------------------------------------------------------------------------
+;;           X-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
+;; ------------------------------------------------------------------------------------------------
+(define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
-  ;;-----------------------
-  ;;company-active-map
-  (define-key company-active-map (kbd "TAB") 'company-complete-selection)
-  (define-key company-active-map (kbd "M-h") 'company-complete-selection)
-  (define-key company-active-map (kbd "M-H") 'company-complete-common)
-  (define-key company-active-map (kbd "M-w") 'company-show-location)
-  (define-key company-active-map (kbd "M-s") 'company-search-candidates)
-  (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
-  (define-key company-active-map (kbd "M-n") 'company-select-next)
-  (define-key company-active-map (kbd "M-p") 'company-select-previous)
-  (define-key company-active-map (kbd "M-i") 'yas-expand)
+;;-----------------------
+;;company-active-map
+(define-key company-active-map (kbd "TAB") 'company-complete-selection)
+(define-key company-active-map (kbd "M-h") 'company-complete-selection)
+(define-key company-active-map (kbd "M-H") 'company-complete-common)
+(define-key company-active-map (kbd "M-w") 'company-show-location)
+(define-key company-active-map (kbd "M-s") 'company-search-candidates)
+(define-key company-active-map (kbd "M-S") 'company-filter-candidates)
+(define-key company-active-map (kbd "M-n") 'company-select-next)
+(define-key company-active-map (kbd "M-p") 'company-select-previous)
+(define-key company-active-map (kbd "M-i") 'yas-expand)
 
-  ;;-----------------------
-  ;;my-window-map
-  (defun set-control-w-shortcuts ()
-    (define-prefix-command 'my-window-map)
-    (global-set-key (kbd "C-w") 'my-window-map)
-    (define-key my-window-map (kbd "h") 'windmove-left)
-    (define-key my-window-map (kbd "j") 'windmove-down)
-    (define-key my-window-map (kbd "k") 'windmove-up)
-    (define-key my-window-map (kbd "l") 'windmove-right)
-    (define-key my-window-map (kbd "v") 'split-window-right)
-    (define-key my-window-map (kbd "b") 'split-window-below)
-    (define-key my-window-map (kbd "d") 'delete-window)
-    (define-key my-window-map (kbd "D") 'delete-other-windows)
-    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
-    (define-key my-window-map (kbd "o") 'toggle-one-window))
+;;-----------------------
+;;my-window-map
+(defun set-control-w-shortcuts ()
+  (define-prefix-command 'my-window-map)
+  (global-set-key (kbd "C-w") 'my-window-map)
+  (define-key my-window-map (kbd "h") 'windmove-left)
+  (define-key my-window-map (kbd "j") 'windmove-down)
+  (define-key my-window-map (kbd "k") 'windmove-up)
+  (define-key my-window-map (kbd "l") 'windmove-right)
+  (define-key my-window-map (kbd "v") 'split-window-right)
+  (define-key my-window-map (kbd "b") 'split-window-below)
+  (define-key my-window-map (kbd "d") 'delete-window)
+  (define-key my-window-map (kbd "D") 'delete-other-windows)
+  (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
+  (define-key my-window-map (kbd "o") 'toggle-one-window))
 
-  (set-control-w-shortcuts)
-  (eval-after-load "evil-maps"
-    '(progn
-       (dolist (map '(evil-motion-state-map
-                      evil-insert-state-map
-                      evil-emacs-state-map
-                      evil-window-map))
-         (define-key (eval map) "\C-w" nil)
-         (set-control-w-shortcuts))))
+(set-control-w-shortcuts)
+(eval-after-load "evil-maps"
+  '(progn
+     (dolist (map '(evil-motion-state-map
+                    evil-insert-state-map
+                    evil-emacs-state-map
+                    evil-window-map))
+       (define-key (eval map) "\C-w" nil)
+       (set-control-w-shortcuts))))
 
-  ;;-----------------------
-  ;; org-mode-map
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "M-h") nil)
-    (define-key org-mode-map (kbd "C-,") nil))
-
-
-  ;;-----------------------
-  ;; evilmode-map
-  (with-eval-after-load 'evil
-    (define-key evil-motion-state-map (kbd "SPC") nil)
-    (define-key evil-motion-state-map (kbd "RET") nil)
-    (define-key evil-motion-state-map (kbd "TAB") nil)
-    (define-key evil-normal-state-map (kbd "C-t") nil)
-    (define-key evil-normal-state-map (kbd "C-]") nil)
-    (define-key evil-normal-state-map (kbd "/")  'swiper)
-    (define-key evil-motion-state-map (kbd "C-6") nil))
+;;-----------------------
+;; org-mode-map
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "M-h") nil)
+  (define-key org-mode-map (kbd "C-,") nil))
 
 
-  ;; ------------------------------------------------------------------------------------------------
-  ;;                 Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-  ;; ------------------------------------------------------------------------------------------------
-  (require 'lazy-load)
-  ;; --- 卸载按键, 全局按键的卸载
-  (lazy-load-unset-keys  
-   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
-  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
-
-  (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
-  (global-set-key (kbd "C-,")     'goto-last-change)
-  (global-set-key (kbd "C-4")     'insert-changelog-date)
-  (global-set-key (kbd "C-5")     'insert-standard-date)
+;;-----------------------
+;; evilmode-map
+(with-eval-after-load 'evil
+  (define-key evil-motion-state-map (kbd "SPC") nil)
+  (define-key evil-motion-state-map (kbd "RET") nil)
+  (define-key evil-motion-state-map (kbd "TAB") nil)
+  (define-key evil-normal-state-map (kbd "C-t") nil)
+  (define-key evil-normal-state-map (kbd "C-]") nil)
+  (define-key evil-normal-state-map (kbd "/")  'swiper)
+  (define-key evil-motion-state-map (kbd "C-6") nil))
 
 
-  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
-  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
-  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
-  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
-  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
-  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
-  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
+;; ------------------------------------------------------------------------------------------------
+;;                 Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
+;; ------------------------------------------------------------------------------------------------
+(require 'lazy-load)
+;; --- 卸载按键, 全局按键的卸载
+(lazy-load-unset-keys  
+ '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
-  (global-set-key (kbd "C-x C-f") 'ido-find-file)
-  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
-  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
-  (global-set-key (kbd "C-x I")   'ido-insert-file)
+(global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
+(global-set-key (kbd "C-,")     'goto-last-change)
+(global-set-key (kbd "C-4")     'insert-changelog-date)
+(global-set-key (kbd "C-5")     'insert-standard-date)
 
-  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
-  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
-  (global-set-key (kbd "M-]")     'watch-other-window-up)
-  (global-set-key (kbd "M-[")     'watch-other-window-down)
-  (global-set-key (kbd "M->")     'watch-other-window-up-line)
-  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
 
-  (global-set-key (kbd "C-x y")   'dash-at-point)
-  (global-set-key (kbd "M-]")     'dumb-jump-go)
-  (global-set-key (kbd "M-t")     'dumb-jump-back)
+(global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
+(global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
+(global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
+(global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
+(global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
+(global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
+(global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
 
-  (global-set-key (kbd "C-/")     'undo-tree-undo)
-  (global-set-key (kbd "C-?")     'undo-tree-redo)
+(global-set-key (kbd "C-x C-f") 'ido-find-file)
+(global-set-key (kbd "C-x b")   'ido-switch-buffer)
+(global-set-key (kbd "C-x i")   'ido-insert-buffer)
+(global-set-key (kbd "C-x I")   'ido-insert-file)
 
-  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
-  (global-set-key (kbd "M-g f")   'avy-goto-line)
-  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
+(global-set-key (kbd "M-n")     'hold-line-scroll-down)
+(global-set-key (kbd "M-p")     'hold-line-scroll-up)
+(global-set-key (kbd "M-]")     'watch-other-window-up)
+(global-set-key (kbd "M-[")     'watch-other-window-down)
+(global-set-key (kbd "M->")     'watch-other-window-up-line)
+(global-set-key (kbd "M-<")     'watch-other-window-down-line)
 
-  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
-  (global-set-key (kbd "C-M-;")   'magit-status)
-  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
+(global-set-key (kbd "C-x y")   'dash-at-point)
+(global-set-key (kbd "M-]")     'dumb-jump-go)
+(global-set-key (kbd "M-t")     'dumb-jump-back)
 
-  ;; 语法跳转
-  (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
-  (global-set-key (kbd "C-8")     'lsp-bridge-jump)
-  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
-  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
-  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
-  (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
-  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
-  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+(global-set-key (kbd "C-/")     'undo-tree-undo)
+(global-set-key (kbd "C-?")     'undo-tree-redo)
 
-  (when (or (string-match "Emacs 30." (emacs-version))
-            (string-match "Emacs 31." (emacs-version)))
-    ;; ### Fingertip ###
-    ;; --- 结构化编程
-    (lazy-load-unset-keys
-     '("M-J" "M-r" "M-s" "M-;" "C-M-f" "C-M-b" "M-)")
-     fingertip-mode-map)             ;卸载按键
-    (defvar fingertip-key-alist nil)
-    (setq fingertip-key-alist
-          '(
-            ;; 移动
-            ("M-n" . fingertip-jump-left)
-            ("M-p" . fingertip-jump-right)
-            ;; 符号插入
-            ("%" . fingertip-match-paren)       ;括号跳转
-            ("(" . fingertip-open-round)        ;智能 (
-            ("[" . fingertip-open-bracket)      ;智能 [
-            ("{" . fingertip-open-curly)        ;智能 {
-            (")" . fingertip-close-round)       ;智能 )
-            ("]" . fingertip-close-bracket)     ;智能 ]
-            ("}" . fingertip-close-curly)       ;智能 }
-            ("\"" . fingertip-double-quote)     ;智能 "
-            ("'" . fingertip-single-quote)      ;智能 '
-            ("=" . fingertip-equal)             ;智能 =
-            ("SPC" . fingertip-space)           ;智能 space
-            ("RET" . fingertip-newline)         ;智能 newline
-            ;; 删除
-            ("M-o" . fingertip-backward-delete) ;向后删除
-            ("C-d" . fingertip-forward-delete)  ;向前删除
-            ("C-k" . fingertip-kill)            ;向前kill
-            ;; 包围
-            ("M-\"" . fingertip-wrap-double-quote) ;用 " " 包围对象, 或跳出字符串
-            ("M-'" . fingertip-wrap-single-quote) ;用 ' ' 包围对象, 或跳出字符串
-            ("M-[" . fingertip-wrap-bracket)      ;用 [ ] 包围对象
-            ("M-{" . fingertip-wrap-curly)        ;用 { } 包围对象
-            ("M-(" . fingertip-wrap-round)        ;用 ( ) 包围对象
-            ("M-)" . fingertip-unwrap)            ;去掉包围对象
-            ;; 跳出并换行缩进
-            ("M-:" . fingertip-jump-out-pair-and-newline) ;跳出括号并换行
-            ;; 向父节点跳动
-            ("C-j" . fingertip-jump-up)
-            ))
-    (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
-    )
+(global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
+(global-set-key (kbd "M-g f")   'avy-goto-line)
+(global-set-key (kbd "M-g w")   'avy-goto-word-1)
 
-  ;; (global-set-key (kbd "C-c p f") 'projectile-find-file)
-  ;; (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
-  ;; (global-set-key (kbd "C-c p p") 'projectile-switch-project)
+(global-set-key (kbd "C-M-s")   'color-rg-search-input)
+(global-set-key (kbd "C-M-;")   'magit-status)
+(global-set-key (kbd "C-x G")   'git-messenger:popup-message)
+
+;; 语法跳转
+(global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
+(global-set-key (kbd "C-8")     'lsp-bridge-jump)
+(global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
+(global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
+(global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
+(global-set-key (kbd "C-0")     'lsp-bridge-rename) 
+(global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+(global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+(global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
+(global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+
+;;; EAF
+(global-set-key (kbd "M-j")   'eaf-open-in-file-manager)
+(global-set-key (kbd "s-'")   'eaf-open)
+(global-set-key (kbd "s-\"")  'eaf-open-browser)
+(global-set-key (kbd "s-n")   'eaf-open-terminal)
+
+
+(when (or (string-match "Emacs 30." (emacs-version))
+          (string-match "Emacs 31." (emacs-version)))
+  ;; ### Fingertip ###
+  ;; --- 结构化编程
+  (lazy-load-unset-keys
+   '("M-J" "M-r" "M-s" "M-;" "C-M-f" "C-M-b" "M-)")
+   fingertip-mode-map)             ;卸载按键
+  (defvar fingertip-key-alist nil)
+  (setq fingertip-key-alist
+        '(
+          ;; 移动
+          ("M-n" . fingertip-jump-left)
+          ("M-p" . fingertip-jump-right)
+          ;; 符号插入
+          ("%" . fingertip-match-paren)       ;括号跳转
+          ("(" . fingertip-open-round)        ;智能 (
+          ("[" . fingertip-open-bracket)      ;智能 [
+          ("{" . fingertip-open-curly)        ;智能 {
+          (")" . fingertip-close-round)       ;智能 )
+          ("]" . fingertip-close-bracket)     ;智能 ]
+          ("}" . fingertip-close-curly)       ;智能 }
+          ("\"" . fingertip-double-quote)     ;智能 "
+          ("'" . fingertip-single-quote)      ;智能 '
+          ("=" . fingertip-equal)             ;智能 =
+          ("SPC" . fingertip-space)           ;智能 space
+          ("RET" . fingertip-newline)         ;智能 newline
+          ;; 删除
+          ("M-o" . fingertip-backward-delete) ;向后删除
+          ("C-d" . fingertip-forward-delete)  ;向前删除
+          ("C-k" . fingertip-kill)            ;向前kill
+          ;; 包围
+          ("M-\"" . fingertip-wrap-double-quote) ;用 " " 包围对象, 或跳出字符串
+          ("M-'" . fingertip-wrap-single-quote) ;用 ' ' 包围对象, 或跳出字符串
+          ("M-[" . fingertip-wrap-bracket)      ;用 [ ] 包围对象
+          ("M-{" . fingertip-wrap-curly)        ;用 { } 包围对象
+          ("M-(" . fingertip-wrap-round)        ;用 ( ) 包围对象
+          ("M-)" . fingertip-unwrap)            ;去掉包围对象
+          ;; 跳出并换行缩进
+          ("M-:" . fingertip-jump-out-pair-and-newline) ;跳出括号并换行
+          ;; 向父节点跳动
+          ("C-j" . fingertip-jump-up)
+          ))
+  (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
+  )
+
+;; (global-set-key (kbd "C-c p f") 'projectile-find-file)
+;; (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
+;; (global-set-key (kbd "C-c p p") 'projectile-switch-project)
 
 #+END_SRC

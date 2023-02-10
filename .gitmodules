@@ -58,3 +58,6 @@
 [submodule ".emacs.d/vendor/org-auto-tangle"]
 	path = .emacs.d/vendor/org-auto-tangle
 	url = https://github.com/yilkalargaw/org-auto-tangle
+[submodule ".emacs.d/vendor/emacs-application-framework"]
+	path = .emacs.d/vendor/emacs-application-framework
+	url = https://github.com/emacs-eaf/emacs-application-framework.git
