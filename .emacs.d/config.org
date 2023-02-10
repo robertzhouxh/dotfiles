@@ -31,7 +31,7 @@
   (require 'package)
   (setq package-enable-at-startup nil)
   (setq package-check-signature nil)
-  ;;; 添加中国源
+    ;;; 添加中国源
   (setq package-archives '(("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
                            ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
                            ("melpa-stable" . "http://mirrors.ustc.edu.cn/elpa/melpa-stable/")
@@ -59,11 +59,42 @@
   (if (file-exists-p custom-file)
       (load custom-file))
 
-  (defun add-subdirs-to-load-path (dir)
-    "Recursive add directories to `load-path'."
-    (let ((default-directory (file-name-as-directory dir)))
-      (add-to-list 'load-path dir)
-      (normal-top-level-add-subdirs-to-load-path)))
+  ;; from lazycat emacs config 
+  (defun add-subdirs-to-load-path (search-dir)
+    (interactive)
+    (let* ((dir (file-name-as-directory search-dir)))
+      (dolist (subdir
+               ;; 过滤出不必要的目录，提升Emacs启动速度
+               (cl-remove-if
+                #'(lambda (subdir)
+                    (or
+                     ;; 不是目录的文件都移除
+                     (not (file-directory-p (concat dir subdir)))
+                     ;; 父目录、 语言相关和版本控制目录都移除
+                     (member subdir '("." ".." 
+                                      "dist" "node_modules" "__pycache__" 
+                                      "RCS" "CVS" "rcs" "cvs" ".git" ".github")))) 
+                (directory-files dir)))
+        (let ((subdir-path (concat dir (file-name-as-directory subdir))))
+          ;; 目录下有 .el .so .dll 文件的路径才添加到 `load-path' 中，提升Emacs启动速度
+          (when (cl-some #'(lambda (subdir-file)
+                             (and (file-regular-p (concat subdir-path subdir-file))
+                                  ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
+                                  (member (file-name-extension subdir-file) '("el" "so" "dll"))))
+                         (directory-files subdir-path))
+
+            ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
+            ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
+            (add-to-list 'load-path subdir-path t))
+
+          ;; 继续递归搜索子目录
+          (add-subdirs-to-load-path subdir-path)))))
+
+  ;; (defun add-subdirs-to-load-path (dir)
+  ;;   "Recursive add directories to `load-path'."
+  ;;   (let ((default-directory (file-name-as-directory dir)))
+  ;;     (add-to-list 'load-path dir)
+  ;;     (normal-top-level-add-subdirs-to-load-path)))
 
   (add-subdirs-to-load-path "~/.emacs.d/vendor/")
 
@@ -743,7 +774,6 @@
 * Company && Yasnippet
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package posframe)
   (use-package expand-region :bind ("C-=" . er/expand-region))
   (use-package company-restclient)
   (use-package company-nginx :after (nginx-mode) :hook((nginx-mode . company-nginx-keywords)))
@@ -1166,11 +1196,11 @@
           org-ascii-text-width 1000)
     (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
 
+    ;; from lazycat emacs config
     (defun org-export-docx ()
       (interactive)
       (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-            (template-file (concat (file-name-as-directory lazycat-emacs-root-dir)
-                                   (file-name-as-directory "template")
+            (template-file (concat (file-name-as-directory user-emacs-directory)
                                    "template.docx")))
         (shell-command (format "pandoc %s -o %s --reference-doc=%s"
                                (buffer-file-name)
@@ -1899,6 +1929,7 @@
   ;;(require 'visual-regexp)
   ;;(setq vr/match-separator-use-custom-face t)
   ;;(setq vr/match-separator-string "⇛")
+  (require 'posframe)
   (require 'lazycat-toolkit)
   (require 'goto-chg)
   (require 'watch-other-window)
