@@ -259,13 +259,6 @@
 
   (defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
 
-  (defun org-export-docx ()
-    (interactive)
-    (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-          (template-file "（expand-file-name "template.docx" user-emacs-directory)"))
-      (shell-command (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
-      (message "Convert finish: %s" docx-file)))
-
   (defun format-function-parameters ()
     "Turn the list of function parameters into multiline."
     (interactive)
@@ -282,7 +275,7 @@
 
   (defun my-org-screenshot ()
     "Take a screenshot into a time stamped unique-named file in the
-      same directory as the org-buffer and insert a link to this file."
+          same directory as the org-buffer and insert a link to this file."
     (interactive)
     (org-display-inline-images)
 
@@ -416,7 +409,7 @@
 
   (defun delete-trailing-M()
     "Delete `^M' characters in the buffer.
-        Same as `replace-string C-q C-m RET RET'."
+            Same as `replace-string C-q C-m RET RET'."
     (interactive)
     (save-excursion
       (goto-char 0)
@@ -492,7 +485,7 @@
   ;; --------------------------------------------
   (defun +rename-current-file (newname)
     "Rename current visiting file to NEWNAME.
-  If NEWNAME is a directory, move file to it."
+      If NEWNAME is a directory, move file to it."
     (interactive
      (progn
        (unless buffer-file-name
@@ -520,8 +513,8 @@
 
   (defun +copy-current-file (new-path &optional overwrite-p)
     "Copy current buffer's file to `NEW-PATH'.
-    If `OVERWRITE-P', overwrite the destination file without
-    confirmation."
+        If `OVERWRITE-P', overwrite the destination file without
+        confirmation."
     (interactive
      (progn
        (unless buffer-file-name
@@ -921,16 +914,16 @@
       "bs" 'bookmark-save
 
       ;; code
-      "cd" 'delete-trailing-whitespace
-      "cm" 'delete-trailing-M
       "cc" 'comment-dwim
+      "cd" 'delete-trailing-whitespace
       "cl" 'toggle-truncate-lines
+      "cm" 'delete-trailing-M
 
       ;; dired
       "dj" 'dired-jump
       "dJ" 'dired-jump-other-window
 
-      ;; open external App
+      ;; external Apps
       "eY" 'youdao-dictionary-search-from-input
       "ep" 'plantuml–parse-headlines
       "ej" 'plantuml-display-json-open
@@ -939,6 +932,7 @@
       "ew" 'plantuml-org-to-wbs-open
       "ea" 'plantuml-auto-convert-open
       "es" 'my-org-screenshot 
+      "eo" 'org-export-docx
 
       ;; file
       "fa" 'x/save-all
@@ -1153,23 +1147,37 @@
 ** Org
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq org-log-done 'time
-        org-hide-leading-stars t
-        ;; t, 'overview, 'content, 'showall.
-        org-startup-folded t                     
-        ;; 下划线不转下标
-        org-pretty-entities nil                  
-        org-export-babel-evaluate t
-        ;; 下划线不转下标
-        org-export-with-sub-superscripts nil     
-        org-export-headline-levels 5
-        org-highlight-latex-and-related '(latex) 
-        ;; 启用booktabs宏包模式, 额外支持插入一些属性设置
-        org-latex-tables-booktabs t            
-        org-image-actual-width 300 
-        org-latex-default-figure-position "H"
-        org-ascii-text-width 1000)
-  (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
+
+  (with-eval-after-load 'org
+    (setq org-odt-preferred-output-format "docx") ;ODT转换格式默认为docx
+    (setq org-startup-folded nil)                 ;默认展开内容
+    (setq org-startup-indented t)                 ;默认缩进内容
+
+    (setq org-log-done 'time
+          org-hide-leading-stars t
+          org-pretty-entities nil                 ;; 下划线不转下标
+          ;; org-export-babel-evaluate t
+          org-export-with-sub-superscripts nil    ;; 下划线不转下标
+          org-export-headline-levels 5
+          org-highlight-latex-and-related '(latex) 
+          org-latex-tables-booktabs t            ;; 启用booktabs宏包模式, 额外支持插入一些属性设置
+          org-image-actual-width 300 
+          org-latex-default-figure-position "H"
+          org-ascii-text-width 1000)
+    (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
+
+    (defun org-export-docx ()
+      (interactive)
+      (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
+            (template-file (concat (file-name-as-directory lazycat-emacs-root-dir)
+                                   (file-name-as-directory "template")
+                                   "template.docx")))
+        (shell-command (format "pandoc %s -o %s --reference-doc=%s"
+                               (buffer-file-name)
+                               docx-file
+                               template-file
+                               ))
+        (message "Convert finish: %s" docx-file))))
 
   (use-package org-download
     :ensure t
