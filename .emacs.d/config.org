@@ -1,7 +1,10 @@
-* Introduce
- use it, just clone this repo to whereever your emacs config is (usually =/home/$(USER)/.emacs.d=)
-* Header
-#+PROPERTY: header-args :results silent
+:PROPERTIES: header-args:emacs-lisp :tangle
+:ID:       B66F5EBD-339C-4D38-B505-372EFB1B1AC6
+:END:
+#+title: 我的 Emacs 配置
+#+date: 2023-02-10 15:21:00 
+#+auto_tangle: t
+
 * Custom Var
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -149,12 +152,6 @@
     (if (get-buffer "*scratch*")
         (kill-buffer "*scratch*")))
   (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
-
-  ;; Don't ask me when close emacs with process is running
-  ;;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-  ;;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
-  ;;  (require 'noflet)
-  ;;  (noflet ((process-list ())) ad-do-it))
 
   ;; Don't ask me when kill process buffer
   (setq kill-buffer-query-functions
@@ -307,7 +304,7 @@
 
   (defun my-org-screenshot ()
     "Take a screenshot into a time stamped unique-named file in the
-          same directory as the org-buffer and insert a link to this file."
+            same directory as the org-buffer and insert a link to this file."
     (interactive)
     (org-display-inline-images)
 
@@ -331,7 +328,6 @@
     (if (file-exists-p filename)
         (insert (concat "[[file:" relative-dir "]]")))
     (org-display-inline-images))
-
 
   ;; --------------------------------------------
   ;; proxy 操作辅助函数
@@ -441,7 +437,7 @@
 
   (defun delete-trailing-M()
     "Delete `^M' characters in the buffer.
-            Same as `replace-string C-q C-m RET RET'."
+              Same as `replace-string C-q C-m RET RET'."
     (interactive)
     (save-excursion
       (goto-char 0)
@@ -517,7 +513,7 @@
   ;; --------------------------------------------
   (defun +rename-current-file (newname)
     "Rename current visiting file to NEWNAME.
-      If NEWNAME is a directory, move file to it."
+        If NEWNAME is a directory, move file to it."
     (interactive
      (progn
        (unless buffer-file-name
@@ -545,8 +541,8 @@
 
   (defun +copy-current-file (new-path &optional overwrite-p)
     "Copy current buffer's file to `NEW-PATH'.
-        If `OVERWRITE-P', overwrite the destination file without
-        confirmation."
+          If `OVERWRITE-P', overwrite the destination file without
+          confirmation."
     (interactive
      (progn
        (unless buffer-file-name
@@ -597,16 +593,12 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package use-package-ensure-system-package :ensure t)
-
-  ;; Environment
   (use-package exec-path-from-shell
-    :ensure t
     :if (or sys/mac-x-p sys/linux-x-p)
     :config
     (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
     (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize))
-
   (use-package protobuf-mode)
   (use-package markdown-mode)
   (use-package dockerfile-mode)
@@ -615,6 +607,7 @@
   (use-package json-reformat)
   (use-package comment-dwim-2)
   (use-package buffer-flip)
+  (use-package dash-at-point :ensure t)
   (use-package async :init (async-bytecomp-package-mode 1))
   (use-package projectile :diminish :config (projectile-global-mode))
   (use-package flycheck :diminish :config (global-flycheck-mode 1))
@@ -624,7 +617,6 @@
   (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
   (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
   (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-
   (use-package which-key
     :diminish which-key-mode
     :hook (after-init . which-key-mode)
@@ -657,41 +649,12 @@
     :config
     (counsel-projectile-mode t))
 
-  ;; (use-package dashboard
-  ;;   :diminish
-  ;;   :init
-  ;;   (setq dashboard-startup-banner "~/.emacs.d/logo.png")
-  ;;   (setq dashboard-navigator-buttons `(((,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "mark-github"      :height 1.0 :v-adjust  0.0) "★")
-  ;;                                         "GitHub" "Browse" (lambda (&rest _) (browse-url homepage-url)))
-  ;;                                        (,(if (fboundp 'all-the-icons-octicon) (all-the-icons-octicon "heart"            :height 1.1 :v-adjust  0.0) "♥")
-  ;;                                         "Stars" "Show stars" (lambda (&rest _) (browse-url stars-url)))
-  ;;                                        (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "report_problem" :height 1.1 :v-adjust -0.2) "⚑")
-  ;;                                         "Issue" "Report issue" (lambda (&rest _) (browse-url issue-url)) warning)
-  ;;                                        (,(if (fboundp 'all-the-icons-material) (all-the-icons-material "update"         :height 1.1 :v-adjust -0.2) "♺")
-  ;;                                         "Update" "Update packages synchronously" (lambda (&rest _) (package-update-all nil)) success))))
-
-  ;;   :config
-  ;;   (dashboard-setup-startup-hook)
-  ;;   (when (< (length command-line-args) 2) (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-  ;;   (defconst homepage-url "https://github.com/robertzhouxh/dotfiles")
-  ;;   (defconst stars-url (concat homepage-url "/stargazers"))
-  ;;   (defconst issue-url (concat homepage-url "/issues/new"))
-  ;;   :custom
-  ;;   (dashboard-startup-banner 'logo)
-  ;;   (dashboard-set-heading-icons t)
-  ;;   (dashboard-set-file-icons t)
-  ;;   (dashboard-set-init-info t)
-  ;;   (dashboard-set-navigator t)
-  ;;   (dashboard-banner-logo-title "Welcome to ZXH-Emacs Dashboard")
-  ;;   (dashboard-items '((recents   . 10)
-  ;;                      (projects  . 5)
-  ;;                      (bookmarks . 5))))
-
 #+END_SRC
 
 * Quick Search And Move
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package avy)
   (use-package vundo
     :defer t
@@ -733,7 +696,6 @@
 
   ;; Hiding structured data
   (use-package hideshow
-    :ensure t
     :hook (prog-mode . hs-minor-mode)
     :config
     (defconst hideshow-folded-face '((t (:inherit 'font-lock-comment-face :box t))))
@@ -775,19 +737,15 @@
 * Company && Yasnippet
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package expand-region :bind ("C-=" . er/expand-region))
   (use-package company-restclient)
   (use-package company-nginx :after (nginx-mode) :hook((nginx-mode . company-nginx-keywords)))
-
   (use-package yasnippet
     :config
     (yas-reload-all)
     (add-hook 'prog-mode-hook 'yas-minor-mode)
     (add-hook 'text-mode-hook 'yas-minor-mode))
-
-  ;; 模板生成工具，写代码时随手生成一个模板。强烈推荐使用
-  ;; 使用方法： https://github.com/abo-abo/auto-yasnippet#usage
-  ;;(use-package auto-yasnippet :config (setq aya-persist-snippets-dir (concat user-emacs-directory "my/snippets")))
 
   (use-package company
     :diminish
@@ -823,6 +781,7 @@
 * Dired
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package dired
   :ensure nil
   :hook (dired-after-readin . dired-directory-sort)
@@ -843,35 +802,37 @@
          (fboundp 'dired-insert-set-properties)
          (dired-insert-set-properties (point-min) (point-max)))
     (set-buffer-modified-p nil)))
+
 #+END_SRC
 
 * Performance
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; -------------------------------------------------------------
-;; Performance
-;; Disable garbage collection when entering commands.
-(defun max-gc-limit ()
-  (setq gc-cons-threshold most-positive-fixnum))
 
-(defun reset-gc-limit ()
-  (setq gc-cons-threshold 800000))
+  ;; Disable garbage collection when entering commands.
+  (defun max-gc-limit ()
+    (setq gc-cons-threshold most-positive-fixnum))
 
-(add-hook 'minibuffer-setup-hook #'max-gc-limit)
-(add-hook 'minibuffer-exit-hook #'reset-gc-limit)
+  (defun reset-gc-limit ()
+    (setq gc-cons-threshold 800000))
 
-;; Improve the performance of rendering long lines.
-(setq-default bidi-display-reordering nil)
-;;; Track Emacs commands frequency
-(use-package keyfreq
-  :ensure t
-  :config (keyfreq-mode 1) (keyfreq-autosave-mode 1))
+  (add-hook 'minibuffer-setup-hook #'max-gc-limit)
+  (add-hook 'minibuffer-exit-hook #'reset-gc-limit)
+
+  ;; Improve the performance of rendering long lines.
+  (setq-default bidi-display-reordering nil)
+
+  ;;; Track Emacs commands frequency
+  (use-package keyfreq
+    :ensure t
+    :config (keyfreq-mode 1) (keyfreq-autosave-mode 1))
 
 #+END_SRC
 
 * Magit
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package magit
     ;; :bind ("C-M-;" . magit-status)
     :commands (magit-status magit-get-current-branch)
@@ -885,12 +846,12 @@
 
   (defun my/magit-display-buffer (buffer)
     (if (and git-commit-mode
-	     (with-current-buffer buffer
-	       (derived-mode-p 'magit-diff-mode)))
-	(display-buffer buffer '((display-buffer-pop-up-window
-				  display-buffer-use-some-window
-				  display-buffer-below-selected)
-				 (inhibit-same-window . t)))
+             (with-current-buffer buffer
+               (derived-mode-p 'magit-diff-mode)))
+        (display-buffer buffer '((display-buffer-pop-up-window
+                                  display-buffer-use-some-window
+                                  display-buffer-below-selected)
+                                 (inhibit-same-window . t)))
       (magit-display-buffer-traditional buffer)))
 
   (setq magit-display-buffer-function #'my/magit-display-buffer)
@@ -908,6 +869,7 @@
     (git-gutter:deleted  ((t (:background "#ff79c6"))))
     :config
     (global-git-gutter-mode +1))
+
 #+END_SRC
 
 * Evil-Mode
@@ -1180,6 +1142,7 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (with-eval-after-load 'org
+    (use-package org-auto-tangle :ensure nil :hook (org-mode . org-auto-tangle-mode))
     (setq org-odt-preferred-output-format "docx") ;ODT转换格式默认为docx
     (setq org-startup-folded nil)                 ;默认展开内容
     (setq org-startup-indented t)                 ;默认缩进内容
@@ -1235,6 +1198,7 @@
 ** Babel
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   ;; Babel
   (setq org-confirm-babel-evaluate nil
         org-src-fontify-natively t
@@ -1266,6 +1230,7 @@
 ** Plantuml
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package plantuml-mode
     :ensure t
     :magic ("@startuml" . plantuml-mode)
@@ -1298,7 +1263,7 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; 先安装 LaTex 完整版, MacTeX)
+  ;; 先安装 LaTex 完整版, MacTeX
   ;; https://orgmode.org/worg/org-dependencies.html
   ;; pip3 install pygments
   ;; sudo tlmgr update --self --all
@@ -1398,6 +1363,7 @@
 ** Latex
 
 #+begin_src emacs-lisp :tangle yes
+
   (use-package cdlatex
     :defer t
     :ensure t
@@ -1439,7 +1405,6 @@
 
   ;;---------------------------------------------------------
   ;; Golang
-  ;;---------------------------------------------------------
   (use-package go-mode
     :functions (go-packages-gopkgs go-update-tools)
     :bind (:map go-mode-map
@@ -1492,43 +1457,7 @@
                  (message "Failed to install %s: %d" pkg status))))))))
 
     ;; Try to install go tools if `gopls' is not found
-    (unless (executable-find "gopls")
-      (go-update-tools))
-
-    (use-package go-fill-struct)
-    (use-package go-impl)
-
-    ;; Install: See https://github.com/golangci/golangci-lint#install
-    (use-package flycheck-golangci-lint
-      :if (executable-find "golangci-lint")
-      :after flycheck
-      :defines flycheck-disabled-checkers
-      :hook (go-mode . (lambda ()
-                         "Enable golangci-lint."
-                         (setq flycheck-disabled-checkers '(go-gofmt
-                                                            go-golint
-                                                            go-vet
-                                                            go-build
-                                                            go-test
-                                                            go-errcheck))
-                         (flycheck-golangci-lint-setup))))
-
-    (use-package go-tag
-      :bind (:map go-mode-map
-                  ("C-c t t" . go-tag-add)
-                  ("C-c t T" . go-tag-remove))
-      :init (setq go-tag-args (list "-transform" "camelcase")))
-
-    (use-package go-gen-test
-      :bind (:map go-mode-map
-                  ("C-c t g" . go-gen-test-dwim)))
-
-    (use-package gotest
-      :bind (:map go-mode-map
-                  ("C-c t a" . go-test-current-project)
-                  ("C-c t m" . go-test-current-file)
-                  ("C-c t ." . go-test-current-test)
-                  ("C-c t x" . go-run))))
+    (unless (executable-find "gopls") (go-update-tools))
 
   ;;---------------------------------------------------------
   ;; Erlang Install
@@ -1573,27 +1502,8 @@
       (require 'erlang-start)
       (defvar inferior-erlang-prompt-timeout t)))
 
-  ;(setq erlang-man-root-dir "/usr/local/opt/erlang/lib/erlang/man") 
-  ;(defun get-erl-man ()
-  ;  (interactive)
-  ;  (let* ((man-path "/usr/local/opt/erlang/lib/erlang/man")
-  ;         (man-args (format "-M %s %s" man-path (current-word))))
-  ;    (man man-args)))
-
-  ;(defun erlang-insert-binary ()
-  ;  (interactive)
-  ;  (insert "<<\"\">>")
-  ;  (backward-char 3)
-  ;  )
-  ;(defun org-insert-header ()
-  ;  (interactive)
-  ;  (insert "<<\"\">>")
-  ;  (backward-char 3)
-  ;  )
-
   ;;---------------------------------------------------------
   ;; C/C++ Mode
-  ;;---------------------------------------------------------
   (use-package cc-mode
     :ensure nil
     :bind (:map c-mode-base-map
@@ -1608,7 +1518,6 @@
   ;;---------------------------------------------------------
   ;; Python Mode
   ;; Install: pip install pyflakes autopep8
-  ;;---------------------------------------------------------
   (use-package python
     :ensure nil
     :hook (inferior-python-mode . (lambda ()
@@ -1670,104 +1579,64 @@
     :init
     (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
 
-  ;;---------------------------------------------------------
-  ;; Dash
-  ;;---------------------------------------------------------
-  (use-package dash-at-point :ensure t)
-
-
-  ;; https://robert.kra.hn/posts/rust-emacs-setup/
-  ;; DEBUGGING
-  ;; brew install cmake llvm
-  ;; git clone https://github.com/lldb-tools/lldb-mi
-  ;; mkdir -p lldb-mi/build
-  ;; cd lldb-mi/build
-  ;; cmake ..
-  ;; cmake --build .
-  ;; ln -s $PWD/src/lldb-mi /usr/local/bin/lldb-mi
-  (when (executable-find "lldb-mi")
-    (use-package dap-mode
-      :ensure
-      :config
-      (dap-ui-mode)
-      (dap-ui-controls-mode 1)
-
-      (require 'dap-lldb)
-      (require 'dap-gdb-lldb)
-      ;; installs .extension/vscode
-      (dap-gdb-lldb-setup)
-      (dap-register-debug-template
-       "Rust::LLDB Run Configuration"
-       (list :type "lldb"
-             :request "launch"
-             :name "LLDB::Run"
-             :gdbpath "rust-lldb"
-             ;; uncomment if lldb-mi is not in PATH
-             ;; :lldbmipath "path/to/lldb-mi"
-             ))))
-
 #+END_SRC
 
 * AutoInsert
 
   #+BEGIN_SRC emacs-lisp :tangle yes
+
     (load "autoinsert")
     (auto-insert-mode)
     (setq auto-insert t)
     (setq auto-insert-query t)
     (add-hook 'find-file-hooks 'auto-insert)
     (setq auto-insert-alist
-	  (append '(
-		    (("\\.go$" . "golang header")
-		     nil
-		     "//---------------------------------------------------------------------\n"
-		     "// @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
-		     "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-		     "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-		     "//----------------------------------------------------------------------\n"
-		     _
-		     ))
-		  auto-insert-alist))
+          (append '(
+                    (("\\.go$" . "golang header")
+                     nil
+                     "//---------------------------------------------------------------------\n"
+                     "// @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
+                     "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+                     "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                     "//----------------------------------------------------------------------\n"
+                     _
+                     ))
+                  auto-insert-alist))
     (setq auto-insert-alist
-	  (append '(
-		    (("\\.erl$" . "erlang header")
-		     nil
-		     "%%%-------------------------------------------------------------------\n"
-		     "%%% @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
-		     "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-		     "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-		     "%%%-------------------------------------------------------------------\n"
-		     _
-		     ))
-		  auto-insert-alist))
+          (append '(
+                    (("\\.erl$" . "erlang header")
+                     nil
+                     "%%%-------------------------------------------------------------------\n"
+                     "%%% @Copyright (c) 2020-2021 GLD Enterprise, Inc. (https://glodon.com)\n"
+                     "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+                     "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                     "%%%-------------------------------------------------------------------\n"
+                     _
+                     ))
+                  auto-insert-alist))
     (setq auto-insert-alist
-	  (append '(
-		    (("\\.org$" . "org header")
-		     nil
-		     "#+title: TODO\n"
-		     "#+author: 周学浩\n"
-		     "#+email: zhouxh-e@glodon.com\n"
-		     "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-		     "#+OPTIONS: ^:nil\n"
-		     "#+OPTIONS: toc:nil\n"
-		     "#+LATEX_CLASS: zxh-latex-class\n"
-		     "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
-		     "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
-		     "* 目录 :TOC_2_org:"
-		     _
-		     ))
-		  auto-insert-alist))
+          (append '(
+                    (("\\.org$" . "org header")
+                     nil
+                     "#+title: TODO\n"
+                     "#+author: 周学浩\n"
+                     "#+email: zhouxh-e@glodon.com\n"
+                     "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                     "#+OPTIONS: ^:nil\n"
+                     "#+OPTIONS: toc:nil\n"
+                     "#+LATEX_CLASS: zxh-latex-class\n"
+                     "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
+                     "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
+                     "* 目录 :TOC_2_org:"
+                     _
+                     ))
+                  auto-insert-alist))
 
 #+END_SRC
 
 * Tramp
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; -----------------------------------------------------------------------------------------------------
-  ;; REFER: https://emacstalk.github.io/post/019/
-  ;; https://willschenk.com/articles/2020/tramp_tricks/
-  ;; -----------------------------------------------------------------------------------------------------
-
   ;; Remote SSH
   ;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
   ;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
@@ -1834,6 +1703,7 @@
 * Rime
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package rime
     :bind
     (:map rime-active-mode-map
@@ -1872,6 +1742,7 @@
                                     rime-predicate-tex-math-or-command-p
                                     rime-predicate-current-uppercase-letter-p
                                     rime-predicate-after-ascii-char-p)))
+
 #+END_SRC
 
 * Platform
@@ -1928,6 +1799,7 @@
 * Lazycat Plugins
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   ;;(require 'visual-regexp)
   ;;(setq vr/match-separator-use-custom-face t)
   ;;(setq vr/match-separator-string "⇛")

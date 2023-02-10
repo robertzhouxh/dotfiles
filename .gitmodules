@@ -58,3 +58,6 @@
 [submodule ".emacs.d/vendor/goto-chg"]
 	path = .emacs.d/vendor/goto-chg
 	url = https://github.com/emacs-evil/goto-chg
+[submodule ".emacs.d/vendor/org-auto-tangle"]
+	path = .emacs.d/vendor/org-auto-tangle
+	url = https://github.com/yilkalargaw/org-auto-tangle
