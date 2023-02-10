@@ -65,20 +65,22 @@ if [[ `uname -s` == "Darwin" ]]; then
     #------------------------------------------------------------
     # Rust
     if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
-	PATH=$PATH:$(asdf where rust)/bin 
+      PATH=$PATH:$(asdf where rust)/bin 
     fi
 
 
     #------------------------------------------------------------
     # golang
     if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
-	export GOPATH="/Users/zxh/githubs/go"
-	export GOROOT=$(asdf where golang)
-	PATH=$PATH:${GOROOT}/bin 
-	PATH=$PATH:$GOPATH/bin
-        #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+      export GOPATH="/Users/zxh/githubs/go"
+      export GOROOT=$(asdf where golang)
+      PATH=$PATH:${GOROOT}/bin 
+      PATH=$PATH:$GOPATH/bin
+      #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
     fi
 
+    # for emacs eaf depens bins
+    PATH=$PATH:"/Users/zxh/Library/Python/3.9/lib/python/site-packages"
 
     #------------------------------------------------------------
     # latex
@@ -86,7 +88,6 @@ if [[ `uname -s` == "Darwin" ]]; then
     #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
     export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
     export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
-
     export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
 fi
 

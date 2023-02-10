@@ -9,25 +9,25 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
-  (setq erlang-lib-tools-version "3.5.2")
-  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
-  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+(setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
+(setq erlang-lib-tools-version "3.5.2")
+(setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
+(setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
+(setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+(setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
 
-  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
-  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
-  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
-  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
-  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+(defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+(defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
+(defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
+(defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
+(defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
+(defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
 
-  (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
-  (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
-  (defvar socks-noproxy)
-  (defvar socks-server)
-  (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
+(defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
+(defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
+(defvar socks-noproxy)
+(defvar socks-server)
+(defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
 
 #+END_SRC
 
@@ -576,62 +576,63 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package use-package-ensure-system-package :ensure t)
-  (use-package protobuf-mode)
-  (use-package markdown-mode)
-  (use-package dockerfile-mode)
-  (use-package nginx-mode)
-  (use-package json-mode)
-  (use-package json-reformat)
-  (use-package comment-dwim-2)
-  (use-package buffer-flip)
-  (use-package dash-at-point :ensure t)
-  (use-package async :init (async-bytecomp-package-mode 1))
-  (use-package projectile :diminish :config (projectile-global-mode))
-  (use-package flycheck :diminish :config (global-flycheck-mode 1))
-  (use-package restclient :config (setq restclient-inhibit-cookies t))
-  (use-package all-the-icons :if (display-graphic-p))
-  (use-package autorevert :ensure nil :diminish :hook (after-init . global-auto-revert-mode))
-  (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
-  (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
-  (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-  (use-package exec-path-from-shell
-    :if (or sys/mac-x-p sys/linux-x-p)
-    :config
-    (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize))
-  (use-package which-key
-    :diminish which-key-mode
-    :hook (after-init . which-key-mode)
-    :config
-    (progn
-      (which-key-mode)
-      (which-key-setup-side-window-right)))
+(use-package use-package-ensure-system-package :ensure t)
+(use-package protobuf-mode)
+(use-package markdown-mode)
+(use-package dockerfile-mode)
+(use-package nginx-mode)
+(use-package json-mode)
+(use-package json-reformat)
+(use-package comment-dwim-2)
+(use-package buffer-flip)
+(use-package dash-at-point :ensure t)
+(use-package async :init (async-bytecomp-package-mode 1))
+(use-package projectile :diminish :config (projectile-global-mode))
+(use-package flycheck :diminish :config (global-flycheck-mode 1))
+(use-package restclient :config (setq restclient-inhibit-cookies t))
+(use-package all-the-icons :if (display-graphic-p))
+(use-package autorevert :ensure nil :diminish :hook (after-init . global-auto-revert-mode))
+(use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
+(use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
+(use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+(use-package exec-path-from-shell
+  :if (or sys/mac-x-p sys/linux-x-p)
+  :config
+  (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+  (setq exec-path-from-shell-copy-env "PYTHONPATH")
+  (setq exec-path-from-shell-arguments '("-l"))
+  (exec-path-from-shell-initialize))
+(use-package which-key
+  :diminish which-key-mode
+  :hook (after-init . which-key-mode)
+  :config
+  (progn
+    (which-key-mode)
+    (which-key-setup-side-window-right)))
 
-  ;; 其他原生接口的前端 
-  (use-package ivy
-    :diminish ivy-mode
-    :init (setq ivy-use-virtual-buffers t
-                ivy-count-format "%d/%d ")
-    :config (ivy-mode t))
-  ;; 取代原生的一些常用指令
-  (use-package counsel :diminish counsel-mode :after ivy :config (counsel-mode))
-  ;; 取代原生的 I-search
-  (use-package swiper :after ivy)
-  (use-package counsel-projectile
-    :after (counsel projectile)
-    :diminish counsel-projectile-mode
-    :preface
-    (eval-when-compile
-      (declare-function counsel-projectile-mode nil))
-    :commands
-    (counsel-projectile-rg
-     counsel-projectile-find-file
-     counsel-projectile-switch-project
-     counsel-projectile-switch-to-buffer)
-    :config
-    (counsel-projectile-mode t))
+;; 其他原生接口的前端 
+(use-package ivy
+  :diminish ivy-mode
+  :init (setq ivy-use-virtual-buffers t
+              ivy-count-format "%d/%d ")
+  :config (ivy-mode t))
+;; 取代原生的一些常用指令
+(use-package counsel :diminish counsel-mode :after ivy :config (counsel-mode))
+;; 取代原生的 I-search
+(use-package swiper :after ivy)
+(use-package counsel-projectile
+  :after (counsel projectile)
+  :diminish counsel-projectile-mode
+  :preface
+  (eval-when-compile
+    (declare-function counsel-projectile-mode nil))
+  :commands
+  (counsel-projectile-rg
+   counsel-projectile-find-file
+   counsel-projectile-switch-project
+   counsel-projectile-switch-to-buffer)
+  :config
+  (counsel-projectile-mode t))
 
 #+END_SRC
 
@@ -2109,8 +2110,9 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;;; Require
+(setq eaf-python-command "python3.11")
 
+;;; Require
 (require 'eaf)
 (require 'eaf-2048)
 (require 'eaf-camera)

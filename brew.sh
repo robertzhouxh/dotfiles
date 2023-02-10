@@ -154,9 +154,6 @@ brew install rg
 brew install z
 brew install protobuf
 
-;; procs is a replacement for ps written in Rust.
-brew install procs
-
 
 # for Erlang, Elixir
 brew install autoconf
