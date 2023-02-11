@@ -16,63 +16,44 @@
 (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
 (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
 
-(defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
-(defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
-(defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
-(defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
-(defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-(defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
-
 (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
 (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
-(defvar socks-noproxy)
-(defvar socks-server)
-(defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
 
 #+END_SRC
 
-* Bootstrap
+* Bootstrap use-package
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; 加速
-  (setq
-   ;; 不要缩放frame.
-   frame-inhibit-implied-resize t
-   ;; 默认用最简单的模式
-   initial-major-mode 'fundamental-mode
-   package--init-file-ensured t)
+(require 'package)
+(setq package-archives '(("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
+                         ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
+                         ))
 
-  ;; 启动
-  (require 'package)
-  (setq package-enable-at-startup nil)
-  (setq package-check-signature nil)
-    ;;; 添加中国源
-  (setq package-archives '(("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
-                           ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
-                           ("melpa-stable" . "http://mirrors.ustc.edu.cn/elpa/melpa-stable/")
-                           ("org" . "http://mirrors.ustc.edu.cn/elpa/org/")))
-  (package-initialize)
+(unless (bound-and-true-p package--initialized)
+  (setq package-enable-at-startup nil)          ; To prevent initializing twice
+  (package-initialize))
 
-  (mapc
-   (lambda (package)
-     (if (not (package-installed-p package))
-         (progn
-           (package-refresh-contents)
-           (package-install package))))
-   '(use-package diminish bind-key))
+;; set use-package-verbose to t for interpreted .emacs,
+;; and to nil for byte-compiled .emacs.elc.
+(eval-and-compile
+  (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 
-  ;; trigger use-package, And force the install of missing packages.
-  (eval-when-compile (require 'use-package))
-  (require 'diminish)
-  (require 'bind-key)
+;; Install use-package if not installed
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
+(eval-and-compile
   (setq use-package-always-ensure t)
-  (setq custom-file "~/.emacs.d/custom.el")
-  (if (file-exists-p custom-file)
-      (load custom-file))
+  (setq use-package-expand-minimally t)
+  (setq use-package-compute-statistics t)
+  (setq use-package-enable-imenu-support t))
 
-  ;; from lazycat emacs config 
+(eval-when-compile
+  (require 'use-package)
+  (require 'bind-key))
+
   (defun add-subdirs-to-load-path (search-dir)
     (interactive)
     (let* ((dir (file-name-as-directory search-dir)))
@@ -95,14 +76,14 @@
                                   ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
                                   (member (file-name-extension subdir-file) '("el" "so" "dll"))))
                          (directory-files subdir-path))
-
+  
             ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
             ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
             (add-to-list 'load-path subdir-path t))
-
+  
           ;; 继续递归搜索子目录
           (add-subdirs-to-load-path subdir-path)))))
-
+  
   (add-subdirs-to-load-path zxh-emacs-vendor-dir)
 
 #+END_SRC
@@ -110,8 +91,18 @@
 * Generic
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;; 加速
+  (setq
+   ;; 不要缩放frame.
+   frame-inhibit-implied-resize t
+   ;; 默认用最简单的模式
+   initial-major-mode 'fundamental-mode
+   package--init-file-ensured t)
+  (setq custom-file "~/.emacs.d/custom.el")
 
-  ;; startup
+  (if (file-exists-p custom-file)
+      (load custom-file))
+
   (tool-bar-mode -1)                      ;禁用工具栏
   (menu-bar-mode -1)                      ;禁用菜单栏
   (scroll-bar-mode -1)                    ;禁用滚动条
@@ -203,22 +194,6 @@
   (setq print-escape-newlines t)            ;显示字符窗中的换行符为 \n
   (setq tramp-default-method "ssh")         ;设置传送文件默认的方法
   (setq void-text-area-pointer nil)         ;禁止显示鼠标指针
-  (setq byte-compile-warnings
-        (quote (
-                ;; 显示的警告
-                free-vars                   ;不在当前范围的引用变量
-                unresolved                  ;不知道的函数
-                callargs                    ;函数调用的参数和定义的不匹配
-                obsolete                    ;荒废的变量和函数
-                noruntime                   ;函数没有定义在运行时期
-                interactive-only            ;正常不被调用的命令
-                make-local ;调用 `make-variable-buffer-local' 可能会不正确的
-                mapcar     ;`mapcar' 调用
-                ;;
-                ;; 抑制的警告
-                (not redefine)              ;重新定义的函数 (比如参数数量改变)
-                                          ;(not cl-functions)         ;`CL' 包中的运行时调用的函数
-                )))
   (setq echo-keystrokes 0.1)                ;加快快捷键提示的速度
 
 
@@ -263,6 +238,16 @@
 * Functions
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
+  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
+  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
+  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
+  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+  (defvar socks-noproxy)
+  (defvar socks-server)
+  (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
+
 
   ;; --------------------------------------------
   ;; 辅助函数
@@ -576,7 +561,7 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(use-package use-package-ensure-system-package :ensure t)
+(use-package use-package-ensure-system-package)
 (use-package protobuf-mode)
 (use-package markdown-mode)
 (use-package dockerfile-mode)
@@ -585,25 +570,18 @@
 (use-package json-reformat)
 (use-package comment-dwim-2)
 (use-package buffer-flip)
-(use-package dash-at-point :ensure t)
+(use-package dash-at-point)
 (use-package async :init (async-bytecomp-package-mode 1))
-(use-package projectile :diminish :config (projectile-global-mode))
-(use-package flycheck :diminish :config (global-flycheck-mode 1))
+(use-package projectile :config (projectile-global-mode))
+(use-package flycheck :config (global-flycheck-mode 1))
 (use-package restclient :config (setq restclient-inhibit-cookies t))
 (use-package all-the-icons :if (display-graphic-p))
-(use-package autorevert :ensure nil :diminish :hook (after-init . global-auto-revert-mode))
+(use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
 (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
 (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
 (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-(use-package exec-path-from-shell
-  :if (or sys/mac-x-p sys/linux-x-p)
-  :config
-  (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
-  (setq exec-path-from-shell-copy-env "PYTHONPATH")
-  (setq exec-path-from-shell-arguments '("-l"))
-  (exec-path-from-shell-initialize))
+(use-package exec-path-from-shell :if (or sys/mac-x-p sys/linux-x-p) :config (exec-path-from-shell-initialize))
 (use-package which-key
-  :diminish which-key-mode
   :hook (after-init . which-key-mode)
   :config
   (progn
@@ -612,17 +590,15 @@
 
 ;; 其他原生接口的前端 
 (use-package ivy
-  :diminish ivy-mode
   :init (setq ivy-use-virtual-buffers t
               ivy-count-format "%d/%d ")
   :config (ivy-mode t))
 ;; 取代原生的一些常用指令
-(use-package counsel :diminish counsel-mode :after ivy :config (counsel-mode))
+(use-package counsel :after ivy :config (counsel-mode))
 ;; 取代原生的 I-search
 (use-package swiper :after ivy)
 (use-package counsel-projectile
   :after (counsel projectile)
-  :diminish counsel-projectile-mode
   :preface
   (eval-when-compile
     (declare-function counsel-projectile-mode nil))
@@ -730,7 +706,6 @@
       (bind-key "P" 'compilation-previous-file ag-mode-map)))
 
   (use-package dumb-jump
-    :diminish dumb-jump-mode
     :config
     (setq dumb-jump-aggressive nil)
     (setq dumb-jump-selector 'ivy)
@@ -790,7 +765,6 @@
     (add-hook 'text-mode-hook 'yas-minor-mode))
 
   (use-package company
-    :diminish
     :bind
     (:map company-mode-map
           ("<tab>". tab-indent-or-complete)
@@ -899,8 +873,6 @@
   (setq magit-display-buffer-function #'my/magit-display-buffer)
 
   (use-package git-gutter
-    :diminish
-    :ensure t
     :custom
     (git-gutter:modified-sign "~")
     (git-gutter:added-sign    "+")
@@ -1507,7 +1479,6 @@
     :init (setq-default c-basic-offset 4)
     :config
     (use-package modern-cpp-font-lock
-      :diminish
       :init (modern-c++-font-lock-global-mode t)))
 
   ;;---------------------------------------------------------
@@ -2111,7 +2082,6 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
 ;(setq eaf-python-command "python3.10")
-(require 'epc)
 (require 'eaf)
 (require 'eaf-browser)
 (require 'eaf-git)

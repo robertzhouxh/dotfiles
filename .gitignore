@@ -44,6 +44,10 @@ Thumbs.db
 .emacs.d/squirrel*
 .emacs.d/rime*
 .emacs.d/.org-*
+.emacs.d/.org-*
+.emacs.d/eaf
+rime-settings*
+
 
 htop
 .tmux
