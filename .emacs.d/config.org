@@ -1179,11 +1179,12 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (with-eval-after-load 'org
-
-    (require 'org-auto-tangle)
-    (add-hook 'org-mode-hook 'org-auto-tangle-mode)
-
+  (use-package org
+    :bind
+    (:map org-mode-map
+          ("C-c C--" . org-insert-structure-template)
+          )
+    :config ;; afer load
     (setq org-todo-keywords
           (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                   (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
@@ -1197,6 +1198,7 @@
                   ("CANCELLED" :foreground "forest green" :weight bold)
                   ("MEETING" :foreground "forest green" :weight bold)
                   ("PHONE" :foreground "forest green" :weight bold))))
+
     ;; I don't wan't the keywords in my exports by default
     (setq-default org-export-with-todo-keywords nil)
 
@@ -1219,8 +1221,10 @@
           org-image-actual-width 300 
           org-latex-default-figure-position "H"
           org-ascii-text-width 1000)
-    (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
-    )
+
+    (require 'org-auto-tangle)
+    (add-hook 'org-mode-hook 'org-auto-tangle-mode)
+    (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil))))
 
   (use-package org-download
     :ensure t
@@ -1241,7 +1245,7 @@
     :custom ((valign-fancy-bar t)))
 
 
-  ;;; Show org-mode bullets as UTF-8 characters.
+    ;;; Show org-mode bullets as UTF-8 characters.
   ;;(use-package org-bars
   ;;  :load-path "~/.emacs.d/vendor/org-bars"
   ;;  :defer t
@@ -1257,16 +1261,15 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (require 'org-tempo)
-  
-  (dolist
-      (my-org-structure-template
-       '(("se" . "src emacs-lisp")
-         ("sg" . "src go")
-         ("sg" . "src erlang")
-         ("sr" . "src rust")
-         ("son" . "src :eval never-export"))) ;; https://orgmode.org/manual/Evaluating-Code-Blocks.html
-    (add-to-list 'org-structure-template-alist my-org-structure-template))
 
+  ;; (dolist
+  ;;     (my-org-structure-template
+  ;;      '(("se" . "src emacs-lisp")
+  ;;        ("sg" . "src go")
+  ;;        ("sg" . "src erlang")
+  ;;        ("sr" . "src rust")
+  ;;        ("son" . "src :eval never-export"))) ;; https://orgmode.org/manual/Evaluating-Code-Blocks.html
+  ;;   (add-to-list 'org-structure-template-alist my-org-structure-template))
 
   ;; ---- org代码块相关的设置
   (setq org-src-fontify-natively t)
@@ -1844,6 +1847,8 @@
   ;;(require 'visual-regexp)
   ;;(setq vr/match-separator-use-custom-face t)
   ;;(setq vr/match-separator-string "⇛")
+  (require 'lazy-load)
+  (require 'one-key)
   (require 'posframe)
   (require 'lazycat-toolkit)
   (require 'goto-chg)
@@ -2152,8 +2157,66 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (require 'eaf)
+  (require 'eaf-demo)
+  (require 'eaf-camera)
+  (require 'eaf-terminal)
+  (require 'eaf-image-viewer)
+  (require 'eaf-vue-demo)
+  (require 'eaf-pdf-viewer)
   (require 'eaf-browser)
+  (require 'eaf-vue-mindmap)
+  (require 'eaf-markdown-previewer)
+  (require 'eaf-file-manager)
+  (require 'eaf-mindmap)
+  (require 'eaf-video-player)
+  (require 'eaf-org-previewer)
   (require 'eaf-git)
+  (require 'eaf-system-monitor)
+
+  ;;; Code:
+  ;; You need configuration your own local proxy program first.
+  (setq eaf-proxy-type "socks5")
+  (setq eaf-proxy-host "127.0.0.1")
+  (setq eaf-proxy-port "1080")
+
+  ;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
+  (setq eaf-browser-continue-where-left-off t)
+
+  (eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
+  (eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
+  (eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
+  (eaf-bind-key scroll_down "M-k" eaf-browser-keybinding)
+  (eaf-bind-key scroll_up_page "M-n" eaf-browser-keybinding)
+  (eaf-bind-key scroll_down_page "M-p" eaf-browser-keybinding)
+  (eaf-bind-key open_link "M-h" eaf-browser-keybinding)
+  (eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
+  (eaf-bind-key insert_or_open_link_new_buffer "D" eaf-browser-keybinding)
+  (eaf-bind-key insert_or_open_link_background_buffer "F" eaf-browser-keybinding)
+  (eaf-bind-key watch-other-window-up-line "M-<" eaf-browser-keybinding)
+  (eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
+  (eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
+  (eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
+
+  (defun eaf-goto-left-tab ()
+    (interactive)
+    (sort-tab-select-prev-tab))
+
+  (defun eaf-goto-right-tab ()
+    (interactive)
+    (sort-tab-select-next-tab))
+
+  (setq eaf-goto-right-after-close-buffer t)
+
+  (one-key-create-menu
+   "GIT"
+   '(
+     (("s" . "Git status") . eaf-open-git)
+     (("u" . "Git push to remote") . eaf-git-push)
+     (("i" . "Git pull") . eaf-git-pull)
+     (("c" . "Git clone") . eaf-git-clone)
+     (("h" . "Git history") . eaf-git-show-history)
+     )
+   t)
 
 #+END_SRC
 
@@ -2226,7 +2289,6 @@
   ;; ------------------------------------------------------------------------------------------------
   ;;                 Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
   ;; ------------------------------------------------------------------------------------------------
-  (require 'lazy-load)
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
    '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
