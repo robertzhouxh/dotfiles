@@ -849,157 +849,6 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package magit
-    ;; :bind ("C-M-;" . magit-status)
-    :commands (magit-status magit-get-current-branch)
-    :config
-    (magit-auto-revert-mode t)
-    (magit-save-repository-buffers t)   
-    (defun magit-display-buffer-same-window (buffer)
-      "Display BUFFER in the selected window like God intended."
-      (display-buffer buffer '(display-buffer-same-window)))
-    (setq magit-display-buffer-function 'magit-display-buffer-same-window))
-
-  (defun my/magit-display-buffer (buffer)
-    (if (and git-commit-mode
-             (with-current-buffer buffer
-               (derived-mode-p 'magit-diff-mode)))
-        (display-buffer buffer '((display-buffer-pop-up-window
-                                  display-buffer-use-some-window
-                                  display-buffer-below-selected)
-                                 (inhibit-same-window . t)))
-      (magit-display-buffer-traditional buffer)))
-
-  (setq magit-display-buffer-function #'my/magit-display-buffer)
-
-  (use-package git-gutter
-    :custom
-    (git-gutter:modified-sign "~")
-    (git-gutter:added-sign    "+")
-    (git-gutter:deleted-sign  "-")
-    :custom-face
-    (git-gutter:modified ((t (:background "#f1fa8c"))))
-    (git-gutter:added    ((t (:background "#50fa7b"))))
-    (git-gutter:deleted  ((t (:background "#ff79c6"))))
-    :config
-    (global-git-gutter-mode +1))
-
-#+END_SRC
-
-* Evil-Mode
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-  (defun x/config-evil-leader ()
-    (evil-leader/set-leader ",")
-    (evil-leader/set-key
-      ","  'avy-goto-char-2
-      ":"  'eval-expression
-
-      "A"  'align-regexp
-
-      ;; buffer & bookmark
-      "bb" 'switch-to-buffer
-      "bo" 'switch-to-buffer-other-window
-      "bn" '+copy-current-buffer-name
-      "bv" 'revert-buffer
-      "bz" 'bury-buffer         ;隐藏当前buffer
-      "bZ" 'unbury-buffer         ;反隐藏当前buffer
-
-      "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
-
-      ;; --------------
-      "bm" 'bookmark-set
-      "bM" 'bookmark-set-no-overwrite
-      "bi" 'bookmark-insert
-      "br" 'bookmark-rename
-      "bd" 'bookmark-delete
-      "bw" 'bookmark-write
-      "bj" 'bookmark-jump
-      "bJ" 'bookmark-jump-other-window
-      "bl" 'bookmark-bmenu-list
-      "bs" 'bookmark-save
-
-      ;; code
-      "cc" 'comment-dwim
-      "cd" 'delete-trailing-whitespace
-      "cl" 'toggle-truncate-lines
-      "cm" 'delete-trailing-M
-
-      ;; dired
-      "dj" 'dired-jump
-      "dJ" 'dired-jump-other-window
-
-      ;; external Apps
-      "eY" 'youdao-dictionary-search-from-input
-      "ep" 'plantuml–parse-headlines
-      "ej" 'plantuml-display-json-open
-      "ey" 'plantuml-display-yaml-open
-      "em" 'plantuml-org-to-mindmap-open
-      "ew" 'plantuml-org-to-wbs-open
-      "ea" 'plantuml-auto-convert-open
-      "es" 'my-org-screenshot 
-      "eo" 'org-export-docx
-
-      ;; file
-      "fa" 'x/save-all
-      "fu" 'sudo
-      "ff" 'find-file
-      "fF" 'find-file-other-frame
-      "f/" 'find-file-other-window
-      "fC" '+copy-current-file
-      "fD" '+delete-current-file
-      "fy" '+copy-current-filename
-      "fR" '+rename-current-file
-      "fr" 'recentf-open-files
-      "fl" 'find-file-literally
-      "f-" 'text-scale-decrease        ;减小字体大小
-      "f=" 'text-scale-increase        ;增加字体大小
-      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-
-      ;; magit
-      "gs" 'magit-status
-      "gb" 'magit-branch-checkout
-      "gp" 'magit-pull
-      "gB" 'global-blamer-mode
-      "gt" 'magit-blame-toggle
-      "G"  'aborn/simple-git-commit-push
-
-      ;; project && proxy
-      "pf" 'counsel-projectile-find-file
-      "pp" 'counsel-projectile-switch-project
-      "pb" 'counsel-projectile-switch-to-buffer
-      "pk" 'projectile-kill-buffers
-      "ps" 'proxy-socks-toggle
-      "ph" 'proxy-http-toggle
-
-      ;; search
-      "sI" 'imenu
-      "s/" 'counsel-rg
-      "sj" 'evil-show-jumps
-      "sm" 'evil-show-marks
-      "sr" 'evil-show-registers
-      "si" 'color-rg-search-input
-      "ss" 'color-rg-search-symbol-in-project
-      "sp" 'color-rg-search-project
-      "sl" 'counsel-projectile-rg
-
-      ;; window && frame
-      "ww" 'other-window
-      "wf" 'other-frame
-
-      ;; fold
-      "zA" 'evil-close-folds
-      "za" 'evil-open-folds
-      "zo" 'evil-open-fold
-      "zO" 'evil-open-fold-rec
-      "zc" 'evil-close-fold
-      "zC" 'evil-close-fold-rec
-      "zt" 'evil-toggle-fold
-
-      )
-
     ;; from https://emacs-china.org/t/magit-add-commit-push/22457
     (defun aborn/simple-git-commit-push ()
       "Simple commit current git project and push to its upstream."
@@ -1082,70 +931,229 @@
       (if (and (boundp 'magit-blame-mode) magit-blame-mode)
           (magit-blame-quit)
         (call-interactively 'magit-blame)))
-    )
 
-  (use-package evil
-    :init
-    (progn
-      (setq evil-disable-insert-state-bindings t)
-      (setq evil-want-Y-yank-to-eol t)
-      ;; before evil-mode
-      (setq evil-want-C-i-jump nil)
-      (setq evil-want-C-u-scroll t)
-      (setq evil-want-C-i-jump nil)
-
-      (evil-mode t)
-
-      (setq evil-want-fine-undo t)
-      (setq evil-move-cursor-back nil)
-      (setq evil-esc-delay 0)
-      )
-    :hook (after-init . evil-mode)
+  (use-package magit
+    ;; :bind ("C-M-;" . magit-status)
+    :commands (magit-status magit-get-current-branch)
     :config
-    (progn
-      (use-package evil-leader
-        :init
-        (progn
-          (global-evil-leader-mode)
-          (setq evil-leader/in-all-states 1)
-          (x/config-evil-leader)))
-      ))
-  ;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
-  ;; You may delete this setup to use Evil NORMAL state always.
-  (dolist (p '((minibuffer-inactive-mode . emacs)
-               (calendar-mode . emacs)
-               (special-mode . emacs)
-               (grep-mode . emacs)
-               (Info-mode . emacs)
-               (term-mode . emacs)
-               (sdcv-mode . emacs)
-               (anaconda-nav-mode . emacs)
-               (log-edit-mode . emacs)
-               (vc-log-edit-mode . emacs)
-               (magit-log-edit-mode . emacs)
-               (erc-mode . emacs)
-               (neotree-mode . emacs)
-               (w3m-mode . emacs)
-               (gud-mode . emacs)
-               (help-mode . emacs)
-               (eshell-mode . emacs)
-               (shell-mode . emacs)
-               (xref--xref-buffer-mode . emacs)
-               (dashboard-mode . normal)
-               (color-rg-mode . emacs)
-               (fundamental-mode . normal)
-               (woman-mode . emacs)
-               (sr-mode . emacs)
-               (profiler-report-mode . emacs)
-               (dired-mode . normal)
-               (compilation-mode . emacs)
-               (speedbar-mode . emacs)
-               (ivy-occur-mode . emacs)
-               (ffip-file-mode . emacs)
-               (ivy-occur-grep-mode . normal)
-               (messages-buffer-mode . normal)
-               ))
-    (evil-set-initial-state (car p) (cdr p)))
+    (magit-auto-revert-mode t)
+    (magit-save-repository-buffers t)   
+    (defun magit-display-buffer-same-window (buffer)
+      "Display BUFFER in the selected window like God intended."
+      (display-buffer buffer '(display-buffer-same-window)))
+    (setq magit-display-buffer-function 'magit-display-buffer-same-window))
+
+  (defun my/magit-display-buffer (buffer)
+    (if (and git-commit-mode
+             (with-current-buffer buffer
+               (derived-mode-p 'magit-diff-mode)))
+        (display-buffer buffer '((display-buffer-pop-up-window
+                                  display-buffer-use-some-window
+                                  display-buffer-below-selected)
+                                 (inhibit-same-window . t)))
+      (magit-display-buffer-traditional buffer)))
+
+  (setq magit-display-buffer-function #'my/magit-display-buffer)
+
+  (use-package git-gutter
+    :custom
+    (git-gutter:modified-sign "~")
+    (git-gutter:added-sign    "+")
+    (git-gutter:deleted-sign  "-")
+    :custom-face
+    (git-gutter:modified ((t (:background "#f1fa8c"))))
+    (git-gutter:added    ((t (:background "#50fa7b"))))
+    (git-gutter:deleted  ((t (:background "#ff79c6"))))
+    :config
+    (global-git-gutter-mode +1))
+
+#+END_SRC
+
+* Evil-Mode
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+(defun x/config-evil-leader ()
+  (evil-leader/set-leader ",")
+  (evil-leader/set-key
+    ","  'avy-goto-char-2
+    ":"  'eval-expression
+
+    "A"  'align-regexp
+
+    ;; buffer & bookmark
+    "bb" 'switch-to-buffer
+    "bo" 'switch-to-buffer-other-window
+    "bn" '+copy-current-buffer-name
+    "bv" 'revert-buffer
+    "bz" 'bury-buffer         ;隐藏当前buffer
+    "bZ" 'unbury-buffer         ;反隐藏当前buffer
+
+    "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
+
+    ;; --------------
+    "bm" 'bookmark-set
+    "bM" 'bookmark-set-no-overwrite
+    "bi" 'bookmark-insert
+    "br" 'bookmark-rename
+    "bd" 'bookmark-delete
+    "bw" 'bookmark-write
+    "bj" 'bookmark-jump
+    "bJ" 'bookmark-jump-other-window
+    "bl" 'bookmark-bmenu-list
+    "bs" 'bookmark-save
+
+    ;; code
+    "cc" 'comment-dwim
+    "cd" 'delete-trailing-whitespace
+    "cl" 'toggle-truncate-lines
+    "cm" 'delete-trailing-M
+
+    ;; dired
+    "dj" 'dired-jump
+    "dJ" 'dired-jump-other-window
+
+    ;; external Apps
+    "eY" 'youdao-dictionary-search-from-input
+    "ep" 'plantuml–parse-headlines
+    "ej" 'plantuml-display-json-open
+    "ey" 'plantuml-display-yaml-open
+    "em" 'plantuml-org-to-mindmap-open
+    "ew" 'plantuml-org-to-wbs-open
+    "ea" 'plantuml-auto-convert-open
+    "es" 'my-org-screenshot 
+    "eo" 'org-export-docx
+
+    ;; file
+    "fa" 'x/save-all
+    "fu" 'sudo
+    "ff" 'find-file
+    "fF" 'find-file-other-frame
+    "f/" 'find-file-other-window
+    "fC" '+copy-current-file
+    "fD" '+delete-current-file
+    "fy" '+copy-current-filename
+    "fR" '+rename-current-file
+    "fr" 'recentf-open-files
+    "fl" 'find-file-literally
+    "f-" 'text-scale-decrease        ;减小字体大小
+    "f=" 'text-scale-increase        ;增加字体大小
+    "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+    "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+
+    ;; magit
+    "gs" 'magit-status
+    "gb" 'magit-branch-checkout
+    "gp" 'magit-pull
+    "gB" 'global-blamer-mode
+    "gt" 'magit-blame-toggle
+    "G"  'aborn/simple-git-commit-push
+
+    ;; project && proxy
+    "pf" 'counsel-projectile-find-file
+    "pp" 'counsel-projectile-switch-project
+    "pb" 'counsel-projectile-switch-to-buffer
+    "pk" 'projectile-kill-buffers
+    "ps" 'proxy-socks-toggle
+    "ph" 'proxy-http-toggle
+
+    ;; search
+    "sI" 'imenu
+    "s/" 'counsel-rg
+    "sj" 'evil-show-jumps
+    "sm" 'evil-show-marks
+    "sr" 'evil-show-registers
+    "si" 'color-rg-search-input
+    "ss" 'color-rg-search-symbol-in-project
+    "sp" 'color-rg-search-project
+    "sl" 'counsel-projectile-rg
+
+    ;; window && frame
+    "ww" 'other-window
+    "wf" 'other-frame
+
+    ;; fold
+    "zA" 'evil-close-folds
+    "za" 'evil-open-folds
+    "zo" 'evil-open-fold
+    "zO" 'evil-open-fold-rec
+    "zc" 'evil-close-fold
+    "zC" 'evil-close-fold-rec
+    "zt" 'evil-toggle-fold
+
+    )
+  )
+
+;;; UNDO
+;; Vim style undo not needed for emacs 28
+(use-package undo-fu)
+
+;;; Vim Bindings
+(use-package evil
+  :bind (("<escape>" . keyboard-escape-quit))
+  :init
+  ;; allows for using cgn
+  ;; (setq evil-search-module 'evil-search)
+  (setq evil-want-keybinding nil)
+  ;; no vim insert bindings
+  (setq evil-undo-system 'undo-fu)
+  (setq evil-disable-insert-state-bindings t)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-esc-delay 0)
+  :config
+  (evil-mode 1))
+
+(use-package evil-leader
+  :init
+  (progn
+    (global-evil-leader-mode)
+    (setq evil-leader/in-all-states 1)
+    (x/config-evil-leader)))
+
+(use-package evil-collection
+  :disabled
+  :after evil
+  :config
+  (evil-collection-init))
+
+;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
+;; You may delete this setup to use Evil NORMAL state always.
+(dolist (p '((minibuffer-inactive-mode . emacs)
+             (eaf-mode . emacs)
+             (calendar-mode . emacs)
+             (special-mode . emacs)
+             (grep-mode . emacs)
+             (Info-mode . emacs)
+             (term-mode . emacs)
+             (sdcv-mode . emacs)
+             (anaconda-nav-mode . emacs)
+             (log-edit-mode . emacs)
+             (vc-log-edit-mode . emacs)
+             (magit-log-edit-mode . emacs)
+             (magit-status-mode . emacs)
+             (erc-mode . emacs)
+             (neotree-mode . emacs)
+             (w3m-mode . emacs)
+             (gud-mode . emacs)
+             (help-mode . emacs)
+             (eshell-mode . emacs)
+             (shell-mode . emacs)
+             (xref--xref-buffer-mode . emacs)
+             (dashboard-mode . normal)
+             (color-rg-mode . emacs)
+             (fundamental-mode . normal)
+             (woman-mode . emacs)
+             (sr-mode . emacs)
+             (profiler-report-mode . emacs)
+             (dired-mode . normal)
+             (compilation-mode . emacs)
+             (speedbar-mode . emacs)
+             (ivy-occur-mode . emacs)
+             (ffip-file-mode . emacs)
+             (ivy-occur-grep-mode . normal)
+             (messages-buffer-mode . normal)
+             ))
+  (evil-set-initial-state (car p) (cdr p)))
 
 #+END_SRC
 

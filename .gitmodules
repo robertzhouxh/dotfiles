@@ -61,3 +61,6 @@
 [submodule ".emacs.d/vendor/emacs-application-framework"]
 	path = .emacs.d/vendor/emacs-application-framework
 	url = https://github.com/emacs-eaf/emacs-application-framework.git
+[submodule ".emacs.d/vendor/one-key"]
+	path = .emacs.d/vendor/one-key
+	url = https://github.com/manateelazycat/one-key
