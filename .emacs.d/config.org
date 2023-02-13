@@ -1251,8 +1251,17 @@
   ;;  :defer t
   ;;  :hook (org-mode . org-bars-mode))
   (use-package org-superstar
-    :hook
-    (org-mode . (lambda () (org-superstar-mode 1))))
+    :init
+    (add-hook 'org-mode-hook #'org-superstar-mode)
+    :config
+    ;; This is usually the default, but keep in mind it must be nil
+    (setq org-hide-leading-stars nil)
+    ;; This line is necessary.
+    (setq org-superstar-leading-bullet ?\s)
+    ;; If you use Org Indent you also need to add this, otherwise the
+    ;; above has no effect while Indent is enabled.
+    (setq org-indent-mode-turns-on-hiding-stars nil)
+    (setq org-superstar-special-todo-items t))
 
 #+END_SRC
 
@@ -1368,11 +1377,11 @@
       \\documentclass[12pt,a4paper]{article}
       [DEFAULT-PACKAGES]
       [PACKAGES]
-      \\setsansfont{Source Han Sans SC}
-      \\setromanfont{Source Han Serif SC}
-      \\setmonofont[Scale=0.9]{Inziu Iosevka Slab SC}
-      \\newfontfamily\\quotefont{Source Han Serif SC}
-      \\newfontfamily\\headfootfont{Source Han Sans SC}
+      \\setsansfont{PingFang SC}
+      \\setromanfont{PingFang SC}
+      \\setmonofont[Scale=0.9]{PingFang SC}
+      \\newfontfamily\\quotefont{PingFang SC}
+      \\newfontfamily\\headfootfont{PingFang SC}
       \\AtBeginEnvironment{quote}{\\quotefont\\small}
       \\XeTeXlinebreaklocale ``zh''
       \\XeTeXlinebreakskip = 0pt plus 1pt
