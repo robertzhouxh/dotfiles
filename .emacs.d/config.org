@@ -2220,7 +2220,7 @@
   (require 'eaf-git)
   (require 'eaf-system-monitor)
 
-  ;;; Code: 
+    ;;; Code: 
   ;; You need configuration your own local proxy program first.
   (setq eaf-proxy-type "socks5")
   (setq eaf-proxy-host "127.0.0.1")
@@ -2262,6 +2262,17 @@
      (("i" . "Git pull") . eaf-git-pull)
      (("c" . "Git clone") . eaf-git-clone)
      (("h" . "Git history") . eaf-git-show-history)
+     )
+   t)
+
+  (one-key-create-menu
+   "DIRECTORY"
+   '(
+     (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
+     (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
+     (("j" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
+     (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
+     (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
      )
    t)
 
