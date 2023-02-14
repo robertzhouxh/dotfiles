@@ -1194,6 +1194,7 @@
                       evil-emacs-state-map
                       evil-window-map))
          (define-key (eval map) "\C-w" nil)
+         (define-key (eval map) "\M-]" nil)
          (set-control-w-shortcuts))))
 
   ;; evilmode-map
@@ -2301,7 +2302,7 @@
   ;; ------------------------------------------------------------------------------------------------
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
-   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
   ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
   (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
@@ -2331,8 +2332,6 @@
   (global-set-key (kbd "M-<")     'watch-other-window-down-line)
 
   (global-set-key (kbd "C-x y")   'dash-at-point)
-  (global-set-key (kbd "M-]")     'dumb-jump-go)
-  (global-set-key (kbd "M-t")     'dumb-jump-back)
 
   (global-set-key (kbd "C-/")     'undo-tree-undo)
   (global-set-key (kbd "C-?")     'undo-tree-redo)
@@ -2419,5 +2418,7 @@
   ;; (global-set-key (kbd "C-c p f") 'projectile-find-file)
   ;; (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
   ;; (global-set-key (kbd "C-c p p") 'projectile-switch-project)
+  ;; (global-set-key (kbd "M-]")     'dumb-jump-go)
+  ;; (global-set-key (kbd "M-t")     'dumb-jump-back)
 
 #+END_SRC
