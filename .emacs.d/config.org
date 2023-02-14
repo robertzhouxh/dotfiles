@@ -2333,9 +2333,6 @@
 
   (global-set-key (kbd "C-x y")   'dash-at-point)
 
-  (global-set-key (kbd "C-/")     'undo-tree-undo)
-  (global-set-key (kbd "C-?")     'undo-tree-redo)
-
   (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
   (global-set-key (kbd "M-g f")   'avy-goto-line)
   (global-set-key (kbd "M-g w")   'avy-goto-word-1)
@@ -2420,5 +2417,7 @@
   ;; (global-set-key (kbd "C-c p p") 'projectile-switch-project)
   ;; (global-set-key (kbd "M-]")     'dumb-jump-go)
   ;; (global-set-key (kbd "M-t")     'dumb-jump-back)
+  ;; (global-set-key (kbd "C-/")     'undo-tree-undo)
+  ;; (global-set-key (kbd "C-?")     'undo-tree-redo)
 
 #+END_SRC
