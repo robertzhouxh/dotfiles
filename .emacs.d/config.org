@@ -14,8 +14,9 @@
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
 
+  (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
   (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
   (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
 
@@ -1752,7 +1753,7 @@
 * Rime
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  
+
   (use-package rime
     :bind
     (:map rime-active-mode-map
@@ -1760,11 +1761,11 @@
           :map rime-mode-map
           ("C-`" . 'rime-send-keybinding) 
           ("M-j" . 'rime-force-enable))
-    :custom
+    :config
     (when (x/system-is-mac)
-      (setq rime-librime-root "~/.emacs.d/librime/dist")
-      (setq rime-share-data-dir "~/Library/Rime")
-      (setq rime-emacs-module-header-root emacs-module-header-root))
+      (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+      (setq rime-share-data-dir zxh-emacs-rime-share-data-dir)
+      (setq rime-emacs-module-header-root zxh-emacs-module-header-root))
     (when (x/system-is-linux)
       (when (and (x/system-is-mac) (executable-find "nix"))
         (setq rime-emacs-module-header-root
@@ -1773,7 +1774,6 @@
               (shell-command-to-string "nix eval --raw 'nixpkgs#librime.outPath'")
               rime-share-data-dir
               (concat (shell-command-to-string "nix eval --raw 'nixpkgs#brise.outPath'") "/share/rime-data"))))
-    :config
     (setq rime-title " ㄓ")
     (setq rime-posframe-properties
           (list :background-color "#333333"
