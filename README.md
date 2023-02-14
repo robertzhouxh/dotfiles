@@ -1,6 +1,16 @@
-# Quick Start
-## Prepare
-### 临时 fq 
+# 文件說明
+
+- .aliases: 命令別名
+- .exports: 环境变量
+- .aliases: cmd别名
+- .config: ssh 配置文件
+- jumper.expect 一个跳板机相关脚本
+- apt.sh: ubuntu 工具安裝腳本
+- brew.sh: macos 工具安裝腳本
+- .macos:   a config script for macos refer: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
+
+# 准备工作
+## 临时 F-Q 
 
 1. 查找域名对应的ip
 
@@ -25,7 +35,7 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/mark-hans/troja
 systemctl start trojan-gfw 
 systemctl status trojan-gfw 
 ```
-### Install Trojan cleint on local localpc
+### Install Trojan client on LocalPC 
 
 ```
 
@@ -45,7 +55,7 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 ./trojan -c client.json
 ```
 
-###  Install polipo http-socks5 proxy on local localpc
+### Install polipo http-socks5 proxy on local localpc
 
 ```
 	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
@@ -94,7 +104,7 @@ test:
 youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
 
 
-## Syn dotfiles and quick useful tools
+# 部署 Tools/Apps/Emacs/Vim
 
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 
@@ -104,9 +114,7 @@ cd dotfiles
 
 set -- -f; source bootsrap.sh
 ```
-
-## Install emacs
-### For General
+## 安裝 emacs （linux, macos）
 
 ```
 # 这里选择选择国内的同步镜像
@@ -128,22 +136,8 @@ cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
 cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 ```
 
-
-### For MacOS(m1,m2)
-
-```
- brew tap railwaycat/emacsmacport
- # brew install emacs-mac --with-modules
- # brew install emacs-mac  --with-no-title-bars --with-imagemagick --with-dbus --with-modules
-
- brew install emacs-mac  --with-imagemagick --with-dbus --with-modules
- open -R /opt/homebrew/opt/emacs-mac/Emacs.app
-
- # dragging Emacs to the Applications folder.
- # emacs-rime 输入法，需要文件 emacs-module.h, M2/M1 mac，路径是 /opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include
-```
-
-### Syn submodules for emacs
+# Emacs/Vim 設置
+## 同步 Emacs Submodules
 
 ```
 # -------------------------------------------------------------------------------
@@ -154,7 +148,7 @@ cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 git submodule update --init
 ```
 
-### Automatically depoly vim/emacs
+## Automatically depoly vim/emacs
 
 ```
 ./vim.sh
@@ -162,32 +156,16 @@ rm -rf ~/.emacs*
 ./emacs.sh
 
 # start emacs and wait for plugins install complete
- 
-```
+# 手动安装 all-the-icons
+# M-x install-package all-the-icons
+# M-x all-the-icons-install-fonts
 
- 手动安装 all-the-icons
-```
-M-x install-package all-the-icons
-M-x all-the-icons-install-fonts
 ```
 
 
-## Files
+## Emacs squirrel 中文輸入法
 
-- .aliases: short name for frequence cmd
-- .exports: all the envirenment varibles
-- .macos:   a config script for macos refer: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
-- .exports: 所有环境变量
-- .aliases: cmd别名
-- .config: ssh 配置文件
-- jumper.expect 一个跳板机相关脚本
-- apt.sh: ubuntu scripts
-- brew.sh: macos scripts
-
-
-## Mac squirrel 中文
-
-1. 部署 macos squirrel
+部署 macos squirrel
 
 ```
 brew install --cask squirrel
@@ -196,7 +174,7 @@ cp -rf ./squirrel/* ~/Library/Rime/
 # redeploy siquirrel
 ```
 
-2. 部署 emacs squireel
+部署 emacs squireel
 
 ```
 curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
@@ -212,22 +190,10 @@ rm -rf rime-1.7.3-osx.zip
 
 ```
 
-## 编程语言(Erlang/Elixir/Golang/Rust)
+# Emacs 多語言支持
+## 安裝
 
-
-### 关于切换 openssl 版本
-
-```
-brew install openssl@3
-brew install openssl@1.1
-brew unlink openssl@3
-brew link openssl@1.1
-# 按照提示 export 对应的环境变量
-
-```
-
-
-### 采用 asdf 来管理语言多个版本(brew instlla asdf）
+采用 asdf 来管理语言多个版本(brew instlla asdf）
 
 1. Erlang/Elixir
 ```
@@ -277,7 +243,7 @@ vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwi
 	asdf global rust 1.67.0
 
 ```
-### 配置 Emacs 支持多语言跳转
+## 语言補全語法跳轉
 
 1. 编程语言跳转 lsp-server
 
@@ -315,7 +281,30 @@ vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwi
 3. 重新启动 emacs
 
 
-## Elisp 
+
+```
+brew install openssl@3
+brew install openssl@1.1
+brew unlink openssl@3
+brew link openssl@1.1
+# 按照提示 export 对应的环境变量
+
+```
+
+
+# asdf 安裝低版本 Node
+
+```
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf list all nodejs
+asdf install nodejs latest:16
+asdf install nodejs 19.6.0
+
+# eaf-file-manager 需要高版本的node
+asdf global node 19.6.0
+```
+
+# Elisp 
 
 参考: https://github.com/susam/emacs4cl#use-slime
 ```
@@ -338,4 +327,5 @@ brew install sbcl
   ; 如 (featurep 'cocoa)  c-x c-e 在minibuffer中输出 t
 
 ```
-## To be continued...
+
+To be continued...
