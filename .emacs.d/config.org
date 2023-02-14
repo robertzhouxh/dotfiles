@@ -16,7 +16,8 @@
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
 
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
-  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
+  ;;(defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
+  (defvar zxh-emacs-rime-share-data-dir (file-truename "~/Library/Rime"))
   (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
   (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
 
@@ -1799,7 +1800,7 @@
     :config
     (when (x/system-is-mac)
       (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-      (setq rime-share-data-dir zxh-emacs-rime-share-data-dir)
+      ;;(setq rime-share-data-dir zxh-emacs-rime-share-data-dir)
       (setq rime-emacs-module-header-root zxh-emacs-module-header-root))
     (when (x/system-is-linux)
       (when (and (x/system-is-mac) (executable-find "nix"))
