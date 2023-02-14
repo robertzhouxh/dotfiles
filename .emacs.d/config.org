@@ -572,6 +572,20 @@
       (setq toggle-one-window-window-configuration (current-window-configuration))
       (delete-other-windows)))
 
+  (defun set-control-w-shortcuts ()
+    (define-prefix-command 'my-window-map)
+    (global-set-key (kbd "C-w") 'my-window-map)
+    (define-key my-window-map (kbd "h") 'windmove-left)
+    (define-key my-window-map (kbd "j") 'windmove-down)
+    (define-key my-window-map (kbd "k") 'windmove-up)
+    (define-key my-window-map (kbd "l") 'windmove-right)
+    (define-key my-window-map (kbd "v") 'split-window-right)
+    (define-key my-window-map (kbd "b") 'split-window-below)
+    (define-key my-window-map (kbd "d") 'delete-window)
+    (define-key my-window-map (kbd "D") 'delete-other-windows)
+    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
+    (define-key my-window-map (kbd "o") 'toggle-one-window))
+
 #+END_SRC
 
 * Fundamental Plugins
@@ -1171,6 +1185,26 @@
                (messages-buffer-mode . normal)
                ))
     (evil-set-initial-state (car p) (cdr p)))
+
+  ;;-----------------------
+  (eval-after-load "evil-maps"
+    '(progn
+       (dolist (map '(evil-motion-state-map
+                      evil-insert-state-map
+                      evil-emacs-state-map
+                      evil-window-map))
+         (define-key (eval map) "\C-w" nil)
+         (set-control-w-shortcuts))))
+
+  ;; evilmode-map
+  (with-eval-after-load 'evil
+    (define-key evil-motion-state-map (kbd "SPC") nil)
+    (define-key evil-motion-state-map (kbd "RET") nil)
+    (define-key evil-motion-state-map (kbd "TAB") nil)
+    (define-key evil-normal-state-map (kbd "C-t") nil)
+    (define-key evil-normal-state-map (kbd "C-]") nil)
+    (define-key evil-normal-state-map (kbd "/")  'swiper)
+    (define-key evil-motion-state-map (kbd "C-6") nil))
 
 #+END_SRC
 
@@ -2253,49 +2287,13 @@
   (define-key company-active-map (kbd "M-p") 'company-select-previous)
   (define-key company-active-map (kbd "M-i") 'yas-expand)
 
-  ;;-----------------------
-  ;;my-window-map
-  (defun set-control-w-shortcuts ()
-    (define-prefix-command 'my-window-map)
-    (global-set-key (kbd "C-w") 'my-window-map)
-    (define-key my-window-map (kbd "h") 'windmove-left)
-    (define-key my-window-map (kbd "j") 'windmove-down)
-    (define-key my-window-map (kbd "k") 'windmove-up)
-    (define-key my-window-map (kbd "l") 'windmove-right)
-    (define-key my-window-map (kbd "v") 'split-window-right)
-    (define-key my-window-map (kbd "b") 'split-window-below)
-    (define-key my-window-map (kbd "d") 'delete-window)
-    (define-key my-window-map (kbd "D") 'delete-other-windows)
-    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
-    (define-key my-window-map (kbd "o") 'toggle-one-window))
-
   (set-control-w-shortcuts)
-  (eval-after-load "evil-maps"
-    '(progn
-       (dolist (map '(evil-motion-state-map
-                      evil-insert-state-map
-                      evil-emacs-state-map
-                      evil-window-map))
-         (define-key (eval map) "\C-w" nil)
-         (set-control-w-shortcuts))))
 
   ;;-----------------------
   ;; org-mode-map
   (with-eval-after-load 'org
     (define-key org-mode-map (kbd "M-h") nil)
     (define-key org-mode-map (kbd "C-,") nil))
-
-
-  ;;-----------------------
-  ;; evilmode-map
-  (with-eval-after-load 'evil
-    (define-key evil-motion-state-map (kbd "SPC") nil)
-    (define-key evil-motion-state-map (kbd "RET") nil)
-    (define-key evil-motion-state-map (kbd "TAB") nil)
-    (define-key evil-normal-state-map (kbd "C-t") nil)
-    (define-key evil-normal-state-map (kbd "C-]") nil)
-    (define-key evil-normal-state-map (kbd "/")  'swiper)
-    (define-key evil-motion-state-map (kbd "C-6") nil))
 
 
   ;; ------------------------------------------------------------------------------------------------
