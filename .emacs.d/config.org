@@ -2219,7 +2219,7 @@
   (require 'eaf-git)
   (require 'eaf-system-monitor)
 
-  ;;; Code:
+  ;;; Code: 
   ;; You need configuration your own local proxy program first.
   (setq eaf-proxy-type "socks5")
   (setq eaf-proxy-host "127.0.0.1")
