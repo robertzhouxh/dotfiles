@@ -1865,6 +1865,8 @@
   (require 'watch-other-window)
   (require 'thing-edit)
   (require 'color-rg)
+  (require 'blink-search)
+  (require 'markmacro)
 
   (require 'sort-tab)
   (sort-tab-mode 1)
@@ -2357,6 +2359,19 @@
   (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
   (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
+  ;; macro for marked objects
+  (global-set-key (kbd "s-/") 'markmacro-mark-words)
+  (global-set-key (kbd "s-?") 'markmacro-mark-lines)
+  (global-set-key (kbd "s-:") 'markmacro-mark-chars)
+  (global-set-key (kbd "s-L") 'markmacro-mark-imenus)
+  (global-set-key (kbd "s-<") 'markmacro-apply-all)
+  (global-set-key (kbd "s->") 'markmacro-apply-all-except-first)
+  (global-set-key (kbd "s-M") 'markmacro-rect-set)
+  (global-set-key (kbd "s-D") 'markmacro-rect-delete)
+  (global-set-key (kbd "s-F") 'markmacro-rect-replace)
+  (global-set-key (kbd "s-I") 'markmacro-rect-insert)
+  (global-set-key (kbd "s-C") 'markmacro-rect-mark-columns)
+  (global-set-key (kbd "s-S") 'markmacro-rect-mark-symbols)
 
   (when (or (string-match "Emacs 30." (emacs-version))
             (string-match "Emacs 31." (emacs-version)))

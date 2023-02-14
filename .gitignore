@@ -46,6 +46,7 @@ Thumbs.db
 .emacs.d/.org-*
 .emacs.d/.org-*
 .emacs.d/eaf
+.emacs.d/blink*
 rime-settings*
 
 

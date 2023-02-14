@@ -64,3 +64,9 @@
 [submodule ".emacs.d/vendor/one-key"]
 	path = .emacs.d/vendor/one-key
 	url = https://github.com/manateelazycat/one-key
+[submodule ".emacs.d/vendor/blink-search"]
+	path = .emacs.d/vendor/blink-search
+	url = https://github.com/manateelazycat/blink-search
+[submodule ".emacs.d/vendor/markmacro"]
+	path = .emacs.d/vendor/markmacro
+	url = https://github.com/manateelazycat/markmacro
