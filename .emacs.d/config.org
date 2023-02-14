@@ -2271,6 +2271,7 @@
      (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
      (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
      (("j" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
+     (("g" . "Githubs") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs")))
      (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
      (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
      )
@@ -2377,6 +2378,10 @@
   (global-set-key (kbd "s-I") 'markmacro-rect-insert)
   (global-set-key (kbd "s-C") 'markmacro-rect-mark-columns)
   (global-set-key (kbd "s-S") 'markmacro-rect-mark-symbols)
+
+  ;; one-key-menu
+  (global-set-key (kbd "C-c g") 'one-key-menu-git)
+  (global-set-key (kbd "C-c d") 'one-key-menu-directory)
 
   (when (or (string-match "Emacs 30." (emacs-version))
             (string-match "Emacs 31." (emacs-version)))
