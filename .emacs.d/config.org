@@ -9,7 +9,7 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
+  (setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
   (setq erlang-lib-tools-version "3.5.2")
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
@@ -1209,6 +1209,7 @@
     ;;(setq org-startup-folded nil)               ;默认展开内容
     (setq org-startup-folded t)                   ;默认展开内容
     (setq org-startup-indented t)                 ;默认缩进内容
+    (setq org-startup-with-inline-images t)
 
     (setq org-log-done 'time
           org-hide-leading-stars t
