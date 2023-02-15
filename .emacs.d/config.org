@@ -1721,21 +1721,61 @@
 
 * Tramp
 
+Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent Remote (file) Access, Multiple Protocol
+
++ 打开远程主机上的文件: C-x C-f  /method:user@remotehost:filename)
+  eg: C-x C-f /ssh:root@ssb.willschenk.com:/etc/host
+
++ 借助于 ssh 的 config 文件，简化打开文件的命令
+  eg:
+
+   - /ssh:devhost:/etc/hosts 
+   - /-:devhost:/etc/hosts
+
+   # ~/.ssh/config
+   Host devhost
+   HostName 192.168.31.92
+   User vagrant
+   IdentityFile ~/Documents/configs/vagrant-pk
+   ControlMaster auto
+   ControlPath ~/.ssh/master-%C
+   ControlPersist 1h
+  
+   
++ 也可以通过配置 directory-abbrev-alist 进一步简化：
+   eg:
+
+   - (setq directory-abbrev-alist '(("^/dev" . "/-:dev:/etc")))
+   - c-x c-f /dev TAB 会自动打开 /-:dev:/etc
+  
++ sudo 打开文件
+   eg:
+
+   - /sudo::/etc/host RET
+   - /ssh:you@remotehost|sudo::/etc/host RET
+   
++ 多级跳跃 multiple hops
+  eg:
+
+  - C-x C-f /ssh:jumperUser@bastion|ssh:admin@production:/path RET
+  - 先用 jumper 用户登录堡垒机 bastion, 之后在堡垒机上以 admin 用户登录 production 打开 /path 
+   
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; Remote SSH
-  ;; C-x C-f /remotehost:filename RET (or /method:user@remotehost:filename)
-  ;; type C-x C-f /ssh:root@ssb.willschenk.com:/etc/host= it connects over ssh to the remote server and edits that file.
-  ;; dired mode also works, so if you want to move around just C-x C-f and select the directory, then you can navigate around as you normally would.
-  ;; C-x C-f /sudo::/etc/hosts
-  ;; Another fun trick is to edit a file inside of a docker container. Is this what docker is used for? No,
-  ;; but it’s sometimes useful if you are debugging a docker file or whatever and need a tigher feedback loop.
+  ;; overwrites the original value of tramp-password-prompt-regexp,
+  ;; which has a bunch of localized variants of “password” in it.
+  ;; You can view the original value with C-h v tramp-password-prompt-regexp.
   (use-package tramp
     :ensure nil
-    :defer t
     :custom
-    (setq tramp-use-ssh-controlmaster-options nil)
-    (setq tramp-default-method "ssh"))
+    (tramp-use-ssh-controlmaster-options nil) ; Don't override SSH config.
+    (tramp-default-method "ssh")              ; ssh / sshx=‘ssh -t -t host -l user /bin/sh’ to open a connection with a “standard” login shell.”
+    :config
+    ;; (tramp-set-completion-function "sshx"
+    (tramp-set-completion-function "ssh"
+                                   '((tramp-parse-sconfig "/etc/ssh_config")
+                                     (tramp-parse-sconfig "~/.ssh/config")))
+    )
 
 #+END_SRC
 
