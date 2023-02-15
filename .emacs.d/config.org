@@ -1762,9 +1762,6 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
    
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; overwrites the original value of tramp-password-prompt-regexp,
-  ;; which has a bunch of localized variants of “password” in it.
-  ;; You can view the original value with C-h v tramp-password-prompt-regexp.
   (use-package tramp
     :ensure nil
     :custom
