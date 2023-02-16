@@ -1772,6 +1772,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     (tramp-set-completion-function "ssh"
                                    '((tramp-parse-sconfig "/etc/ssh_config")
                                      (tramp-parse-sconfig "~/.ssh/config")))
+    (setq directory-abbrev-alist '(("^/trojan" . "/-:trojan:~/")))
     )
 
 #+END_SRC
@@ -2257,6 +2258,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (require 'eaf-org-previewer)
   (require 'eaf-git)
   (require 'eaf-system-monitor)
+  (require 'eaf-music-player)
 
     ;;; Code: 
   ;; You need configuration your own local proxy program first.
@@ -2308,10 +2310,13 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
    '(
      (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
      (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
-     (("j" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
-     (("g" . "Githubs") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs")))
+     (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
+     (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
      (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
      (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
+     (("z" . "中光睿华") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
+     (("j" . "九天创新") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
+     (("g" . "广联达") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
      )
    t)
 

@@ -304,6 +304,12 @@ asdf install nodejs 19.6.0
 asdf global node 19.6.0
 ```
 
+# emacs 听音乐 with eaf-music-player
+
+```
+ brew install taglib
+ pip install --global-option=build_ext --global-option="-I/opt/homebrew/include" --global-option="-L/opt/homebrew/lib/"  pytaglib
+```
 # Elisp 
 
 参考: https://github.com/susam/emacs4cl#use-slime
