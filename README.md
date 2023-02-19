@@ -169,9 +169,12 @@ rm -rf ~/.emacs*
 
 ```
 brew install --cask squirrel
+
 mkdir -p  ~/Library/Rime
-cp -rf ./squirrel/* ~/Library/Rime/
+
+# cp -rf ./squirrel/* ~/Library/Rime/
 # redeploy siquirrel
+# or use: https://github.com/ssnhd/rime
 ```
 
 部署 emacs squireel

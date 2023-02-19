@@ -2314,9 +2314,10 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
      (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
      (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
      (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
-     (("z" . "中光睿华") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
-     (("j" . "九天创新") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
-     (("g" . "广联达") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
+     (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
+     (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
+     (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
+     (("g" . "GLODON") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
      )
    t)
 
