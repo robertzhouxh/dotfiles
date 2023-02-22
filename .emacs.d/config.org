@@ -1194,6 +1194,8 @@
                       evil-insert-state-map
                       evil-emacs-state-map
                       evil-window-map))
+         (define-key (eval map) "\C-]" nil)
+         (define-key (eval map) "\C-t" nil)
          (define-key (eval map) "\C-w" nil)
          (define-key (eval map) "\M-]" nil)
          (set-control-w-shortcuts))))

@@ -73,7 +73,7 @@ if [[ `uname -s` == "Darwin" ]]; then
     # golang
     if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
       export GOPATH="/Users/zxh/githubs/go"
-      export GOROOT=$(asdf where golang)
+      export GOROOT=$(asdf where golang)/go
       PATH=$PATH:${GOROOT}/bin 
       PATH=$PATH:$GOPATH/bin
       #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
