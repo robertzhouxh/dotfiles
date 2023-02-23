@@ -2400,6 +2400,8 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
 
   ;; 语法跳转
+  (global-set-key (kbd "C-t")     'lsp-bridge-jump-back)
+  (global-set-key (kbd "C-]")     'lsp-bridge-jump)
   (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
   (global-set-key (kbd "C-8")     'lsp-bridge-jump)
   (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
