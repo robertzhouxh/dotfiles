@@ -309,6 +309,11 @@ multipass find
 ## resize: sudo qemu-img resize "/var/root/Library/Application Support/multipassd/qemu/vault/instances/master/ubuntu-20.04-server-cloudimg-arm64.img" +20G
 ## start again: multipass start master
 
+multipass shell master
+# 设置密码: sudo passwd
+# 切换 root: su root
+# 更新apt: apt-get update
+
 ```
 
 # Elisp 
