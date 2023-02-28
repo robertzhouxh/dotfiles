@@ -65,45 +65,6 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 	./polipo -c ~/.polipo
 ```
 
-### polipo/trojan as mac daemon ( 自行修改 plist 文件中的目录)
-
-```
-	sudo cp polipo.plist  ~/Library/LaunchAgents/
-	sudo cp trojan.plist  ~/Library/LaunchAgents/
-
-	sudo chmod 644 ~/Library/LaunchAgents/polipo.plist
-	sudo chmod 644 ~/Library/LaunchAgents/trojan.plist
-
-	plutil ~/Library/LaunchAgents/trojan.plist
-
-	sudo launchctl load -w ~/Library/LaunchAgents/polipo.plist
-	sudo launchctl load -w ~/Library/LaunchAgents/trojan.plist
-
-	sudo launchctl start polipo.plist
-	sudo launchctl stop  polipo.plist
-
-	sudo launchctl start trojan.plist
-	sudo launchctl stop  trojan.plist
-
-
-	sudo launchctl list | grep polipo
-	sudo launchctl list | grep trojan
-
-	# 删除
-	launchctl unload ~/Library/LaunchAgents/polipo.plist
-	launchctl unload ~/Library/LaunchAgents/trojan.plist
-
-```
-
- - 命令行代理 vi ~/.polipo 配置 http -> socks5 (不支持sock5代理的app)
- - github 代理 vi ~/.gitconfig 适配 sock5 监听端口
- - .aliases 文件中的 hproxy 使用步驟1配置的http代理端口使用http代理
-
-test:
-
-youtube-dl --proxy socks5://127.0.0.1:1080 video_url -o /download_dir/%(title)s-%(id)s.%(ext)s
-
-
 # 部署 Tools/Apps/Emacs/Vim
 
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
@@ -174,7 +135,11 @@ mkdir -p  ~/Library/Rime
 
 # cp -rf ./squirrel/* ~/Library/Rime/
 # redeploy siquirrel
-# or use: https://github.com/ssnhd/rime
+
+# 或者使用以下两个开源的配置
+https://github.com/ssnhd/rime
+https://github.com/iDvel/rime-ice
+
 ```
 
 部署 emacs squireel
@@ -313,6 +278,45 @@ asdf global node 19.6.0
  brew install taglib
  pip install --global-option=build_ext --global-option="-I/opt/homebrew/include" --global-option="-L/opt/homebrew/lib/"  pytaglib
 ```
+# mac 工具推荐
+## 付费代理软件 
+
+代理软件: proxifier 
++ brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
++ socks5: localhost:1080
++ https:  localhost:8123
+
+截图软件： brew install CleanShot （桃宝宝买licence）
+
+## M1/2 平台搭建 Ubuntu 开发环境
+终于可以不用再选 vmware、ParallelDesktop 了， 安装Ubuntu 的发行商 Canonical 开发的 Multipass
+
+```
+brew install multipass
+multipass launch --name master --cpus 8 --mem 8G --disk 40G
+multipass list
+multipass info --all
+multipass shell
+
+# Apple M1/2 平台上，Multipass 启动的虚拟机也是 ARM64
+# 直接在 Mac 上使用 ssh 登录虚拟机会被拒绝： ssh ubuntu@192.168.1.30
+# 将自己 Mac 的公钥加入到 Ubuntu: multipass shell && echo "content of id.pub" >> ~/.ssh/authorized_keys
+# ssh ubuntu@192.168.1.30
+
+# 可以使用 qemu-img 命令调整已经创建的实例的磁盘大小
+brew install qemu
+
+# 2. stop instance
+multipass stop master
+
+# 3. resize
+sudo qemu-img resize "/var/root/Library/Application Support/multipassd/qemu/vault/instances/master/ubuntu-20.04-server-cloudimg-arm64.img" +20G
+
+# 4. start again
+multipass start primary
+
+```
+
 # Elisp 
 
 参考: https://github.com/susam/emacs4cl#use-slime
