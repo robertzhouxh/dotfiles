@@ -290,30 +290,24 @@ asdf global node 19.6.0
 
 ## M1/2 平台搭建 Ubuntu 开发环境
 终于可以不用再选 vmware、ParallelDesktop 了， 安装Ubuntu 的发行商 Canonical 开发的 Multipass
+建议用 gui 的方式安装， 我用 brew 安装以后一直报错
 
 ```
 brew install multipass
-multipass launch --name master --cpus 8 --mem 8G --disk 40G
-multipass list
-multipass info --all
-multipass shell
+multipass find
+## multipass launch -n master -c 2 -m 2G -d 40G focal
 
-# Apple M1/2 平台上，Multipass 启动的虚拟机也是 ARM64
-# 直接在 Mac 上使用 ssh 登录虚拟机会被拒绝： ssh ubuntu@192.168.1.30
-# 将自己 Mac 的公钥加入到 Ubuntu: multipass shell && echo "content of id.pub" >> ~/.ssh/authorized_keys
-# ssh ubuntu@192.168.1.30
+## 失败：launch failed: Downloaded image hash does not match
+## sudo launchctl unload /Library/LaunchDaemons/com.canonical.multipassd.plist
+## stop multipass, sudo rm -rf  /var/root/Library/Caches/multipassd/network-cache, start multipass
+##                  sudo rm -rf /var/root/Library/Caches/multipassd/vault
+## sudo launchctl load /Library/LaunchDaemons/com.canonical.multipassd.plist
 
-# 可以使用 qemu-img 命令调整已经创建的实例的磁盘大小
-brew install qemu
 
-# 2. stop instance
-multipass stop master
-
-# 3. resize
-sudo qemu-img resize "/var/root/Library/Application Support/multipassd/qemu/vault/instances/master/ubuntu-20.04-server-cloudimg-arm64.img" +20G
-
-# 4. start again
-multipass start primary
+## 使用 qemu-img 命令调整已经创建的实例的磁盘大小: brew install qemu
+## stop：multipass stop master
+## resize: sudo qemu-img resize "/var/root/Library/Application Support/multipassd/qemu/vault/instances/master/ubuntu-20.04-server-cloudimg-arm64.img" +20G
+## start again: multipass start master
 
 ```
 
