@@ -312,9 +312,12 @@ multipass find
 multipass shell master
 # 设置密码: sudo passwd
 # 切换 root: su root
+alias proxy='export ALL_PROXY=socks5://hostIp:1080'
+alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy; export HTTP_PROXY=$http_proxy;export FTP_PROXY=$http_proxy;export https_proxy=$http_proxy;export ftp_proxy=$http_proxy;'
 # 更新apt: apt-get update
 
 ```
+注：
 
 # Elisp 
 
