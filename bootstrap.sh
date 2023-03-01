@@ -22,9 +22,7 @@ function doIt() {
 	  --exclude "rime-settings" \
 	  --exclude "squirrel" \
 	  --exclude ".macos" \
-	  --exclude "polipo.plist" \
-	  --exclude "trojan.plist" \
-	  --exclude "trojan.sh" \
+	  --exclude "mac_plist" \
           -avh --no-perms . ~;
 	source ~/.bash_profile;
 }
