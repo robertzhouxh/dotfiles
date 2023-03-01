@@ -197,18 +197,18 @@ vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwi
 2. Golang
 
 ```
-	asdf plugin-add golang
-	asdf list all golang
-	asdf install golang 1.19.5
-	asdf global golang 1.19.5
+    asdf plugin-add golang
+    asdf list all golang
+    asdf install golang 1.19.5
+    asdf global golang 1.19.5
 ```
 3. Rust
 
 ```
-	asdf plugin-add rust
-	asdf list all rust
-	asdf install rust 1.67.0
-	asdf global rust 1.67.0
+    asdf plugin-add rust
+    asdf list all rust
+    asdf install rust 1.67.0
+    asdf global rust 1.67.0
 
 ```
 ## 语言補全語法跳轉
@@ -224,11 +224,11 @@ vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwi
   - Rust: brew install rust-analyzer && rustup component add rust-src rustfmt clippy rls rust-analysis
   - Golang: go install golang.org/x/tools/gopls@latest
   - Erlang: 
-	asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
-	asdf install erlang 24.3.4
-	asdf install rebar 3.20.0
-	which rebar3
-	git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=~/ make install
+    asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
+    asdf install erlang 24.3.4
+    asdf install rebar 3.20.0
+    which rebar3
+    git clone https://github.com/erlang-ls/erlang_ls && cd erlang_ls && make && PREFIX=~/ make install
   - Yaml: npm install -g yaml-language-server
 ```
 
@@ -313,19 +313,12 @@ multipass shell master
 # 设置密码: sudo passwd
 # 切换 root: su root
 alias proxy='export ALL_PROXY=socks5://hostIp:1080'
-alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy; export HTTP_PROXY=$http_proxy;export FTP_PROXY=$http_proxy;export https_proxy=$http_proxy;export ftp_proxy=$http_proxy;'
+alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;;export https_proxy=$http_proxy;'
+
 # 更新apt: apt-get update
-
 ```
-注：
 
-# Elisp 
-
-参考: https://github.com/susam/emacs4cl#use-slime
-```
-brew install sbcl
-
-## Debug
+# elisp 
 
 ```elisp
   ;; Environment
@@ -338,9 +331,5 @@ brew install sbcl
   (exec-path-from-shell-initialize))
   
   ; 光标直接放到最后一个list  [ (exec-path-from-shell-initialize) ]括号上执行 c-x c-e
-  
   ; 如 (featurep 'cocoa)  c-x c-e 在minibuffer中输出 t
-
 ```
-
-To be continued...

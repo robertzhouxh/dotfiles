@@ -23,6 +23,8 @@ function doIt() {
 	  --exclude "squirrel" \
 	  --exclude ".macos" \
 	  --exclude "polipo.plist" \
+	  --exclude "trojan.plist" \
+	  --exclude "trojan.sh" \
           -avh --no-perms . ~;
 	source ~/.bash_profile;
 }
