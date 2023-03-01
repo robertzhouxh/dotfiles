@@ -92,5 +92,6 @@ if [[ `uname -s` == "Darwin" ]]; then
 fi
 
 [[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
-[[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh
+[[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
+
 

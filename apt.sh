@@ -99,9 +99,13 @@ git clone https://github.com/rupa/z ~/z
 . ~/z/z.sh
 
 echo ""
-echo ""
 echo -e "\033[40;32m install liquidprompt \033[0m"
 git clone https://github.com/nojhan/liquidprompt.git ~/.liquidprompt
 source ~/.liquidprompt/liquidprompt
+
+echo ""
+echo -e "\033[40;32m install asdf  \033[0m"
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.2
+echo ""
 
 cecho "Done, Happy Hacking At the Speed Of The Thought !!!" $green
