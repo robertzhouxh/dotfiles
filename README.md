@@ -278,8 +278,7 @@ asdf global node 19.6.0
  brew install taglib
  pip install --global-option=build_ext --global-option="-I/opt/homebrew/include" --global-option="-L/opt/homebrew/lib/"  pytaglib
 ```
-# mac 工具推荐
-## 付费代理软件 
+# Mac 付费软件 
 
 代理软件: proxifier 
 + brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
@@ -287,8 +286,8 @@ asdf global node 19.6.0
 + https:  localhost:8123
 
 截图软件： brew install CleanShot （桃宝宝买licence）
+# Mac 安装 Ubuntu 开发环境
 
-## M1/2 平台搭建 Ubuntu 开发环境
 终于可以不用再选 vmware、ParallelDesktop 了， 安装Ubuntu 的发行商 Canonical 开发的 Multipass
 建议用 gui 的方式安装， 我用 brew 安装以后一直报错
 
@@ -310,12 +309,17 @@ multipass find
 ## start again: multipass start master
 
 multipass shell master
-# 设置密码: sudo passwd
-# 切换 root: su root
+# 设置密码: sudo passwd ubuntu （xxxxxx） 建议直接一个空格当密码
+# 设置密码: sudo passwd root   （xxxxxx） 建议直接一个空格当密码
+
+直接使用宿主机代理
 alias proxy='export ALL_PROXY=socks5://hostIp:1080'
 alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;;export https_proxy=$http_proxy;'
 
 # 更新apt: apt-get update
+
+...
+
 ```
 
 # elisp 
