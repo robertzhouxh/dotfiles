@@ -1,7 +1,7 @@
 # Add `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+[[ `uname -s` == "Darwin" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Load the shell dotfiles, and then some:
 # * ~/.path can be used to extend `$PATH`.
