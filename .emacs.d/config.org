@@ -786,31 +786,26 @@
 * Company && Yasnippet
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (use-package expand-region :bind ("C-=" . er/expand-region))
-  (use-package company-restclient)
-  (use-package company-nginx :after (nginx-mode) :hook((nginx-mode . company-nginx-keywords)))
   (use-package yasnippet
     :config
     (yas-reload-all)
     (add-hook 'prog-mode-hook 'yas-minor-mode)
     (add-hook 'text-mode-hook 'yas-minor-mode))
 
-  (use-package company
-    :bind
-    (:map company-mode-map
-          ("<tab>". tab-indent-or-complete)
-          ("TAB". tab-indent-or-complete))
-    :config
-    (progn (setq company-idle-delay 0.5)
-           (setq company-show-numbers t)))
-
-  ;;Run M-x company-tabnine-install-binary to install the TabNine binary for your system.
-  (use-package company-tabnine
-    :defer t 
-    :ensure t 
-    :config (add-to-list 'company-backends #'company-tabnine))
-
+  ;; 使用 lsp-bridge 时， 请先关闭其他补全插件， 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
+  ;; (use-package company-restclient)
+  ;; (use-package company-nginx :after (nginx-mode) :hook((nginx-mode . company-nginx-keywords)))
+  ;; ;;Run M-x company-tabnine-install-binary to install the TabNine binary for your system.
+  ;; (use-package company-tabnine :config (add-to-list 'company-backends #'company-tabnine))
+  ;; (use-package company
+  ;;   :bind
+  ;;   (:map company-mode-map
+  ;;         ("<tab>". tab-indent-or-complete)
+  ;;         ("TAB". tab-indent-or-complete))
+  ;;   :config
+  ;;   (progn (setq company-idle-delay 0.5)
+  ;;          (setq company-show-numbers t)))
 
   (use-package youdao-dictionary
     :commands youdao-dictionary-play-voice-of-current-word
@@ -2334,17 +2329,18 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   ;; ------------------------------------------------------------------------------------------------
   (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
+  ;; 使用 lsp-bridge 关闭其他补全插件， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
   ;;-----------------------
   ;;company-active-map
-  (define-key company-active-map (kbd "TAB") 'company-complete-selection)
-  (define-key company-active-map (kbd "M-h") 'company-complete-selection)
-  (define-key company-active-map (kbd "M-H") 'company-complete-common)
-  (define-key company-active-map (kbd "M-w") 'company-show-location)
-  (define-key company-active-map (kbd "M-s") 'company-search-candidates)
-  (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
-  (define-key company-active-map (kbd "M-n") 'company-select-next)
-  (define-key company-active-map (kbd "M-p") 'company-select-previous)
-  (define-key company-active-map (kbd "M-i") 'yas-expand)
+  ;; (define-key company-active-map (kbd "TAB") 'company-complete-selection)
+  ;; (define-key company-active-map (kbd "M-h") 'company-complete-selection)
+  ;; (define-key company-active-map (kbd "M-H") 'company-complete-common)
+  ;; (define-key company-active-map (kbd "M-w") 'company-show-location)
+  ;; (define-key company-active-map (kbd "M-s") 'company-search-candidates)
+  ;; (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
+  ;; (define-key company-active-map (kbd "M-n") 'company-select-next)
+  ;; (define-key company-active-map (kbd "M-p") 'company-select-previous)
+  ;; (define-key company-active-map (kbd "M-i") 'yas-expand)
 
   (set-control-w-shortcuts)
 
