@@ -160,6 +160,9 @@ brew install autoconf
 brew install fop
 brew install --build-from-source wxmac
 
+# A Terminal Client for MySQL with AutoCompletion and Syntax Highlighting.
+brew install mycli
+
 apps=(
     caffeine
     gas-mask
