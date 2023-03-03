@@ -166,6 +166,9 @@ apps=(
     google-chrome
     appcleaner
     vlc
+    ## Mac 平台最好的免费播放器
+    IINA
+    CleanShot
     wechatwork
 )
 
