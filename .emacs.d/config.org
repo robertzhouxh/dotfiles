@@ -605,7 +605,7 @@
   (use-package dash-at-point)
   (use-package async :init (async-bytecomp-package-mode 1))
   (use-package projectile :config (projectile-global-mode))
-  (use-package flycheck :config (global-flycheck-mode 1))
+  ;;(use-package flycheck :config (global-flycheck-mode 1))
   (use-package restclient :config (setq restclient-inhibit-cookies t))
   (use-package all-the-icons :if (display-graphic-p))
   (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
@@ -1702,11 +1702,6 @@
   ;;---------------------------------------------------------
   (use-package sh-script :defer t :config (setq sh-basic-offset 4))
   (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
-  (use-package yaml-mode :defer t :config (add-hook 'yaml-mode-hook #'flycheck-mode))
-  (use-package flycheck-yamllint
-    :defer t
-    :init
-    (progn (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook 'flycheck-yamllint-setup))))
 
 #+END_SRC
 
