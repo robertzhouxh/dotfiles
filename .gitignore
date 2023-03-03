@@ -39,7 +39,6 @@ rime
 .emacs.d/config.el
 .emacs.d/eln-cache
 .emacs.d/custom.el  
-.emacs.d/snippets  
 .emacs.d/straight
 .emacs.d/nox
 .emacs.d/squirrel*

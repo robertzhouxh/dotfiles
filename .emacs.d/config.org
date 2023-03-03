@@ -786,12 +786,14 @@
 * Company && Yasnippet
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package expand-region :bind ("C-=" . er/expand-region))
+  ;;(use-package expand-region :bind ("C-=" . er/expand-region))
   (use-package yasnippet
+    :bind
+    ("C-c y s" . yas-insert-snippet)
+    ("C-c y v" . yas-visit-snippet-file)
     :config
-    (yas-reload-all)
-    (add-hook 'prog-mode-hook 'yas-minor-mode)
-    (add-hook 'text-mode-hook 'yas-minor-mode))
+    (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
+    (yas-global-mode 1))
 
   ;; 使用 lsp-bridge 时， 请先关闭其他补全插件， 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
   ;; (use-package company-restclient)
@@ -1590,37 +1592,7 @@
   (use-package go-mode)
 
   ;;---------------------------------------------------------
-  ;; Erlang Install
-  ;; 0) install openssl-devel
-  ;; 1) Resource install
-  ;;   wget http://erlang.org/download/otp_src_22.3.tar.gz
-  ;;   tar zxvf otp_src_22.3.tar.gz
-  ;;   cd otp_src_22.3
-  ;;   ./configure --with-ssl --enable-threads --enable-smp-support --enable-kernel-poll --enable-hipe --without-java
-  ;;   ./configure --with-ssl && sudo make && sudo  make install
-  ;;
-  ;; 2) MacOS && Unix use
-  ;;   brew install erlang@23
-  ;;   brew install erlang
-
-  ;; 3) use asdf
-  ;;   asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
-  ;;   asdf plugin-add rebar https://github.com/Stratus3D/asdf-rebar.git
-
-  ;;   export KERL_BUILD_DOCS=yes                                                    
-  ;;   export KERL_INSTALL_MANPAGES=yes                                              
-  ;;   export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
-  ;;   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-
-  ;;   asdf install rebar 3.20.0
-  ;;   which rebar3
-  ;;   asdf install erlang 24.3.4
-
-  ;;   asdf global rebar  3.20.0
-  ;;   asdf global erlang 24.3.4
-  ;;   asdf local  erlang 24.3.4
-  ;;
-  ;;---------------------------------------------------------
+  ;; Erlang 
   (let* ((tools-version erlang-lib-tools-version)
          (path-prefix erlang-path-prefix)
          (tools-path
@@ -1633,7 +1605,7 @@
       (defvar inferior-erlang-prompt-timeout t)))
 
   ;;---------------------------------------------------------
-  ;; C/C++ Mode
+  ;; C/C++
   (use-package cc-mode
     :ensure nil
     :bind (:map c-mode-base-map
@@ -1645,7 +1617,7 @@
       :init (modern-c++-font-lock-global-mode t)))
 
   ;;---------------------------------------------------------
-  ;; Python Mode
+  ;; Python 
   ;; Install: pip install pyflakes autopep8
   (use-package python
     :ensure nil
@@ -1702,6 +1674,7 @@
   ;;---------------------------------------------------------
   (use-package sh-script :defer t :config (setq sh-basic-offset 4))
   (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
+  (use-package yaml-mode :ensure t)
 
 #+END_SRC
 
@@ -2016,6 +1989,8 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (dolist (elt-cons '(
                       ("\\.markdown" . markdown-mode)
                       ("\\.md" . markdown-mode)
+                      ("\\.yaml" . yaml-mode)
+                      ("\\.yml" . yaml-mode)
                       ("\\.stumpwmrc\\'" . lisp-mode)
                       ("\\.[hg]s\\'" . haskell-mode)
                       ("\\.hi\\'" . haskell-mode)
