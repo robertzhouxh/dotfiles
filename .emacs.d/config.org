@@ -2415,6 +2415,10 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
   ;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
 
+  (global-set-key (kbd "C-c p f") 'projectile-find-file)
+  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
+  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
+
   (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
   (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
   (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
@@ -2522,9 +2526,6 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
     )
 
-  ;; (global-set-key (kbd "C-c p f") 'projectile-find-file)
-  ;; (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
-  ;; (global-set-key (kbd "C-c p p") 'projectile-switch-project)
   ;; (global-set-key (kbd "M-]")     'dumb-jump-go)
   ;; (global-set-key (kbd "M-t")     'dumb-jump-back)
   ;; (global-set-key (kbd "C-/")     'undo-tree-undo)
