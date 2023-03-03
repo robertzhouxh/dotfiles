@@ -2408,6 +2408,12 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "C-4")     'insert-changelog-date)
   (global-set-key (kbd "C-5")     'insert-standard-date)
 
+  (defun bjm/kill-this-buffer ()
+    "Kill the current buffer."
+    (interactive)
+    (kill-buffer (current-buffer)))
+  (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
+  ;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
 
   (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
   (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)

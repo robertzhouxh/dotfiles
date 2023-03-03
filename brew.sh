@@ -154,6 +154,8 @@ brew install rg
 brew install z
 brew install protobuf
 
+## 替换 htop
+brew install glances
 
 # for Erlang, Elixir
 brew install autoconf
