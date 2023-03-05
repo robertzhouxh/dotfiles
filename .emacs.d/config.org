@@ -605,7 +605,7 @@
   (use-package dash-at-point)
   (use-package async :init (async-bytecomp-package-mode 1))
   (use-package projectile :config (projectile-global-mode))
-  ;;(use-package flycheck :config (global-flycheck-mode 1))
+  (use-package flycheck :config (global-flycheck-mode 1))
   (use-package restclient :config (setq restclient-inhibit-cookies t))
   (use-package all-the-icons :if (display-graphic-p))
   (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
