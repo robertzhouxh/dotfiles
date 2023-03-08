@@ -836,7 +836,6 @@
     ;; Always delete and copy recursively
     (setq dired-recursive-deletes 'always
           dired-recursive-copies 'always)
-
     (when sys/macp
       ;; Suppress the warning: `ls does not support --dired'.
       (setq dired-use-ls-dired nil)
@@ -893,6 +892,10 @@
       (setq dired-omit-files
             (concat dired-omit-files
                     "\\|^.DS_Store$\\|^.projectile$\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.js\\.meta$\\|\\.meta$\\|\\.elc$\\|^.emacs.*"))))
+
+
+    ;; use one window to open new buffer in dired-mode
+    (put 'dired-find-alternate-file 'disabled nil)
 
 #+END_SRC
 
@@ -1220,8 +1223,8 @@
                (woman-mode . emacs)
                (sr-mode . emacs)
                (profiler-report-mode . emacs)
-               (dired-mode . normal)
-               ;;(dired-mode . emacs)
+               ;;(dired-mode . normal)
+               (dired-mode . emacs)
                (compilation-mode . emacs)
                (speedbar-mode . emacs)
                (ivy-occur-mode . emacs)
