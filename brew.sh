@@ -165,6 +165,9 @@ brew install --build-from-source wxmac
 # A Terminal Client for MySQL with AutoCompletion and Syntax Highlighting.
 brew install mycli
 
+# youtube downloader
+brew install yt-dlp
+
 apps=(
     caffeine
     gas-mask
