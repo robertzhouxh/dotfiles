@@ -2271,10 +2271,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (require 'eaf-org-previewer)
   (require 'eaf-git)
 
-  ;;(require 'eaf-system-monitor)
-  ;;(require 'eaf-camera)
-
-    ;;; Code: 
+  ;; Code: 
   ;; You need configuration your own local proxy program first.
   (setq eaf-proxy-type "socks5")
   (setq eaf-proxy-host "127.0.0.1")
