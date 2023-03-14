@@ -160,7 +160,8 @@ brew install glances
 # for Erlang, Elixir
 brew install autoconf
 brew install fop
-brew install --build-from-source wxmac
+#brew install --build-from-source wxmac
+brew install wxwidgets 
 
 # A Terminal Client for MySQL with AutoCompletion and Syntax Highlighting.
 brew install mycli

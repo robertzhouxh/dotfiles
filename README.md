@@ -174,9 +174,10 @@ rm -rf rime-1.7.3-osx.zip
   export CC=clang 
   export CPP="clang -E" 
   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl)"
+export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
 
   asdf install rebar 3.20.0
+  asdf install erlang 23.3.4
   asdf install erlang 24.3.4
   asdf global rebar  3.20.0
   asdf global erlang 24.3.4
@@ -193,6 +194,41 @@ export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --
 vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
 ```
 
+wx相关错误,ref: https://github.com/asdf-vm/asdf-erlang/issues/203
+```
+git clone git@github.com:wxWidgets/wxWidgets.git
+cd wxWidgets
+git submodule update --init src/png
+git submodule update --init src/jpeg
+./configure --with-cocoa --prefix=/usr/local --enable-webview --enable-compat28 --with-macosx-version-min=11.3
+make
+sudo make install
+
+export KERL_BUILD_DOCS=yes
+export KERL_INSTALL_MANPAGES=yes
+export wxUSE_MACOSX_VERSION_MIN=11.3
+export EGREP=egrep
+export CC=clang
+export CPP="clang -E"
+export KERL_USE_AUTOCONF=0
+
+export KERL_CONFIGURE_OPTIONS="--disable-debug \
+                               --disable-hipe \
+                               --disable-sctp \
+                               --disable-silent-rules \
+                               --enable-darwin-64bit \
+                               --enable-dynamic-ssl-lib \
+                               --enable-kernel-poll \
+                               --enable-shared-zlib \
+                               --enable-smp-support \
+                               --enable-threads \
+                               --enable-wx \
+                               --with-ssl=/opt/local \
+                               --with-wx-config=/usr/local/bin/wx-config \
+                               --without-javac \
+                               --without-jinterface \
+                               --without-odbc"
+```
 
 2. Golang
 
