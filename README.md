@@ -65,6 +65,23 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 	./polipo -c ~/.polipo
 ```
 
+这里还可以使用brew install privoxy
+
+```
+vi /path/to/privoxy/config
+
+##代表把所有匹配/的请求(也就是所有请求)，以sock5协议转发到127.0.0.1:1080,最后一个.代表不转发到http代理
+forward-socks5 / 127.0.0.1:1080 .
+listen-address  0.0.0.0:8118
+
+brew services start/stop privoxy
+```
+
+注意：
+
+如果Docker for Mac的代理配成了127.0.0.1:8118/8123,原因docker命令运行在docker machine中的（Mac上的虚拟机），配成127.0.0.1会尝试走那台机器的代理，所以会出错。
+因此一定要配置成素主机IpAddress
+
 # 部署 Tools/Apps/Emacs/Vim
 
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
@@ -174,7 +191,9 @@ rm -rf rime-1.7.3-osx.zip
   export CC=clang 
   export CPP="clang -E" 
   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
+  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
+  #export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
+
 
   asdf install rebar 3.20.0
   asdf install erlang 23.3.4
