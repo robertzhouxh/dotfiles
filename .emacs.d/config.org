@@ -2260,7 +2260,6 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (require 'eaf)
-  (require 'eaf-music-player)
   (require 'eaf-terminal)
   (require 'eaf-image-viewer)
   (require 'eaf-pdf-viewer)
