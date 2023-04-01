@@ -47,6 +47,7 @@ rime
 .emacs.d/eaf
 .emacs.d/blink*
 rime-settings*
+.emacs.d/projects
 
 
 htop
