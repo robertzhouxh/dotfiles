@@ -194,24 +194,20 @@ rm -rf ~/.emacs*
 
 
 ## Emacs squirrel 中文輸入法
-
-部署 macos squirrel
+## 部署 macos squirrel
 
 ```
 brew install --cask squirrel
-
 mkdir -p  ~/Library/Rime
+rm -rf ~/Library/Rime/*
+git clone https://github.com/iDvel/rime-ice --depth=1
+cp -r ./rime-ice/*  ~/Library/Rime/
 
-# cp -rf ./squirrel/* ~/Library/Rime/
 # redeploy siquirrel
-
-# 或者使用以下两个开源的配置
-https://github.com/ssnhd/rime
-https://github.com/iDvel/rime-ice
 
 ```
 
-部署 emacs squireel
+## 部署 emacs squireel
 
 ```
 curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
