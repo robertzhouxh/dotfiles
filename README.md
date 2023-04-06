@@ -62,7 +62,7 @@ scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 #local_addr: "0.0.0.0"
 #local_port: 1080
 
-nohup ./trojan -c client.json
+nohup ./trojan -c client.json &
 ```
 
 #### 安装 http->socks5 协议转换代理 
@@ -72,7 +72,7 @@ nohup ./trojan -c client.json
 	tar zxvf polipo-1.1.1.tar.gz
 	cd polipo-1.1
 	make all
-	nohup ./polipo -c ~/.polipo
+	nohup ./polipo -c ~/.polipo &
 ```
 
 这里还可以使用brew install privoxy
