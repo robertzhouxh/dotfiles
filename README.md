@@ -24,23 +24,29 @@ sudo vi /etc/hosts
 x.x.x.x raw.githubusercontent.com
 x.x.x.x github.com
 ```
-
 ## 安装网络代理
-### Install Trojan server on Debain(9,10.8)
-
-Remember open 443 https port for the remote debain vps
+### 外网服务器安装 trojan server on Debain(9,10.8)
 
 ```bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/mark-hans/trojan-wiz/master/ins.sh && chmod +x ins.sh && bash ins.sh
+
+
+  #  安装过程中提示“请选择证书模式”，选择”使用 IP 自签发证书”的模式。
+
 systemctl start trojan-gfw 
 systemctl status trojan-gfw 
 ```
-### Install Trojan client on LocalPC 
 
+- 通过 systemctl status trojan-gfw  确定服务启动
+- 通过 netstat -anlp | grep 443 确定端口在被监听
+- 云主机的防火墙开放 443,80,22 TCP 端口
+
+### 本地 PC 机安装
+#### 安装 trojan client
+    
 ```
-
 # for linux: 
-wget https://github.com/trojan-gfw/trojan/releases/download/v1.14.1/trojan-1.16.0-linux-amd64.tar.xz
+wget https://github.com/trojan-gfw/trojan/releases/download/v1.16.0/trojan-1.16.0-linux-amd64.tar.xz
 
 # for macos: 
 wget  https://github.com/trojan-gfw/trojan/releases/download/v1.16.0/trojan-1.16.0-macos.zip
@@ -51,18 +57,22 @@ cd trojan
 scp root@xxx.xxx.xxx.xxx:/home/trojan/ca-cert.pem ./
 scp root@xxx.xxx.xxx.xxx:/home/trojan/client.json ./
 
-# 建议在 client.json 中设置本地监听 IP: 0.0.0.0 
-./trojan -c client.json
+# 修改从云端 scp 回来的 client.json 
+
+#local_addr: "0.0.0.0"
+#local_port: 1080
+
+nohup ./trojan -c client.json
 ```
 
-### Install polipo http-socks5 proxy on local localpc
+#### 安装 http->socks5 协议转换代理 
 
 ```
 	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
 	tar zxvf polipo-1.1.1.tar.gz
 	cd polipo-1.1
 	make all
-	./polipo -c ~/.polipo
+	nohup ./polipo -c ~/.polipo
 ```
 
 这里还可以使用brew install privoxy
@@ -80,7 +90,49 @@ brew services start/stop privoxy
 注意：
 
 如果Docker for Mac的代理配成了127.0.0.1:8118/8123,原因docker命令运行在docker machine中的（Mac上的虚拟机），配成127.0.0.1会尝试走那台机器的代理，所以会出错。
-因此一定要配置成素主机IpAddress
+因此一定要配置成宿主机IpAddress
+
+#### 其他配置
+
+1. 定义命令别名随时在terminal 切换是否使用 polipo 代理
+
+将以下两行添加到你的 .bashrc 中，启动 terminal 的时候自动加载
+
+```
+  alias hproxy='export http_proxy=http://127.0.0.1:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export FTP_PROXY=$http_proxy;export https_proxy=$http_proxy;export ftp_proxy=$http_proxy;'
+
+  alias nohproxy='unset http_proxy;unset HTTPS_PROXY;unset HTTP_PROXY;unset FTP_PROXY;unset https_proxy;unset ftp_proxy'
+
+```
+
+
+2. 验证curl,wget走 polipo 代理
+
+```
+  proxy 
+  echo $http_proxy
+  # 可以看到此环境变量被设置为上述别名的值
+  curl -v www.google.com 
+  # 可以看到走的是本地的 8123 端口，确定走了 polipo 代理
+  # 在不需要使用polipo 的时候直接 noproxy 就可以取消 polipo 代理
+```
+3. 验证 git走1080代理
+
+```
+#修改 ~/.gitconfig
+
+[user]
+  name = xx
+  email = xx@gmail.com
+  
+[http "https://github.com"]
+  proxy = socks5://127.0.0.1:1080
+  postBuffer = 524288000
+  sslVerify = false
+
+```
+
+4. google 浏览器安装 Proxy SwitchyOmega 并配置
 
 # 部署 Tools/Apps/Emacs/Vim
 
