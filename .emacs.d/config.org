@@ -1854,7 +1854,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     (when (x/system-is-mac)
       (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
       (setq rime-share-data-dir zxh-emacs-rime-share-data-dir))
-      ;;(setq rime-emacs-module-header-root zxh-emacs-module-header-root))
+    ;;(setq rime-emacs-module-header-root zxh-emacs-module-header-root))
     ;;(when (x/system-is-linux)
     ;;  (when (and (x/system-is-mac) (executable-find "nix"))
     ;;    (setq rime-emacs-module-header-root
@@ -1872,7 +1872,8 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     ;;;; (setq rime-translate-keybindings '("C-f" "C-b" "C-n" "C-p" "C-g"))
     (setq default-input-method "rime"
           rime-show-candidate 'posframe
-          rime-posframe-style 'vertical)
+          ;rime-posframe-style 'vertical
+          )
     ;;(setq rime-disable-predicates '(rime-predicate-evil-mode-p
     ;;                                rime-predicate-space-after-cc-p
     ;;                                rime-predicate-after-alphabet-char-p
@@ -1880,7 +1881,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     ;;                                rime-predicate-tex-math-or-command-p
     ;;                                rime-predicate-current-uppercase-letter-p
     ;;                                rime-predicate-after-ascii-char-p))
-  )
+    )
 #+END_SRC
 
 * Platform
