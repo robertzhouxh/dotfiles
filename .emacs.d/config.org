@@ -607,7 +607,7 @@
   (use-package projectile :config (projectile-global-mode))
   (use-package flycheck :config (global-flycheck-mode 1))
   (use-package restclient :config (setq restclient-inhibit-cookies t))
-  (use-package all-the-icons :if (display-graphic-p))
+
   (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
   (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
   (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
@@ -619,6 +619,12 @@
     (progn
       (which-key-mode)
       (which-key-setup-side-window-right)))
+
+  (use-package all-the-icons
+    :ensure t
+    :when (display-graphic-p)
+    :commands all-the-icons-install-fonts
+    )
 
   ;; 其他原生接口的前端 
   (use-package ivy
@@ -1723,7 +1729,7 @@
                    "#+email: zhouxh-e@glodon.com\n"
                    "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
                    "#+OPTIONS: ^:nil\n"
-                   "#+OPTIONS: toc:nil\n"
+                   "#+OPTIONS: toc:2\n"
                    "#+LATEX_CLASS: zxh-latex-class\n"
                    "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
                    "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
@@ -1959,6 +1965,10 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
     (setq calibredb-library-alist '(("~/Books/books")
                                     ))
+
+    (setq calibredb-format-icons-in-terminal t)
+    (setq calibredb-id-width 0)
+
     )
 #+END_SRC
 
