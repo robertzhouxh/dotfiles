@@ -1,75 +1,103 @@
 [submodule ".emacs.d/vendor/awesome-tray"]
-	path = .emacs.d/vendor/awesome-tray
-	url = https://github.com/manateelazycat/awesome-tray
+path = .emacs.d/vendor/awesome-tray
+url = https://github.com/manateelazycat/awesome-tray
+
 [submodule ".emacs.d/vendor/lazycat-theme"]
-	path = .emacs.d/vendor/lazycat-theme
-	url = https://github.com/manateelazycat/lazycat-theme
+path = .emacs.d/vendor/lazycat-theme
+url = https://github.com/manateelazycat/lazycat-theme
+
 [submodule ".emacs.d/vendor/color-rg"]
-	path = .emacs.d/vendor/color-rg
-	url = https://github.com/manateelazycat/color-rg
+path = .emacs.d/vendor/color-rg
+url = https://github.com/manateelazycat/color-rg
+
 [submodule ".emacs.d/vendor/auto-save"]
-	path = .emacs.d/vendor/auto-save
-	url = https://github.com/manateelazycat/auto-save
+path = .emacs.d/vendor/auto-save
+url = https://github.com/manateelazycat/auto-save
+
 [submodule ".emacs.d/vendor/watch-other-window"]
-	path = .emacs.d/vendor/watch-other-window
-	url = https://github.com/manateelazycat/watch-other-window
+path = .emacs.d/vendor/watch-other-window
+url = https://github.com/manateelazycat/watch-other-window
+
 [submodule ".emacs.d/vendor/ob-go"]
-	path = .emacs.d/vendor/ob-go
-	url = https://github.com/pope/ob-go
+path = .emacs.d/vendor/ob-go
+url = https://github.com/pope/ob-go
+
 [submodule ".emacs.d/vendor/thing-edit"]
-	path = .emacs.d/vendor/thing-edit
-	url = https://github.com/manateelazycat/thing-edit
+path = .emacs.d/vendor/thing-edit
+url = https://github.com/manateelazycat/thing-edit
+
 [submodule ".emacs.d/vendor/C4-PlantUML"]
-	path = .emacs.d/vendor/C4-PlantUML
-	url = https://github.com/plantuml-stdlib/C4-PlantUML
+path = .emacs.d/vendor/C4-PlantUML
+url = https://github.com/plantuml-stdlib/C4-PlantUML
+
 [submodule ".emacs.d/vendor/plantuml-style-c4"]
-	path = .emacs.d/vendor/plantuml-style-c4
-	url = https://github.com/xuanye/plantuml-style-c4
+path = .emacs.d/vendor/plantuml-style-c4
+url = https://github.com/xuanye/plantuml-style-c4
+
 [submodule ".emacs.d/vendor/lsp-bridge"]
-	path = .emacs.d/vendor/lsp-bridge
-	url = https://github.com/manateelazycat/lsp-bridge
+path = .emacs.d/vendor/lsp-bridge
+url = https://github.com/manateelazycat/lsp-bridge
+
 [submodule ".emacs.d/vendor/org-bars"]
-	path = .emacs.d/vendor/org-bars
-	url = https://github.com/tonyaldon/org-bars
+path = .emacs.d/vendor/org-bars
+url = https://github.com/tonyaldon/org-bars
+
 [submodule ".emacs.d/vendor/plantuml-emacs"]
-	path = .emacs.d/vendor/plantuml-emacs
-	url = https://github.com/ginqi7/plantuml-emacs
+path = .emacs.d/vendor/plantuml-emacs
+url = https://github.com/ginqi7/plantuml-emacs
+
 [submodule ".emacs.d/vendor/sort-tab"]
-	path = .emacs.d/vendor/sort-tab
-	url = https://github.com/manateelazycat/sort-tab
+path = .emacs.d/vendor/sort-tab
+url = https://github.com/manateelazycat/sort-tab
+
 [submodule ".emacs.d/vendor/lazy-load"]
-	path = .emacs.d/vendor/lazy-load
-	url = https://github.com/manateelazycat/lazy-load.git
+path = .emacs.d/vendor/lazy-load
+url = https://github.com/manateelazycat/lazy-load.git
+
 [submodule ".emacs.d/vendor/posframe"]
-	path = .emacs.d/vendor/posframe
-	url = https://github.com/tumashu/posframe.git
+path = .emacs.d/vendor/posframe
+url = https://github.com/tumashu/posframe.git
+
 [submodule ".emacs.d/vendor/goto-line-preview"]
-	path = .emacs.d/vendor/goto-line-preview
-	url = https://github.com/jcs090218/goto-line-preview.git
+path = .emacs.d/vendor/goto-line-preview
+url = https://github.com/jcs090218/goto-line-preview.git
+
 [submodule ".emacs.d/vendor/emacs-rime"]
-	path = .emacs.d/vendor/emacs-rime
-	url = https://github.com/DogLooksGood/emacs-rime.git
+path = .emacs.d/vendor/emacs-rime
+url = https://github.com/DogLooksGood/emacs-rime.git
+
 [submodule ".emacs.d/vendor/fingertip"]
-	path = .emacs.d/vendor/fingertip
-	url = https://github.com/manateelazycat/fingertip
+path = .emacs.d/vendor/fingertip
+url = https://github.com/manateelazycat/fingertip
+
 [submodule ".emacs.d/vendor/goto-chg"]
-	path = .emacs.d/vendor/goto-chg
-	url = https://github.com/emacs-evil/goto-chg
+path = .emacs.d/vendor/goto-chg
+url = https://github.com/emacs-evil/goto-chg
+
 [submodule ".emacs.d/vendor/org-auto-tangle"]
-	path = .emacs.d/vendor/org-auto-tangle
-	url = https://github.com/yilkalargaw/org-auto-tangle
+path = .emacs.d/vendor/org-auto-tangle
+url = https://github.com/yilkalargaw/org-auto-tangle
+
 [submodule ".emacs.d/vendor/emacs-application-framework"]
-	path = .emacs.d/vendor/emacs-application-framework
-	url = https://github.com/emacs-eaf/emacs-application-framework.git
+path = .emacs.d/vendor/emacs-application-framework
+url = https://github.com/emacs-eaf/emacs-application-framework.git
+
 [submodule ".emacs.d/vendor/one-key"]
-	path = .emacs.d/vendor/one-key
-	url = https://github.com/manateelazycat/one-key
+path = .emacs.d/vendor/one-key
+url = https://github.com/manateelazycat/one-key
+
 [submodule ".emacs.d/vendor/blink-search"]
-	path = .emacs.d/vendor/blink-search
-	url = https://github.com/manateelazycat/blink-search
+path = .emacs.d/vendor/blink-search
+url = https://github.com/manateelazycat/blink-search
+
 [submodule ".emacs.d/vendor/markmacro"]
-	path = .emacs.d/vendor/markmacro
-	url = https://github.com/manateelazycat/markmacro
+path = .emacs.d/vendor/markmacro
+url = https://github.com/manateelazycat/markmacro
+
 [submodule ".emacs.d/vendor/diredfl"]
-	path = .emacs.d/vendor/diredfl
-	url = https://github.com/purcell/diredfl
+path = .emacs.d/vendor/diredfl
+url = https://github.com/purcell/diredfl
+
+[submodule ".emacs.d/vendor/nov"]
+	path = .emacs.d/vendor/nov
+	url = https://depp.brause.cc/nov.el.git

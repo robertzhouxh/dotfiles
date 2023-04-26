@@ -1855,32 +1855,32 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
       (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
       (setq rime-share-data-dir zxh-emacs-rime-share-data-dir))
     ;;(setq rime-emacs-module-header-root zxh-emacs-module-header-root))
-    ;;(when (x/system-is-linux)
-    ;;  (when (and (x/system-is-mac) (executable-find "nix"))
-    ;;    (setq rime-emacs-module-header-root
-    ;;          (concat (shell-command-to-string "nix eval --raw 'nixpkgs#emacs.outPath'") "/include")
-    ;;          rime-librime-root
-    ;;          (shell-command-to-string "nix eval --raw 'nixpkgs#librime.outPath'")
-    ;;          rime-share-data-dir
-    ;;          (concat (shell-command-to-string "nix eval --raw 'nixpkgs#brise.outPath'") "/share/rime-data"))))
+    (when (x/system-is-linux)
+      (when (and (x/system-is-mac) (executable-find "nix"))
+        (setq rime-emacs-module-header-root
+              (concat (shell-command-to-string "nix eval --raw 'nixpkgs#emacs.outPath'") "/include")
+              rime-librime-root
+              (shell-command-to-string "nix eval --raw 'nixpkgs#librime.outPath'")
+              rime-share-data-dir
+              (concat (shell-command-to-string "nix eval --raw 'nixpkgs#brise.outPath'") "/share/rime-data"))))
     ;;(setq rime-title " ㄓ")
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
                 :font "PingFang SC"
                 :internal-border-width 10))
-    ;;;; (setq rime-translate-keybindings '("C-f" "C-b" "C-n" "C-p" "C-g"))
+    (setq rime-translate-keybindings '("C-f" "C-b" "C-n" "C-p" "C-g"))
     (setq default-input-method "rime"
           rime-show-candidate 'posframe
-          ;rime-posframe-style 'vertical
+          rime-posframe-style 'vertical
           )
-    ;;(setq rime-disable-predicates '(rime-predicate-evil-mode-p
-    ;;                                rime-predicate-space-after-cc-p
-    ;;                                rime-predicate-after-alphabet-char-p
-    ;;                                rime-predicate-prog-in-code-p
-    ;;                                rime-predicate-tex-math-or-command-p
-    ;;                                rime-predicate-current-uppercase-letter-p
-    ;;                                rime-predicate-after-ascii-char-p))
+    (setq rime-disable-predicates '(rime-predicate-evil-mode-p
+                                    rime-predicate-space-after-cc-p
+                                    rime-predicate-after-alphabet-char-p
+                                    rime-predicate-prog-in-code-p
+                                    rime-predicate-tex-math-or-command-p
+                                    rime-predicate-current-uppercase-letter-p
+                                    rime-predicate-after-ascii-char-p))
     )
 #+END_SRC
 
@@ -1938,6 +1938,28 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
             (deactivate-mark))
         (message "No region active; can't yank to clipboard!"))))
 
+#+END_SRC
+
+* Reading
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package nov
+    :load-path "~/.emacs.d/vendor/nov"
+    :mode ("\\.epub\\'" . nov-mode)
+    :bind (:map nov-mode-map
+                ("j" . scroll-up-line)
+                ("k" . scroll-down-line))
+    )
+  (use-package calibredb
+    :ensure t
+    :commands calibredb
+    :bind ("\e\e b" . calibredb)
+    :config
+    (setq calibredb-root-dir "~/Calibre")
+    (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+    (setq calibredb-library-alist '(("~/Books/books")
+                                    ))
+    )
 #+END_SRC
 
 * Lazycat Plugins
