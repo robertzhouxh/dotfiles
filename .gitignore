@@ -48,7 +48,7 @@ rime
 .emacs.d/blink*
 rime-settings*
 .emacs.d/projects
-
+.emacs.d/nov*
 
 htop
 .tmux
