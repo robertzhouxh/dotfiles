@@ -66,7 +66,7 @@ nohup ./trojan -c client.json &
 ```
 
 #### 安装 http->socks5 协议转换代理 
-
+    
 ```
 	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
 	tar zxvf polipo-1.1.1.tar.gz
@@ -224,9 +224,7 @@ rm -rf rime-1.7.3-osx.zip
 ```
 
 # Emacs 多語言支持
-## 安裝
-
-采用 asdf 来管理语言多个版本(brew instlla asdf）
+## 采用 asdf 来管理语言多个版本
 
 1. Erlang/Elixir
 ```
@@ -314,6 +312,18 @@ export KERL_CONFIGURE_OPTIONS="--disable-debug \
     asdf global rust 1.67.0
 
 ```
+
+4. node
+```
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf list all nodejs
+asdf install nodejs latest:16
+asdf install nodejs 19.6.0
+
+# eaf-file-manager 需要高版本的node
+asdf global node 19.6.0
+```
+
 ## 语言補全語法跳轉
 
 1. 编程语言跳转 lsp-server
@@ -362,18 +372,6 @@ brew link openssl@1.1
 
 ```
 
-
-# asdf 安裝低版本 Node
-
-```
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf list all nodejs
-asdf install nodejs latest:16
-asdf install nodejs 19.6.0
-
-# eaf-file-manager 需要高版本的node
-asdf global node 19.6.0
-```
 
 # emacs 听音乐 with eaf-music-player
 
@@ -430,6 +428,11 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.2
 
 ```
 
+
+# emacs 集成openai/chatgpt
+
+- 申请openAI 的apikey
+- 添加machine api.openai.com login org-ai password <your-api-key> 到~/.authinfo
 
 # elisp 
 
