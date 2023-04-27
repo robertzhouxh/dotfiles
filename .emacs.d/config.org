@@ -14,6 +14,7 @@
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.2/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq epg-gpg-program "gpg2")
 
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
@@ -1946,7 +1947,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 
 #+END_SRC
 
-* Reading
+* Reading & OpenAI
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package nov
@@ -1969,6 +1970,19 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     (setq calibredb-format-icons-in-terminal t)
     (setq calibredb-id-width 0)
 
+    )
+
+  (use-package org-ai
+    :load-path "~/.emacs.d/vendor/org-ai"
+    :bind (
+           ("C-c q" . org-ai-prompt)
+           ("C-c x" . org-ai-on-region)
+           )
+    :hook (org-mode . org-ai-mode)
+    :config
+    ;;(setq org-ai-openai-api-token "sk-")
+    (setq org-ai-default-max-tokens 480)
+    (setq org-ai-default-chat-system-prompt "你是一个Emacs助手，请以Org-mode的格式来回复我")
     )
 #+END_SRC
 
