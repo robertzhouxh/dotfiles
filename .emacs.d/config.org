@@ -2453,8 +2453,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (require 'lazycat-theme)
   (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
   (lazycat-theme-load-dark)
-  ;;(lazycat-theme-load-with-sunrise)
-
+  (lazycat-theme-load-with-sunrise)
   (require 'awesome-tray)
   (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
   (awesome-tray-mode 1)
