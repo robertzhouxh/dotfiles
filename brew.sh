@@ -124,6 +124,8 @@ brew install --cask font-hack
 #brew install ack
 #brew install exiv2
 brew install git
+brew install less
+brew install git-delta
 brew install git-lfs
 #brew install gs
 #brew install imagemagick --with-webp
