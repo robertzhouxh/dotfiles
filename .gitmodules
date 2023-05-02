@@ -110,3 +110,6 @@ url = https://github.com/rksm/org-ai.git
 path = .emacs.d/vendor/everforest-theme
 url = https://github.com/Theory-of-Everything/everforest-emacs
 
+[submodule ".emacs.d/vendor/mind-wave"]
+	path = .emacs.d/vendor/mind-wave
+	url = https://github.com/manateelazycat/mind-wave

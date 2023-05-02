@@ -141,6 +141,8 @@
   (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
   (setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
+  (setq completion-auto-select nil)       ;避免默认自动选择
+
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq scroll-step 1
         scroll-conservatively 10000)
@@ -156,6 +158,11 @@
         (remq 'process-kill-buffer-query-function
               kill-buffer-query-functions))
 
+  ;; Don't ask me when kill process buffer
+  (setq kill-buffer-query-functions
+        (remq 'process-kill-buffer-query-function
+              kill-buffer-query-functions))
+  ;; --------------------------------------------------------------------------------
   ;; 平滑地进行半屏滚动，避免滚动后recenter操作
   (setq-default scroll-step 1
                 scroll-preserve-screen-position t
@@ -2824,6 +2831,39 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
      (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
      )
    t)
+
+  ;;; Require
+  (require 'mind-wave)
+  
+  ;;; Code:
+  (setq mind-wave-chat-model "gpt-4")
+  (setq mind-wave-async-text-model "gpt-4")
+  (setq mind-wave-action-code-model "gpt-4")
+  (setq mind-wave-explain-word-model "gpt-4")
+  
+  (one-key-create-menu
+   "MIND-WAVE"
+   '(
+     (("t" . "Translate to english") . mind-wave-translate-to-english)
+     (("T" . "Explain word") . mind-wave-explain-word)
+     (("d" . "Proofreading doc") . mind-wave-proofreading-doc)
+     (("f" . "Fix typos") . mind-wave-check-typos)
+     (("r" . "Refactory code") . mind-wave-refactory-code)
+     (("R" . "Refactory code with input") . mind-wave-refactory-code-with-input)
+     (("c" . "Comment code") . mind-wave-comment-code)
+     (("e" . "Explain code") . mind-wave-explain-code)
+     (("E" . "Explain point") . mind-wave-explain-point)
+     (("a" . "Adjust text") . mind-wave-adjust-text)
+     (("g" . "Generate code") . mind-wave-generate-code)
+     (("G" . "Generate patch name") . mind-wave-generate-commit-name)
+     (("v" . "Summary video") . mind-wave-summary-video)
+     (("w" . "Summary video") . mind-wave-summary-web)
+     (("x" . "Restore window configuration") . mind-wave-restore-window-configuration)
+     )
+   t)
+
+(add-hook 'eaf-git-commit-and-push-hook #'mind-wave-generate-commit-name)
+
 
 #+END_SRC
 
