@@ -1341,7 +1341,9 @@
     (org-insert-heading-respect-content nil)
     ;; 设置图片的最大宽度，如果有imagemagick支持将会改变图片实际宽度
     ;; 四种设置方法：(1080), 1080, t, nil
-    (org-image-actual-width nil)
+    ;(org-image-actual-width nil)
+    (org-image-actual-width 1080)
+
     ;; imenu的最大深度，默认为2
     (org-imenu-depth 4)
     ;; 回车要不要触发链接，这里设置不触发
@@ -2450,14 +2452,6 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (setq auto-save-silent t)
   (setq auto-save-delete-trailing-whitespace nil)
 
-  (require 'lazycat-theme)
-  (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
-  (lazycat-theme-load-dark)
-  (lazycat-theme-load-with-sunrise)
-  (require 'awesome-tray)
-  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-  (awesome-tray-mode 1)
-
   ;; ----------------------------------------------------------
   ;; auto mode
   (defun add-to-alist (alist-var elt-cons &optional no-replace)
@@ -2736,6 +2730,23 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
       ;; Exit emacs.
       (kill-emacs)))
   (emacs-session-restore)
+
+#+END_SRC
+
+* UI
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+  (require 'lazycat-theme)
+  ;; (setq-default mode-line-format (remove 'mode-line-buffer-identification mode-line-format))
+  ;; (lazycat-theme-load-dark)
+  ;; ;(lazycat-theme-load-with-sunrise)
+
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/everforest-theme")
+  (load-theme 'everforest-hard-dark t)
+
+  (require 'awesome-tray)
+  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  (awesome-tray-mode 1)
 
 #+END_SRC
 
