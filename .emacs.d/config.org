@@ -2767,6 +2767,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (require 'eaf-browser)
   (require 'eaf-file-manager)
   (require 'eaf-mindmap)
+  (require 'eaf-markmap)
   (require 'eaf-org-previewer)
   (require 'eaf-git)
 
