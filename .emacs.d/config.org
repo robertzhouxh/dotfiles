@@ -246,16 +246,31 @@
 
 #+END_SRC
 
-* Functions
+* Functions&Const
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
+  (defconst sys/win32p (eq system-type 'windows-nt) "Are we running on a WinTel system?")
   (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
   (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
   (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
   (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
   (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+  (defconst sys/cygwinp (eq system-type 'cygwin) "Are we running on a Cygwin system?")
+  (defconst sys/rootp (string-equal "root" (getenv "USER")) "Are you using ROOT user?")
+  (defconst emacs/>=27p
+    (>= emacs-major-version 27)
+    "Emacs is 27 or above.")
+  
+  (defconst emacs/>=28p
+    (>= emacs-major-version 28)
+    "Emacs is 28 or above.")
+  
+  (defconst emacs/>=29p
+    (>= emacs-major-version 29)
+    "Emacs is 29 or above.")
+
   (defvar socks-noproxy)
   (defvar socks-server)
   (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
@@ -2397,13 +2412,53 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 * Reading & OpenAI
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package nov
+  ;; Epub reader: https://chainsawriot.com/postmannheim/2022/12/22/aoe22.html
+
+  (add-hook 'nov-mode-hook 'visual-line-mode)
+  (add-hook 'nov-mode-hook 'visual-fill-column-mode)
+  (setq nov-text-width 120)
+  (defvar nov-cursor nil "Whether the cursor is enabled")
+
+  (defun toggle-nov-cursor ()
+    "Toggle nov cursor mode"
+    (interactive)
+    (if nov-cursor
+  	  (progn
+  		(setq cursor-type nil
+  			  nov-cursor nil)
+  		(scroll-lock-mode 1))
+      (progn
+  	  (setq cursor-type t
+  			nov-cursor t)
+  	  (scroll-lock-mode -1)
+  	  )))
+  
+  (defun nov-display ()
+    (face-remap-add-relative 'variable-pitch :family "Liberation Serif"
+  						   :height 1.5)
+    (scroll-lock-mode 1)
+    (toggle-scroll-bar -1)
+    (setq mode-line-format nil
+  		nov-header-line-format ""
+  		cursor-type nil))
+  (use-package visual-fill-column
+    :config
+    (setq-default visual-fill-column-center-text t)
+    (setq-default visual-fill-column-width 120))
+
+
+  (use-package nov 
     :load-path "~/.emacs.d/vendor/nov"
     :mode ("\\.epub\\'" . nov-mode)
     :bind (:map nov-mode-map
+                ("C-q" . 'toggle-nov-cursor)
                 ("j" . scroll-up-line)
                 ("k" . scroll-down-line))
-    )
+    :config
+    (add-hook 'nov-mode-hook 'nov-display)
+    (add-hook 'nov-mode-hook 'visual-fill-column-mode)
+  ) 
+
   (use-package calibredb
     :ensure t
     :commands calibredb
