@@ -433,6 +433,17 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.2
 
 - 申请openAI 的apikey
 - 添加machine api.openai.com login org-ai password <your-api-key> 到~/.authinfo
+# 推荐一个中文字体-
+
+1. 霞鹜文楷: https://github.com/lxgw/LxgwWenKai
+
+```
+
+brew tap homebrew/cask-fonts
+brew install font-lxgw-wenkai
+
+```
+2. 苍耳今楷
 
 # elisp 
 

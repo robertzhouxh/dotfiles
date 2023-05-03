@@ -1364,7 +1364,9 @@
     ;; 设置图片的最大宽度，如果有imagemagick支持将会改变图片实际宽度
     ;; 四种设置方法：(1080), 1080, t, nil
     ;(org-image-actual-width nil)
-    (org-image-actual-width 1080)
+    ;(org-image-actual-width 1080)
+    (org-image-actual-width 640)
+
 
     ;; imenu的最大深度，默认为2
     (org-imenu-depth 4)
@@ -2294,7 +2296,8 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
                return (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend))
 
       ;; Chinese characters
-      (cl-loop for font in '("TsangerJinKai05" "FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
+      ;; (cl-loop for font in '("LXGW WenKai" "TsangerJinKai05" "FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
+      (cl-loop for font in '("TsangerJinKai05" "LXGW WenKai"  "FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
                when (font-installed-p font)
                return (progn
                                           ;(setq face-font-rescale-alist `((,font . 1.2)))
@@ -2433,10 +2436,11 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   	  (scroll-lock-mode -1)
   	  )))
   
-  (with-eval-after-load 'shr (set-face-attribute 'variable-pitch nil :font (format "%s:pixelsize=%d" "TsangerJinKai05" 24)))
+  ;;(with-eval-after-load 'shr (set-face-attribute 'variable-pitch nil :font (format "%s:pixelsize=%d" "TsangerJinKai05" 24)))
   ;;(with-eval-after-load 'shr (set-face-attribute 'variable-pitch nil :font (format "%s:pixelsize=%d" "仓耳今楷 01" 24)))
   (defun nov-display ()
-    ;; (face-remap-add-relative 'variable-pitch :family "Liberation Serif" :height 1.5)
+    (face-remap-add-relative 'variable-pitch :family "TsangerJinKai05" :height 1.5)
+    ;; (face-remap-add-relative 'variable-pitch :family "LXGW WenKai" :height 1.5)
     (scroll-lock-mode 1)
     (toggle-scroll-bar -1)
     (setq mode-line-format nil
@@ -2458,7 +2462,23 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     :config
     (add-hook 'nov-mode-hook 'nov-display)
     (add-hook 'nov-mode-hook 'visual-fill-column-mode)
-  ) 
+    (with-no-warnings
+      ;; WORKAROUND: errors while opening `nov' files with Unicode characters
+      ;; @see https://github.com/wasamasa/nov.el/issues/63
+      (defun my-nov-content-unique-identifier (content)
+        "Return the the unique identifier for CONTENT."
+        (let* ((name (nov-content-unique-identifier-name content))
+               (selector (format "package>metadata>identifier[id='%s']"
+                                 (regexp-quote name)))
+               (id (car (esxml-node-children (esxml-query selector content)))))
+          (and id (intern id))))
+      (advice-add #'nov-content-unique-identifier :override #'my-nov-content-unique-identifier))
+  
+    ;; Fix encoding issue on Windows
+    (when sys/win32p
+      (setq process-coding-system-alist
+            (cons `(,nov-unzip-program . (gbk . gbk))
+                  process-coding-system-alist))))
 
   (use-package calibredb
     :ensure t
