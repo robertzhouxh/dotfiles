@@ -415,7 +415,7 @@ multipass shell master
 
 直接使用宿主机代理
 alias proxy='export ALL_PROXY=socks5://hostIp:1080'
-alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;;export https_proxy=$http_proxy;'
+alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy;'
 
 # 更新apt: apt-get update
 
