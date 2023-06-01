@@ -395,7 +395,22 @@ brew link openssl@1.1
 ```
 brew install multipass
 multipass find
-## multipass launch -n master -c 2 -m 2G -d 40G focal
+
+## multipass networks
+[zxh:/]↥ 2s $ multipass networks
+Name     Type         Description
+bridge0  bridge       Network bridge with en1, en2, en3
+en0      wifi         Wi-Fi
+en1      thunderbolt  Thunderbolt 1
+en2      thunderbolt  Thunderbolt 2
+en3      thunderbolt  Thunderbolt 3
+en4      ethernet     Ethernet Adapter (en4)
+en5      ethernet     Ethernet Adapter (en5)
+en6      ethernet     Ethernet Adapter (en6)
+
+## 创建桥接版本： multipass launch focal --name master --cpus 2 --disk 40G --memory 2G --network en0
+
+
 
 ## 失败：launch failed: Downloaded image hash does not match
 ## sudo launchctl unload /Library/LaunchDaemons/com.canonical.multipassd.plist
@@ -407,19 +422,33 @@ multipass find
 ## 使用 qemu-img 命令调整已经创建的实例的磁盘大小: brew install qemu
 ## stop：multipass stop master
 ## resize: sudo qemu-img resize "/var/root/Library/Application Support/multipassd/qemu/vault/instances/master/ubuntu-20.04-server-cloudimg-arm64.img" +20G
-## start again: multipass start master
+## start again: multipass start multipass
 
-multipass shell master
-# 设置密码: sudo passwd ubuntu （xxxxxx） 建议直接一个空格当密码
-# 设置密码: sudo passwd root   （xxxxxx） 建议直接一个空格当密码
+master shell master
 
-直接使用宿主机代理
+# 设置密码: sudo passwd ubuntu
+pass
+
+# 设置密码: sudo passwd root
+pass
+
+# ssh 开启用户名密码登录
+# vi /etc/ssh/ssh_config
+# PermitRootLogin yes
+# PasswordAuthentication yes
+
+直接使用宿主机代理科学上网
 alias proxy='export ALL_PROXY=socks5://hostIp:1080'
 alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy;'
 
 # 更新apt: apt-get update
 
 ...
+
+# 安装 docker
+
+ curl -fsSL https://get.docker.com -o get-docker.sh
+ sudo sh ./get-docker.sh --dry-run
 
 # 安装 asdf
 
