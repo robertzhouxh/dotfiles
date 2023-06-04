@@ -2945,7 +2945,7 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 #+END_SRC
 
 * Treesit
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 
 ;;; Require
 (require 'treesit)

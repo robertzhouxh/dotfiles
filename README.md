@@ -99,9 +99,14 @@ brew services start/stop privoxy
 将以下两行添加到你的 .bashrc 中，启动 terminal 的时候自动加载
 
 ```
-  alias hproxy='export http_proxy=http://127.0.0.1:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export FTP_PROXY=$http_proxy;export https_proxy=$http_proxy;export ftp_proxy=$http_proxy;'
+  alias hproxy='export http_proxy=http://10.1.105.135:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export FTP_PROXY=$http_proxy;export https_proxy=$http_proxy;export ftp_proxy=$http_proxy;'
+  alias proxy='export ALL_PROXY=socks5://10.1.105.135:1080'
 
   alias nohproxy='unset http_proxy;unset HTTPS_PROXY;unset HTTP_PROXY;unset FTP_PROXY;unset https_proxy;unset ftp_proxy'
+  alias noproxy='unset ALL_PROXY'
+
+  ## apt update 走代理
+  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
 
 ```
 
@@ -441,7 +446,9 @@ pass
 alias proxy='export ALL_PROXY=socks5://hostIp:1080'
 alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy;'
 
-# 更新apt: apt-get update
+# 更新apt:       apt-get update
+# 更新走宿主机代理  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
+  
 
 ...
 
