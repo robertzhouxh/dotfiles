@@ -2367,10 +2367,10 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
     (setq echo-keystrokes 0.1)
     (setq mac-option-modifier 'super)
     (setq mac-command-modifier 'meta)
-    ;; (setq mac-command-modifier       'super   ;; s: super(Command/Win)
-    ;;       mac-control-modifier       'control ;; C: Ctrl
-    ;;       mac-option-modifier        'meta    ;; M: Meta (Option/Alt)
-    ;;       )
+    (setq mac-command-modifier       'super   ;; s: super(Command/Win)
+          mac-control-modifier       'control ;; C: Ctrl
+          mac-option-modifier        'meta    ;; M: Meta (Option/Alt)
+          )
 
     ;; Copy/Paste
     (defun copy-from-osx ()
