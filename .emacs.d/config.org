@@ -2513,224 +2513,224 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;;(require 'visual-regexp)
-  ;;(setq vr/match-separator-use-custom-face t)
-  ;;(setq vr/match-separator-string "⇛")
-  (require 'lazy-load)
-  (require 'one-key)
-  (require 'posframe)
-  (require 'lazycat-toolkit)
-  (require 'goto-chg)
-  (require 'watch-other-window)
-  (require 'thing-edit)
-  (require 'color-rg)
-  (require 'blink-search)
-  (require 'markmacro)
+;;(require 'visual-regexp)
+;;(setq vr/match-separator-use-custom-face t)
+;;(setq vr/match-separator-string "⇛")
+(require 'lazy-load)
+(require 'one-key)
+(require 'posframe)
+(require 'lazycat-toolkit)
+(require 'goto-chg)
+(require 'watch-other-window)
+(require 'thing-edit)
+(require 'color-rg)
+(require 'blink-search)
+(require 'markmacro)
 
-  ;; (require 'sort-tab)
-  ;; (sort-tab-mode 1)
+;; (require 'sort-tab)
+;; (sort-tab-mode 1)
 
-  ;; (require 'auto-save)
-  ;; (auto-save-enable)
-  ;; (setq auto-save-silent t)
-  ;; (setq auto-save-delete-trailing-whitespace nil)
+;; (require 'auto-save)
+;; (auto-save-enable)
+;; (setq auto-save-silent t)
+;; (setq auto-save-delete-trailing-whitespace nil)
 
-  ;; ----------------------------------------------------------
-  ;; auto mode
-  (defun add-to-alist (alist-var elt-cons &optional no-replace)
-    "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
+;; ----------------------------------------------------------
+;; auto mode
+(defun add-to-alist (alist-var elt-cons &optional no-replace)
+  "Add to the value of ALIST-VAR an element ELT-CONS if it isn't there yet.
                   If an element with the same car as the car of ELT-CONS is already present,
                   replace it with ELT-CONS unless NO-REPLACE is non-nil; if a matching
                   element is not already present, add ELT-CONS to the front of the alist.
                   The test for presence of the car of ELT-CONS is done with `equal'."
-    (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
-      (if existing-element
-          (or no-replace
-              (rplacd existing-element (cdr elt-cons)))
-        (set alist-var (cons elt-cons (symbol-value alist-var)))))
-    (symbol-value alist-var))
+  (let ((existing-element (assoc (car elt-cons) (symbol-value alist-var))))
+    (if existing-element
+        (or no-replace
+            (rplacd existing-element (cdr elt-cons)))
+      (set alist-var (cons elt-cons (symbol-value alist-var)))))
+  (symbol-value alist-var))
 
-  (dolist (elt-cons '(
-                      ("\\.markdown" . markdown-mode)
-                      ("\\.md" . markdown-mode)
-                      ("\\.yaml" . yaml-mode)
-                      ("\\.yml" . yaml-mode)
-                      ("\\.stumpwmrc\\'" . lisp-mode)
-                      ("\\.[hg]s\\'" . haskell-mode)
-                      ("\\.hi\\'" . haskell-mode)
-                      ("\\.hs-boot\\'" . haskell-mode)
-                      ("\\.chs\\'" . haskell-mode)
-                      ("\\.l[hg]s\\'" . literate-haskell-mode)
-                      ("\\.inc\\'" . asm-mode)
-                      ("\\.max\\'" . maxima-mode)
-                      ("\\.org\\'" . org-mode)
-                      ("\\.cron\\(tab\\)?\\'" . crontab-mode)
-                      ("cron\\(tab\\)?\\." . crontab-mode)
-                      ("\\.py$" . python-mode)
-                      ("SConstruct". python-mode)
-                      ("\\.jl\\'" . lisp-mode)
-                      ("\\.asdf\\'" . lisp-mode)
-                      ("CMakeLists\\.txt\\'" . cmake-mode)
-                      ("\\.cmake\\'" . cmake-mode)
-                      ("\\.php\\'" . php-mode)
-                      ("\\.vue" . web-mode)
-                      ("\\.wxml" . web-mode)
-                      ("\\.phtml\\'" . web-mode)
-                      ("\\.tpl\\.php\\'" . web-mode)
-                      ("\\.as[cp]x\\'" . web-mode)
-                      ("\\.erb\\'" . web-mode)
-                      ("\\.mustache\\'" . web-mode)
-                      ("\\.djhtml\\'" . web-mode)
-                      ("\\.html?\\'" . web-mode)
-                      ("\\.js.erb\\'" . js-mode)
-                      ("\\.css\\'" . css-mode)
-                      ("\\.wxss\\'" . css-mode)
-                      ("\\.jade" . jade-mode)
-                      ("\\.go$" . go-mode)
-                      ("\\.rs$" . rust-mode)
-                      ("\\.pro$" . qmake-mode)
-                      ("\\.js$" . js-mode)
-                      ("\\.wxs$" . js-mode)
-                      ("\\.jsx$" . web-mode)
-                      ("\\.lua$" . lua-mode)
-                      ("\\.y$" . bison-mode)
-                      ;;("\\.pdf$" . pdf-view-mode)
-                      ("\\.ts$" . typescript-mode)
-                      ("\\.tsx$" . typescript-mode)
-                      ("\\.cpp$" . c++-mode)
-                      ("\\.h$" . c++-mode)
-                      ("\\.ll$" . llvm-mode)
-                      ("\\.bc$" . hexl-mode)
-                      ("\\.nim$" . nim-mode)
-                      ("\\.nims$" . nim-mode)
-                      ("\\.nimble$" . nim-mode)
-                      ("\\.nim.cfg$" . nim-mode)
-                      ("\\.exs$" . elixir-mode)
-                      ("\\.erl$" . erlang-mode)
-                      ("\\.schema$" . erlang-mode)
-                      ("rebar\\.config$" . erlang-mode)
-                      ("relx\\.config$" . erlang-mode)
-                      ("sys\\.config\\.src$" . erlang-mode)
-                      ("sys\\.config$" . erlang-mode)
-                      ("\\.config\\.src?$" . erlang-mode)
-                      ("\\.config\\.script?$" . erlang-mode)
-                      ("\\.hrl?$" . erlang-mode)
-                      ("\\.app?$" . erlang-mode)
-                      ("\\.app.src?$" . erlang-mode)
-                      ("\\Emakefile" . erlang-mode)
-                      ("\\.json$" . json-mode)
-                      ("\\.clj$" . clojure-mode)
-                      ("\\.plantuml$" . plantuml-mode)
-                      ))
-    (add-to-alist 'auto-mode-alist elt-cons))
-
-
-  ;;---------------------------------------------------------
-  ;; Line numbers are not displayed when large files are used.
-  (setq line-number-display-limit large-file-warning-threshold)
-  (setq line-number-display-limit-width 1000)
-
-  (dolist (hook (list
-                 'c-mode-common-hook
-                 'c-mode-hook
-                 'emacs-lisp-mode-hook
-                 'lisp-interaction-mode-hook
-                 'lisp-mode-hook
-                 'java-mode-hook
-                 'asm-mode-hook
-                 'haskell-mode-hook
-                 'rcirc-mode-hook
-                 'erc-mode-hook
-                 'sh-mode-hook
-                 'makefile-gmake-mode-hook
-                 'python-mode-hook
-                 'js-mode-hook
-                 'html-mode-hook
-                 'css-mode-hook
-                 'tuareg-mode-hook
-                 'go-mode-hook
-                 'qml-mode-hook
-                 'markdown-mode-hook
-                 'slime-repl-mode-hook
-                 'package-menu-mode-hook
-                 'cmake-mode-hook
-                 'php-mode-hook
-                 'web-mode-hook
-                 'sws-mode-hook
-                 'jade-mode-hook
-                 'vala-mode-hook
-                 'rust-mode-hook
-                 'ruby-mode-hook
-                 'qmake-mode-hook
-                 'lua-mode-hook
-                 'swift-mode-hook
-                 'llvm-mode-hook
-                 'conf-toml-mode-hook
-                 'nxml-mode-hook
-                 'nim-mode-hook
-                 'typescript-mode-hook
-                 'elixir-mode-hook
-                 'erlang-mode-hook
-                 'clojure-mode-hook
-                 ))
-    (add-hook hook (lambda () (display-line-numbers-mode))))
-
-  ;;----------------------------------------------------------
-  ;; fingertip
-  ;; (when (or (string-match "Emacs 30." (emacs-version))
-  ;;           (string-match "Emacs 31." (emacs-version)))
-  ;;   (require 'fingertip)
-  ;;   (message "For Emacs 29+, load fingertip")
-  ;;   (dolist (hook (list
-  ;;                  'c-mode-common-hook
-  ;;                  'c-mode-hook
-  ;;                  'c++-mode-hook
-  ;;                  'java-mode-hook
-  ;;                  'haskell-mode-hook
-  ;;                  'emacs-lisp-mode-hook
-  ;;                  'lisp-interaction-mode-hook
-  ;;                  'lisp-mode-hook
-  ;;                  'maxima-mode-hook
-  ;;                  'ielm-mode-hook
-  ;;                  'sh-mode-hook
-  ;;                  'makefile-gmake-mode-hook
-  ;;                  'php-mode-hook
-  ;;                  'python-mode-hook
-  ;;                  'js-mode-hook
-  ;;                  'go-mode-hook
-  ;;                  'qml-mode-hook
-  ;;                  'jade-mode-hook
-  ;;                  'css-mode-hook
-  ;;                  'ruby-mode-hook
-  ;;                  'coffee-mode-hook
-  ;;                  'rust-mode-hook
-  ;;                  'qmake-mode-hook
-  ;;                  'lua-mode-hook
-  ;;                  'swift-mode-hook
-  ;;                  'web-mode-hook
-  ;;                  'markdown-mode-hook
-  ;;                  'llvm-mode-hook
-  ;;                  'conf-toml-mode-hook
-  ;;                  'nim-mode-hook
-  ;;                  'typescript-mode-hook
-
-  ;;                  'c-ts-mode-hook
-  ;;                  'c++-ts-mode-hook
-  ;;                  'cmake-ts-mode-hook
-  ;;                  'toml-ts-mode-hook
-  ;;                  'css-ts-mode-hook
-  ;;                  'js-ts-mode-hook
-  ;;                  'json-ts-mode-hook
-  ;;                  'python-ts-mode-hook
-  ;;                  'bash-ts-mode-hook
-  ;;                  'typescript-ts-mode-hook
-  ;;                  ))
-  ;;     (add-hook hook #'(lambda () (fingertip-mode 1))))
-  ;;   )
+(dolist (elt-cons '(
+                    ("\\.markdown" . markdown-mode)
+                    ("\\.md" . markdown-mode)
+                    ("\\.yaml" . yaml-mode)
+                    ("\\.yml" . yaml-mode)
+                    ("\\.stumpwmrc\\'" . lisp-mode)
+                    ("\\.[hg]s\\'" . haskell-mode)
+                    ("\\.hi\\'" . haskell-mode)
+                    ("\\.hs-boot\\'" . haskell-mode)
+                    ("\\.chs\\'" . haskell-mode)
+                    ("\\.l[hg]s\\'" . literate-haskell-mode)
+                    ("\\.inc\\'" . asm-mode)
+                    ("\\.max\\'" . maxima-mode)
+                    ("\\.org\\'" . org-mode)
+                    ("\\.cron\\(tab\\)?\\'" . crontab-mode)
+                    ("cron\\(tab\\)?\\." . crontab-mode)
+                    ("\\.py$" . python-mode)
+                    ("SConstruct". python-mode)
+                    ("\\.jl\\'" . lisp-mode)
+                    ("\\.asdf\\'" . lisp-mode)
+                    ("CMakeLists\\.txt\\'" . cmake-mode)
+                    ("\\.cmake\\'" . cmake-mode)
+                    ("\\.php\\'" . php-mode)
+                    ("\\.vue" . web-mode)
+                    ("\\.wxml" . web-mode)
+                    ("\\.phtml\\'" . web-mode)
+                    ("\\.tpl\\.php\\'" . web-mode)
+                    ("\\.as[cp]x\\'" . web-mode)
+                    ("\\.erb\\'" . web-mode)
+                    ("\\.mustache\\'" . web-mode)
+                    ("\\.djhtml\\'" . web-mode)
+                    ("\\.html?\\'" . web-mode)
+                    ("\\.js.erb\\'" . js-mode)
+                    ("\\.css\\'" . css-mode)
+                    ("\\.wxss\\'" . css-mode)
+                    ("\\.jade" . jade-mode)
+                    ("\\.go$" . go-mode)
+                    ("\\.rs$" . rust-mode)
+                    ("\\.pro$" . qmake-mode)
+                    ("\\.js$" . js-mode)
+                    ("\\.wxs$" . js-mode)
+                    ("\\.jsx$" . web-mode)
+                    ("\\.lua$" . lua-mode)
+                    ("\\.y$" . bison-mode)
+                    ;;("\\.pdf$" . pdf-view-mode)
+                    ("\\.ts$" . typescript-mode)
+                    ("\\.tsx$" . typescript-mode)
+                    ("\\.cpp$" . c++-mode)
+                    ("\\.h$" . c++-mode)
+                    ("\\.ll$" . llvm-mode)
+                    ("\\.bc$" . hexl-mode)
+                    ("\\.nim$" . nim-mode)
+                    ("\\.nims$" . nim-mode)
+                    ("\\.nimble$" . nim-mode)
+                    ("\\.nim.cfg$" . nim-mode)
+                    ("\\.exs$" . elixir-mode)
+                    ("\\.erl$" . erlang-mode)
+                    ("\\.schema$" . erlang-mode)
+                    ("rebar\\.config$" . erlang-mode)
+                    ("relx\\.config$" . erlang-mode)
+                    ("sys\\.config\\.src$" . erlang-mode)
+                    ("sys\\.config$" . erlang-mode)
+                    ("\\.config\\.src?$" . erlang-mode)
+                    ("\\.config\\.script?$" . erlang-mode)
+                    ("\\.hrl?$" . erlang-mode)
+                    ("\\.app?$" . erlang-mode)
+                    ("\\.app.src?$" . erlang-mode)
+                    ("\\Emakefile" . erlang-mode)
+                    ("\\.json$" . json-mode)
+                    ("\\.clj$" . clojure-mode)
+                    ("\\.plantuml$" . plantuml-mode)
+                    ))
+  (add-to-alist 'auto-mode-alist elt-cons))
 
 
-  ;;----------------------------------------------------------
-  ;; lsp-bridge
+;;---------------------------------------------------------
+;; Line numbers are not displayed when large files are used.
+(setq line-number-display-limit large-file-warning-threshold)
+(setq line-number-display-limit-width 1000)
+
+(dolist (hook (list
+               'c-mode-common-hook
+               'c-mode-hook
+               'emacs-lisp-mode-hook
+               'lisp-interaction-mode-hook
+               'lisp-mode-hook
+               'java-mode-hook
+               'asm-mode-hook
+               'haskell-mode-hook
+               'rcirc-mode-hook
+               'erc-mode-hook
+               'sh-mode-hook
+               'makefile-gmake-mode-hook
+               'python-mode-hook
+               'js-mode-hook
+               'html-mode-hook
+               'css-mode-hook
+               'tuareg-mode-hook
+               'go-mode-hook
+               'qml-mode-hook
+               'markdown-mode-hook
+               'slime-repl-mode-hook
+               'package-menu-mode-hook
+               'cmake-mode-hook
+               'php-mode-hook
+               'web-mode-hook
+               'sws-mode-hook
+               'jade-mode-hook
+               'vala-mode-hook
+               'rust-mode-hook
+               'ruby-mode-hook
+               'qmake-mode-hook
+               'lua-mode-hook
+               'swift-mode-hook
+               'llvm-mode-hook
+               'conf-toml-mode-hook
+               'nxml-mode-hook
+               'nim-mode-hook
+               'typescript-mode-hook
+               'elixir-mode-hook
+               'erlang-mode-hook
+               'clojure-mode-hook
+               ))
+  (add-hook hook (lambda () (display-line-numbers-mode))))
+
+;;----------------------------------------------------------
+;; fingertip
+;; (when (or (string-match "Emacs 30." (emacs-version))
+;;           (string-match "Emacs 31." (emacs-version)))
+;;   (require 'fingertip)
+;;   (message "For Emacs 29+, load fingertip")
+;;   (dolist (hook (list
+;;                  'c-mode-common-hook
+;;                  'c-mode-hook
+;;                  'c++-mode-hook
+;;                  'java-mode-hook
+;;                  'haskell-mode-hook
+;;                  'emacs-lisp-mode-hook
+;;                  'lisp-interaction-mode-hook
+;;                  'lisp-mode-hook
+;;                  'maxima-mode-hook
+;;                  'ielm-mode-hook
+;;                  'sh-mode-hook
+;;                  'makefile-gmake-mode-hook
+;;                  'php-mode-hook
+;;                  'python-mode-hook
+;;                  'js-mode-hook
+;;                  'go-mode-hook
+;;                  'qml-mode-hook
+;;                  'jade-mode-hook
+;;                  'css-mode-hook
+;;                  'ruby-mode-hook
+;;                  'coffee-mode-hook
+;;                  'rust-mode-hook
+;;                  'qmake-mode-hook
+;;                  'lua-mode-hook
+;;                  'swift-mode-hook
+;;                  'web-mode-hook
+;;                  'markdown-mode-hook
+;;                  'llvm-mode-hook
+;;                  'conf-toml-mode-hook
+;;                  'nim-mode-hook
+;;                  'typescript-mode-hook
+
+;;                  'c-ts-mode-hook
+;;                  'c++-ts-mode-hook
+;;                  'cmake-ts-mode-hook
+;;                  'toml-ts-mode-hook
+;;                  'css-ts-mode-hook
+;;                  'js-ts-mode-hook
+;;                  'json-ts-mode-hook
+;;                  'python-ts-mode-hook
+;;                  'bash-ts-mode-hook
+;;                  'typescript-ts-mode-hook
+;;                  ))
+;;     (add-hook hook #'(lambda () (fingertip-mode 1))))
+;;   )
+
+
+;;----------------------------------------------------------
+;; lsp-bridge
 ;;; Require
 (require 'lsp-bridge)
 (require 'lsp-bridge-jdtls)
@@ -2789,6 +2789,13 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 ;;       (lambda (filepath)
 ;;         (when (string-prefix-p (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/app") filepath)
 ;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
+
+;; Refer: https://emacs-china.org/t/lsp-bridge/20786/3221
+(setq lsp-bridge-get-project-path-by-filepath
+      (lambda (filepath)
+        (save-match-data
+          (and (string-match "/Users/zxh/githubs/gld/\\([^/]*\\)" filepath)
+               (match-string 0 filepath)))))
 
 #+END_SRC
 
@@ -3080,12 +3087,14 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
 
   ;; 语法跳转
-  (global-set-key (kbd "C-t")     'lsp-bridge-jump-back)
   (global-set-key (kbd "C-]")     'lsp-bridge-jump)
+  (global-set-key (kbd "C-t")     'lsp-bridge-jump-back)
+  (global-set-key (kbd "M-]")     'lsp-bridge-find-impl) 
+  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
+  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
+
   (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
   (global-set-key (kbd "C-8")     'lsp-bridge-jump)
-  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
-  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
   (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
   (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
   (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
