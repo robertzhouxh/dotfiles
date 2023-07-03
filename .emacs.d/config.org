@@ -2731,91 +2731,64 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 
   ;;----------------------------------------------------------
   ;; lsp-bridge
-  ;; https://github.com/manateelazycat/lazycat-emacs
-  (require 'lsp-bridge)
-  (require 'lsp-bridge-jdtls)
+;;; Require
+(require 'lsp-bridge)
+(require 'lsp-bridge-jdtls)
 
-            ;;; Code:
+;;; Code:
 
-  (setq acm-enable-quick-access t)
-  (setq acm-backend-yas-match-by-trigger-keyword t)
+(setq lsp-bridge-enable-completion-in-minibuffer t)
+(setq lsp-bridge-signature-show-function 'lsp-bridge-signature-show-with-frame)
+(setq acm-enable-quick-access t)
+(setq acm-backend-yas-match-by-trigger-keyword t)
+(setq acm-enable-tabnine nil)
+(setq acm-enable-codeium t)
 
-  (global-lsp-bridge-mode)
+(global-lsp-bridge-mode)
 
-  ;; 打开日志，开发者才需要
-  ;; (setq lsp-bridge-enable-log t)
+;; 打开日志，开发者才需要
+;; (setq lsp-bridge-enable-log t)
 
-  ;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
-  (defun lsp-bridge-jump ()
-    (interactive)
-    (cond
-     ((eq major-mode 'emacs-lisp-mode)
-      (let ((symb (function-called-at-point)))
-        (when symb
-          (find-function symb))))
-     (lsp-bridge-mode
-      (lsp-bridge-find-def))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-go))))
+;; 融合 `lsp-bridge' `find-function' 以及 `dumb-jump' 的智能跳转
+(defun lsp-bridge-jump ()
+  (interactive)
+  (cond
+   ((eq major-mode 'emacs-lisp-mode)
+    (let ((symb (function-called-at-point)))
+      (when symb
+        (find-function symb))))
+   (lsp-bridge-mode
+    (lsp-bridge-find-def))
+   (t
+    (require 'dumb-jump)
+    (dumb-jump-go))))
 
-  (defun lsp-bridge-jump-back ()
-    (interactive)
-    (cond
-     (lsp-bridge-mode
-      (lsp-bridge-find-def-return))
-     (t
-      (require 'dumb-jump)
-      (dumb-jump-back))))
+(defun lsp-bridge-jump-back ()
+  (interactive)
+  (cond
+   (lsp-bridge-mode
+    (lsp-bridge-find-def-return))
+   (t
+    (require 'dumb-jump)
+    (dumb-jump-back))))
 
-  (setq lsp-bridge-get-single-lang-server-by-project
-        (lambda (project-path filepath)
-          ;; If typescript file include deno.land url, then use Deno LSP server.
-          (save-excursion
-            (when (string-equal (file-name-extension filepath) "ts")
-              (dolist (buf (buffer-list))
-                (when (string-equal (buffer-file-name buf) filepath)
-                  (with-current-buffer buf
-                    (goto-char (point-min))
-                    (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
-                      (return "deno")))))))))
+(setq lsp-bridge-get-multi-lang-server-by-project
+      (lambda (project-path filepath)
+        ;; If typescript file include deno.land url, then use Deno LSP server.
+        (save-excursion
+          (when (string-equal (file-name-extension filepath) "ts")
+            (dolist (buf (buffer-list))
+              (when (string-equal (buffer-file-name buf) filepath)
+                (with-current-buffer buf
+                  (goto-char (point-min))
+                  (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
+                    (return "deno")))))))))
 
-  ;; ------------------------------------------------------
-  ;; session 
-
-  ;; (require 'basic-toolkit)
-  ;; (setq desktop-load-locked-desktop t) ; don't popup dialog ask user, load anyway
-  ;; (setq desktop-restore-frames nil)    ; don't restore any frame
-
-  ;; (defun emacs-session-restore ()
-  ;;   "Restore emacs session."
-  ;;   (interactive)
-  ;;   (ignore-errors
-  ;;     ;; Kill other windows.
-  ;;     (delete-other-windows)
-  ;;     ;; Kill unused buffers.
-  ;;     (kill-unused-buffers)
-  ;;     ;; Restore session.
-  ;;     (desktop-read "~/.emacs.d/")
-  ;;     ))
-
-  ;; (defun emacs-session-save (&optional arg)
-  ;;   "Save emacs session."
-  ;;   (interactive "p")
-  ;;   (ignore-errors
-  ;;     (if (equal arg 4)
-  ;;         ;; Kill all buffers if with prefix argument.
-  ;;         (mapc 'kill-buffer (buffer-list))
-  ;;       ;; Kill unused buffers.
-  ;;       (kill-unused-buffers)
-  ;;       ;; Save all buffers before exit.
-  ;;       (auto-save-buffers))
-  ;;     ;; Save session.
-  ;;     (make-directory "~/.emacs.d/" t)
-  ;;     (desktop-save "~/.emacs.d/")
-  ;;     ;; Exit emacs.
-  ;;     (kill-emacs)))
-  ;; (emacs-session-restore)
+;; Support jump to define of EAF root from EAF application directory.
+;; (setq lsp-bridge-get-project-path-by-filepath
+;;       (lambda (filepath)
+;;         (when (string-prefix-p (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/app") filepath)
+;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
 
 #+END_SRC
 
