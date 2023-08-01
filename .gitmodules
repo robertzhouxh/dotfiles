@@ -114,3 +114,7 @@ url = https://github.com/manateelazycat/mind-wave
 path = .emacs.d/vendor/vundo
 url = https://github.com/casouri/vundo
 
+[submodule ".emacs.d/vendor/emacs-application-framework"]
+	path = .emacs.d/vendor/emacs-application-framework
+	url = https://github.com/emacs-eaf/emacs-application-framework
+	branch = master

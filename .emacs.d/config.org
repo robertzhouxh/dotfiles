@@ -1035,8 +1035,9 @@
       "cm" 'delete-trailing-M
 
       ;; dired
-      "dj" 'dired-jump
-      "dJ" 'dired-jump-other-window
+      ;; "dj" 'dired-jump
+      ;; "dJ" 'dired-jump-other-window
+      "d" 'one-key-menu-directory
 
       ;; external Apps
       "eY" 'youdao-dictionary-search-from-input
@@ -1067,12 +1068,12 @@
       "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
 
       ;; magit
-      "gs" 'magit-status
-      "gb" 'magit-branch-checkout
-      "gp" 'magit-pull
-      "gB" 'global-blamer-mode
-      "gt" 'magit-blame-toggle
-      "G"  'aborn/simple-git-commit-push
+      ;; "gs" 'magit-status
+      ;; "gb" 'magit-branch-checkout
+      ;; "gp" 'magit-pull
+      ;; "gB" 'global-blamer-mode
+      ;; "gt" 'magit-blame-toggle
+      "gs" 'one-key-menu-git
 
       ;; project && proxy
       "pf" 'counsel-projectile-find-file
@@ -1195,7 +1196,16 @@
          (set-control-w-shortcuts))))
 
   ;; evilmode-map
+  (defun smart-q ()
+      "Delete window in read-only buffers, otherwise record macro."
+      (interactive)
+      (if buffer-read-only
+          (if (= 1 (count-windows))
+              (bury-buffer)
+            (delete-window))
+        (call-interactively 'evil-record-macro)))
   (with-eval-after-load 'evil
+    (define-key evil-normal-state-map (kbd "q") 'smart-q)
     (define-key evil-motion-state-map (kbd "SPC") nil)
     (define-key evil-motion-state-map (kbd "RET") nil)
     (define-key evil-motion-state-map (kbd "TAB") nil)
@@ -2790,80 +2800,6 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 
 #+END_SRC
 
-* Treesit
-#+BEGIN_SRC emacs-lisp :tangle no
-
-;;; Require
-(require 'treesit)
-
-;;; Code:
-
-;; M-x `treesit-install-language-grammar` to install language grammar.
-(setq treesit-language-source-alist
-      '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-        (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-        (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-        (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-        (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
-        (csharp     . ("https://github.com/tree-sitter/tree-sitter-c-sharp.git"))
-        (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))
-        (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
-        (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-        (gomod      . ("https://github.com/camdencheek/tree-sitter-go-mod.git"))
-        (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-        (java       . ("https://github.com/tree-sitter/tree-sitter-java.git"))
-        (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-        (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-        (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-        (make . ("https://github.com/alemuller/tree-sitter-make"))
-        (markdown . ("https://github.com/MDeiml/tree-sitter-markdown" nil "tree-sitter-markdown/src"))
-        (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" nil "ocaml/src"))
-        (org . ("https://github.com/milisims/tree-sitter-org"))
-        (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-        (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-        (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src"))
-        (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src"))
-        (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-        (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-        (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-        (vue . ("https://github.com/merico-dev/tree-sitter-vue"))
-        (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
-        (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-        (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
-
-(setq major-mode-remap-alist
-      '((c-mode          . c-ts-mode)
-        (c++-mode        . c++-ts-mode)
-        (cmake-mode      . cmake-ts-mode)
-        (conf-toml-mode  . toml-ts-mode)
-        (css-mode        . css-ts-mode)
-        (js-mode         . js-ts-mode)
-        (js-json-mode    . json-ts-mode)
-        (python-mode     . python-ts-mode)
-        (sh-mode         . bash-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (rust-mode       . rust-ts-mode)
-        ))
-
-(add-hook 'markdown-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
-
-(add-hook 'web-mode-hook #'(lambda ()
-                             (let ((file-name (buffer-file-name)))
-                               (when file-name
-                                 (treesit-parser-create
-                                  (pcase (file-name-extension file-name)
-                                    ("vue" 'vue)
-                                    ("html" 'html))))
-                               )))
-
-(add-hook 'emacs-lisp-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
-(add-hook 'ielm-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
-(add-hook 'json-mode-hook #'(lambda () (treesit-parser-create 'json)))
-(add-hook 'go-mode-hook #'(lambda () (treesit-parser-create 'go)))
-
-
-#+END_SRC
-
 * Key-Bindings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2983,52 +2919,5 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "C-c g") 'one-key-menu-git)
   (global-set-key (kbd "C-c d") 'one-key-menu-directory)
 
-
-  ;; ------------------------------------------------------
-  ;; fingertip-mode
-  ;; (when (or (string-match "Emacs 30." (emacs-version))
-  ;;           (string-match "Emacs 31." (emacs-version)))
-  ;;   ;; ### Fingertip ###
-  ;;   ;; --- 结构化编程
-  ;;   (lazy-load-unset-keys
-  ;;    '("M-J" "M-r" "M-s" "M-;" "C-M-f" "C-M-b" "M-)")
-  ;;    fingertip-mode-map)             ;卸载按键
-  ;;   (defvar fingertip-key-alist nil)
-  ;;   (setq fingertip-key-alist
-  ;;         '(
-  ;;           ;; 移动
-  ;;           ("M-n" . fingertip-jump-left)
-  ;;           ("M-p" . fingertip-jump-right)
-  ;;           ;; 符号插入
-  ;;           ("%" . fingertip-match-paren)       ;括号跳转
-  ;;           ("(" . fingertip-open-round)        ;智能 (
-  ;;           ("[" . fingertip-open-bracket)      ;智能 [
-  ;;           ("{" . fingertip-open-curly)        ;智能 {
-  ;;           (")" . fingertip-close-round)       ;智能 )
-  ;;           ("]" . fingertip-close-bracket)     ;智能 ]
-  ;;           ("}" . fingertip-close-curly)       ;智能 }
-  ;;           ("\"" . fingertip-double-quote)     ;智能 "
-  ;;           ("'" . fingertip-single-quote)      ;智能 '
-  ;;           ("=" . fingertip-equal)             ;智能 =
-  ;;           ("SPC" . fingertip-space)           ;智能 space
-  ;;           ("RET" . fingertip-newline)         ;智能 newline
-  ;;           ;; 删除
-  ;;           ("M-o" . fingertip-backward-delete) ;向后删除
-  ;;           ("C-d" . fingertip-forward-delete)  ;向前删除
-  ;;           ("C-k" . fingertip-kill)            ;向前kill
-  ;;           ;; 包围
-  ;;           ("M-\"" . fingertip-wrap-double-quote) ;用 " " 包围对象, 或跳出字符串
-  ;;           ("M-'" . fingertip-wrap-single-quote) ;用 ' ' 包围对象, 或跳出字符串
-  ;;           ("M-[" . fingertip-wrap-bracket)      ;用 [ ] 包围对象
-  ;;           ("M-{" . fingertip-wrap-curly)        ;用 { } 包围对象
-  ;;           ("M-(" . fingertip-wrap-round)        ;用 ( ) 包围对象
-  ;;           ("M-)" . fingertip-unwrap)            ;去掉包围对象
-  ;;           ;; 跳出并换行缩进
-  ;;           ("M-:" . fingertip-jump-out-pair-and-newline) ;跳出括号并换行
-  ;;           ;; 向父节点跳动
-  ;;           ("C-j" . fingertip-jump-up)
-  ;;           ))
-  ;;   (lazy-load-set-keys fingertip-key-alist fingertip-mode-map)
-  ;;   )
 
 #+END_SRC
