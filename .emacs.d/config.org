@@ -736,28 +736,28 @@
 
   (use-package avy)
   (use-package vundo
-    :defer t
-    :commands (vundo)
-    :config
-    ;; Take less on-screen space.
-    (setq vundo-compact-display t)
-    (custom-set-faces
-     '(vundo-node ((t (:foreground "#808080"))))
-     '(vundo-stem ((t (:foreground "#808080"))))
-     '(vundo-highlight ((t (:foreground "#FFFF00")))))
-    ;; Use `HJKL` VIM-like motion
-    (define-key vundo-mode-map (kbd "l") #'vundo-forward)
-    (define-key vundo-mode-map (kbd "h") #'vundo-backward)
-    (define-key vundo-mode-map (kbd "j") #'vundo-next)
-    (define-key vundo-mode-map (kbd "k") #'vundo-previous)
-    (define-key vundo-mode-map (kbd "a") #'vundo-stem-root)
-    (define-key vundo-mode-map (kbd "e") #'vundo-stem-end)
-    (define-key vundo-mode-map (kbd "q") #'vundo-quit)
-    (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
-    (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
+   :defer t
+   :load-path "~/.emacs.d/vendor/vundo"
+   :commands (vundo)
+   :config
+   ;; Take less on-screen space.
+   (setq vundo-compact-display t)
+   (custom-set-faces
+    '(vundo-node ((t (:foreground "#808080"))))
+    '(vundo-stem ((t (:foreground "#808080"))))
+    '(vundo-highlight ((t (:foreground "#FFFF00")))))
+   ;; Use `HJKL` VIM-like motion
+   (define-key vundo-mode-map (kbd "l") #'vundo-forward)
+   (define-key vundo-mode-map (kbd "h") #'vundo-backward)
+   (define-key vundo-mode-map (kbd "j") #'vundo-next)
+   (define-key vundo-mode-map (kbd "k") #'vundo-previous)
+   (define-key vundo-mode-map (kbd "a") #'vundo-stem-root)
+   (define-key vundo-mode-map (kbd "e") #'vundo-stem-end)
+   (define-key vundo-mode-map (kbd "q") #'vundo-quit)
+   (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
+   (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
 
   (use-package ag
-    :defer t
     :config
     (progn
       (setq ag-highlight-search t)
@@ -854,7 +854,7 @@
 
 * Dired
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 
   ;; Directory operations
   (use-package dired
@@ -956,42 +956,41 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(use-package vc
-  :ensure nil
-  :custom
-  ;; 打开链接文件时，不进行追问
-  (vc-follow-symlinks t)
-  (vc-allow-async-revert t)
-  (vc-handled-backends '(Git)))
+  (use-package vc
+    :ensure nil
+    :custom
+    ;; 打开链接文件时，不进行追问
+    (vc-follow-symlinks t)
+    (vc-allow-async-revert t)
+    (vc-handled-backends '(Git)))
 
-(use-package magit
-  :ensure t
-  :hook (git-commit-mode . flyspell-mode)
-  :bind (("C-x g"   . magit-status)
-         ("C-x M-g" . magit-dispatch)
-         ("C-c M-g" . magit-file-dispatch))
-  :custom
-  (magit-diff-refine-hunk t)
-  (magit-ediff-dwim-show-on-hunks t))
+  (use-package diff-hl
+    :ensure t
+    :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
+           (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+           (magit-post-refresh . diff-hl-magit-post-refresh))
+    :init
+    (global-diff-hl-mode t)
+    :config
+    ;; When Emacs runs in terminal, show the indicators in margin instead.
+    (unless (display-graphic-p)
+      (diff-hl-margin-mode)))
 
-(use-package diff-hl
-  :ensure t
-  :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
-         (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-         (magit-post-refresh . diff-hl-magit-post-refresh))
-  :init
-  (global-diff-hl-mode t)
-  :config
-  ;; When Emacs runs in terminal, show the indicators in margin instead.
-  (unless (display-graphic-p)
-    (diff-hl-margin-mode)))
-
-(use-package magit-delta
-  :ensure t
-  :hook (magit-mode . magit-delta-mode)
-  :config
-  (setq magit-delta-hide-plus-minus-markers nil)
-  )
+  ;; (use-package magit
+  ;;   :ensure t
+  ;;   :hook (git-commit-mode . flyspell-mode)
+  ;;   :bind (("C-x g"   . magit-status)
+  ;;          ("C-x M-g" . magit-dispatch)
+  ;;          ("C-c M-g" . magit-file-dispatch))
+  ;;   :custom
+  ;;   (magit-diff-refine-hunk t)
+  ;;   (magit-ediff-dwim-show-on-hunks t))
+  ;; (use-package magit-delta
+  ;;   :ensure t
+  ;;   :hook (magit-mode . magit-delta-mode)
+  ;;   :config
+  ;;   (setq magit-delta-hide-plus-minus-markers nil)
+  ;;   )
 
 #+END_SRC
 
@@ -1485,39 +1484,6 @@
     )
 
 
-  (use-package org-modern
-    :ensure t
-    :hook (after-init . (lambda ()
-                          (setq org-modern-hide-stars 'leading)
-                          (global-org-modern-mode t)))
-    :config
-    ;; 标题行型号字符
-    (setq org-modern-star ["◉" "○" "✸" "✳" "◈" "◇" "✿" "❀" "✜"])
-    ;; 额外的行间距，0.1表示10%，1表示1px
-    (setq-default line-spacing 0.1)
-    ;; tag边框宽度，还可以设置为 `auto' 即自动计算
-    (setq org-modern-label-border 1)
-    ;; 设置表格竖线宽度，默认为3
-    (setq org-modern-table-vertical 2)
-    ;; 设置表格横线为0，默认为0.1
-    (setq org-modern-table-horizontal 0)
-    ;; 复选框美化
-    (setq org-modern-checkbox
-          '((?X . #("▢✓" 0 2 (composition ((2)))))
-            (?- . #("▢–" 0 2 (composition ((2)))))
-            (?\s . #("▢" 0 1 (composition ((1)))))))
-    ;; 列表符号美化
-    (setq org-modern-list
-          '((?- . "•")
-            (?+ . "◦")
-            (?* . "▹")))
-    ;; 代码块左边加上一条竖边线（需要Org mode顶头，如果启用了 `visual-fill-column-mode' 会很难看）
-    (setq org-modern-block-fringe t)
-    ;; 代码块类型美化，我们使用了 `prettify-symbols-mode'
-    (setq org-modern-block-name nil)
-    ;; #+关键字美化，我们使用了 `prettify-symbols-mode'
-    (setq org-modern-keyword nil)
-    )
 
   (use-package org-appear
     :ensure t
@@ -1570,109 +1536,6 @@
                              ))
     )
 
-  (use-package denote
-    :ensure t
-    :hook (dired-mode . denote-dired-mode-in-directories)
-    :bind (("C-c d n" . denote)
-           ("C-c d d" . denote-date)
-           ("C-c d t" . denote-type)
-           ("C-c d s" . denote-subdirectory)
-           ("C-c d f" . denote-open-or-create)
-           ("C-c d r" . denote-dired-rename-file))
-    :init
-    (with-eval-after-load 'org-capture
-      (setq denote-org-capture-specifiers "%l\n%i\n%?")
-      (add-to-list 'org-capture-templates
-                   '("N" "New note (with denote.el)" plain
-                     (file denote-last-path)
-                     #'denote-org-capture
-                     :no-save t
-                     :immediate-finish nil
-                     :kill-buffer t
-                     :jump-to-captured t)))
-    :config
-    (setq denote-directory (expand-file-name "~/org/"))
-    (setq denote-known-keywords '("emacs" "entertainment" "reading" "studying"))
-    (setq denote-infer-keywords t)
-    (setq denote-sort-keywords t)
-    ;; org is default, set others such as text, markdown-yaml, markdown-toml
-    (setq denote-file-type nil)
-    (setq denote-prompts '(title keywords))
-
-    ;; We allow multi-word keywords by default.  The author's personal
-    ;; preference is for single-word keywords for a more rigid workflow.
-    (setq denote-allow-multi-word-keywords t)
-    (setq denote-date-format nil)
-
-    ;; If you use Markdown or plain text files (Org renders links as buttons
-    ;; right away)
-    (add-hook 'find-file-hook #'denote-link-buttonize-buffer)
-    (setq denote-dired-rename-expert nil)
-
-    ;; OR if only want it in `denote-dired-directories':
-    (add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
-    )
-
-  (use-package consult-notes
-    :ensure t
-    :commands (consult-notes
-               consult-notes-search-in-all-notes)
-    :bind (("C-c n f" . consult-notes)
-           ("C-c n c" . consult-notes-search-in-all-notes))
-    :config
-    (setq consult-notes-file-dir-sources
-          `(
-            ("work"    ?w ,(concat org-directory "/midea/"))
-            ("article" ?a ,(concat org-directory "/article/"))
-            ("org"     ?o ,(concat org-directory "/"))
-            ("hugo"    ?h ,(concat org-directory "/hugo/"))
-            ("books"   ?b ,(concat (getenv "HOME") "/Books/"))
-            ))
-
-    ;; embark support
-    (with-eval-after-load 'embark
-      (defun consult-notes-open-dired (cand)
-        "Open notes directory dired with point on file CAND."
-        (interactive "fNote: ")
-        ;; dired-jump is in dired-x.el but is moved to dired in Emacs 28
-        (dired-jump nil cand))
-
-      (defun consult-notes-marked (cand)
-        "Open a notes file CAND in Marked 2.
-  Marked 2 is a mac app that renders markdown."
-        (interactive "fNote: ")
-        (call-process-shell-command (format "open -a \"Marked 2\" \"%s\"" (expand-file-name cand))))
-
-      (defun consult-notes-grep (cand)
-        "Run grep in directory of notes file CAND."
-        (interactive "fNote: ")
-        (consult-grep (file-name-directory cand)))
-
-      (embark-define-keymap consult-notes-map
-                            "Keymap for Embark notes actions."
-                            :parent embark-file-map
-                            ("d" consult-notes-dired)
-                            ("g" consult-notes-grep)
-                            ("m" consult-notes-marked))
-
-      (add-to-list 'embark-keymap-alist `(,consult-notes-category . consult-notes-map))
-
-      ;; make embark-export use dired for notes
-      (setf (alist-get consult-notes-category embark-exporters-alist) #'embark-export-dired)
-      )
-    )
-
-  ;;(use-package org-super-links
-  ;;  :quelpa (org-super-links :fetcher github :repo "toshism/org-super-links")
-  ;;  :bind (("C-c s s"   . org-super-links-link)
-  ;;         ("C-c s l"   . org-super-links-store-link)
-  ;;         ("C-c s C-l" . org-super-links-insert-link)
-  ;;         ("C-c s d"   . org-super-links-quick-insert-drawer-link)
-  ;;         ("C-c s i"   . org-super-links-quick-insert-inline-link)
-  ;;         ("C-c s C-d" . org-super-links-delete-link))
-  ;;  :config
-  ;;  (setq org-super-links-related-into-drawer t)
-  ;;  (setq	org-super-links-link-prefix 'org-super-links-link-prefix-timestamp))
 
   (use-package org-src
     :ensure nil
@@ -1895,11 +1758,11 @@
    (setq-default org-download-image-dir "../images")
    (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
 
-  (use-package valign
-    :defer t
-    :ensure t
-    :hook ((org-mode . valign-mode))
-    :custom ((valign-fancy-bar t)))
+  ;;(use-package valign
+  ;;  :defer t
+  ;;  :ensure t
+  ;;  :hook ((org-mode . valign-mode))
+  ;;  :custom ((valign-fancy-bar t)))
 
 #+END_SRC
 
@@ -2030,12 +1893,13 @@
     (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
     (add-hook 'LaTeX-mode-hook 'turn-on-cdlatex))
 
-  (use-package auctex :defer t :ensure t)
-  (load "auctex.el" nil t t)
-  ;;(load "preview-latex.el" nil t t)
-  (if (string-equal system-type "windows-nt")
-      (require 'tex-mik))
-
+  ;;(use-package auctex 
+  ;;  :load-path "~/.emacs.d/vendor/auctex"
+  ;;  :defer t
+  ;;  :config
+  ;;  (load "auctex.el" nil t t)
+  ;;  (load "preview-latex.el" nil t t))
+  (if (string-equal system-type "windows-nt") (require 'tex-mik))
 
   ;; Ask which tex file is master instead of always assume current file is master file.
   (setq-default TeX-master nil) ; Query for master file.
@@ -2480,20 +2344,19 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
             (cons `(,nov-unzip-program . (gbk . gbk))
                   process-coding-system-alist))))
 
-  (use-package calibredb
-    :ensure t
-    :commands calibredb
-    :bind ("\e\e b" . calibredb)
-    :config
-    (setq calibredb-root-dir "~/Calibre")
-    (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
-    (setq calibredb-library-alist '(("~/Books/books")
-                                    ))
+  ;;(use-package calibredb
+  ;;  :ensure t
+  ;;  :commands calibredb
+  ;;  :bind ("\e\e b" . calibredb)
+  ;;  :config
+  ;;  (setq calibredb-root-dir "~/Calibre")
+  ;;  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+  ;;  (setq calibredb-library-alist '(("~/Books/books")
+  ;;                                  ))
 
-    (setq calibredb-format-icons-in-terminal t)
-    (setq calibredb-id-width 0)
-
-    )
+  ;;  (setq calibredb-format-icons-in-terminal t)
+  ;;  (setq calibredb-id-width 0)
+  ;;  )
 
   (use-package org-ai
     :load-path "~/.emacs.d/vendor/org-ai"
