@@ -2812,12 +2812,5 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 ;; one-key-menu
 (global-set-key (kbd "C-c g")   'one-key-menu-git)
 (global-set-key (kbd "C-c d")   'one-key-menu-directory)
-(global-set-key (kbd "C-x d")   (lambda ()
-                                  (interactive)
-                                  (eaf-open-in-file-manager
-                                   (file-name-directory
-                                    (if (buffer-file-name) pwd "~/")))))
-
 
   #+END_SRC
-  
