@@ -139,7 +139,7 @@ brew services start/stop privoxy
 
 4. google 浏览器安装 Proxy SwitchyOmega 并配置
 
-# 部署 Tools/Apps/Emacs/Vim
+# 系统初始化
 
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 
@@ -171,7 +171,7 @@ cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
 cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 ```
 
-# Emacs/Vim 設置
+## Emacs/Vim 設置
 ## 同步 Emacs Submodules
 
 ```
@@ -228,7 +228,7 @@ rm -rf rime-1.7.3-osx.zip
 
 ```
 
-# Emacs 多語言支持
+## Emacs 多語言支持
 ## 采用 asdf 来管理语言多个版本
 
 1. Erlang/Elixir
@@ -378,98 +378,84 @@ brew link openssl@1.1
 ```
 
 
-# emacs 听音乐 with eaf-music-player
+## Emacs 听音乐 with eaf-music-player
 
 ```
  brew install taglib
  pip install --global-option=build_ext --global-option="-I/opt/homebrew/include" --global-option="-L/opt/homebrew/lib/"  pytaglib
 ```
 # Mac 付费软件 
-
+    
 代理软件: proxifier 
 + brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
 + socks5: localhost:1080
 + https:  localhost:8123
 
 截图软件： brew install CleanShot （桃宝宝买licence）
-# Mac 安装 Ubuntu 开发环境
 
-终于可以不用再选 vmware、ParallelDesktop 了， 安装Ubuntu 的发行商 Canonical 开发的 Multipass
-建议用 gui 的方式安装， 我用 brew 安装以后一直报错
+# Mac 安装 Multipass-Ubuntu
+## Ubuntu 的发行商 Canonical 开发的 Multipass
+
+建议用 gui 的方式安
 
 ```
 brew install multipass
-multipass find
+$ multipass find
+$ multipass networks
+  Name     Type         Description
+  bridge0  bridge       Network bridge with en1, en2, en3
+  en0      wifi         Wi-Fi
+  en1      thunderbolt  Thunderbolt 1
+  en2      thunderbolt  Thunderbolt 2
+  en3      thunderbolt  Thunderbolt 3
+  en4      ethernet     Ethernet Adapter (en4)
+  en5      ethernet     Ethernet Adapter (en5)
+  en6      ethernet     Ethernet Adapter (en6)
 
-## multipass networks
-[zxh:/]↥ 2s $ multipass networks
-Name     Type         Description
-bridge0  bridge       Network bridge with en1, en2, en3
-en0      wifi         Wi-Fi
-en1      thunderbolt  Thunderbolt 1
-en2      thunderbolt  Thunderbolt 2
-en3      thunderbolt  Thunderbolt 3
-en4      ethernet     Ethernet Adapter (en4)
-en5      ethernet     Ethernet Adapter (en5)
-en6      ethernet     Ethernet Adapter (en6)
+创建桥接版本：
+multipass launch focal --name master --cpus 2 --disk 40G --memory 2G --network en0
 
-## 创建桥接版本： multipass launch focal --name master --cpus 2 --disk 40G --memory 2G --network en0
-
-
-
-## 失败：launch failed: Downloaded image hash does not match
-## sudo launchctl unload /Library/LaunchDaemons/com.canonical.multipassd.plist
-## stop multipass, sudo rm -rf  /var/root/Library/Caches/multipassd/network-cache, start multipass
-##                  sudo rm -rf /var/root/Library/Caches/multipassd/vault
-## sudo launchctl load /Library/LaunchDaemons/com.canonical.multipassd.plist
-
-
-## 使用 qemu-img 命令调整已经创建的实例的磁盘大小: brew install qemu
-## stop：multipass stop master
-## resize: sudo qemu-img resize "/var/root/Library/Application Support/multipassd/qemu/vault/instances/master/ubuntu-20.04-server-cloudimg-arm64.img" +20G
-## start again: multipass start multipass
-
-master shell master
-
-# 设置密码: sudo passwd ubuntu
-pass
-
-# 设置密码: sudo passwd root
-pass
-
-# ssh 开启用户名密码登录
-# vi /etc/ssh/ssh_config
-# PermitRootLogin yes
-# PasswordAuthentication yes
-
-直接使用宿主机代理科学上网
-alias proxy='export ALL_PROXY=socks5://hostIp:1080'
-alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy;'
-
-# 更新apt:       apt-get update
-# 更新走宿主机代理  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
-  
-
-...
-
-# 安装 docker
-
- curl -fsSL https://get.docker.com -o get-docker.sh
- sudo sh ./get-docker.sh --dry-run
-
-# 安装 asdf
-
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.2
-
+失败：launch failed: Downloaded image hash does not match
+sudo launchctl unload /Library/LaunchDaemons/com.canonical.multipassd.plist
+stop multipass, sudo rm -rf  /var/root/Library/Caches/multipassd/network-cache, start multipass
+ sudo rm -rf /var/root/Library/Caches/multipassd/vault
+ sudo launchctl load /Library/LaunchDaemons/com.canonical.multipassd.plist
+ qemu-img 命令调整已经创建的实例的磁盘大小: brew install qemu
 
 ```
 
+## Ubuntu 初始化
+    
+```
+master shell master
 
-# emacs 集成openai/chatgpt
+设置密码: sudo passwd ubuntu
+设置密码: sudo passwd root
 
+ssh 开启用户名密码登录
+vi /etc/ssh/sshd_config
+PermitRootLogin yes
+PasswordAuthentication yes
+
+可以选择直接使用宿主机代理科学上网
+alias proxy='export ALL_PROXY=socks5://hostIp:1080'
+alias hproxy='export http_proxy=http://hostIp:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy;'
+
+更新apt:       apt-get update
+更新走宿主机代理  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
+
+安装 docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh ./get-docker.sh --dry-run
+
+安装 asdf
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.2
+```
+
+## emacs 集成openai/chatgpt
 - 申请openAI 的apikey
 - 添加machine api.openai.com login org-ai password <your-api-key> 到~/.authinfo
-# 推荐一个中文字体-
+## 推荐一个中文字体-
 
 1. 霞鹜文楷: https://github.com/lxgw/LxgwWenKai
 

@@ -80,6 +80,7 @@ apps=(
     gnutls-dev
     libgif-dev
     libxpm-dev
+    neofetch
 )
 
 for item in ${apps[@]}; do
