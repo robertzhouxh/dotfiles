@@ -952,21 +952,20 @@
       "eo" 'org-export-docx
 
       ;; file
-      "fa" 'x/save-all
-      "fu" 'sudo
+      "fh" '(lambda () (interactive) (eaf-open-in-file-manager "~/"))
+      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+      "fi" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
       "ff" 'find-file
       "fF" 'find-file-other-frame
-      "f/" 'find-file-other-window
-      "fC" '+copy-current-file
-      "fD" '+delete-current-file
-      "fy" '+copy-current-filename
-      "fR" '+rename-current-file
-      "fr" 'recentf-open-files
-      "fl" 'find-file-literally
+      "fo" 'find-file-other-window
+      "fd" '+delete-current-file
+      "fn" '+copy-current-filename
+      "fr" '+rename-current-file
+      "fR" 'recentf-open-files
+      "fs" 'sudo
+      "fa" 'x/save-all
       "f-" 'text-scale-decrease        ;减小字体大小
       "f=" 'text-scale-increase        ;增加字体大小
-      "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-      "fr" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
 
       ;; magit
       ;; "gs" 'magit-status
@@ -974,7 +973,8 @@
       ;; "gp" 'magit-pull
       ;; "gB" 'global-blamer-mode
       ;; "gt" 'magit-blame-toggle
-      "gs" 'one-key-menu-git
+      "gm" 'one-key-menu-git
+      "gs" 'eaf-open-git
 
       ;; project && proxy
       "pf" 'counsel-projectile-find-file
@@ -2716,105 +2716,108 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; ------------------------------------------------------------------------------------------------
-  ;;           Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-  ;; ------------------------------------------------------------------------------------------------
-  ;;           x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
-  ;; ------------------------------------------------------------------------------------------------
-  ;; 使用 lsp-bridge 关闭其他补全插件， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
-  ;; ------------------------------------------------------------------------------------------------
+;; ------------------------------------------------------------------------------------------------
+;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
+;; ------------------------------------------------------------------------------------------------
+;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
+;; ------------------------------------------------------------------------------------------------
+;; 使用 lsp-bridge 关闭其他补全插件， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
+;; ------------------------------------------------------------------------------------------------
 
-  ;; --- 卸载按键, 全局按键的卸载
-  (lazy-load-unset-keys  
-   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
-  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
-  ;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
+;; --- 卸载按键, 全局按键的卸载
+(lazy-load-unset-keys  
+ '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
+;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
 
-  (set-control-w-shortcuts)
-  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "M-h") nil)
-    (define-key org-mode-map (kbd "C-,") nil))
+(set-control-w-shortcuts)
+(define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
-  (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
-  (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "M-h") nil)
+  (define-key org-mode-map (kbd "C-,") nil))
 
-  (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
-  (global-set-key (kbd "C-,")     'goto-last-change)
-  (global-set-key (kbd "C-4")     'insert-changelog-date)
-  (global-set-key (kbd "C-5")     'insert-standard-date)
+(defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
+(global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
 
-  (global-set-key (kbd "C-c p f") 'projectile-find-file)
-  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
-  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
+(global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
+(global-set-key (kbd "C-,")     'goto-last-change)
+(global-set-key (kbd "C-4")     'insert-changelog-date)
+(global-set-key (kbd "C-5")     'insert-standard-date)
 
-  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
-  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
-  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
-  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
-  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
-  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
-  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
+(global-set-key (kbd "C-c p f") 'projectile-find-file)
+(global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
+(global-set-key (kbd "C-c p p") 'projectile-switch-project)
 
-  (global-set-key (kbd "C-x C-f") 'ido-find-file)
-  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
-  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
-  (global-set-key (kbd "C-x I")   'ido-insert-file)
+(global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
+(global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
+(global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
+(global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
+(global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
+(global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
+(global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
 
-  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
-  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
-  (global-set-key (kbd "M-]")     'watch-other-window-up)
-  (global-set-key (kbd "M-[")     'watch-other-window-down)
-  (global-set-key (kbd "M->")     'watch-other-window-up-line)
-  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
+(global-set-key (kbd "C-x C-f") 'ido-find-file)
+(global-set-key (kbd "C-x b")   'ido-switch-buffer)
+(global-set-key (kbd "C-x i")   'ido-insert-buffer)
+(global-set-key (kbd "C-x I")   'ido-insert-file)
 
-  (global-set-key (kbd "C-x y")   'dash-at-point)
+(global-set-key (kbd "M-n")     'hold-line-scroll-down)
+(global-set-key (kbd "M-p")     'hold-line-scroll-up)
+(global-set-key (kbd "M-]")     'watch-other-window-up)
+(global-set-key (kbd "M-[")     'watch-other-window-down)
+(global-set-key (kbd "M->")     'watch-other-window-up-line)
+(global-set-key (kbd "M-<")     'watch-other-window-down-line)
 
-  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
-  (global-set-key (kbd "M-g f")   'avy-goto-line)
-  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
+(global-set-key (kbd "C-x y")   'dash-at-point)
 
-  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
-  (global-set-key (kbd "C-M-;")   'magit-status)
-  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
+(global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
+(global-set-key (kbd "M-g f")   'avy-goto-line)
+(global-set-key (kbd "M-g w")   'avy-goto-word-1)
 
-  ;; 语法跳转
-  (global-set-key (kbd "C-]")     'lsp-bridge-jump)
-  (global-set-key (kbd "C-t")     'lsp-bridge-jump-back)
-  (global-set-key (kbd "M-]")     'lsp-bridge-find-impl) 
-  (global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
-  (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
+(global-set-key (kbd "C-M-s")   'color-rg-search-input)
+(global-set-key (kbd "C-M-;")   'magit-status)
+(global-set-key (kbd "C-x G")   'git-messenger:popup-message)
 
-  (global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
-  (global-set-key (kbd "C-8")     'lsp-bridge-jump)
-  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
-  (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
-  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
-  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+;; 语法跳转
+(global-set-key (kbd "C-]")     'lsp-bridge-jump)
+(global-set-key (kbd "C-t")     'lsp-bridge-jump-back)
+(global-set-key (kbd "M-]")     'lsp-bridge-find-impl) 
+(global-set-key (kbd "M-.")     'lsp-bridge-find-references) 
+(global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
 
-  ;; macro for marked objects
-  (global-set-key (kbd "s-/") 'markmacro-mark-words)
-  (global-set-key (kbd "s-?") 'markmacro-mark-lines)
-  (global-set-key (kbd "s-:") 'markmacro-mark-chars)
-  (global-set-key (kbd "s-L") 'markmacro-mark-imenus)
-  (global-set-key (kbd "s-<") 'markmacro-apply-all)
-  (global-set-key (kbd "s->") 'markmacro-apply-all-except-first)
-  (global-set-key (kbd "s-M") 'markmacro-rect-set)
-  (global-set-key (kbd "s-D") 'markmacro-rect-delete)
-  (global-set-key (kbd "s-F") 'markmacro-rect-replace)
-  (global-set-key (kbd "s-I") 'markmacro-rect-insert)
-  (global-set-key (kbd "s-C") 'markmacro-rect-mark-columns)
-  (global-set-key (kbd "s-S") 'markmacro-rect-mark-symbols)
- 
-  ;; one-key-menu
-  (global-set-key (kbd "C-c g") 'one-key-menu-git)
-  (global-set-key (kbd "C-c d") 'one-key-menu-directory)
-  (global-set-key (kbd "C-x d") (lambda ()
+(global-set-key (kbd "C-7")     'lsp-bridge-jump-back)
+(global-set-key (kbd "C-8")     'lsp-bridge-jump)
+(global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
+(global-set-key (kbd "C-0")     'lsp-bridge-rename) 
+(global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+(global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+(global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
+(global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+
+;; macro for marked objects
+(global-set-key (kbd "s-/")     'markmacro-mark-words)
+(global-set-key (kbd "s-?")     'markmacro-mark-lines)
+(global-set-key (kbd "s-:")     'markmacro-mark-chars)
+(global-set-key (kbd "s-L")     'markmacro-mark-imenus)
+(global-set-key (kbd "s-<")     'markmacro-apply-all)
+(global-set-key (kbd "s->")     'markmacro-apply-all-except-first)
+(global-set-key (kbd "s-M")     'markmacro-rect-set)
+(global-set-key (kbd "s-D")     'markmacro-rect-delete)
+(global-set-key (kbd "s-F")     'markmacro-rect-replace)
+(global-set-key (kbd "s-I")     'markmacro-rect-insert)
+(global-set-key (kbd "s-C")     'markmacro-rect-mark-columns)
+(global-set-key (kbd "s-S")     'markmacro-rect-mark-symbols)
+
+;; one-key-menu
+(global-set-key (kbd "C-c g")   'one-key-menu-git)
+(global-set-key (kbd "C-c d")   'one-key-menu-directory)
+(global-set-key (kbd "C-x d")   (lambda ()
                                   (interactive)
                                   (eaf-open-in-file-manager
                                    (file-name-directory
                                     (if (buffer-file-name) pwd "~/")))))
 
-#+END_SRC
+
+  #+END_SRC
+  

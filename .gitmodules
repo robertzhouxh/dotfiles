@@ -66,10 +66,6 @@ url = https://github.com/jcs090218/goto-line-preview.git
 path = .emacs.d/vendor/emacs-rime
 url = https://github.com/DogLooksGood/emacs-rime.git
 
-[submodule ".emacs.d/vendor/fingertip"]
-path = .emacs.d/vendor/fingertip
-url = https://github.com/manateelazycat/fingertip
-
 [submodule ".emacs.d/vendor/goto-chg"]
 path = .emacs.d/vendor/goto-chg
 url = https://github.com/emacs-evil/goto-chg
@@ -115,6 +111,7 @@ path = .emacs.d/vendor/vundo
 url = https://github.com/casouri/vundo
 
 [submodule ".emacs.d/vendor/emacs-application-framework"]
-	path = .emacs.d/vendor/emacs-application-framework
-	url = https://github.com/emacs-eaf/emacs-application-framework
-	branch = master
+path = .emacs.d/vendor/emacs-application-framework
+url = https://github.com/emacs-eaf/emacs-application-framework
+branch = master
+
