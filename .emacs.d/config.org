@@ -124,16 +124,18 @@
   (transient-mark-mode 1)                 ;标记高亮
   (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
   (setq use-dialog-box nil)               ;never pop dialog
+
   (setq inhibit-startup-screen t)         ;inhibit start screen
-  (setq initial-scratch-message "") ;关闭启动空白buffer, 这个buffer会干扰session恢复
+  (setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
+
   (setq-default comment-style 'indent)    ;设定自动缩进的注释风格
   (setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
   (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
   (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
   (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
 
-  ;;(setq split-width-threshold nil)        ;分屏的时候使用上下分屏
-  (setq split-width-threshold t)          ;分屏的时候使用左右分屏
+  (setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+  ;;(setq split-width-threshold t)          ;分屏的时候使用左右分屏
 
   (setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
   (setq confirm-kill-processes nil)       ;退出自动杀掉进程
@@ -151,10 +153,10 @@
         scroll-conservatively 10000)
 
   ;; 不显示 *scratch*
-  (defun remove-scratch-buffer ()
-    (if (get-buffer "*scratch*")
-        (kill-buffer "*scratch*")))
-  (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+  ;; (defun remove-scratch-buffer ()
+  ;;   (if (get-buffer "*scratch*")
+  ;;       (kill-buffer "*scratch*")))
+  ;; (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
 
   ;; Don't ask me when kill process buffer
   (setq kill-buffer-query-functions
@@ -2805,10 +2807,11 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "s-I") 'markmacro-rect-insert)
   (global-set-key (kbd "s-C") 'markmacro-rect-mark-columns)
   (global-set-key (kbd "s-S") 'markmacro-rect-mark-symbols)
-
-;; one-key-menu
+ 
+  ;; one-key-menu
   (global-set-key (kbd "C-c g") 'one-key-menu-git)
   (global-set-key (kbd "C-c d") 'one-key-menu-directory)
-  (global-set-key (kbd "C-x d") (lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name)))))
+  (global-set-key (kbd "C-x d") (lambda () (interactive) (eaf-open-in-file-manager (pwd))))
+  ;(global-set-key (kbd "C-x d") (lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name)))))
 
 #+END_SRC
