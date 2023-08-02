@@ -250,6 +250,28 @@
 
 #+END_SRC
 
+* Performance
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+  ;; Disable garbage collection when entering commands.
+  (defun max-gc-limit ()
+    (setq gc-cons-threshold most-positive-fixnum))
+
+  (defun reset-gc-limit ()
+    (setq gc-cons-threshold 800000))
+
+  (add-hook 'minibuffer-setup-hook #'max-gc-limit)
+  (add-hook 'minibuffer-exit-hook #'reset-gc-limit)
+
+  ;; Improve the performance of rendering long lines.
+  (setq-default bidi-display-reordering nil)
+
+  ;;; Track Emacs commands frequency
+  (use-package keyfreq
+    :ensure t
+    :config (keyfreq-mode 1) (keyfreq-autosave-mode 1))
+
+#+END_SRC
 * Functions&Const
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -826,30 +848,6 @@
           (overlay-put ov 'display (propertize info 'face hideshow-folded-face)))))
     :custom
     (hs-set-up-overlay #'hideshow-folded-overlay-fn))
-
-#+END_SRC
-
-* Performance
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-  ;; Disable garbage collection when entering commands.
-  (defun max-gc-limit ()
-    (setq gc-cons-threshold most-positive-fixnum))
-
-  (defun reset-gc-limit ()
-    (setq gc-cons-threshold 800000))
-
-  (add-hook 'minibuffer-setup-hook #'max-gc-limit)
-  (add-hook 'minibuffer-exit-hook #'reset-gc-limit)
-
-  ;; Improve the performance of rendering long lines.
-  (setq-default bidi-display-reordering nil)
-
-  ;;; Track Emacs commands frequency
-  (use-package keyfreq
-    :ensure t
-    :config (keyfreq-mode 1) (keyfreq-autosave-mode 1))
 
 #+END_SRC
 
@@ -2808,9 +2806,9 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
   (global-set-key (kbd "s-C") 'markmacro-rect-mark-columns)
   (global-set-key (kbd "s-S") 'markmacro-rect-mark-symbols)
 
-  ;; one-key-menu
+;; one-key-menu
   (global-set-key (kbd "C-c g") 'one-key-menu-git)
   (global-set-key (kbd "C-c d") 'one-key-menu-directory)
-
+  (global-set-key (kbd "C-x d") (lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name)))))
 
 #+END_SRC
