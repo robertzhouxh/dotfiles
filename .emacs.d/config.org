@@ -131,7 +131,10 @@
   (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
   (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
   (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
-  (setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+
+  ;;(setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+  (setq split-width-threshold t)          ;分屏的时候使用左右分屏
+
   (setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
   (setq confirm-kill-processes nil)       ;退出自动杀掉进程
   (setq async-bytecomp-allowed-packages nil) ;避免magit报错
@@ -218,12 +221,13 @@
     (add-hook hook #'(lambda () (auto-fill-mode 1))))
 
   ;;设置tab为4个空格的宽度
-  (setq default-tab-width 4)
+
   ;; Code
   (prefer-coding-system 'utf-8)
   (setenv "LANG" "en_US.UTF-8")
   (setenv "LC_ALL" "en_US.UTF-8")
   (setenv "LC_CTYPE" "en_US.UTF-8")
+
   ;; Encoding
   ;; UTF-8 as the default coding system
   (when (fboundp 'set-charset-priority)
@@ -630,7 +634,6 @@
   (use-package projectile :config (projectile-global-mode))
   (use-package flycheck :config (global-flycheck-mode 1))
   (use-package restclient :config (setq restclient-inhibit-cookies t))
-
   (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
   (use-package so-long :ensure nil :hook (after-init . global-so-long-mode)) ;; emacs27+ new feature
   (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
@@ -654,8 +657,10 @@
     :init (setq ivy-use-virtual-buffers t
                 ivy-count-format "%d/%d ")
     :config (ivy-mode t))
+
   ;; 取代原生的一些常用指令
   (use-package counsel :after ivy :config (counsel-mode))
+
   ;; 取代原生的 I-search
   (use-package swiper :after ivy)
   (use-package counsel-projectile
@@ -670,6 +675,18 @@
      counsel-projectile-switch-to-buffer)
     :config
     (counsel-projectile-mode t))
+
+  (use-package youdao-dictionary
+    :commands youdao-dictionary-play-voice-of-current-word
+    :init
+    (setq url-automatic-caching t
+          youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
+    (defun my-youdao-search-at-point ()
+      "Search word at point and display result with `posframe', `pos-tip', or buffer."
+      (interactive)
+      (if (display-graphic-p)
+          (youdao-dictionary-search-at-point-posframe)
+        (youdao-dictionary-search-at-point))))
 
 #+END_SRC
 
@@ -809,122 +826,6 @@
           (overlay-put ov 'display (propertize info 'face hideshow-folded-face)))))
     :custom
     (hs-set-up-overlay #'hideshow-folded-overlay-fn))
-
-#+END_SRC
-
-* Company && Yasnippet
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;;(use-package expand-region :bind ("C-=" . er/expand-region))
-  (use-package yasnippet
-    :bind
-    ("C-c y s" . yas-insert-snippet)
-    ("C-c y v" . yas-visit-snippet-file)
-    :config
-    (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
-    (yas-global-mode 1))
-
-  ;; 使用 lsp-bridge 时， 请先关闭其他补全插件， 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
-  ;; (use-package company-restclient)
-  ;; (use-package company-nginx :after (nginx-mode) :hook((nginx-mode . company-nginx-keywords)))
-  ;; ;;Run M-x company-tabnine-install-binary to install the TabNine binary for your system.
-  ;; (use-package company-tabnine :config (add-to-list 'company-backends #'company-tabnine))
-  ;; (use-package company
-  ;;   :bind
-  ;;   (:map company-mode-map
-  ;;         ("<tab>". tab-indent-or-complete)
-  ;;         ("TAB". tab-indent-or-complete))
-  ;;   :config
-  ;;   (progn (setq company-idle-delay 0.5)
-  ;;          (setq company-show-numbers t)))
-
-  (use-package youdao-dictionary
-    :commands youdao-dictionary-play-voice-of-current-word
-    :init
-    (setq url-automatic-caching t
-          youdao-dictionary-use-chinese-word-segmentation t) ; 中文分词
-    (defun my-youdao-search-at-point ()
-      "Search word at point and display result with `posframe', `pos-tip', or buffer."
-      (interactive)
-      (if (display-graphic-p)
-          (youdao-dictionary-search-at-point-posframe)
-        (youdao-dictionary-search-at-point))))
-
-#+END_SRC
-
-* Dired
-
-#+BEGIN_SRC emacs-lisp :tangle no
-
-  ;; Directory operations
-  (use-package dired
-    :ensure nil
-    :bind (:map dired-mode-map
-           ("C-c C-p" . wdired-change-to-wdired-mode))
-    :config
-    ;; Always delete and copy recursively
-    (setq dired-recursive-deletes 'always
-          dired-recursive-copies 'always)
-    (when sys/macp
-      ;; Suppress the warning: `ls does not support --dired'.
-      (setq dired-use-ls-dired nil)
-
-      (when (executable-find "gls")
-        ;; Use GNU ls as `gls' from `coreutils' if available.
-        (setq insert-directory-program "gls")))
-
-    (when (or (and sys/macp (executable-find "gls"))
-              (and (or sys/linuxp sys/cygwinp) (executable-find "ls")))
-      ;; Using `insert-directory-program'
-      (setq ls-lisp-use-insert-directory-program t)
-      ;; Show directory first
-      (setq dired-listing-switches "-alh --group-directories-first"))
-
-    ;; Show git info in dired
-    (use-package dired-git-info
-      :bind (:map dired-mode-map
-             (")" . dired-git-info-mode)))
-
-    ;; Allow rsync from dired buffers
-    (use-package dired-rsync
-      :bind (:map dired-mode-map
-             ("C-c C-r" . dired-rsync)))
-
-    ;; Colorful dired
-    (use-package diredfl
-      :ensure nil
-      :hook (dired-mode . diredfl-mode))
-
-    ;; Extra Dired functionality
-    (use-package dired-aux :ensure nil)
-    (use-package dired-x
-      :ensure nil
-      :demand t
-      :config
-      (let ((cmd (cond (sys/mac-x-p "open")
-                       (sys/linux-x-p "xdg-open")
-                       (sys/win32p "start")
-                       (t ""))))
-        (setq dired-guess-shell-alist-user
-              `(("\\.pdf\\'" ,cmd)
-                ("\\.docx\\'" ,cmd)
-                ("\\.\\(?:djvu\\|eps\\)\\'" ,cmd)
-                ("\\.\\(?:jpg\\|jpeg\\|png\\|gif\\|xpm\\)\\'" ,cmd)
-                ("\\.\\(?:xcf\\)\\'" ,cmd)
-                ("\\.csv\\'" ,cmd)
-                ("\\.tex\\'" ,cmd)
-                ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" ,cmd)
-                ("\\.\\(?:mp3\\|flac\\)\\'" ,cmd)
-                ("\\.html?\\'" ,cmd)
-                ("\\.md\\'" ,cmd))))
-
-      (setq dired-omit-files
-            (concat dired-omit-files
-                    "\\|^.DS_Store$\\|^.projectile$\\|^.git*\\|^.svn$\\|^.vscode$\\|\\.js\\.meta$\\|\\.meta$\\|\\.elc$\\|^.emacs.*"))))
-
-
-    ;; use one window to open new buffer in dired-mode
-    (put 'dired-find-alternate-file 'disabled nil)
 
 #+END_SRC
 
@@ -2603,7 +2504,18 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 
 
 ;;----------------------------------------------------------
-;; lsp-bridge
+;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
+;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
+
+;;(use-package expand-region :bind ("C-=" . er/expand-region))
+(use-package yasnippet
+  :bind
+  ("C-c y s" . yas-insert-snippet)
+  ("C-c y v" . yas-visit-snippet-file)
+  :config
+  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
+  (yas-global-mode 1))
+
 ;;; Require
 (require 'lsp-bridge)
 (require 'lsp-bridge-jdtls)
@@ -2805,51 +2717,32 @@ Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent R
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; ------------------------------------------------------------------------------------------------
-  ;;           X-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
+  ;;           Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
   ;; ------------------------------------------------------------------------------------------------
-  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
-
+  ;;           x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
+  ;; ------------------------------------------------------------------------------------------------
   ;; 使用 lsp-bridge 关闭其他补全插件， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
-  ;;-----------------------
-  ;;company-active-map
-  ;; (define-key company-active-map (kbd "TAB") 'company-complete-selection)
-  ;; (define-key company-active-map (kbd "M-h") 'company-complete-selection)
-  ;; (define-key company-active-map (kbd "M-H") 'company-complete-common)
-  ;; (define-key company-active-map (kbd "M-w") 'company-show-location)
-  ;; (define-key company-active-map (kbd "M-s") 'company-search-candidates)
-  ;; (define-key company-active-map (kbd "M-S") 'company-filter-candidates)
-  ;; (define-key company-active-map (kbd "M-n") 'company-select-next)
-  ;; (define-key company-active-map (kbd "M-p") 'company-select-previous)
-  ;; (define-key company-active-map (kbd "M-i") 'yas-expand)
-
-  (set-control-w-shortcuts)
-
-  ;;-----------------------
-  ;; org-mode-map
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "M-h") nil)
-    (define-key org-mode-map (kbd "C-,") nil))
-
-
   ;; ------------------------------------------------------------------------------------------------
-  ;;                 Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-  ;; ------------------------------------------------------------------------------------------------
+
   ;; --- 卸载按键, 全局按键的卸载
   (lazy-load-unset-keys  
    '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
   ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+  ;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
+
+  (set-control-w-shortcuts)
+  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "M-h") nil)
+    (define-key org-mode-map (kbd "C-,") nil))
+
+  (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
+  (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
 
   (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
   (global-set-key (kbd "C-,")     'goto-last-change)
   (global-set-key (kbd "C-4")     'insert-changelog-date)
   (global-set-key (kbd "C-5")     'insert-standard-date)
-
-  (defun bjm/kill-this-buffer ()
-    "Kill the current buffer."
-    (interactive)
-    (kill-buffer (current-buffer)))
-  (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
-  ;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
 
   (global-set-key (kbd "C-c p f") 'projectile-find-file)
   (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
