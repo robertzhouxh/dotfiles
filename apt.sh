@@ -81,6 +81,7 @@ apps=(
     libgif-dev
     libxpm-dev
     neofetch
+    libreoffice
 )
 
 for item in ${apps[@]}; do

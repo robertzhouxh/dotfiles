@@ -181,6 +181,7 @@ apps=(
     IINA
     CleanShot
     wechatwork
+    libreoffice
 )
 
 cecho "Install My Favorate Apps with brew install --cask xxx" $yellow
