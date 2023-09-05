@@ -115,3 +115,6 @@ path = .emacs.d/vendor/emacs-application-framework
 url = https://github.com/emacs-eaf/emacs-application-framework
 branch = master
 
+[submodule ".emacs.d/vendor/valign"]
+	path = .emacs.d/vendor/valign
+	url = https://github.com/casouri/valign

@@ -1669,11 +1669,11 @@
    (setq-default org-download-image-dir "../images")
    (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
 
-  ;;(use-package valign
-  ;;  :defer t
-  ;;  :ensure t
-  ;;  :hook ((org-mode . valign-mode))
-  ;;  :custom ((valign-fancy-bar t)))
+  (use-package valign
+    :defer t
+    :load-path "~/.emacs.d/vendor/valign"
+    :hook ((org-mode . valign-mode))
+    :custom ((valign-fancy-bar t)))
 
 #+END_SRC
 
