@@ -230,25 +230,16 @@
   (setenv "LC_ALL" "en_US.UTF-8")
   (setenv "LC_CTYPE" "en_US.UTF-8")
 
-  ;; Encoding
-  ;; UTF-8 as the default coding system
-  (when (fboundp 'set-charset-priority)
-    (set-charset-priority 'unicode))
-
-  ;; Explicitly set the prefered coding systems to avoid annoying prompt
-  ;; from emacs (especially on Microsoft Windows)
-  (prefer-coding-system 'utf-8)
-  (setq locale-coding-system 'utf-8)
-
-  (set-language-environment 'utf-8)
+  ;; Set UTF-8 as the default coding system
+  (set-charset-priority 'unicode)
   (set-default-coding-systems 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
   (set-clipboard-coding-system 'utf-8)
   (set-file-name-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (modify-coding-system-alist 'process "*" 'utf-8)
+  (set-buffer-file-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
 
 #+END_SRC
 
@@ -1122,585 +1113,322 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package org
-    :ensure nil
-    :mode ("\\.org\\'" . org-mode)
-    :hook ((org-mode . visual-line-mode)
-           (org-mode . my/org-prettify-symbols))
-    :commands (org-find-exact-headline-in-buffer org-set-tags)
-    :custom-face
-    ;; 设置Org mode标题以及每级标题行的大小
-    (org-document-title ((t (:height 1.75 :weight bold))))
-    (org-level-1 ((t (:height 1.2 :weight bold))))
-    (org-level-2 ((t (:height 1.15 :weight bold))))
-    (org-level-3 ((t (:height 1.1 :weight bold))))
-    (org-level-4 ((t (:height 1.05 :weight bold))))
-    (org-level-5 ((t (:height 1.0 :weight bold))))
-    (org-level-6 ((t (:height 1.0 :weight bold))))
-    (org-level-7 ((t (:height 1.0 :weight bold))))
-    (org-level-8 ((t (:height 1.0 :weight bold))))
-    (org-level-9 ((t (:height 1.0 :weight bold))))
-    ;; 设置代码块用上下边线包裹
-    (org-block-begin-line ((t (:underline t :background unspecified))))
-    (org-block-end-line ((t (:overline t :underline nil :background unspecified))))
-    :config
-    ;; ================================
-    ;; 在org mode里美化字符串
-    ;; ================================
-    (defun my/org-prettify-symbols ()
-      (setq prettify-symbols-alist
-            (mapcan (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
-                    '(
-                      ;; ("[ ]"              . 9744)         ; ☐
-                      ;; ("[X]"              . 9745)         ; ☑
-                      ;; ("[-]"              . 8863)         ; ⊟
-                      ("#+begin_src"      . 9998)         ; ✎
-                      ("#+end_src"        . 9633)         ; □
-                      ("#+begin_example"  . 129083)       ; 🠻
-                      ("#+end_example"    . 129081)       ; 🠹
-                      ("#+results:"       . 9776)         ; ☰
-                      ("#+attr_latex:"    . "🄛")
-                      ("#+attr_html:"     . "🄗")
-                      ("#+attr_org:"      . "🄞")
-                      ("#+name:"          . "🄝")         ; 127261
-                      ("#+caption:"       . "🄒")         ; 127250
-                      ("#+date:"          . "📅")         ; 128197
-                      ("#+author:"        . "💁")         ; 128100
-                      ("#+setupfile:"     . 128221)       ; 📝
-                      ("#+email:"         . 128231)       ; 📧
-                      ("#+startup:"       . 10034)        ; ✲
-                      ("#+options:"       . 9965)         ; ⛭
-                      ("#+title:"         . 10162)        ; ➲
-                      ("#+subtitle:"      . 11146)        ; ⮊
-                      ("#+downloaded:"    . 8650)         ; ⇊
-                      ("#+language:"      . 128441)       ; 🖹
-                      ("#+begin_quote"    . 187)          ; »
-                      ("#+end_quote"      . 171)          ; «
-                      ("#+begin_results"  . 8943)         ; ⋯
-                      ("#+end_results"    . 8943)         ; ⋯
-                      )))
-      (setq prettify-symbols-unprettify-at-point t)
-      (prettify-symbols-mode 1))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq org-export-coding-system 'utf-8)
+(setq org-fast-tag-selection-single-key 'expert)
+(setq org-export-kill-product-buffer-when-displayed t)
+(setq org-fontify-whole-heading-line t)
+(setq org-directory "/Users/zxh/githubs/private/")
+(setq org-startup-with-inline-images t)
+(setq org-startup-with-latex-preview t)
 
-    ;; 提升latex预览的图片清晰度
-    (plist-put org-format-latex-options :scale 1.8)
-
-    ;; 设置标题行之间总是有空格；列表之间根据情况自动加空格
-    (setq org-blank-before-new-entry '((heading . t)
-                                       (plain-list-item . auto)
-                                       ))
-
-    ;; ======================================
-    ;; 设置打开Org links的程序
-    ;; ======================================
-    (defun my-func/open-and-play-gif-image (file &optional link)
-      "Open and play GIF image `FILE' in Emacs buffer.
-  Optional for Org-mode file: `LINK'."
-      (let ((gif-image (create-image file))
-            (tmp-buf (get-buffer-create "*Org-mode GIF image animation*")))
-        (switch-to-buffer tmp-buf)
-        (erase-buffer)
-        (insert-image gif-image)
-        (image-animate gif-image nil t)
-        (local-set-key (kbd "q") 'bury-buffer)
-        ))
-    (setq org-file-apps '(("\\.png\\'"     . default)
-                          (auto-mode       . emacs)
-                          (directory       . emacs)
-                          ("\\.mm\\'"      . default)
-                          ("\\.x?html?\\'" . default)
-                          ("\\.pdf\\'"     . emacs)
-                          ("\\.md\\'"      . emacs)
-                          ("\\.gif\\'"     . my-func/open-and-play-gif-image)
-                          ("\\.xlsx\\'"    . default)
-                          ("\\.svg\\'"     . default)
-                          ("\\.pptx\\'"    . default)
-                          ("\\.docx\\'"    . default)))
-
-    :custom
-    ;; 设置Org mode的目录
-    (org-directory "~/org")
-    ;; 设置笔记的默认存储位置
-    (org-default-notes-file (expand-file-name "capture.org" org-directory))
-    ;; 启用一些子模块
-    (org-modules '(ol-bibtex ol-gnus ol-info ol-eww org-habit org-protocol))
-    ;; 在按M-RET时，是否根据光标所在的位置分行，这里设置为是
-    ;; (org-M-RET-may-split-line '((default . nil)))
-    ;; 一些Org mode自带的美化设置
-    ;; 标题行美化
-    (org-fontify-whole-heading-line t)
-    ;; 设置标题行折叠符号
-    (org-ellipsis " ▾")
-    ;; 在活动区域内的所有标题栏执行某些命令
-    (org-loop-over-headlines-in-active-region t)
-    ;; TODO标签美化
-    (org-fontify-todo-headline t)
-    ;; DONE标签美化
-    (org-fontify-done-headline t)
-    ;; 引用块美化
-    (org-fontify-quote-and-verse-blocks t)
-    ;; 隐藏宏标记
-    (org-hide-macro-markers t)
-    ;; 隐藏强调标签
-    (org-hide-emphasis-markers t)
-    ;; 高亮latex语法
-    (org-highlight-latex-and-related '(native script entities))
-    ;; 以UTF-8显示
-    (org-pretty-entities t)
-    ;; 是否隐藏标题栏的前置星号，这里我们通过org-modern来隐藏
-    ;; (org-hide-leading-stars t)
-    ;; 当启用缩进模式时自动隐藏前置星号
-    (org-indent-mode-turns-on-hiding-stars t)
-    ;; 自动启用缩进
-    (org-startup-indented nil)
-    ;; 根据标题栏自动缩进文本
-    (org-adapt-indentation nil)
-    ;; 自动显示图片
-    (org-startup-with-inline-images t)
-    ;; 默认以Overview的模式展示标题行
-    (org-startup-folded 'overview)
-    ;; 允许字母列表
-    (org-list-allow-alphabetical t)
-    ;; 列表的下一级设置
-    (org-list-demote-modify-bullet '(
-                                     ("-"  . "+")
-                                     ("+"  . "1.")
-                                     ("1." . "a.")
-                                     ))
-    ;; 编辑时检查是否在折叠的不可见区域
-    (org-fold-catch-invisible-edits 'smart)
-    ;; 在当前位置插入新标题行还是在当前标题行后插入，这里设置为当前位置
-    (org-insert-heading-respect-content nil)
-    ;; 设置图片的最大宽度，如果有imagemagick支持将会改变图片实际宽度
-    ;; 四种设置方法：(1080), 1080, t, nil
-    ;(org-image-actual-width nil)
-    ;(org-image-actual-width 1080)
-    (org-image-actual-width 640)
+(bind-keys :map org-mode-map
+           ("C-c l" . org-store-link))
 
 
-    ;; imenu的最大深度，默认为2
-    (org-imenu-depth 4)
-    ;; 回车要不要触发链接，这里设置不触发
-    (org-return-follows-link nil)
-    ;; 上标^下标_是否需要特殊字符包裹，这里设置需要用大括号包裹
-    (org-use-sub-superscripts '{})
-    ;; 复制粘贴标题行的时候删除id
-    (org-clone-delete-id t)
-    ;; 粘贴时调整标题行的级别
-    (org-yank-adjusted-subtrees t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Modern Org Mode
 
-    ;; TOOD的关键词设置，可以设置不同的组
-    (org-todo-keywords '((sequence "TODO(t)" "HOLD(h!)" "WIP(i!)" "WAIT(w!)" "|" "DONE(d!)" "CANCELLED(c@/!)")
-                         (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f!)")))
-    ;; TODO关键词的样式设置
-    (org-todo-keyword-faces '(("TODO"       :foreground "#7c7c75" :weight bold)
-                              ("HOLD"       :foreground "#feb24c" :weight bold)
-                              ("WIP"        :foreground "#0098dd" :weight bold)
-                              ("WAIT"       :foreground "#9f7efe" :weight bold)
-                              ("DONE"       :foreground "#50a14f" :weight bold)
-                              ("CANCELLED"  :foreground "#ff6480" :weight bold)
-                              ("REPORT"     :foreground "magenta" :weight bold)
-                              ("BUG"        :foreground "red"     :weight bold)
-                              ("KNOWNCAUSE" :foreground "yellow"  :weight bold)
-                              ("FIXED"      :foreground "green"   :weight bold)))
-    ;; 当标题行状态变化时标签同步发生的变化
-    ;; Moving a task to CANCELLED adds a CANCELLED tag
-    ;; Moving a task to WAIT adds a WAIT tag
-    ;; Moving a task to HOLD adds WAIT and HOLD tags
-    ;; Moving a task to a done state removes WAIT and HOLD tags
-    ;; Moving a task to TODO removes WAIT, CANCELLED, and HOLD tags
-    ;; Moving a task to DONE removes WAIT, CANCELLED, and HOLD tags
-    (org-todo-state-tags-triggers
-     (quote (("CANCELLED" ("CANCELLED" . t))
-             ("WAIT" ("WAIT" . t))
-             ("HOLD" ("WAIT") ("HOLD" . t))
-             (done ("WAIT") ("HOLD"))
-             ("TODO" ("WAIT") ("CANCELLED") ("HOLD"))
-             ("DONE" ("WAIT") ("CANCELLED") ("HOLD")))))
-    ;; 使用专家模式选择标题栏状态
-    (org-use-fast-todo-selection 'expert)
-    ;; 父子标题栏状态有依赖
-    (org-enforce-todo-dependencies t)
-    ;; 标题栏和任务复选框有依赖
-    (org-enforce-todo-checkbox-dependencies t)
-    ;; 优先级样式设置
-    (org-priority-faces '((?A :foreground "red")
-                          (?B :foreground "orange")
-                          (?C :foreground "yellow")))
-    ;; 标题行全局属性设置
-    (org-global-properties '(("EFFORT_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00")
-                             ("APPT_WARNTIME_ALL" . "0 5 10 15 20 25 30 45 60")
-                             ("RISK_ALL" . "Low Medium High")
-                             ("STYLE_ALL" . "habit")))
-    ;; Org columns的默认格式
-    (org-columns-default-format "%25ITEM %TODO %SCHEDULED %DEADLINE %3PRIORITY %TAGS %CLOCKSUM %EFFORT{:}")
-    ;; 当状态从DONE改成其他状态时，移除 CLOSED: [timestamp]
-    (org-closed-keep-when-no-todo t)
-    ;; DONE时加上时间戳
-    (org-log-done 'time)
-    ;; 重复执行时加上时间戳
-    (org-log-repeat 'time)
-    ;; Deadline修改时加上一条记录
-    (org-log-redeadline 'note)
-    ;; Schedule修改时加上一条记录
-    (org-log-reschedule 'note)
-    ;; 以抽屉的方式记录
-    (org-log-into-drawer t)
-    ;; 紧接着标题行或者计划/截止时间戳后加上记录抽屉
-    (org-log-state-notes-insert-after-drawers nil)
+(use-package org
+  :config
+  (setq org-ellipsis "..." ;; " ⭍"
+        ;; 使用 UTF-8 显示 LaTeX 或 \xxx 特殊字符， M-x org-entities-help 查看所有特殊字符。
+        org-pretty-entities t
+        org-highlight-latex-and-related '(latex)
+        ;; 只显示而不处理和解释 latex 标记，例如 \xxx 或 \being{xxx}, 避免 export pdf 时出错。
+        org-export-with-latex 'verbatim
+        org-hide-emphasis-markers t
+        org-hide-block-startup t
+        org-hidden-keywords '(title)
+        org-cycle-separator-lines 2
+        org-cycle-level-faces t
+        org-n-level-faces 4
+        ;; TODO 状态更新记录到 LOGBOOK Drawer 中。
+        org-log-into-drawer t
+        ;; TODO 状态更新时记录 note.
+        org-log-done 'note ;; note, time
+        ;; 不在线显示图片，手动点击显示更容易控制大小。
+        org-startup-with-inline-images nil
+        ;; 先从 #+ATTR.* 获取宽度，如果没有设置则默认为 300 。
+        org-image-actual-width '(300)
+        org-cycle-inline-images-display nil
+        org-html-validation-link nil
+        org-export-with-broken-links t
+        ;; 文件链接使用相对路径, 解决 hugo 等 image 引用的问题。
+        org-link-file-path-type 'relative
+        org-startup-folded 'content
+        ;; 使用 R_{s} 形式的下标（默认是 R_s, 容易与正常内容混淆) 。
+        org-use-sub-superscripts nil
+        ;; 如果对 headline 编号，则 latext 输出时会导致 toc 缺失，故关闭。
+        org-startup-numerated nil
+        org-startup-indented t
+        ;; export 时不处理 super/subscripting, 等效于 #+OPTIONS: ^:nil 。
+        org-export-with-sub-superscripts nil
+        org-hide-leading-stars t
+        org-indent-indentation-per-level 2
+        ;; 内容缩进与对应 headerline 一致。
+        org-adapt-indentation t
+        org-list-indent-offset 2
+        ;; org-timer 到期时发送声音提示。
+        org-clock-sound t)
+  ;; 不自动缩进。
+  (setq org-src-preserve-indentation t)
+  (setq org-edit-src-content-indentation 0)
+  ;; 不自动对齐 tag。
+  (setq org-tags-column 0)
+  (setq org-auto-align-tags nil)
+  ;; 显示不可见的编辑。
+  (setq org-catch-invisible-edits 'show-and-error)
+  (setq org-fold-catch-invisible-edits t)
+  (setq org-special-ctrl-a/e t)
+  (setq org-insert-heading-respect-content t)
+  ;; 支持 ID property 作为 internal link target(默认是 CUSTOM_ID property)
+  (setq org-id-link-to-org-use-id t)
+  (setq org-M-RET-may-split-line nil)
+  (setq org-todo-keywords '((sequence "TODO(t!)" "DOING(d@)" "|" "DONE(D)")
+                            (sequence "BLOCKED(b@)" "|" "CANCELLED(c@)")))
+  (add-hook 'org-mode-hook 'turn-on-auto-fill)
+  (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode 0))))
 
-    ;; refile使用缓存
-    (org-refile-use-cache t)
-    ;; refile的目的地，这里设置的是agenda文件的所有标题
-    (org-refile-targets '((org-agenda-files . (:maxlevel . 9))))
-    ;; 将文件名加入到路径
-    (org-refile-use-outline-path 'file)
-    ;; 是否按步骤refile
-    (org-outline-path-complete-in-steps nil)
-    ;; 允许创建新的标题行，但需要确认
-    (org-refile-allow-creating-parent-nodes 'confirm)
+;; 关闭频繁弹出的 org-element-cache 警告 buffer 。
+(setq org-element-use-cache nil)
 
-    ;; 设置标签的默认位置，默认是第77列右对齐
-    ;; (org-tags-column -77)
-    ;; 自动对齐标签
-    (org-auto-align-tags t)
-    ;; 标签不继承
-    (org-use-tag-inheritance nil)
-    ;; 在日程视图的标签不继承
-    (org-agenda-use-tag-inheritance nil)
-    ;; 标签快速选择
-    (org-use-fast-tag-selection t)
-    ;; 标签选择不需要回车确认
-    (org-fast-tag-selection-single-key t)
-    ;; 定义了有序属性的标题行也加上 OREDERD 标签
-    (org-track-ordered-property-with-tag t)
-    ;; 始终存在的的标签
-    (org-tag-persistent-alist '(("read"     . ?r)
-                                ("mail"     . ?m)
-                                ("emacs"    . ?e)
-                                ("study"    . ?s)
-                                ("work"     . ?w)))
-    ;; 预定义好的标签
-    (org-tag-alist '((:startgroup)
-                     ("crypt"    . ?c)
-                     ("linux"    . ?l)
-                     ("apple"    . ?a)
-                     ("noexport" . ?n)
-                     ("ignore"   . ?i)
-                     ("toc"      . ?t)
-                     (:endgroup)))
+(use-package org-modern
+  :after (org)
+  :config
+  (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
+  (setq org-modern-block-fringe nil)
+  (setq org-modern-block-name
+        '((t . t)
+          ("src" "»" "«")
+          ("SRC" "»" "«")
+          ("example" "»–" "–«")
+          ("quote" "❝" "❞")))
+  ;; 缩放字体时表格边界不对齐，故不美化表格。
+  (setq org-modern-table nil)
+  (setq org-modern-list '((43 . "🔘")
+                          (45 . "🔸")
+                          (42 . "")))
+  (with-eval-after-load 'org (global-org-modern-mode)))
 
-    ;; 归档设置
-    (org-archive-location "%s_archive::datetree/")
-    )
+;; 显示转义字符。
+(use-package org-appear
+  :custom
+  (org-appear-autolinks t)
+  :hook (org-mode . org-appear-mode))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Draw fringes in Org mode
+(defun my-toggle-internal-fringes ()
+  (setq left-margin-width 10)
+  (setq right-margin-width 0)
+  (set-window-buffer nil (current-buffer)))
+(add-hook 'org-mode-hook #'my-toggle-internal-fringes)
 
-  (use-package org-appear
-    :ensure t
-    :hook (org-mode . org-appear-mode)
-    :config
-    (setq org-appear-autolinks t)
-    (setq org-appear-autosubmarkers t)
-    (setq org-appear-autoentities t)
-    (setq org-appear-autokeywords t)
-    (setq org-appear-inside-latex t)
-    )
+;; Fold drawers by default
+(setq org-hide-drawer-startup t)
+(add-hook 'org-mode-hook #'org-hide-drawer-all)
 
-  (use-package org-auto-tangle
-    :ensure t
-    :hook (org-mode . org-auto-tangle-mode)
-    :config
-    (setq org-auto-tangle-default t)
-    )
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Org fragments
+(setq org-image-actual-width '(420))
 
-  (use-package org-capture
-    :ensure nil
-    :bind ("\e\e c" . (lambda () (interactive) (org-capture)))
-    :hook ((org-capture-mode . (lambda ()
-                                 (setq-local org-complete-tags-always-offer-all-agenda-tags t)))
-           (org-capture-mode . delete-other-windows))
-    :custom
-    (org-capture-use-agenda-date nil)
-    ;; define common template
-    (org-capture-templates `(("t" "Tasks" entry (file+headline "tasks.org" "Reminders")
-                              "* TODO %i%?"
-                              :empty-lines-after 1
-                              :prepend t)
-                             ("n" "Notes" entry (file+headline "capture.org" "Notes")
-                              "* %? %^g\n%i\n"
-                              :empty-lines-after 1)
-                             ;; For EWW
-                             ("b" "Bookmarks" entry (file+headline "capture.org" "Bookmarks")
-                              "* %:description\n\n%a%?"
-                              :empty-lines 1
-                              :immediate-finish t)
-                             ("d" "Diary")
-                             ("dt" "Today's TODO list" entry (file+olp+datetree "diary.org")
-                              "* Today's TODO list [/]\n%T\n\n** TODO %?"
-                              :empty-lines 1
-                              :jump-to-captured t)
-                             ("do" "Other stuff" entry (file+olp+datetree "diary.org")
-                              "* %?\n%T\n\n%i"
-                              :empty-lines 1
-                              :jump-to-captured t)
-                             ))
-    )
+(defun my-preview-org-fragments ()
+  (interactive)
+  (org-display-inline-images)
+  (org-latex-preview))
 
+(bind-keys :map org-mode-map
+           ("C-x p" . my-preview-org-fragments))
 
-  (use-package org-src
-    :ensure nil
-    :hook (org-babel-after-execute . org-redisplay-inline-images)
-    :bind (("s-l" . show-line-number-in-src-block)
-           :map org-src-mode-map
-           ("C-c C-c" . org-edit-src-exit))
-    :init
-    ;; 设置代码块的默认头参数
-    (setq org-babel-default-header-args
-          '(
-            (:eval    . "never-export")     ; 导出时不执行代码块
-            (:session . "none")
-            (:results . "replace")          ; 执行结果替换
-            (:exports . "both")             ; 导出代码和结果
-            (:cache   . "no")
-            (:noweb   . "no")
-            (:hlines  . "no")
-            (:wrap    . "results")          ; 结果通过#+begin_results包裹
-            (:tangle  . "no")               ; 不写入文件
-            ))
-    :config
-    ;; ==================================
-    ;; 如果出现代码运行结果为乱码，可以参考：
-    ;; https://github.com/nnicandro/emacs-jupyter/issues/366
-    ;; ==================================
-    (defun display-ansi-colors ()
-      (ansi-color-apply-on-region (point-min) (point-max)))
-    (add-hook 'org-babel-after-execute-hook #'display-ansi-colors)
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Org links
+(setq org-return-follows-link t)
+(setq org-link-elisp-confirm-function nil)
 
-    ;; ==============================================
-    ;; 通过overlay在代码块里显示行号，s-l显示，任意键关闭
-    ;; ==============================================
-    (defvar number-line-overlays '()
-      "List of overlays for line numbers.")
+(setq-default org-link-frame-setup ; Open files in current frame
+              (cl-acons 'file #'find-file org-link-frame-setup))
 
-    (defun show-line-number-in-src-block ()
-      (interactive)
-      (save-excursion
-        (let* ((src-block (org-element-context))
-               (nlines (- (length
-                           (s-split
-                            "\n"
-                            (org-element-property :value src-block)))
-                          1)))
-          (goto-char (org-element-property :begin src-block))
-          (re-search-forward (regexp-quote (org-element-property :value src-block)))
-          (goto-char (match-beginning 0))
+;; Quick jump to link
+(bind-keys :map org-mode-map
+           ("s-<return>" . org-open-at-point))
 
-          (cl-loop for i from 1 to nlines
-                   do
-                   (beginning-of-line)
-                   (let (ov)
-                     (setq ov (make-overlay (point) (point)))
-                     (overlay-put ov 'before-string (format "%3s | " (number-to-string i)))
-                     (add-to-list 'number-line-overlays ov))
-                   (next-line))))
+;; Using shift-<arrow-keys> to select text
+(setq org-support-shift-select t)
 
-      ;; now read a char to clear them
-      (read-key "Press a key to clear numbers.")
-      (mapc 'delete-overlay number-line-overlays)
-      (setq number-line-overlays '()))
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Org mode text edition
+(use-package org-roam
+  :ensure t
+  :after (org)
+  :config
+  (setq org-roam-directory org-directory)
+  (setq org-roam-dailies-directory "dates/")
+  (setq org-roam-completion-everywhere t)
+  (setq org-roam-db-gc-threshold most-positive-fixnum)
 
-    ;; =================================================
-    ;; 执行结果后，如果结果所在的文件夹不存在将自动创建
-    ;; =================================================
-    (defun check-directory-exists-before-src-execution (orig-fun
-                                                        &optional arg
-                                                        info
-                                                        params)
-      (when (and (assq ':file (cadr (cdr (org-babel-get-src-block-info))))
-                 (member (car (org-babel-get-src-block-info)) '("mermaid" "ditaa" "dot" "lilypond" "plantuml" "gnuplot" "d2")))
-        (let ((foldername (file-name-directory (alist-get :file (nth 2 (org-babel-get-src-block-info))))))
-          (if (not (file-exists-p foldername))
-              (mkdir foldername)))))
-    (advice-add 'org-babel-execute-src-block :before #'check-directory-exists-before-src-execution)
+  ;; Capture template for `org-roam-dailies'
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry "\n* %?"
+           :target (file+head
+                    "%<%Y-%m-%d>.org"
+                    "#+TITLE: %<%Y-%m-%d %A>\n")
+           :empty-lines 1)))
 
-    ;; =================================================
-    ;; 自动给结果的图片加上相关属性
-    ;; =================================================
-    (setq original-image-width-before-del "400") ; 设置图片的默认宽度为400
-    (setq original-caption-before-del "")        ; 设置默认的图示文本为空
+  ;; Default capture template for notes
+  (setq org-roam-capture-templates
+        '(("d" "default" plain "%?"
+           :target (file+head
+                    "notes/${slug}.org"
+                    "#+TITLE: ${title}\n")
+           :empty-lines 1
+           :unnarrowed t
+           :immediate-finish t)))
 
-    (defun insert-attr-decls ()
-      "insert string before babel execution results"
-      (insert (concat "\n#+CAPTION:"
-                      original-caption-before-del
-                      "\n#+ATTR_ORG: :width "
-                      original-image-width-before-del
-                      "\n#+ATTR_LATEX: :width "
-                      (if (>= (/ (string-to-number original-image-width-before-del) 800.0) 1)
-                          "1.0"
-                        (number-to-string (/ (string-to-number original-image-width-before-del) 800.0)))
-                      "\\linewidth :float nil"
-                      "\n#+ATTR_HTML: :width "
-                      original-image-width-before-del
-                      )))
+  (org-roam-db-autosync-mode 1)
+  :bind
+  (("s-p" . org-roam-dailies-goto-today)
+   :map org-mode-map
+   (("s-i" . org-roam-node-insert)
+    ("s-<up>" . org-roam-dailies-goto-previous-note)
+    ("s-<down>" . org-roam-dailies-goto-next-note)))
+  :hook
+  (org-roam-dailies-find-file . (lambda ()                                  
+                                  (save-buffer)
+                                  (goto-char (point-max))))
+  (after-init . org-roam-dailies-goto-today))
 
-    (defun insert-attr-decls-at (s)
-      "insert string right after specific string"
-      (let ((case-fold-search t))
-        (if (search-forward s nil t)
-            (progn
-              ;; (search-backward s nil t)
-              (insert-attr-decls)))))
+;; Org-roam meets Consult
+(use-package consult-org-roam
+  :ensure t
+  :after (org-roam)
+  :config
+  (setq consult-org-roam-buffer-after-buffers t)
+  :bind
+  (:map org-mode-map
+        (("s-f" . consult-org-roam-file-find)
+         ("s-b" . consult-org-roam-backlinks))))
 
-    (defun insert-attr-decls-at-results (orig-fun
-                                         &optional arg
-                                         info
-                                         param)
-      "insert extra image attributes after babel execution"
-      (interactive)
-      (progn
-        (when (member (car (org-babel-get-src-block-info)) '("mermaid" "ditaa" "dot" "lilypond" "plantuml" "gnuplot" "d2"))
-          (setq original-image-width-before-del (number-to-string (if-let* ((babel-width (alist-get :width (nth 2 (org-babel-get-src-block-info))))) babel-width (string-to-number original-image-width-before-del))))
-          (save-excursion
-            ;; `#+begin_results' for :wrap results, `#+RESULTS:' for non :wrap results
-            (insert-attr-decls-at "#+begin_results")))
-        (org-redisplay-inline-images)))
-    (advice-add 'org-babel-execute-src-block :after #'insert-attr-decls-at-results)
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Org LaTeX customizations
+(setq org-latex-preview-default-process 'dvisvgm)
+(setq org-latex-packages-alist
+      '(("T1" "fontenc" t)
+        ("" "amsmath" t)
+        ("" "bm" t) ; Bold math required
+        ("" "mathtools" t)
+        ("" "siunitx" t)
+        ("" "physics2" t)
 
-    ;; 再次执行时需要将旧的图片相关参数行删除，并从中头参数中获得宽度参数，参考
-    ;; https://emacs.stackexchange.com/questions/57710/how-to-set-image-size-in-result-of-src-block-in-org-mode
-    (defun get-attributes-from-src-block-result (&rest args)
-      "get information via last babel execution"
-      (let ((location (org-babel-where-is-src-block-result))
-            ;; 主要获取的是图示文字和宽度信息，下面这个正则就是为了捕获这两个信息
-            (attr-regexp "[:blank:]*#\\+\\(ATTR_ORG: :width \\([0-9]\\{3\\}\\)\\|CAPTION:\\(.*\\)\\)"))
-        (setq original-caption-before-del "") ; 重置为空
-        (when location
-          (save-excursion
-            (goto-char location)
-            (when (looking-at (concat org-babel-result-regexp ".*$"))
-              (next-line 2)               ; 因为有个begin_result的抽屉，所以往下2行
-              ;; 通过正则表达式来捕获需要的信息
-              (while (looking-at attr-regexp)
-                (when (match-string 2)
-                  (setq original-image-width-before-del (match-string 2)))
-                (when (match-string 3)
-                  (setq original-caption-before-del (match-string 3)))
-                (next-line)               ; 因为设置了:wrap，所以这里不需要删除这一行
-                )
-              )))))
-    (advice-add 'org-babel-execute-src-block :before #'get-attributes-from-src-block-result)
+        ;; The `mlmodern' package provides a larger font weight that is better
+        ;; for display on the screen
+        ("" "txfonts" t)))
 
-    :custom
-    ;; 代码块语法高亮
-    (org-src-fontify-natively t)
-    ;; 使用编程语言的TAB绑定设置
-    (org-src-tab-acts-natively t)
-    ;; 保留代码块前面的空格
-    (org-src-preserve-indentation t)
-    ;; 代码块编辑窗口的打开方式：当前窗口+代码块编辑窗口
-    (org-src-window-setup 'reorganize-frame)
-    ;; 执行前是否需要确认
-    (org-confirm-babel-evaluate nil)
-    ;; 代码块默认前置多少空格
-    (org-edit-src-content-indentation 0)
-    ;; 代码块的语言模式设置，设置之后才能正确语法高亮
-    (org-src-lang-modes '(("C"            . c)
-                          ("C++"          . c++)
-                          ("bash"         . sh)
-                          ("cpp"          . c++)
-                          ("elisp"        . emacs-lisp)
-                          ("python"       . python)
-                          ("shell"        . sh)
-                          ("mysql"        . sql)
-                          ))
-    ;; 在这个阶段，只需要加载默认支持的语言
-    (org-babel-load-languages '((python          . t)
-                                (awk             . t)
-                                (C               . t)
-                                (calc            . t)
-                                (emacs-lisp      . t)
-                                (eshell          . t)
-                                (shell           . t)
-                                (sql             . t)
-                                (css             . t)
-                                ))
-    )
+(setq org-latex-preview-preamble
+      "\\documentclass{article}
+  [DEFAULT-PACKAGES]
+  [PACKAGES]
+  \\usepackage{xcolor}
+  \\usephysicsmodule{ab,ab.braket,diagmat,xmat}%
+  ")
 
+;; (plist-put org-latex-preview-options :scale 2.20)
+;; (plist-put org-latex-preview-options :zoom 1.15)
 
-  (use-package ox
-    :ensure nil
-    :custom
-    (org-export-with-toc t)
-    (org-export-with-tags 'not-in-toc)
-    (org-export-with-drawers nil)
-    (org-export-with-priority t)
-    (org-export-with-footnotes t)
-    (org-export-with-smart-quotes t)
-    (org-export-with-section-numbers t)
-    (org-export-with-sub-superscripts '{})
-    ;; `org-export-use-babel' set to nil will cause all source block header arguments to be ignored This means that code blocks with the argument :exports none or :exports results will end up in the export.
-    ;; See:
-    ;; https://stackoverflow.com/questions/29952543/how-do-i-prevent-org-mode-from-executing-all-of-the-babel-source-blocks
-    (org-export-use-babel t)
-    (org-export-headline-levels 9)
-    (org-export-coding-system 'utf-8)
-    (org-export-with-broken-links 'mark)
-    (org-export-default-language "zh-CN") ; 默认是en
-    ;; (org-ascii-text-width 72)
-    )
+;; Use `CDLaTeX' to improve editing experiences
+(use-package cdlatex
+  :ensure t
+  :diminish (org-cdlatex-mode)
+  :config (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
 
-  ;; export extra
-  ;;(use-package ox-extra
-  ;;  :ensure nil
-  ;;  :config
-  ;;  (ox-extras-activate '(ignore-headlines))
-  ;;  )
+(add-hook 'org-mode-hook #'(lambda ()
+                             (org-latex-preview-auto-mode 1)))
 
-  (use-package toc-org :ensure t :hook (org-mode . toc-org-mode))
+;; To display LaTeX symbols as unicode
+(setq org-pretty-entities t)
+(setq org-pretty-entities-include-sub-superscripts nil)
 
-  (use-package org-download
-   :ensure t
-   :after org
-   ;; There is something wrong with `hook`, so redefine it with my own :hook
-   :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
-   :config
-   (setq-default org-download-image-dir "../images")
-   (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Load languages
+;;
+;; Org source code blocks
+(setq-default org-confirm-babel-evaluate nil)
+(setq-default org-src-preserve-indentation t)
+(setq-default org-src-fontify-natively t)
+(setq-default org-src-tab-acts-natively t)
+(setq-default org-edit-src-content-indentation 0)
 
-  (use-package valign
-    :defer t
-    :load-path "~/.emacs.d/vendor/valign"
-    :hook ((org-mode . valign-mode))
-    :custom ((valign-fancy-bar t)))
+;; yaml 从外部的 yaml-mode 切换到内置的 yaml-ts-mode，告诉 babel 使用该内置 mode，
+;; 否则编辑 yaml src block 时提示找不到 yaml-mode。
+(add-to-list 'org-src-lang-modes '("yaml" . yaml-ts))
+(add-to-list 'org-src-lang-modes '("cue" . cue))
+(org-babel-do-load-languages 'org-babel-load-languages
+                             '((shell . t)
+                               (emacs-lisp . t)
+                               (makefile . t)
+                               (go . t)
+                               (python . t)
+                               (latex . t)))
 
-#+END_SRC
+;; -----------------------------------------------------
+;; Origin config
+;; -----------------------------------------------------
 
-** Plantuml
+(use-package ox
+  :ensure nil
+  :custom
+  (org-export-with-toc t)
+  (org-export-with-tags 'not-in-toc)
+  (org-export-with-drawers nil)
+  (org-export-with-priority t)
+  (org-export-with-footnotes t)
+  (org-export-with-smart-quotes t)
+  (org-export-with-section-numbers t)
+  (org-export-with-sub-superscripts '{})
+  ;; `org-export-use-babel' set to nil will cause all source block header arguments to be ignored This means that code blocks with the argument :exports none or :exports results will end up in the export.
+  ;; See:
+  ;; https://stackoverflow.com/questions/29952543/how-do-i-prevent-org-mode-from-executing-all-of-the-babel-source-blocks
+  (org-export-use-babel t)
+  (org-export-headline-levels 9)
+  (org-export-coding-system 'utf-8)
+  (org-export-with-broken-links 'mark)
+  (org-export-default-language "zh-CN") ; 默认是en
+  ;; (org-ascii-text-width 72)
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+  )
 
-  (use-package plantuml-mode
-    :ensure t
-    :mode ("\\.plantuml\\'" . plantuml-mode)
-    :init
-    ;; enable plantuml babel support
-    (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 (append org-babel-load-languages
-                                         '((plantuml . t))))
-    :config
-    (setq org-plantuml-exec-mode 'plantuml)
-    (setq org-plantuml-executable-path "plantuml")
-    (setq plantuml-executable-path "plantuml")
-    (setq plantuml-default-exec-mode 'executable)
-    ;; set default babel header arguments
-    (setq org-babel-default-header-args:plantuml
-          '((:exports . "results")
-            (:results . "file")
-            ))
-    )
+(use-package org-auto-tangle
+  :ensure t
+  :hook (org-mode . org-auto-tangle-mode)
+  :config
+  (setq org-auto-tangle-default t)
+  )
+(use-package toc-org
+  :ensure t
+  :hook (org-mode . toc-org-mode))
+(use-package org-download
+  :ensure t
+  :after org
+  ;; There is something wrong with `hook`, so redefine it with my own :hook
+  :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
+  :config
+  (setq-default org-download-image-dir "../images")
+  (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
+(use-package valign
+  :defer t
+  :after org
+  :load-path "~/.emacs.d/vendor/valign"
+  :hook ((org-mode . valign-mode))
+  :custom ((valign-fancy-bar t)))
+
 #+END_SRC
 
 ** OrgToLatex
@@ -1793,49 +1521,30 @@
 
 #+END_SRC
 
-** Latex
-
-#+begin_src emacs-lisp :tangle yes
-
-  (use-package cdlatex
-    :defer t
-    :ensure t
-    :config
-    (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
-    (add-hook 'LaTeX-mode-hook 'turn-on-cdlatex))
-
-  ;;(use-package auctex 
-  ;;  :load-path "~/.emacs.d/vendor/auctex"
-  ;;  :defer t
-  ;;  :config
-  ;;  (load "auctex.el" nil t t)
-  ;;  (load "preview-latex.el" nil t t))
-  (if (string-equal system-type "windows-nt") (require 'tex-mik))
-
-  ;; Ask which tex file is master instead of always assume current file is master file.
-  (setq-default TeX-master nil) ; Query for master file.
-
-  (mapc (lambda (mode)
-          (add-hook 'LaTeX-mode-hook mode))
-        (list 'LaTeX-math-mode
-              'turn-on-reftex
-              'linum-mode))
-
-  (add-hook 'LaTeX-mode-hook
-            (lambda ()
-              (setq TeX-auto-untabify t     ; remove all tabs before saving
-                    TeX-engine 'xetex       ; use xelatex default
-                    TeX-show-compilation t) ; display compilation windows
-              (TeX-global-PDF-mode t)       ; PDF mode enable, not plain
-              (setq TeX-save-query nil)
-              (imenu-add-menubar-index)
-              (define-key LaTeX-mode-map (kbd "TAB") 'TeX-complete-symbol)))
-
-#+end_src
-
 * Programming
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+  (use-package plantuml-mode
+    :ensure t
+    :mode ("\\.plantuml\\'" . plantuml-mode)
+    :init
+    ;; enable plantuml babel support
+    (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 (append org-babel-load-languages
+                                         '((plantuml . t))))
+    :config
+    (setq org-plantuml-exec-mode 'plantuml)
+    (setq org-plantuml-executable-path "plantuml")
+    (setq plantuml-executable-path "plantuml")
+    (setq plantuml-default-exec-mode 'executable)
+    ;; set default babel header arguments
+    (setq org-babel-default-header-args:plantuml
+          '((:exports . "results")
+            (:results . "file")
+            ))
+    )
 
   ;;---------------------------------------------------------
   ;; Golang
