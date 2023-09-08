@@ -16,6 +16,7 @@ Thumbs.db
 .vim
 rime
 
+.emacs.d/org-roam.db
 .emacs.d/librime
 .emacs.d/.lsp-session-v1
 .emacs.d/abbrev_defs
