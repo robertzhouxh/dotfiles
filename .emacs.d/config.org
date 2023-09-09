@@ -1381,7 +1381,7 @@
 ** Org-Latex-PDF-New
 
 + 参考内容：https://github.com/opsnull/emacs
-+ 安装中文字体：brew cask install font-noto-serif-cjk-sc
++ 安装 noto-cjk 中文字体: git clone  https://github.com/googlefonts/noto-cjk.git
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
@@ -1680,7 +1680,7 @@
 #+LATEX_COMPILER: xelatex
 #+LATEX_CLASS: ctexart
 # 引用自定义 latext style 文件，需要去掉 .sty 后缀。
-#+LATEX_HEADER: \\usepackage{/Users/zhangjun/.emacs.d/mystyle}
+#+LATEX_HEADER: \\usepackage{/Users/zxh/.emacs.d/mystyle}
 
 # 定制 PDF 封面和目录。
 #+begin_export latex

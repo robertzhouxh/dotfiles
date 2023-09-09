@@ -1,0 +1,94 @@
+\usepackage{wallpaper} % 显示封面图片或页面图片。
+
+\usepackage{color}
+\usepackage{xcolor}
+\definecolor{winered}{rgb}{0.5,0,0}
+\definecolor{lightgrey}{rgb}{0.9,0.9,0.9}
+\definecolor{tableheadcolor}{gray}{0.92}
+\definecolor{commentcolor}{RGB}{0,100,0}
+\definecolor{frenchplum}{RGB}{190,20,83}
+
+% 提示 title
+\usepackage[explicit]{titlesec}
+\usepackage{titling}
+\setlength{\droptitle}{-6em}
+
+% 超链接和书签
+\usepackage[colorlinks]{hyperref}
+\hypersetup{
+  pdfborder={0 0 0},
+  colorlinks=true,
+  bookmarksopen=true,
+  bookmarksnumbered=true, % 书签目录显示编号。
+  linkcolor={winered},
+  urlcolor={winered},
+  filecolor={winered},
+  citecolor={winered},
+  linktoc=all}
+
+% 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
+\usepackage{fontspec}
+\usepackage[utf8x]{inputenc}
+\setmainfont{Noto Serif SC}
+\setsansfont{Noto Sans SC}[Scale=MatchLowercase]
+\setmonofont{Noto Sans Mono CJK SC}[Scale=MatchLowercase]
+\setCJKmainfont[BoldFont=Noto Serif SC]{Noto Serif SC}
+\setCJKsansfont{Noto Sans SC}
+\setCJKmonofont{Noto Sans Mono CJK SC}
+
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+% 添加 email 命令。
+\newcommand\email[1]{\href{mailto:#1}{\nolinkurl{#1}}}
+
+% sidewaytable 依赖 rotfloat
+\usepackage {rotfloat}
+
+% tabularx 的特殊 align 参数 X 用来对指定列内容自动换行，表格前需要加如下属性：
+% #+ATTR_LATEX: :environment tabularx :booktabs t :width \linewidth :align l|X
+\usepackage{tabularx}
+% 美化表格显示效果
+\usepackage{booktabs}
+% 表格隔行颜色, {1} 开始行, {lightgrep} 奇数行颜色, {} 偶数行颜色(空表示白色)
+\rowcolors{1}{lightgrey}{}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+\usepackage{etoolbox}
+\usepackage{calc}
+
+\usepackage[scale=0.85]{geometry}
+%\setlength{\headsep}{5pt}
+
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{indentfirst}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{linegoal}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{abstract}
+\usepackage{hologo}
+
+\linespread{1}
+\graphicspath{{image/}{figure/}{fig/}{img/}{images/}}
+
+\usepackage[font=small,labelfont={bf}]{caption}
+\captionsetup[table]{skip=3pt}
+\captionsetup[figure]{skip=3pt}
+
+% 下划线、强调和删除线等
+\usepackage[normalem]{ulem}
+% 列表
+\usepackage[shortlabels,inline]{enumitem}
+\setlist{nolistsep}
+% xeCJK 默认会把黑点用汉字显示，而 Noto 没有这个字体，所以显示效果为一个小点。
+% 解决办法是将它设置为 \bullet, 这样显示为实心黑点。Windows 带的楷体、仿宋没有这个问题。
+\setlist[itemize]{label=$\bullet$}
+% 或者：
+%\renewcommand\labelitemi{\ensuremath{\bullet}}
