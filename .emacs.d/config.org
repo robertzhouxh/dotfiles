@@ -848,41 +848,45 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package vc
-    :ensure nil
-    :custom
-    ;; 打开链接文件时，不进行追问
-    (vc-follow-symlinks t)
-    (vc-allow-async-revert t)
-    (vc-handled-backends '(Git)))
+(use-package vc
+  :ensure nil
+  :custom
+  ;; 打开链接文件时，不进行追问
+  (vc-follow-symlinks t)
+  (vc-allow-async-revert t)
+  (vc-handled-backends '(Git)))
 
-  (use-package diff-hl
-    :ensure t
-    :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
-           (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-           (magit-post-refresh . diff-hl-magit-post-refresh))
-    :init
-    (global-diff-hl-mode t)
-    :config
-    ;; When Emacs runs in terminal, show the indicators in margin instead.
-    (unless (display-graphic-p)
-      (diff-hl-margin-mode)))
+(use-package diff-hl
+  :ensure t
+  :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
+         (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh))
+  :init
+  (global-diff-hl-mode t)
+  :config
+  ;; When Emacs runs in terminal, show the indicators in margin instead.
+  (unless (display-graphic-p)
+    (diff-hl-margin-mode)))
 
-  ;; (use-package magit
-  ;;   :ensure t
-  ;;   :hook (git-commit-mode . flyspell-mode)
-  ;;   :bind (("C-x g"   . magit-status)
-  ;;          ("C-x M-g" . magit-dispatch)
-  ;;          ("C-c M-g" . magit-file-dispatch))
-  ;;   :custom
-  ;;   (magit-diff-refine-hunk t)
-  ;;   (magit-ediff-dwim-show-on-hunks t))
-  ;; (use-package magit-delta
-  ;;   :ensure t
-  ;;   :hook (magit-mode . magit-delta-mode)
-  ;;   :config
-  ;;   (setq magit-delta-hide-plus-minus-markers nil)
-  ;;   )
+(setq vc-follow-symlinks t)
+
+;;(use-package magit
+;;  :ensure t
+;;  :custom
+;;  ;; 在当前 window 中显示 magit buffer。
+;;  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+;;  (magit-log-arguments '("-n256" "--graph" "--decorate" "--color"))
+;;  ;; 按照 word 展示 diff。
+;;  (magit-diff-refine-hunk t)
+;;  ;(magit-clone-default-directory "~/go/src/")
+;;  :config
+;;  ;; diff org-mode 时展开内容。
+;;  (add-hook 'magit-diff-visit-file-hook (lambda() (when (derived-mode-p 'org-mode)(org-fold-show-entry)))))
+;;
+;;;; git-link 根据仓库地址、commit 等信息为光标位置生成 URL:
+;;;; (use-package git-link :config (setq git-link-use-commit t))
+;;;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
+;;;; (setq auto-revert-check-vc-info t) 
 
 #+END_SRC
 
@@ -1121,21 +1125,36 @@
 
 (use-package toc-org :ensure t :hook (org-mode . toc-org-mode))
 
-(use-package org-download
-  :ensure t
-  :after org
-  ;; There is something wrong with `hook`, so redefine it with my own :hook
-  :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
-  :config
-  (setq-default org-download-image-dir "../images")
-  (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
-
 (use-package valign
   :defer t
   :after org
   :load-path "~/.emacs.d/vendor/valign"
   :hook ((org-mode . valign-mode))
   :custom ((valign-fancy-bar t)))
+
+(use-package org-download
+  :ensure t
+  :config
+  ;; 保存路径包含 /static/ 时, ox-hugo 在导出时保留后面的目录层次.
+  (setq-default org-download-image-dir "./static/images/")
+  (setq org-download-method 'directory
+        org-download-display-inline-images 'posframe
+        org-download-screenshot-method "pngpaste %s"
+        org-download-image-attr-list '("#+ATTR_HTML: :width 400 :align center"))
+  (add-hook 'dired-mode-hook 'org-download-enable)
+  (org-download-enable)
+  (global-set-key (kbd "<f6>") #'org-download-screenshot)
+  ;; 不添加 #+DOWNLOADED: 注释。
+  (setq org-download-annotate-function (lambda (link) (previous-line 1) "")))
+
+;; (use-package org-download
+;;   :ensure t
+;;   :after org
+;;   ;; There is something wrong with `hook`, so redefine it with my own :hook
+;;   :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
+;;   :config
+;;   (setq-default org-download-image-dir "../images")
+;;   (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
 
 #+END_SRC
 
@@ -1150,7 +1169,7 @@
 (setq org-fast-tag-selection-single-key 'expert)
 (setq org-export-kill-product-buffer-when-displayed t)
 (setq org-fontify-whole-heading-line t)
-(setq org-directory "/Users/ilyaw39/nexus/nexus-notes/")
+(setq org-directory "/Users/zxh/githubs/private/org")
 (setq org-startup-with-inline-images t)
 (setq org-startup-with-latex-preview t)
 
@@ -1164,9 +1183,13 @@
   :ensure t
   :after (org)
   :init
-  (setq org-modern-star '("􀄩"))
-  (setq org-modern-hide-stars "􀄩")
-  (setq org-modern-list '((?- . "•")))
+  ;;(setq org-modern-star '("􀄩"))
+  ;;(setq org-modern-hide-stars "􀄩")
+  ;;(setq org-modern-list '((?- . "•")))
+  (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
+  (setq org-modern-table nil)  ; 缩放字体时表格边界不对齐，故不美化表格。
+  (setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
+
   (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
   (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
   (setq org-modern-table-vertical 2)
@@ -1342,17 +1365,71 @@
 (setq-default org-src-tab-acts-natively t)
 (setq-default org-edit-src-content-indentation 0)
 
+(use-package ob-go :ensure t ) 
+;; yaml 从外部的 yaml-mode 切换到内置的 yaml-ts-mode，告诉 babel 使用该内置 mode，
+(add-to-list 'org-src-lang-modes '("yaml" . yaml-ts))
 (org-babel-do-load-languages 'org-babel-load-languages
                              '((shell . t)
+                               (makefile . t)
+                               (go . t)
                                (emacs-lisp . t)
                                (python . t)
                                (latex . t)))
 
 #+END_SRC
 
-** OrgToLatex
+** Org-Latex-PDF-New
+
++ 参考内容：https://github.com/opsnull/emacs
++ 安装中文字体：brew cask install font-noto-serif-cjk-sc
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+;; engrave-faces 相比 minted 渲染速度更快。
+(use-package engrave-faces
+  :after ox-latex
+  :config
+  (require 'engrave-faces-latex)
+  (setq org-latex-src-block-backend 'engraved)
+  ;; 代码块左侧添加行号。
+  (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
+  ;; 代码块主题。
+  (setq org-latex-engraved-theme 'ef-light))
+
+(require 'ox-latex)
+(with-eval-after-load 'ox-latex
+  ;; latex image 的默认宽度, 可以通过 #+ATTR_LATEX :width xx 配置。
+  (setq org-latex-image-default-width "0.7\\linewidth")
+  ;; 使用 booktabs style 来显示表格，例如支持隔行颜色, 这样 #+ATTR_LATEX: 中不需要添加 :booktabs t。
+  (setq org-latex-tables-booktabs t)
+  ;; 保存 LaTeX 日志文件。
+  (setq org-latex-remove-logfiles t)
+
+  ;; ;; 目录页前后分页。
+  ;; (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage \n")
+  ;; ;; 封面页，不添加页编号。
+  ;; (setq org-latex-title-command
+  ;; 	"\\maketitle\n\\setcounter{page}{0}\n\\thispagestyle{empty}\n\\newpage \n")
+
+  ;; 使用支持中文的 xelatex。
+  (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+  (add-to-list 'org-latex-classes
+               '("ctexart"
+                 "\\documentclass[lang=cn,11pt,a4paper,table]{ctexart}
+                    [NO-DEFAULT-PACKAGES]
+                    [PACKAGES]
+                    [EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+#+END_SRC
+
+** Org-Latex-PDF-Old
+
+#+BEGIN_SRC emacs-lisp :tangle no
+
 ;; from: https://github.com/wowhxj/emacs-from-scratch/blob/master/lisp/init-org.el
 ;; 先安装 LaTex 完整版, MacTeX
 ;; https://orgmode.org/worg/org-dependencies.html
@@ -1560,52 +1637,97 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (load "autoinsert")
-  (auto-insert-mode)
-  (setq auto-insert t)
-  (setq auto-insert-query t)
-  (add-hook 'find-file-hooks 'auto-insert)
-  (setq auto-insert-alist
-        (append '(
-                  (("\\.go$" . "golang header")
-                   nil
-                   "//---------------------------------------------------------------------\n"
-                   "// @Copyright (c) 2023-2024 GLD Enterprise, Inc. (https://glodon.com)\n"
-                   "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-                   "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-                   "//----------------------------------------------------------------------\n"
-                   _
-                   ))
-                auto-insert-alist))
-  (setq auto-insert-alist
-        (append '(
-                  (("\\.erl$" . "erlang header")
-                   nil
-                   "%%%-------------------------------------------------------------------\n"
-                   "%%% @Copyright (c) 2023-2024 GLD Enterprise, Inc. (https://glodon.com)\n"
-                   "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
-                   "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-                   "%%%-------------------------------------------------------------------\n"
-                   _
-                   ))
-                auto-insert-alist))
-  (setq auto-insert-alist
-        (append '(
-                  (("\\.org$" . "org header")
-                   nil
-                   "#+title: TODO\n"
-                   "#+author: 周学浩\n"
-                   "#+email: zhouxh-e@glodon.com\n"
-                   "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
-                   "#+OPTIONS: ^:nil\n"
-                   "#+OPTIONS: toc:2\n"
-                   "#+LATEX_CLASS: zxh-latex-class\n"
-                   "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
-                   "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
-                   "* 目录 :TOC_2_org:"
-                   _
-                   ))
-                auto-insert-alist))
+(load "autoinsert")
+(auto-insert-mode)
+(setq auto-insert t)
+(setq auto-insert-query t)
+(add-hook 'find-file-hooks 'auto-insert)
+(setq auto-insert-alist
+      (append '(
+                (("\\.go$" . "golang header")
+                 nil
+                 "//---------------------------------------------------------------------\n"
+                 "// @Copyright (c) 2023-2024 GLD Enterprise, Inc. (https://glodon.com)\n"
+                 "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+                 "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                 "//----------------------------------------------------------------------\n"
+                 _
+                 ))
+              auto-insert-alist))
+(setq auto-insert-alist
+      (append '(
+                (("\\.erl$" . "erlang header")
+                 nil
+                 "%%%-------------------------------------------------------------------\n"
+                 "%%% @Copyright (c) 2023-2024 GLD Enterprise, Inc. (https://glodon.com)\n"
+                 "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
+                 "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+                 "%%%-------------------------------------------------------------------\n"
+                 _
+                 ))
+              auto-insert-alist))
+
+(setq auto-insert-alist
+      (append '(
+                (("\\.org$" . "org header")
+                 nil
+                 "#+DATE: " (format-time-string "%Y-%m-%d %a") n 
+                "#+SUBTITLE: 内部资料，注意保密!
+#+AUTHOR:  周学浩(robertzhouxh@gmail.com)
+#+LANGUAGE: zh-CN
+# 不自动输出 titile 和 toc，后续定制输出。num 控制输出的目录级别。
+#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: ctexart
+# 引用自定义 latext style 文件，需要去掉 .sty 后缀。
+#+LATEX_HEADER: \\usepackage{/Users/zhangjun/.emacs.d/mystyle}
+
+# 定制 PDF 封面和目录。
+#+begin_export latex
+% 封面页
+\\begin{titlepage}
+% 插入标题
+\\maketitle
+% 插入封面图
+%\\ThisCenterWallPaper{0.4}{/path/to/image.png}
+% 封面页不编号
+\\noindent\\fboxsep=0pt
+\\setcounter{page}{0}
+\\thispagestyle{empty}
+\\end{titlepage}
+
+% 摘要页
+\\begin{abstract}
+这是一个摘要。
+\\end{abstract}
+
+% 目录页
+\\newpage
+\\tableofcontents
+\\newpage
+#+end_export
+"
+                 _
+                 ))
+              auto-insert-alist))
+
+;; (setq auto-insert-alist
+;;       (append '(
+;;                 (("\\.org$" . "org header")
+;;                  nil
+;;                  "#+title: TODO\n"
+;;                  "#+author: 周学浩\n"
+;;                  "#+email: zhouxh-e@glodon.com\n"
+;;                  "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
+;;                  "#+OPTIONS: ^:nil\n"
+;;                  "#+OPTIONS: toc:2\n"
+;;                  "#+LATEX_CLASS: zxh-latex-class\n"
+;;                  "#+LATEX_HEADER: \\hypersetup{colorlinks=true,linkcolor=blue}\n"
+;;                  "#+LATEX_HEADER: \\makeatletter \\def\\@maketitle{\\null \\begin{center} {\\vskip 5em \\Huge \\@title} \\vskip 30em {\\LARGE \\@author} \\vskip 3em {\\LARGE \\@date} \\end{center} \\newpage} \\makeatother\n\n"
+;;                  "* 目录 :TOC_2_org:"
+;;                  _
+;;                  ))
+;;               auto-insert-alist))
 #+END_SRC
 
 * Tramp
