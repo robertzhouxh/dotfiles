@@ -1113,18 +1113,32 @@
 #+END_SRC
 
 * Org-Mode
-** Org 前置配置
 
-#+BEGIN_SRC emacs-lisp :tangle no
++ 参考(org-latex-preview)：https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
++ 参考(org-latex)：https://github.com/opsnull/emacs
++ 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
+
+** Org 辅助配置
+
+#+BEGIN_SRC emacs-lisp :tangle yes
 
 (use-package org-auto-tangle
   :ensure t
   :hook (org-mode . org-auto-tangle-mode)
   :config
-  (setq org-auto-tangle-default t))
-
-(use-package toc-org :ensure t :hook (org-mode . toc-org-mode))
-
+  (setq org-auto-tangle-default t)
+  )
+(use-package toc-org
+  :ensure t
+  :hook (org-mode . toc-org-mode))
+(use-package org-download
+  :ensure t
+  :after org
+  ;; There is something wrong with `hook`, so redefine it with my own :hook
+  :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
+  :config
+  (setq-default org-download-image-dir "../images")
+  (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
 (use-package valign
   :defer t
   :after org
@@ -1132,53 +1146,11 @@
   :hook ((org-mode . valign-mode))
   :custom ((valign-fancy-bar t)))
 
-(use-package org-download
-  :ensure t
-  :config
-  ;; 保存路径包含 /static/ 时, ox-hugo 在导出时保留后面的目录层次.
-  (setq-default org-download-image-dir "./static/images/")
-  (setq org-download-method 'directory
-        org-download-display-inline-images 'posframe
-        org-download-screenshot-method "pngpaste %s"
-        org-download-image-attr-list '("#+ATTR_HTML: :width 400 :align center"))
-  (add-hook 'dired-mode-hook 'org-download-enable)
-  (org-download-enable)
-  (global-set-key (kbd "<f6>") #'org-download-screenshot)
-  ;; 不添加 #+DOWNLOADED: 注释。
-  (setq org-download-annotate-function (lambda (link) (previous-line 1) "")))
-
-;; (use-package org-download
-;;   :ensure t
-;;   :after org
-;;   ;; There is something wrong with `hook`, so redefine it with my own :hook
-;;   :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
-;;   :config
-;;   (setq-default org-download-image-dir "../images")
-;;   (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
-
 #+END_SRC
 
 ** Org 主要配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq org-export-coding-system 'utf-8)
-(setq org-fast-tag-selection-single-key 'expert)
-(setq org-export-kill-product-buffer-when-displayed t)
-(setq org-fontify-whole-heading-line t)
-(setq org-directory "/Users/zxh/githubs/private/org")
-(setq org-startup-with-inline-images t)
-(setq org-startup-with-latex-preview t)
-
-(bind-keys :map org-mode-map
-           ("C-c l" . org-store-link))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Modern Org Mode
 (use-package org-modern
   :ensure t
   :after (org)
@@ -1215,229 +1187,63 @@
 (setq org-ellipsis " 􀍠")
 (setq org-hide-emphasis-markers t)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Draw fringes in Org mode
-(defun my-toggle-internal-fringes ()
-  (setq left-margin-width 10)
-  (setq right-margin-width 0)
-  (set-window-buffer nil (current-buffer)))
-(add-hook 'org-mode-hook #'my-toggle-internal-fringes)
-
-;; Fold drawers by default
-(setq org-hide-drawer-startup t)
-(add-hook 'org-mode-hook #'org-hide-drawer-all)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Org fragments
-(setq org-image-actual-width '(420))
-
-(defun my-preview-org-fragments ()
-  (interactive)
-  (org-display-inline-images)
-  (org-latex-preview))
-
-(bind-keys :map org-mode-map
-           ("C-x p" . my-preview-org-fragments))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Org links
-(setq org-return-follows-link t)
-(setq org-link-elisp-confirm-function nil)
-
-(setq-default org-link-frame-setup ; Open files in current frame
-              (cl-acons 'file #'find-file org-link-frame-setup))
-
-;; Quick jump to link
-(bind-keys :map org-mode-map
-           ("s-<return>" . org-open-at-point))
-
-;; Using shift-<arrow-keys> to select text
-(setq org-support-shift-select t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Org mode text edition
-(use-package org-roam
-  :ensure t
-  :after (org)
-  :config
-  (setq org-roam-directory org-directory)
-  (setq org-roam-dailies-directory "dates/")
-  (setq org-roam-completion-everywhere t)
-  (setq org-roam-db-gc-threshold most-positive-fixnum)
-
-  ;; Capture template for `org-roam-dailies'
-  (setq org-roam-dailies-capture-templates
-        '(("d" "default" entry "\n* %?"
-           :target (file+head
-                    "%<%Y-%m-%d>.org"
-                    "#+TITLE: %<%Y-%m-%d %A>\n")
-           :empty-lines 1)))
-
-  ;; Default capture template for notes
-  (setq org-roam-capture-templates
-        '(("d" "default" plain "%?"
-           :target (file+head
-                    "notes/${slug}.org"
-                    "#+TITLE: ${title}\n")
-           :empty-lines 1
-           :unnarrowed t
-           :immediate-finish t)))
-
-  (org-roam-db-autosync-mode 1)
-  :bind
-  (("s-p" . org-roam-dailies-goto-today)
-   :map org-mode-map
-   (("s-i" . org-roam-node-insert)
-    ("s-<up>" . org-roam-dailies-goto-previous-note)
-    ("s-<down>" . org-roam-dailies-goto-next-note)))
-  :hook
-  (org-roam-dailies-find-file . (lambda ()                                  
-                                  (save-buffer)
-                                  (goto-char (point-max))))
-  (after-init . org-roam-dailies-goto-today))
-
-;; Org-roam meets Consult
-(use-package consult-org-roam
-  :ensure t
-  :after (org-roam)
-  :config
-  (setq consult-org-roam-buffer-after-buffers t)
-  :bind
-  (:map org-mode-map
-        (("s-f" . consult-org-roam-file-find)
-         ("s-b" . consult-org-roam-backlinks))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Org LaTeX customizations
-(setq org-latex-preview-default-process 'dvisvgm)
-(setq org-latex-packages-alist
-      '(("T1" "fontenc" t)
-        ("" "amsmath" t)
-        ("" "bm" t) ; Bold math required
-        ("" "mathtools" t)
-        ("" "siunitx" t)
-        ("" "physics2" t)
-        ("" "txfonts" t)
-        ;; ("" "kpfonts" t)
-        ;;
-        ;; The `mlmodern' package provides a larger font weight that is better
-        ;; for display on the screen
-        ;; ("" "mlmodern" t))
-        ))
-
-(setq org-latex-preview-preamble
-      "\\documentclass{article}
-[DEFAULT-PACKAGES]
-[PACKAGES]
-\\usepackage{xcolor}
-\\usephysicsmodule{ab,ab.braket,diagmat,xmat}%
-")
-
-;;(plist-put org-latex-preview-options :scale 2.20)
-;;(plist-put org-latex-preview-options :zoom 1.15)
-
-;; Use `CDLaTeX' to improve editing experiences
-(use-package cdlatex
-  :ensure t
-  :diminish (org-cdlatex-mode)
-  :config (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
-
-(add-hook 'org-mode-hook #'(lambda ()
-                             (org-latex-preview-auto-mode 1)))
-
-;; To display LaTeX symbols as unicode
-(setq org-pretty-entities t)
-(setq org-pretty-entities-include-sub-superscripts nil)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Load languages
-;;
-;; Org source code blocks
-(setq-default org-confirm-babel-evaluate nil)
-(setq-default org-src-preserve-indentation t)
-(setq-default org-src-fontify-natively t)
-(setq-default org-src-tab-acts-natively t)
-(setq-default org-edit-src-content-indentation 0)
-
-(use-package ob-go :ensure t ) 
-;; yaml 从外部的 yaml-mode 切换到内置的 yaml-ts-mode，告诉 babel 使用该内置 mode，
-(add-to-list 'org-src-lang-modes '("yaml" . yaml-ts))
-(org-babel-do-load-languages 'org-babel-load-languages
-                             '((shell . t)
-                               (makefile . t)
-                               (go . t)
-                               (emacs-lisp . t)
-                               (python . t)
-                               (latex . t)))
-
 #+END_SRC
 
-** Org-Latex-PDF-New
-
+** Org-Latex-pdf-new
 + 参考内容：https://github.com/opsnull/emacs
-+ 安装 noto-cjk 中文字体: git clone  https://github.com/googlefonts/noto-cjk.git
++ 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src shell  :tangle yes
+  ;; engrave-faces 相比 minted 渲染速度更快。
+  (use-package engrave-faces
+    :after ox-latex
+    :config
+    (require 'engrave-faces-latex)
+    (setq org-latex-src-block-backend 'engraved)
+    ;; 代码块左侧添加行号。
+    (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
+    ;; 代码块主题。
+    (setq org-latex-engraved-theme 'ef-light))
 
-;; engrave-faces 相比 minted 渲染速度更快。
-(use-package engrave-faces
-  :after ox-latex
-  :config
-  (require 'engrave-faces-latex)
-  (setq org-latex-src-block-backend 'engraved)
-  ;; 代码块左侧添加行号。
-  (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
-  ;; 代码块主题。
-  (setq org-latex-engraved-theme 'ef-light))
+  (require 'ox-latex)
+  (with-eval-after-load 'ox-latex
+    ;; latex image 的默认宽度, 可以通过 #+ATTR_LATEX :width xx 配置。
+    (setq org-latex-image-default-width "0.7\\linewidth")
+    ;; 使用 booktabs style 来显示表格，例如支持隔行颜色, 这样 #+ATTR_LATEX: 中不需要添加 :booktabs t。
+    (setq org-latex-tables-booktabs t)
+    ;; 保存 LaTeX 日志文件。
+    (setq org-latex-remove-logfiles t)
 
-(require 'ox-latex)
-(with-eval-after-load 'ox-latex
-  ;; latex image 的默认宽度, 可以通过 #+ATTR_LATEX :width xx 配置。
-  (setq org-latex-image-default-width "0.7\\linewidth")
-  ;; 使用 booktabs style 来显示表格，例如支持隔行颜色, 这样 #+ATTR_LATEX: 中不需要添加 :booktabs t。
-  (setq org-latex-tables-booktabs t)
-  ;; 保存 LaTeX 日志文件。
-  (setq org-latex-remove-logfiles t)
+    ;; ;; 目录页前后分页。
+    ;; (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage \n")
+    ;; ;; 封面页，不添加页编号。
+    ;; (setq org-latex-title-command
+    ;; 	"\\maketitle\n\\setcounter{page}{0}\n\\thispagestyle{empty}\n\\newpage \n")
 
-  ;; ;; 目录页前后分页。
-  ;; (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage \n")
-  ;; ;; 封面页，不添加页编号。
-  ;; (setq org-latex-title-command
-  ;; 	"\\maketitle\n\\setcounter{page}{0}\n\\thispagestyle{empty}\n\\newpage \n")
+    ;; 使用支持中文的 xelatex。
+    (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+    (add-to-list 'org-latex-classes
+                 '("ctexart"
+                   "\\documentclass[lang=cn,11pt,a4paper,table]{ctexart}
+                      [NO-DEFAULT-PACKAGES]
+                      [PACKAGES]
+                      [EXTRA]"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+#+end_src
+** Org-Latex-pdf-old
++ 参考：https://github.com/wowhxj/emacs-from-scratch/blob/master/lisp/init-org.el
++ 先安装 LaTex 完整版, MacTeX
++ https://orgmode.org/worg/org-dependencies.html
++ pip3 install pygments
++ sudo tlmgr update --self --all
++ sudo tlmgr install minted
++ sudo tlmgr install ctex environ trimspaces zhnumber cjk
 
-  ;; 使用支持中文的 xelatex。
-  (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
-  (add-to-list 'org-latex-classes
-               '("ctexart"
-                 "\\documentclass[lang=cn,11pt,a4paper,table]{ctexart}
-                    [NO-DEFAULT-PACKAGES]
-                    [PACKAGES]
-                    [EXTRA]"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-#+END_SRC
-
-** Org-Latex-PDF-Old
-
-#+BEGIN_SRC emacs-lisp :tangle no
-
-;; from: https://github.com/wowhxj/emacs-from-scratch/blob/master/lisp/init-org.el
-;; 先安装 LaTex 完整版, MacTeX
-;; https://orgmode.org/worg/org-dependencies.html
-;; pip3 install pygments
-;; sudo tlmgr update --self --all
-;; sudo tlmgr install minted
-;; sudo tlmgr install ctex environ trimspaces zhnumber cjk
-
+#+begin_src shell  :tangle no
 (setq org-latex-classes
       '(("zxh-latex-class"
          "
@@ -1515,7 +1321,7 @@
         "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
         ))
 
-#+END_SRC
+#+end_src
 
 * Programming
 
