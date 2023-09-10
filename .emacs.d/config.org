@@ -936,7 +936,7 @@
       ;; dired
       ;; "dj" 'dired-jump
       ;; "dJ" 'dired-jump-other-window
-      "d" 'one-key-menu-directory
+      "d" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
 
       ;; external Apps
       "eY" 'youdao-dictionary-search-from-input
