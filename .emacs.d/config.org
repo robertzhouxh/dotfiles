@@ -1553,9 +1553,10 @@
       (append '(
                 (("\\.org$" . "org header")
                  nil
+                 "#+TITLE: TODO" n  
                  "#+DATE: " (format-time-string "%Y-%m-%d %a") n 
-                "#+SUBTITLE: 内部资料，注意保密!
-#+AUTHOR:  周学浩(robertzhouxh@gmail.com)
+                 "#+SUBTITLE: 内部资料，注意保密!
+#+AUTHOR: zxh(robertzhouxh@gmail.com)
 #+LANGUAGE: zh-CN
 # 不自动输出 titile 和 toc，后续定制输出。num 控制输出的目录级别。
 #+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
@@ -1587,7 +1588,7 @@
 \\newpage
 \\tableofcontents
 \\newpage
-#+end_export
+,#+end_export
 "
                  _
                  ))
