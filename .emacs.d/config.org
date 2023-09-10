@@ -1175,7 +1175,7 @@
           ;; 不在线显示图片，手动点击显示更容易控制大小。
           org-startup-with-inline-images nil
           ;; 先从 #+ATTR.* 获取宽度，如果没有设置则默认为 300 。
-          org-image-actual-width '(300)
+          org-image-actual-width '(400)
           org-cycle-inline-images-display nil
           org-html-validation-link nil
           org-export-with-broken-links t
@@ -1296,7 +1296,11 @@
     ;; 	"\\maketitle\n\\setcounter{page}{0}\n\\thispagestyle{empty}\n\\newpage \n")
 
     ;; 使用支持中文的 xelatex。
-    (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+    ;; (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+    (setq org-latex-pdf-process '
+          ("latexmk -xelatex -quiet -shell-escape -f %f"
+           "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"))
+
     (add-to-list 'org-latex-classes
                  '("ctexart"
                    "
