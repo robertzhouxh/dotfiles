@@ -1689,7 +1689,8 @@ install_fonts(){
 
 ** 如果是MacOS 系统，请先安装字体
 
-   brew tap moritzsternemann/apple-fonts && brew install --cask font-sf-pro
++  brew tap moritzsternemann/apple-fonts && brew install --cask font-sf-pro
++ noto-cjk 中文字体(for org-to-latex-pdf): git clone https://github.com/googlefonts/noto-cjk.git
    
 ** 字体配置
 
