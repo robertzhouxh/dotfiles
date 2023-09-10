@@ -15,6 +15,9 @@
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
   (setq epg-gpg-program "gpg2")
+  (setq package-check-signature nil) 
+  ;; M-x package-install RET gnu-elpa-keyring-update RET. 
+  ;; M-: (setq package-check-signature "allow-unsigned") 
 
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
@@ -1148,7 +1151,76 @@
 
 #+END_SRC
 
-** Org 主要配置
+** Org 主配置
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package org
+    :config
+    (setq org-ellipsis "..." ;; " ⭍"
+          ;; 使用 UTF-8 显示 LaTeX 或 \xxx 特殊字符， M-x org-entities-help 查看所有特殊字符。
+          org-pretty-entities t
+          org-highlight-latex-and-related '(latex)
+          ;; 只显示而不处理和解释 latex 标记，例如 \xxx 或 \being{xxx}, 避免 export pdf 时出错。
+          org-export-with-latex 'verbatim
+          org-hide-emphasis-markers t
+          org-hide-block-startup t
+          org-hidden-keywords '(title)
+          org-cycle-separator-lines 2
+          org-cycle-level-faces t
+          org-n-level-faces 4
+          ;; TODO 状态更新记录到 LOGBOOK Drawer 中。
+          org-log-into-drawer t
+          ;; TODO 状态更新时记录 note.
+          org-log-done 'note ;; note, time
+          ;; 不在线显示图片，手动点击显示更容易控制大小。
+          org-startup-with-inline-images nil
+          ;; 先从 #+ATTR.* 获取宽度，如果没有设置则默认为 300 。
+          org-image-actual-width '(300)
+          org-cycle-inline-images-display nil
+          org-html-validation-link nil
+          org-export-with-broken-links t
+          ;; 文件链接使用相对路径, 解决 hugo 等 image 引用的问题。
+          org-link-file-path-type 'relative
+          org-startup-folded 'content
+          ;; 使用 R_{s} 形式的下标（默认是 R_s, 容易与正常内容混淆) 。
+          org-use-sub-superscripts nil
+          ;; 如果对 headline 编号，则 latext 输出时会导致 toc 缺失，故关闭。
+          org-startup-numerated nil
+          org-startup-indented t
+          ;; export 时不处理 super/subscripting, 等效于 #+OPTIONS: ^:nil 。
+          org-export-with-sub-superscripts nil
+          org-hide-leading-stars t
+          org-indent-indentation-per-level 2
+          ;; 内容缩进与对应 headerline 一致。
+          org-adapt-indentation t
+          org-list-indent-offset 2
+          ;; org-timer 到期时发送声音提示。
+          org-clock-sound t)
+    ;; 不自动缩进。
+    (setq org-src-preserve-indentation t)
+    (setq org-edit-src-content-indentation 0)
+    ;; 不自动对齐 tag。
+    (setq org-tags-column 0)
+    (setq org-auto-align-tags nil)
+    ;; 显示不可见的编辑。
+    (setq org-catch-invisible-edits 'show-and-error)
+    (setq org-fold-catch-invisible-edits t)
+    (setq org-special-ctrl-a/e t)
+    (setq org-insert-heading-respect-content t)
+    ;; 支持 ID property 作为 internal link target(默认是 CUSTOM_ID property)
+    (setq org-id-link-to-org-use-id t)
+    (setq org-M-RET-may-split-line nil)
+    (setq org-todo-keywords '((sequence "TODO(t!)" "DOING(d@)" "|" "DONE(D)")
+                              (sequence "BLOCKED(b@)" "|" "CANCELLED(c@)")))
+    (add-hook 'org-mode-hook 'turn-on-auto-fill)
+    (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode 0))))
+
+  ;; 关闭频繁弹出的 org-element-cache 警告 buffer 。
+  (setq org-element-use-cache nil)
+
+#+END_SRC
+
+** Org 美化配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package org-modern
@@ -1193,9 +1265,12 @@
 + 参考内容：https://github.com/opsnull/emacs
 + 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
 
-#+begin_src shell  :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+
   ;; engrave-faces 相比 minted 渲染速度更快。
   (use-package engrave-faces
+    :ensure t
     :after ox-latex
     :config
     (require 'engrave-faces-latex)
@@ -1224,7 +1299,8 @@
     (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
     (add-to-list 'org-latex-classes
                  '("ctexart"
-                   "\\documentclass[lang=cn,11pt,a4paper,table]{ctexart}
+                   "
+                   \\documentclass[lang=cn,11pt,a4paper,table]{ctexart}
                       [NO-DEFAULT-PACKAGES]
                       [PACKAGES]
                       [EXTRA]"
@@ -1233,7 +1309,8 @@
                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                    ("\\paragraph{%s}" . "\\paragraph*{%s}")
                    ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-#+end_src
+#+END_SRC
+
 ** Org-Latex-pdf-old
 + 参考：https://github.com/wowhxj/emacs-from-scratch/blob/master/lisp/init-org.el
 + 先安装 LaTex 完整版, MacTeX
@@ -1243,7 +1320,7 @@
 + sudo tlmgr install minted
 + sudo tlmgr install ctex environ trimspaces zhnumber cjk
 
-#+begin_src shell  :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no
 (setq org-latex-classes
       '(("zxh-latex-class"
          "
@@ -1320,8 +1397,7 @@
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
         ))
-
-#+end_src
+#+END_SRC
 
 * Programming
 
@@ -1453,7 +1529,7 @@
                 (("\\.go$" . "golang header")
                  nil
                  "//---------------------------------------------------------------------\n"
-                 "// @Copyright (c) 2023-2024 GLD Enterprise, Inc. (https://glodon.com)\n"
+                 "// @Copyright (c) 2023-2024 x Enterprise, Inc. (https://x.com)\n"
                  "// @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
                  "// @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
                  "//----------------------------------------------------------------------\n"
@@ -1465,7 +1541,7 @@
                 (("\\.erl$" . "erlang header")
                  nil
                  "%%%-------------------------------------------------------------------\n"
-                 "%%% @Copyright (c) 2023-2024 GLD Enterprise, Inc. (https://glodon.com)\n"
+                 "%%% @Copyright (c) 2023-2024 x Enterprise, Inc. (https://x.com)\n"
                  "%%% @Author: robertzhouxh <robertzhouxh@gmail.com>\n"
                  "%%% @Date   Created: " (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
                  "%%%-------------------------------------------------------------------\n"
@@ -1649,7 +1725,7 @@ install_fonts(){
 
       ;; Chinese characters
       ;; (cl-loop for font in '("LXGW WenKai" "TsangerJinKai05" "FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
-      (cl-loop for font in '("TsangerJinKai05" "LXGW WenKai"  "FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
+      (cl-loop for font in '("FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
                when (font-installed-p font)
                return (progn
                                           ;(setq face-font-rescale-alist `((,font . 1.2)))

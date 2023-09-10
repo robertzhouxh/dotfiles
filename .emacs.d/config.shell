@@ -1,0 +1,41 @@
+  ;; engrave-faces 相比 minted 渲染速度更快。
+  (use-package engrave-faces
+    :ensure t
+    :after ox-latex
+    :config
+    (require 'engrave-faces-latex)
+    (setq org-latex-src-block-backend 'engraved)
+    ;; 代码块左侧添加行号。
+    (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
+    ;; 代码块主题。
+    (setq org-latex-engraved-theme 'ef-light))
+
+  (require 'ox-latex)
+  (with-eval-after-load 'ox-latex
+    ;; latex image 的默认宽度, 可以通过 #+ATTR_LATEX :width xx 配置。
+    (setq org-latex-image-default-width "0.7\\linewidth")
+    ;; 使用 booktabs style 来显示表格，例如支持隔行颜色, 这样 #+ATTR_LATEX: 中不需要添加 :booktabs t。
+    (setq org-latex-tables-booktabs t)
+    ;; 保存 LaTeX 日志文件。
+    (setq org-latex-remove-logfiles t)
+
+    ;; ;; 目录页前后分页。
+    ;; (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage \n")
+    ;; ;; 封面页，不添加页编号。
+    ;; (setq org-latex-title-command
+    ;; 	"\\maketitle\n\\setcounter{page}{0}\n\\thispagestyle{empty}\n\\newpage \n")
+
+    ;; 使用支持中文的 xelatex。
+    (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+    (add-to-list 'org-latex-classes
+                 '("zxh-clase"
+                   "
+                   \\documentclass[lang=cn,11pt,a4paper,table]{ctexart}
+                      [NO-DEFAULT-PACKAGES]
+                      [PACKAGES]
+                      [EXTRA]"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
