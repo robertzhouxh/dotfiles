@@ -1278,7 +1278,8 @@
     ;; 代码块左侧添加行号。
     (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
     ;; 代码块主题。
-    (setq org-latex-engraved-theme 'ef-light))
+    ;;(setq org-latex-engraved-theme 'ef-light))
+    )
 
   (require 'ox-latex)
   (with-eval-after-load 'ox-latex
@@ -1603,8 +1604,8 @@
 ;;                 (("\\.org$" . "org header")
 ;;                  nil
 ;;                  "#+title: TODO\n"
-;;                  "#+author: 周学浩\n"
-;;                  "#+email: zhouxh-e@glodon.com\n"
+;;                  "#+author: zxh\n"
+;;                  "#+email: robertzhouxh@gmail.com\n"
 ;;                  "#+date:" (format-time-string "%Y-%m-%d %H:%M:%S")"\n"
 ;;                  "#+OPTIONS: ^:nil\n"
 ;;                  "#+OPTIONS: toc:2\n"
@@ -2255,7 +2256,8 @@ install_fonts(){
   ;(load-theme 'everforest-hard-dark t)
 
   (require 'awesome-tray)
-  (setq awesome-tray-active-modules '("location" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  (setq awesome-tray-info-padding-right 1)
   (awesome-tray-mode 1)
 
 #+END_SRC
