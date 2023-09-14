@@ -115,7 +115,3 @@ branch = master
 path = .emacs.d/vendor/valign
 url = https://github.com/casouri/valign
 
-[submodule ".emacs.d/vendor/awesome-tray"]
-	path = .emacs.d/vendor/awesome-tray
-	url = https://github.com/manateelazycat/awesome-tray
-	branch = master
