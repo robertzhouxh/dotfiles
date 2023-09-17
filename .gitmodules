@@ -118,3 +118,6 @@ url = https://github.com/casouri/valign
 [submodule ".emacs.d/vendor/awesome-tray"]
 	path = .emacs.d/vendor/awesome-tray
 	url = https://github.com/manateelazycat/awesome-tray
+[submodule ".emacs.d/vendor/cdlatex"]
+	path = .emacs.d/vendor/cdlatex
+	url = https://github.com/cdominik/cdlatex

@@ -30,244 +30,353 @@
 * Bootstrap use-package
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+(tool-bar-mode -1)                      ;禁用工具栏
+(menu-bar-mode -1)                      ;禁用菜单栏
+(scroll-bar-mode -1)                    ;禁用滚动条
 
-  (require 'package)
-  (setq package-archives '(("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
-                           ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
-                           ))
+(require 'package)
+;; (setq package-archives '(("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
+;;                          ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")))
 
-  (unless (bound-and-true-p package--initialized)
-    (setq package-enable-at-startup nil)          ; To prevent initializing twice
-    (package-initialize))
+(setq package-archives 
+      '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+        ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 
-  ;; set use-package-verbose to t for interpreted .emacs,
-  ;; and to nil for byte-compiled .emacs.elc.
-  (eval-and-compile
-    (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
+(unless (bound-and-true-p package--initialized)
+  (setq package-enable-at-startup nil)          ; To prevent initializing twice
+  (package-initialize))
 
-  ;; Install use-package if not installed
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
+;; set use-package-verbose to t for interpreted .emacs,
+;; and to nil for byte-compiled .emacs.elc.
+(eval-and-compile
+  (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 
-  (eval-and-compile
-    (setq use-package-always-ensure t)
-    (setq use-package-expand-minimally t)
-    (setq use-package-compute-statistics t)
-    (setq use-package-enable-imenu-support t))
+;; Install use-package if not installed
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-  (eval-when-compile
-    (require 'use-package)
-    (require 'bind-key))
+(eval-and-compile
+  (setq use-package-always-ensure t)
+  (setq use-package-expand-minimally t)
+  (setq use-package-compute-statistics t)
+  (setq use-package-enable-imenu-support t))
 
-  (defun add-subdirs-to-load-path (search-dir)
-    (interactive)
-    (let* ((dir (file-name-as-directory search-dir)))
-      (dolist (subdir
-               ;; 过滤出不必要的目录，提升Emacs启动速度
-               (cl-remove-if
-                #'(lambda (subdir)
-                    (or
-                     ;; 不是目录的文件都移除
-                     (not (file-directory-p (concat dir subdir)))
-                     ;; 父目录、 语言相关和版本控制目录都移除
-                     (member subdir '("." ".." 
-                                      "dist" "node_modules" "__pycache__" 
-                                      "RCS" "CVS" "rcs" "cvs" ".git" ".github")))) 
-                (directory-files dir)))
-        (let ((subdir-path (concat dir (file-name-as-directory subdir))))
-          ;; 目录下有 .el .so .dll 文件的路径才添加到 `load-path' 中，提升Emacs启动速度
-          (when (cl-some #'(lambda (subdir-file)
-                             (and (file-regular-p (concat subdir-path subdir-file))
-                                  ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
-                                  (member (file-name-extension subdir-file) '("el" "so" "dll"))))
-                         (directory-files subdir-path))
+(eval-when-compile
+  (require 'use-package)
+  (require 'bind-key))
+
+(defun add-subdirs-to-load-path (search-dir)
+  (interactive)
+  (let* ((dir (file-name-as-directory search-dir)))
+    (dolist (subdir
+             ;; 过滤出不必要的目录，提升Emacs启动速度
+             (cl-remove-if
+              #'(lambda (subdir)
+                  (or
+                   ;; 不是目录的文件都移除
+                   (not (file-directory-p (concat dir subdir)))
+                   ;; 父目录、 语言相关和版本控制目录都移除
+                   (member subdir '("." ".." 
+                                    "dist" "node_modules" "__pycache__" 
+                                    "RCS" "CVS" "rcs" "cvs" ".git" ".github")))) 
+              (directory-files dir)))
+      (let ((subdir-path (concat dir (file-name-as-directory subdir))))
+        ;; 目录下有 .el .so .dll 文件的路径才添加到 `load-path' 中，提升Emacs启动速度
+        (when (cl-some #'(lambda (subdir-file)
+                           (and (file-regular-p (concat subdir-path subdir-file))
+                                ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
+                                (member (file-name-extension subdir-file) '("el" "so" "dll"))))
+                       (directory-files subdir-path))
           
-            ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
-            ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
-            (add-to-list 'load-path subdir-path t))
+          ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
+          ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
+          (add-to-list 'load-path subdir-path t))
         
-          ;; 继续递归搜索子目录
-          (add-subdirs-to-load-path subdir-path)))))
+        ;; 继续递归搜索子目录
+        (add-subdirs-to-load-path subdir-path)))))
 
-  (add-subdirs-to-load-path zxh-emacs-vendor-dir)
+(add-subdirs-to-load-path zxh-emacs-vendor-dir)
+
+#+END_SRC
+
+* Accelerate
+
+#+begin_src emacs-lisp :tangle yes
+
+(setq
+ ;; 不要缩放frame.
+ frame-inhibit-implied-resize t
+ ;; 默认用最简单的模式
+ initial-major-mode 'fundamental-mode
+ ;; 不要自动启用package
+ package-enable-at-startup nil
+ package--init-file-ensured t)
+
+#+end_src
+* Bootstrap-Init
+#+begin_src emacs-lisp :tangle yes
+(let (
+      ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
+      (gc-cons-threshold most-positive-fixnum)
+      (gc-cons-percentage 0.6)
+      ;; 清空避免加载远程文件的时候分析文件。
+      (file-name-handler-alist nil))
+
+  ;; 让窗口启动更平滑
+  (setq frame-inhibit-implied-resize t)
+  (setq-default inhibit-redisplay t
+                inhibit-message t)
+  (add-hook 'window-setup-hook
+            (lambda ()
+              (setq-default inhibit-redisplay nil
+                            inhibit-message nil)
+              (redisplay)))
+)
+#+end_src
+
+* Elf-mode
+
+#+begin_src emacs-lisp :tangle yes
+(defvar-local elf-mode nil)
+
+(defun elf-setup-default ()
+  "Make `elf-mode' get called automatically for binaries."
+  (add-to-list 'magic-mode-alist (cons "ELF" 'elf-mode)))
+
+(defvar elf-mode-command "readelf --syms -W %s"
+  "The shell command to use for `elf-mode'.")
+
+;;;###autoload
+(defun elf-mode ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (if elf-mode
+        (progn
+          (erase-buffer)
+          (insert-file-contents (buffer-file-name))
+          (setq elf-mode nil))
+      (setq elf-mode t)
+      (erase-buffer)
+      (insert (shell-command-to-string
+               (format elf-mode-command (buffer-file-name)))))
+    (set-buffer-modified-p nil)
+    (read-only-mode 1)))
+
+#+end_src
+* Idle
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; idel
+;;(pretty-lambda-for-modes)
+;;(browse-kill-ring-default-keybindings)    ;加载默认的按键邦定
+;;(setq browse-kill-ring-quit-action        ;设置退出动作
+;;      (quote save-and-restore))           ;保存还原窗口设置
+(autoload 'hanconvert-region "hanconvert" ;简繁中文互相转换
+  "Convert a region from simple chinese to tradition chinese or
+from tradition chinese to simple chinese" t)
+(autoload 'irfc "init-irfc")
+(custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
+(setq max-lisp-eval-depth 40000)          ;lisp最大执行深度
+(setq max-specpdl-size 10000)             ;最大容量
+(setq kill-ring-max 1024) ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
+(setq mark-ring-max 1024) ;设置的mark ring容量
+(setq eval-expression-print-length nil) ;设置执行表达式的长度没有限制
+(setq eval-expression-print-level nil)  ;设置执行表达式的深度没有限制
+(auto-compression-mode 1)               ;打开压缩文件时自动解压缩
+(setq read-quoted-char-radix 16)        ;设置 引用字符 的基数
+(setq global-mark-ring-max 1024)        ;设置最大的全局标记容量
+(global-hl-line-mode 1)                 ;高亮当前行
+(setq isearch-allow-scroll t)           ;isearch搜索时是可以滚动屏幕的
+(setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
+(setq history-delete-duplicates t)      ;删除minibuffer的重复历史
+(setq minibuffer-message-timeout 1)     ;显示消息超时的时间
+(setq auto-revert-mode 1)               ;自动更新buffer
+(show-paren-mode t)                     ;显示括号匹配
+(setq show-paren-style 'parentheses) ;括号匹配显示但不是烦人的跳到另一个括号。
+(setq blink-matching-paren nil)      ;当插入右括号时不显示匹配的左括号
+(setq message-log-max t)         ;设置message记录全部消息, 而不用截去
+(setq require-final-newline nil) ;不自动添加换行符到末尾, 有些情况会出现错误
+(setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
+(setq x-stretch-cursor t)         ;光标在 TAB 字符上会显示为一个大方块
+(put 'narrow-to-region 'disabled nil)   ;开启变窄区域
+(setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
+(setq tramp-default-method "ssh")       ;设置传送文件默认的方法
+(setq void-text-area-pointer nil)       ;禁止显示鼠标指针
+(setq byte-compile-warnings
+      (quote (
+              ;; 显示的警告
+              free-vars                 ;不在当前范围的引用变量
+              unresolved                ;不知道的函数
+              callargs                  ;函数调用的参数和定义的不匹配
+              obsolete                  ;荒废的变量和函数
+              noruntime                 ;函数没有定义在运行时期
+              interactive-only          ;正常不被调用的命令
+              make-local ;调用 `make-variable-buffer-local' 可能会不正确的
+              mapcar     ;`mapcar' 调用
+              ;;
+              ;; 抑制的警告
+              (not redefine)        ;重新定义的函数 (比如参数数量改变)
+              (not cl-functions)    ;`CL' 包中的运行时调用的函数
+              )))
+(elf-setup-default)                   ;二进制文件默认用elf模式打开
+(setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
+(tooltip-mode -1)                       ;不要显示任何 tooltips
 
 #+END_SRC
 
 * Generic
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
 
-  ;; 加速
-  (setq
-   ;; 不要缩放frame.
-   frame-inhibit-implied-resize t
-   ;; 默认用最简单的模式
-   initial-major-mode 'fundamental-mode
-   package--init-file-ensured t)
-  (setq custom-file "~/.emacs.d/custom.el")
+;; Restore emacs session.
+;; (setq initial-buffer-choice t)
+;; (run-with-timer 1 nil #'(lambda () (bury-buffer)))
 
-  (if (file-exists-p custom-file)
-      (load custom-file))
+;; 增加长行处理性能
+(setq bidi-inhibit-bpa t)
+(setq-default bidi-paragraph-direction 'left-to-right)
 
-  (tool-bar-mode -1)                      ;禁用工具栏
-  (menu-bar-mode -1)                      ;禁用菜单栏
-  (scroll-bar-mode -1)                    ;禁用滚动条
+;; 增加IO性能
+(setq process-adaptive-read-buffering nil)
+(setq read-process-output-max (* 1024 1024))
 
-  ;; 增加长行处理性能
-  (setq bidi-inhibit-bpa t)
-  (setq-default bidi-paragraph-direction 'left-to-right)
+(fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
+(blink-cursor-mode -1)                  ;指针不闪动
+(transient-mark-mode 1)                 ;标记高亮
+(global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
+(setq use-dialog-box nil)               ;never pop dialog
+(setq inhibit-startup-screen t)         ;inhibit start screen
+(setq initial-scratch-message "") ;关闭启动空白buffer, 这个buffer会干扰session恢复
+(setq-default comment-style 'indent)    ;设定自动缩进的注释风格
+(setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
+(setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
+(setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
+(setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
+(setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+(setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
+(setq confirm-kill-processes nil)       ;退出自动杀掉进程
+(setq async-bytecomp-allowed-packages nil) ;避免magit报错
+(setq word-wrap-by-category t)             ;按照中文折行
+(add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
 
-  ;; 增加IO性能
-  (setq process-adaptive-read-buffering nil)
-  (setq read-process-output-max (* 1024 1024))
+(setq completion-auto-select nil)       ;避免默认自动选择
 
-  (fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
-  (blink-cursor-mode -1)                  ;指针不闪动
-  (transient-mark-mode 1)                 ;标记高亮
-  (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
-  (setq use-dialog-box nil)               ;never pop dialog
+(setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
+(setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
-  (setq inhibit-startup-screen t)         ;inhibit start screen
-  (setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
+;; 平滑地进行半屏滚动，避免滚动后recenter操作
+(setq scroll-step 1
+      scroll-conservatively 10000)
 
-  (setq-default comment-style 'indent)    ;设定自动缩进的注释风格
-  (setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
-  (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
-  (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
-  (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
+;; 不显示 *scratch*
+(defun remove-scratch-buffer ()
+  (if (get-buffer "*scratch*")
+      (kill-buffer "*scratch*")))
+(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
 
-  (setq split-width-threshold nil)        ;分屏的时候使用上下分屏
-  ;;(setq split-width-threshold t)          ;分屏的时候使用左右分屏
+;; Don't ask me when close emacs with process is running
+;;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+;;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
+;;  (require 'noflet)
+;;  (noflet ((process-list ())) ad-do-it))
 
-  (setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
-  (setq confirm-kill-processes nil)       ;退出自动杀掉进程
-  (setq async-bytecomp-allowed-packages nil) ;避免magit报错
-  (setq word-wrap-by-category t)             ;按照中文折行
-  (add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
+;; Don't ask me when kill process buffer
+(setq kill-buffer-query-functions
+      (remq 'process-kill-buffer-query-function
+            kill-buffer-query-functions))
 
-  (setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
-  (setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
+#+end_src
+* Indent
+#+begin_src emacs-lisp :tangle yes
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
 
-  (setq completion-auto-select nil)       ;避免默认自动选择
+(defun adjust-languages-indent (n)
+  (setq-local c-basic-offset n)
 
-  ;; 平滑地进行半屏滚动，避免滚动后recenter操作
-  (setq scroll-step 1
-        scroll-conservatively 10000)
+  (setq-local coffee-tab-width n)
+  (setq-local javascript-indent-level n)
+  (setq-local js-indent-level n)
+  (setq-local js2-basic-offset n)
 
-  ;; 不显示 *scratch*
-  ;; (defun remove-scratch-buffer ()
-  ;;   (if (get-buffer "*scratch*")
-  ;;       (kill-buffer "*scratch*")))
-  ;; (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+  (setq-local web-mode-attr-indent-offset n)
+  (setq-local web-mode-attr-value-indent-offset n)
+  (setq-local web-mode-code-indent-offset n)
+  (setq-local web-mode-css-indent-offset n)
+  (setq-local web-mode-markup-indent-offset n)
+  (setq-local web-mode-sql-indent-offset n)
 
-  ;; Don't ask me when kill process buffer
-  (setq kill-buffer-query-functions
-        (remq 'process-kill-buffer-query-function
-              kill-buffer-query-functions))
+  (setq-local css-indent-offset n)
 
-  ;; Don't ask me when kill process buffer
-  (setq kill-buffer-query-functions
-        (remq 'process-kill-buffer-query-function
-              kill-buffer-query-functions))
-  ;; --------------------------------------------------------------------------------
-  ;; 平滑地进行半屏滚动，避免滚动后recenter操作
-  (setq-default scroll-step 1
-                scroll-preserve-screen-position t
-                scroll-up-aggressively 0.01
-                scroll-down-aggressively 0.01
-                redisplay-dont-pause t
-                auto-window-vscroll nil
-                ;; Mouse wheel scroll behavior
-                mouse-wheel-scroll-amount '(1 ((shift) . 1))
-                mouse-wheel-progressive-speed nil
-                mouse-wheel-follow-mouse 't
-                fast-but-imprecise-scrolling nil)
+  (setq-local typescript-indent-level n))
 
-  ;; idle
-  (custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
-  (setq max-lisp-eval-depth 40000)          ;lisp最大执行深度
-  (setq max-specpdl-size 10000)             ;最大容量
-  (setq kill-ring-max 1024)                 ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
-  (setq mark-ring-max 1024)                 ;设置的mark ring容量
-  (setq eval-expression-print-length nil)   ;设置执行表达式的长度没有限制
-  (setq eval-expression-print-level nil)    ;设置执行表达式的深度没有限制
-  (auto-compression-mode 1)                 ;打开压缩文件时自动解压缩
-  (setq read-quoted-char-radix 16)          ;设置 引用字符 的基数
-  (setq global-mark-ring-max 1024)          ;设置最大的全局标记容量
-  (global-hl-line-mode 1)                   ;高亮当前行
-  (setq isearch-allow-scroll t)             ;isearch搜索时是可以滚动屏幕的
-  (setq one-key-popup-window nil)           ;禁止自动弹出窗口
-  (setq enable-recursive-minibuffers t)     ;minibuffer 递归调用命令
-  (setq history-delete-duplicates t)        ;删除minibuffer的重复历史
-  (setq minibuffer-message-timeout 1)       ;显示消息超时的时间
-  (setq auto-revert-mode 1)                 ;自动更新buffer
-  (show-paren-mode t)                       ;显示括号匹配
-  (setq show-paren-style 'parentheses)      ;括号匹配显示但不是烦人的跳到另一个括号。
-  (setq blink-matching-paren nil)           ;当插入右括号时不显示匹配的左括号
-  (setq message-log-max t)                  ;设置message记录全部消息, 而不用截去
-  (setq require-final-newline nil)          ;不自动添加换行符到末尾, 有些情况会出现错误
-  (setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
-  (setq x-stretch-cursor t)                 ;光标在 TAB 字符上会显示为一个大方块
-  (put 'narrow-to-region 'disabled nil)     ;开启变窄区域
-  (setq print-escape-newlines t)            ;显示字符窗中的换行符为 \n
-  (setq tramp-default-method "ssh")         ;设置传送文件默认的方法
-  (setq void-text-area-pointer nil)         ;禁止显示鼠标指针
-  (setq echo-keystrokes 0.1)                ;加快快捷键提示的速度
+(dolist (hook (list
+               'c-mode-hook
+               'c++-mode-hook
+               'java-mode-hook
+               'haskell-mode-hook
+               'asm-mode-hook
+               'sh-mode-hook
+               'haskell-cabal-mode-hook
+               'ruby-mode-hook
+               'qml-mode-hook
+               'scss-mode-hook
+               'coffee-mode-hook
+               'rust-mode-hook
+               ))
+  (add-hook hook #'(lambda ()
+                     (setq indent-tabs-mode nil)
+                     (adjust-languages-indent 4)
+                     )))
 
+(dolist (hook (list
+               'web-mode-hook
+               'js-mode-hook
+               'typescript-mode-hook
+               ))
+  (add-hook hook #'(lambda ()
+                     (setq indent-tabs-mode nil)
+                     (adjust-languages-indent 2)
+                     )))
+#+end_src
+* Encode
+#+begin_src emacs-lisp :tangle yes
+;; Code
+(prefer-coding-system 'utf-8)
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US.UTF-8")
 
-    ;;; ### Auto-fill ###
-    ;;; --- 自动换行
-  (setq default-fill-columndefault-fill-column 100)          ;默认显示 100列就换行
-  (dolist (hook (list
-                 'after-text-mode-hook
-                 'message-mode-hook
-                 ))
-    (add-hook hook #'(lambda () (auto-fill-mode 1))))
-
-  ;;设置tab为4个空格的宽度
-
-  ;; Code
-  (prefer-coding-system 'utf-8)
-  (setenv "LANG" "en_US.UTF-8")
-  (setenv "LC_ALL" "en_US.UTF-8")
-  (setenv "LC_CTYPE" "en_US.UTF-8")
-
-  ;; Set UTF-8 as the default coding system
-  (set-charset-priority 'unicode)
-  (set-default-coding-systems 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-clipboard-coding-system 'utf-8)
-  (set-file-name-coding-system 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
-  (setq locale-coding-system 'utf-8)
-
-#+END_SRC
-
+;; Set UTF-8 as the default coding system
+(set-charset-priority 'unicode)
+(set-default-coding-systems 'utf-8)
+(set-selection-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-clipboard-coding-system 'utf-8)
+(set-file-name-coding-system 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
+#+end_src
 * Performance
-#+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; Disable garbage collection when entering commands.
-  (defun max-gc-limit ()
-    (setq gc-cons-threshold most-positive-fixnum))
+#+begin_src emacs-lisp :tangle yes
+;; Disable garbage collection when entering commands.
+(defun max-gc-limit ()
+  (setq gc-cons-threshold most-positive-fixnum))
 
-  (defun reset-gc-limit ()
-    (setq gc-cons-threshold 800000))
+(defun reset-gc-limit ()
+  (setq gc-cons-threshold 800000))
 
-  (add-hook 'minibuffer-setup-hook #'max-gc-limit)
-  (add-hook 'minibuffer-exit-hook #'reset-gc-limit)
+(add-hook 'minibuffer-setup-hook #'max-gc-limit)
+(add-hook 'minibuffer-exit-hook #'reset-gc-limit)
 
-  ;; Improve the performance of rendering long lines.
-  (setq-default bidi-display-reordering nil)
+;; Improve the performance of rendering long lines.
+(setq-default bidi-display-reordering nil)
 
-  ;;; Track Emacs commands frequency
-  (use-package keyfreq
-    :ensure t
-    :config (keyfreq-mode 1) (keyfreq-autosave-mode 1))
+#+end_src
 
-#+END_SRC
 * Functions&Const
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1173,9 +1282,9 @@
           ;; TODO 状态更新时记录 note.
           org-log-done 'note ;; note, time
           ;; 不在线显示图片，手动点击显示更容易控制大小。
-          org-startup-with-inline-images nil
+          ;; org-startup-with-inline-images nil
           ;; 先从 #+ATTR.* 获取宽度，如果没有设置则默认为 300 。
-          org-image-actual-width '(400)
+          org-image-actual-width '(420)
           org-cycle-inline-images-display nil
           org-html-validation-link nil
           org-export-with-broken-links t
@@ -1261,12 +1370,12 @@
 
 #+END_SRC
 
-** Org-Latex-pdf-new
-+ 参考内容：https://github.com/opsnull/emacs
+** Org-Latex-Pdf
++ 先安装 LaTex 完整版, MacTeX
 + 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
-
++ 参考内容：https://github.com/opsnull/emacs
+   
 #+BEGIN_SRC emacs-lisp :tangle yes
-
 
   ;; engrave-faces 相比 minted 渲染速度更快。
   (use-package engrave-faces
@@ -1316,93 +1425,56 @@
                    ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 #+END_SRC
 
-** Org-Latex-pdf-old
-+ 参考：https://github.com/wowhxj/emacs-from-scratch/blob/master/lisp/init-org.el
-+ 先安装 LaTex 完整版, MacTeX
-+ https://orgmode.org/worg/org-dependencies.html
-+ pip3 install pygments
-+ sudo tlmgr update --self --all
-+ sudo tlmgr install minted
-+ sudo tlmgr install ctex environ trimspaces zhnumber cjk
+** Org-Latex-Preview
 
-#+BEGIN_SRC emacs-lisp :tangle no
-(setq org-latex-classes
-      '(("zxh-latex-class"
-         "
-    \\documentclass[12pt,a4paper]{article}
-    [DEFAULT-PACKAGES]
-    [PACKAGES]
-    \\setsansfont{PingFang SC}
-    \\setromanfont{PingFang SC}
-    \\setmonofont[Scale=0.9]{PingFang SC}
-    \\newfontfamily\\quotefont{PingFang SC}
-    \\newfontfamily\\headfootfont{PingFang SC}
-    \\AtBeginEnvironment{quote}{\\quotefont\\small}
-    \\XeTeXlinebreaklocale ``zh''
-    \\XeTeXlinebreakskip = 0pt plus 1pt
-    \\linespread{1.0}
-    \\hypersetup{
-      colorlinks=true,
-      linkcolor=[rgb]{0,0.37,0.53},
-      citecolor=[rgb]{0,0.47,0.68},
-      filecolor=[rgb]{0,0.37,0.53},
-      urlcolor=[rgb]{0,0.37,0.53},
-      pagebackref=true,
-      linktoc=all,}
-    \\renewcommand{\\headrulewidth}{0.4pt}
-    \\renewcommand{\\footrulewidth}{0.4pt}
-    \\pagestyle{fancy}
-    \\fancyfoot[C]{} % Clear page number
-    \\fancyhead[RE]{\\headfootfont\\small\\leftmark} % 在偶数页的右侧显示章名
-    \\fancyhead[LO]{\\headfootfont\\small\\rightmark} % 在奇数页的左侧显示小节名
-    \\fancyhead[LE,RO]{\\headfootfont\\small~\\thepage~} % 在偶数页的左侧，奇数页的右侧显示页码
-    [EXTRA]
-    "
-         ("\\section{%s}" . "\\section*{%s}")
-         ("\\subsection{%s}" . "\\subsection*{%s}")
-         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-         ("\\paragraph{%s}" . "\\paragraph*{%s}")
-         ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
++ 参考内容 https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
+   
+#+begin_src emacs-lisp :tangle yes
 
-;; [FIXME]
-;; 原本是不要讓 org 插入 hypersetup（因為 org-mode 這部份設計成沒辦法自訂，或許可以去 report 一下？
-;; 改成自行插入，但這樣 pdfcreator 沒辦法根據 Emacs 版本插入，pdfkeyword 也會無效...幹。
-(setq org-latex-with-hyperref t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq org-export-coding-system 'utf-8)
+(setq org-fast-tag-selection-single-key 'expert)
+(setq org-export-kill-product-buffer-when-displayed t)
+(setq org-fontify-whole-heading-line t)
+(setq org-directory "/Users/zxh/githubs/private/notes")
+(setq org-startup-with-inline-images t)
+(setq org-startup-with-latex-preview t)
 
-;; Export source code using minted
-(setq org-latex-listings 'minted)
-
-(setq org-latex-default-packages-alist
-      '(("" "nopageno" t)
-        ("" "hyperref" t)
-        ("" "fontspec" t)
-        ("" "etoolbox" t) ;; Quote 部份的字型設定
-        ("margin=2cm" "geometry" nil)
-        ;; ("AUTO" "inputenc" t)
-        ;; ("" "fixltx2e" nil)
-        ("dvipdfmx" "graphicx" t)
-        ("" "longtable" nil)
-        ("" "float" nil)
-        ("" "wrapfig" nil)
-        ("" "rotating" nil)
-        ("normalem" "ulem" t)
+;;Org LaTeX customizations
+(setq org-latex-preview-default-process 'dvisvgm)
+(setq org-latex-packages-alist
+      '(("T1" "fontenc" t)
         ("" "amsmath" t)
-        ("" "textcomp" t)
-        ("" "marvosym" t)
-        ("" "wasysym" t)
-        ("" "multicol" t)  ; 這是我另外加的，因為常需要多欄位文件版面。
-        ("" "amssymb" t)
-        ("" "fancyhdr" nil) ;; 页眉页脚
-        ("cache=false" "minted" nil) ;; Code color
-        "\\tolerance=1000"))
+        ("" "bm" t) ; Bold math required
+        ("" "mathtools" t)
+        ("" "siunitx" t)
+        ("" "physics2" t)))
 
-(setq org-latex-pdf-process
-      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"
-        ))
-#+END_SRC
+(setq org-latex-preview-preamble
+      "\\documentclass{article}
+[DEFAULT-PACKAGES]
+[PACKAGES]
+\\usepackage{xcolor}
+\\usephysicsmodule{ab,ab.braket,diagmat,xmat}%
+")
+
+;; (plist-put org-latex-preview-options :scale 2.20)
+;; (plist-put org-latex-preview-options :zoom 1.15)
+
+;;Use `CDLaTeX' to improve editing experiences
+(use-package cdlatex
+  :load-path "~/.emacs.d/vendor/cdlatex"
+  :diminish (org-cdlatex-mode)
+  :config (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
+
+(add-hook 'org-mode-hook #'(lambda ()
+                             (org-latex-preview-auto-mode 1)))
+
+;; To display LaTeX symbols as unicode
+(setq org-pretty-entities t)
+(setq org-pretty-entities-include-sub-superscripts nil)
+
+#+end_src
 
 * Programming
 
