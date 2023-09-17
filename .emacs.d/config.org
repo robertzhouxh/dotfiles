@@ -1251,21 +1251,20 @@ from tradition chinese to simple chinese" t)
   :config
   (setq-default org-download-image-dir "../images")
   (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
-(use-package valign
-  :defer t
-  :after org
-  :load-path "~/.emacs.d/vendor/valign"
-  :hook ((org-mode . valign-mode))
-  :custom ((valign-fancy-bar t)))
 
 #+END_SRC
 
 ** Org 主配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
   (use-package org
+    ;; https://emacs-china.org/t/org-mode-latex-improved-latex-preview/23742
+    ;; :load-path "~/.emacs.d/vendor/org-mode"
     :config
-    (setq org-ellipsis "..." ;; " ⭍"
+    (setq org-ellipsis " ⤵"
+          ;;org-ellipsis "..." 
+
           ;; 使用 UTF-8 显示 LaTeX 或 \xxx 特殊字符， M-x org-entities-help 查看所有特殊字符。
           org-pretty-entities t
           org-highlight-latex-and-related '(latex)
@@ -1332,45 +1331,57 @@ from tradition chinese to simple chinese" t)
 ** Org 美化配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package org-modern
-  :ensure t
-  :after (org)
-  :init
-  ;;(setq org-modern-star '("􀄩"))
-  ;;(setq org-modern-hide-stars "􀄩")
-  ;;(setq org-modern-list '((?- . "•")))
-  (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
-  (setq org-modern-table nil)  ; 缩放字体时表格边界不对齐，故不美化表格。
-  (setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
 
-  (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
-  (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
-  (setq org-modern-table-vertical 2)
-  (setq org-modern-block-name nil)
-  (setq org-modern-keyword nil)
-  (setq org-modern-timestamp nil)
-  :config (global-org-modern-mode 1))
+  (use-package org-modern
+    :ensure t
+    :after (org)
+    :init
+    ;;(setq org-modern-star '("􀄩"))
+    ;;(setq org-modern-hide-stars "􀄩")
+    ;;(setq org-modern-list '((?- . "•")))
 
-(defun my-iconify-org-buffer ()
-  (progn
-    (push '(":PROPERTIES:" . ?􀈭) prettify-symbols-alist)
-    (push '(":ID:      " . ?􀐚) prettify-symbols-alist)
-    (push '(":ROAM_ALIASES:" . ?􀅷) prettify-symbols-alist)
-    (push '(":END:" . ?􀅽) prettify-symbols-alist)
-    (push '("#+TITLE:" . ?􀧵) prettify-symbols-alist)
-    (push '("#+AUTHOR:" . ?􀉩) prettify-symbols-alist)
-    (push '("#+RESULTS:" . ?􀎚) prettify-symbols-alist)
-    (push '("#+ATTR_ORG:" . ?􀌞) prettify-symbols-alist)
-    (push '("#+STARTUP: " . ?􀖆) prettify-symbols-alist))
-  (prettify-symbols-mode 1))
-(add-hook 'org-mode-hook #'my-iconify-org-buffer)
+    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
+    (setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
+    (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
+    (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
+    (setq org-modern-table-vertical 2)
+    (setq org-modern-block-name nil)
+    (setq org-modern-keyword nil)
+    (setq org-modern-timestamp nil)
+    :config
+    (setq org-modern-table nil)  ; 缩放字体时表格边界不对齐，故不美化表格。
+    (global-org-modern-mode 1)
+    ;; 使用 valign 解决 org-modern 下org-mode 表格不对齐的问题
+    ;; (add-hook 'org-mode-hook #'org-modern-mode)
+    )
 
-(setq org-ellipsis " 􀍠")
-(setq org-hide-emphasis-markers t)
+  (defun my-iconify-org-buffer ()
+    (progn
+      (push '(":PROPERTIES:" . ?􀈭) prettify-symbols-alist)
+      (push '(":ID:      " . ?􀐚) prettify-symbols-alist)
+      (push '(":ROAM_ALIASES:" . ?􀅷) prettify-symbols-alist)
+      (push '(":END:" . ?􀅽) prettify-symbols-alist)
+      (push '("#+TITLE:" . ?􀧵) prettify-symbols-alist)
+      (push '("#+AUTHOR:" . ?􀉩) prettify-symbols-alist)
+      (push '("#+RESULTS:" . ?􀎚) prettify-symbols-alist)
+      (push '("#+ATTR_ORG:" . ?􀌞) prettify-symbols-alist)
+      (push '("#+STARTUP: " . ?􀖆) prettify-symbols-alist))
+    (prettify-symbols-mode 1))
+
+  (add-hook 'org-mode-hook #'my-iconify-org-buffer)
+  
+;; 使用 valign 解决 org-modern 下org-mode 表格不对齐的问题
+(use-package valign
+  :after (org markdown-mode)
+  :load-path "~/.emacs.d/vendor/valign"
+  ;; todo:  you can disabled the hook because it slows down opening these files 
+  :hook ((markdown-mode org-mode) . valign-mode)
+  :custom ((valign-fancy-bar t)))
 
 #+END_SRC
 
 ** Org-Latex-Pdf
+
 + 先安装 LaTex 完整版, MacTeX
 + 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
 + 参考内容：https://github.com/opsnull/emacs
@@ -1427,7 +1438,10 @@ from tradition chinese to simple chinese" t)
 
 ** Org-Latex-Preview
 
-+ 参考内容 https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
+参考内容
++ https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
++ https://dotdoom.rgoswami.me/config.html
++ https://www.fromkk.com/posts/preview-latex-in-org-mode-with-emacs-in-macos/
    
 #+begin_src emacs-lisp :tangle yes
 
@@ -1442,6 +1456,11 @@ from tradition chinese to simple chinese" t)
 
 ;;Org LaTeX customizations
 (setq org-latex-preview-default-process 'dvisvgm)
+;; (setq org-latex-pdf-process
+;;  	'("xelatex -interaction nonstopmode -output-directory %o %f"
+;;       "xelatex -interaction nonstopmode -output-directory %o %f"
+;;       "xelatex -interaction nonstopmode -output-directory %o %f"))
+
 (setq org-latex-packages-alist
       '(("T1" "fontenc" t)
         ("" "amsmath" t)
@@ -1460,6 +1479,8 @@ from tradition chinese to simple chinese" t)
 
 ;; (plist-put org-latex-preview-options :scale 2.20)
 ;; (plist-put org-latex-preview-options :zoom 1.15)
+(plist-put org-format-latex-options :scale 2.2)
+(plist-put org-format-latex-options :zoom 1.15)
 
 ;;Use `CDLaTeX' to improve editing experiences
 (use-package cdlatex
@@ -1467,12 +1488,12 @@ from tradition chinese to simple chinese" t)
   :diminish (org-cdlatex-mode)
   :config (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
 
-(add-hook 'org-mode-hook #'(lambda ()
-                             (org-latex-preview-auto-mode 1)))
+;; (add-hook 'org-mode-hook #'(lambda ()
+;;                              (org-latex-preview-auto-mode 1)))
 
 ;; To display LaTeX symbols as unicode
-(setq org-pretty-entities t)
-(setq org-pretty-entities-include-sub-superscripts nil)
+;;(setq org-pretty-entities t)
+;;(setq org-pretty-entities-include-sub-superscripts nil)
 
 #+end_src
 
@@ -2001,18 +2022,18 @@ install_fonts(){
   ;;  (setq calibredb-id-width 0)
   ;;  )
 
-  (use-package org-ai
-    :load-path "~/.emacs.d/vendor/org-ai"
-    :bind (
-           ("C-c q" . org-ai-prompt)
-           ("C-c x" . org-ai-on-region)
-           )
-    :hook (org-mode . org-ai-mode)
-    :config
-    ;;(setq org-ai-openai-api-token "sk-")
-    (setq org-ai-default-max-tokens 480)
-    (setq org-ai-default-chat-system-prompt "你是一个Emacs助手，请以Org-mode的格式来回复我")
-    )
+  ;; (use-package org-ai
+  ;;   :load-path "~/.emacs.d/vendor/org-ai"
+  ;;   :bind (
+  ;;          ("C-c q" . org-ai-prompt)
+  ;;          ("C-c x" . org-ai-on-region)
+  ;;          )
+  ;;   :hook (org-mode . org-ai-mode)
+  ;;   :config
+  ;;   ;;(setq org-ai-openai-api-token "sk-")
+  ;;   (setq org-ai-default-max-tokens 480)
+  ;;   (setq org-ai-default-chat-system-prompt "你是一个Emacs助手，请以Org-mode的格式来回复我")
+  ;;   )
 #+END_SRC
 
 * Lazycat Plugins
@@ -2259,7 +2280,9 @@ install_fonts(){
 (setq acm-enable-quick-access t)
 (setq acm-backend-yas-match-by-trigger-keyword t)
 (setq acm-enable-tabnine nil)
-(setq acm-enable-codeium t)
+
+;; todo: 临时关掉，否则启动的时报提示 [LSP-Bridge] Waiting for Codeium local server to start...
+;;(setq acm-enable-codeium t)
 
 (global-lsp-bridge-mode)
 
