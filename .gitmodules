@@ -123,3 +123,9 @@ url = https://github.com/manateelazycat/awesome-tray
 path = .emacs.d/vendor/cdlatex
 url = https://github.com/cdominik/cdlatex
 
+[submodule ".emacs.d/vendor/tao-theme-emacs"]
+	path = .emacs.d/vendor/tao-theme-emacs
+	url = https://github.com/11111000000/tao-theme-emacs
+[submodule ".emacs.d/vendor/emacs-dashboard"]
+	path = .emacs.d/vendor/emacs-dashboard
+	url = https://github.com/emacs-dashboard/emacs-dashboard
