@@ -2330,19 +2330,20 @@ install_fonts(){
   (dashboard-setup-startup-hook))  
 
 
-;; (require 'lazycat-theme)
-;; (lazycat-theme-load-with-sunrise)
-;; (lazycat-theme-load-dark)
-;; (lazycat-theme-load-light)
-
-;; (require 'awesome-tray)
-;; (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-;; (setq awesome-tray-info-padding-right 1)
-;; (awesome-tray-mode 1)
-
 (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/everforest-theme")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/tao-theme")
-(load-theme 'tao-yang t)
+
+(require 'lazycat-theme)
+(lazycat-theme-load-with-sunrise)
+;; ;(lazycat-theme-load-dark)
+;; ;(lazycat-theme-load-light)
+
+(require 'awesome-tray)
+(setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+(setq awesome-tray-info-padding-right 1)
+(awesome-tray-mode 1)
+
+;;(load-theme 'tao-yang t)
 ;;(load-theme 'tao-yin t)
 
 ;; --------------------------------------------------------------------------------------------------
