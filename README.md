@@ -47,7 +47,7 @@ cd dotfiles
 set -- -f; source bootsrap.sh
 ```
 # 安裝 emacs （linux, macos）
-
+## 源码安装
 ```
 # 这里选择选择国内的同步镜像
 # git clone --depth 1 git://git.savannah.gnu.org/emacs.git
@@ -66,6 +66,14 @@ open -R nextstep/Emacs.app
 
 cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
 cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
+```
+
+## Mac 上建议安装 emacs-plus
+
+```
+brew tap d12frosted/emacs-plus
+brew install emacs-plus --with-native-comp --with-xwidgets
+ln -s /opt/homebrew/opt/emacs-plus@30/Emacs.app /Applications
 ```
 
 # 同步 Emacs Submodules

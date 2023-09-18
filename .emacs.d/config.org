@@ -30,42 +30,27 @@
 * Bootstrap use-package
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(tool-bar-mode -1)                      ;禁用工具栏
-(menu-bar-mode -1)                      ;禁用菜单栏
-(scroll-bar-mode -1)                    ;禁用滚动条
 
 (require 'package)
+(package-initialize)
+
 (setq package-archives '
       (("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
         ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")))
 
-;; (setq package-archives 
-;;       '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-;;         ("melpa" . "http://elpa.emacs-china.org/melpa/")))
-
-(unless (bound-and-true-p package--initialized)
-  (setq package-enable-at-startup nil)          ; To prevent initializing twice
-  (package-initialize))
-
-;; set use-package-verbose to t for interpreted .emacs,
-;; and to nil for byte-compiled .emacs.elc.
-(eval-and-compile
-  (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 
 ;; Install use-package if not installed
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-(eval-and-compile
-  (setq use-package-always-ensure t)
-  (setq use-package-expand-minimally t)
-  (setq use-package-compute-statistics t)
-  (setq use-package-enable-imenu-support t))
+;;; Solve for package-check signature
+;;; set it t if you thought it is not secure.
+(setq package-check-signature nil)
 
-(eval-when-compile
-  (require 'use-package)
-  (require 'bind-key))
+(require 'use-package)
+(setq use-package-always-ensure t)
+
 
 (defun add-subdirs-to-load-path (search-dir)
   (interactive)
@@ -104,6 +89,10 @@
 * Accelerate
 
 #+begin_src emacs-lisp :tangle yes
+
+(tool-bar-mode -1)                      ;禁用工具栏
+(menu-bar-mode -1)                      ;禁用菜单栏
+(scroll-bar-mode -1)                    ;禁用滚动条
 
 (setq
  ;; 不要缩放frame.
@@ -2320,31 +2309,6 @@ install_fonts(){
 * UI
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-;;(add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/everforest-theme")
-;;(load-theme 'everforest-hard-dark t)
-
-(require 'lazycat-theme)
-;; (lazycat-theme-load-with-sunrise)
-;; (lazycat-theme-load-dark)
-;; (lazycat-theme-load-light)
-
-(require 'awesome-tray)
-(setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-(setq awesome-tray-info-padding-right 1)
-(awesome-tray-mode 1)
-
-(add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/tao-theme")
-;; (use-package tao-theme :ensure t)
-
-(defun match-emacs-theme-to-system (appearance)
-  (mapc #'disable-theme custom-enabled-themes)
-  (pcase appearance
-    ('light (load-theme 'tao-yang t))
-    ('dark  (load-theme 'tao-yin  t))))
-
-(add-hook 'ns-system-appearance-change-functions
-          #'match-emacs-theme-to-system)
-
 (use-package dashboard
   ;; :ensure t
   :load-path "~/.emacs.d/vendor/emacs-dashboard"
@@ -2356,7 +2320,7 @@ install_fonts(){
      dashboard-set-file-icons t))
 
   (setq
-   dashboard-center-content t
+   ;;dashboard-center-content t
    dashboard-banner-logo-title " 凉风有序 "
    dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
    dashboard-items '((recents . 5)
@@ -2365,6 +2329,41 @@ install_fonts(){
                      (projects . 5)))
   (dashboard-setup-startup-hook))  
 
+
+;; (require 'lazycat-theme)
+;; (lazycat-theme-load-with-sunrise)
+;; (lazycat-theme-load-dark)
+;; (lazycat-theme-load-light)
+
+;; (require 'awesome-tray)
+;; (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+;; (setq awesome-tray-info-padding-right 1)
+;; (awesome-tray-mode 1)
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/everforest-theme")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/tao-theme")
+(load-theme 'tao-yang t)
+;;(load-theme 'tao-yin t)
+
+;; --------------------------------------------------------------------------------------------------
+;;         ;;随系统切换 light 和 dark mode 主题，利用 macOS 下 emacs-plus 增加的 ns-system-appearance-change-functions 钩子来实现
+;;         ;;(defun my/apply-theme (appearance)
+;;         ;;  "Load theme, taking current system APPEARANCE into consideration."
+;;         ;;  (mapc #'disable-theme custom-enabled-themes)
+;;         ;;  (pcase appearance
+;;         ;;    ('light (load-theme 'tao-yang t))
+;;         ;;    ('dark (load-theme 'tao-yin t))))
+;;         ;;(add-hook 'ns-system-appearance-change-functions #'my/apply-theme)
+
+;;          ;; https://emacs-china.org/t/emacs-theme/7781/18
+;;          ;;为了避免 enable-theme 出现混乱，考虑在enable-theme之前，先做一下disable-theme为好。
+;;          (load-theme 'tango t t)     ;;加载浅色主题，但不启用。
+;;          (load-theme 'zerodark t t)	;;加载深色主题，但不启用。
+;;          ;;早上5点启用浅色主题， 每24小时重复一次。
+;;          (run-at-time "05:00" (* 60 60 24) (lambda () (enable-theme 'tango)))
+;;          ;;晚上7点启用深色主题， 每24小时重复一次。
+;;          (run-at-time "19:00" (* 60 60 24) (lambda () (enable-theme 'zerodark)))
+;; --------------------------------------------------------------------------------------------------
 #+END_SRC
 
 * Eaf
