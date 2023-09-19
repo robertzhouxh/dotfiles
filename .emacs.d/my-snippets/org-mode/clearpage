@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: clearpage
+# key: clearpage
+# --
+#+begin_export latex
+\clearpage
+#+end_export

@@ -2247,14 +2247,19 @@ install_fonts(){
 ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
 ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
 
-;;(use-package expand-region :bind ("C-=" . er/expand-region))
+(use-package yasnippet-snippets :ensure t)
 (use-package yasnippet
+  :ensure t
+  :diminish (yas-minor-mode . "γ")
   :bind
   ("C-c y s" . yas-insert-snippet)
   ("C-c y v" . yas-visit-snippet-file)
-  :config
-  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
-  (yas-global-mode 1))
+  :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet)
+  :init (add-hook 'prog-mode-hook #'yas-minor-mode)
+  :config (progn
+	    (add-to-list 'yas-snippet-dirs "~/.emacs.d/my-snippets")
+      (yas-global-mode 1)
+	    ))
 
 ;;; Require
 (require 'lsp-bridge)
