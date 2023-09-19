@@ -1239,7 +1239,7 @@ from tradition chinese to simple chinese" t)
   ;; There is something wrong with `hook`, so redefine it with my own :hook
   :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
   :config
-  (setq-default org-download-image-dir "../images")
+  (setq-default org-download-image-dir "./static/imgs")
   (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
 
 #+END_SRC
@@ -1249,9 +1249,20 @@ from tradition chinese to simple chinese" t)
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (use-package org
-    ;; https://emacs-china.org/t/org-mode-latex-improved-latex-preview/23742
-    ;; :load-path "~/.emacs.d/vendor/org-mode"
     :config
+    ;;(load "auctex.el" nil t t)
+    (add-hook 'LaTeX-mode-hook 'turn-on-reftex) 
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((lisp . t)
+       (emacs-lisp . t)
+       (latex . t)
+       (go . t)
+       ;; (erlang . t)
+       ;; (js. t)
+       (C . t)
+       (python . t)
+       ))
     (setq org-ellipsis " ⤵"
           ;;org-ellipsis "..." 
 
@@ -1345,20 +1356,6 @@ from tradition chinese to simple chinese" t)
     ;; (add-hook 'org-mode-hook #'org-modern-mode)
     )
 
-  (defun my-iconify-org-buffer ()
-    (progn
-      (push '(":PROPERTIES:" . ?􀈭) prettify-symbols-alist)
-      (push '(":ID:      " . ?􀐚) prettify-symbols-alist)
-      (push '(":ROAM_ALIASES:" . ?􀅷) prettify-symbols-alist)
-      (push '(":END:" . ?􀅽) prettify-symbols-alist)
-      (push '("#+TITLE:" . ?􀧵) prettify-symbols-alist)
-      (push '("#+AUTHOR:" . ?􀉩) prettify-symbols-alist)
-      (push '("#+RESULTS:" . ?􀎚) prettify-symbols-alist)
-      (push '("#+ATTR_ORG:" . ?􀌞) prettify-symbols-alist)
-      (push '("#+STARTUP: " . ?􀖆) prettify-symbols-alist))
-    (prettify-symbols-mode 1))
-
-  (add-hook 'org-mode-hook #'my-iconify-org-buffer)
   
 ;; 使用 valign 解决 org-modern 下org-mode 表格不对齐的问题
 (use-package valign
