@@ -1,0 +1,37 @@
+#+TITLE: TODO
+#+DATE: 2023-09-19 Tue
+#+SUBTITLE: 内部资料，注意保密!
+#+AUTHOR: zxh(robertzhouxh@gmail.com)
+#+LANGUAGE: zh-CN
+# 不自动输出 titile 和 toc，后续定制输出。num 控制输出的目录级别。
+#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_CLASS: ctexart
+# 引用自定义 latext style 文件，需要去掉 .sty 后缀。
+#+LATEX_HEADER: \usepackage{/Users/zxh/.emacs.d/mystyle}
+
+# 定制 PDF 封面和目录。
+#+begin_export latex
+% 封面页
+\begin{titlepage}
+% 插入标题
+\maketitle
+% 插入封面图
+%\ThisCenterWallPaper{0.4}{/path/to/image.png}
+% 封面页不编号
+\noindent\fboxsep=0pt
+\setcounter{page}{0}
+\thispagestyle{empty}
+\end{titlepage}
+
+% 摘要页
+\begin{abstract}
+这是一个摘要。
+\end{abstract}
+
+% 目录页
+\newpage
+\tableofcontents
+\newpage
+#+end_export
+

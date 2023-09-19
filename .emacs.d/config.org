@@ -1233,14 +1233,21 @@ from tradition chinese to simple chinese" t)
 (use-package toc-org
   :ensure t
   :hook (org-mode . toc-org-mode))
-(use-package org-download
-  :ensure t
-  :after org
-  ;; There is something wrong with `hook`, so redefine it with my own :hook
-  :init (add-hook 'org-mode-hook (lambda () (require 'org-download)))
-  :config
-  (setq-default org-download-image-dir "./static/imgs")
-  (put 'org-download-image-dir 'safe-local-variable (lambda (_) t)))
+
+  (use-package org-download
+    :after org
+    :defer nil
+    :custom
+    (org-download-method 'directory)
+    (org-download-image-dir "static/imgs")
+    (org-download-heading-lvl nil)
+    (org-download-timestamp "%Y%m%d-%H%M%S_")
+    (org-image-actual-width 420)
+    (org-download-screenshot-method "/opt/homebrew/bin/pngpaste %s")
+    :bind
+    ("C-M-y" . org-download-screenshot)
+    :config
+    (require 'org-download))
 
 #+END_SRC
 
@@ -1340,8 +1347,8 @@ from tradition chinese to simple chinese" t)
     ;;(setq org-modern-star '("􀄩"))
     ;;(setq org-modern-hide-stars "􀄩")
     ;;(setq org-modern-list '((?- . "•")))
-
-    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
+    ;; (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
+    (setq org-modern-star '(“☯” “☰” “☱” “☲” “☳” “☴” “☵” “☶” “☷”))
     (setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
     (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
     (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
