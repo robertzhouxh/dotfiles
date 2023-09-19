@@ -1254,10 +1254,9 @@ from tradition chinese to simple chinese" t)
 ** Org 主配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (use-package org
     :config
-    ;;(load "auctex.el" nil t t)
+    (add-hook 'org-mode-hook #'org-modern-mode)
     (add-hook 'LaTeX-mode-hook 'turn-on-reftex) 
     (org-babel-do-load-languages
      'org-babel-load-languages
@@ -1328,12 +1327,12 @@ from tradition chinese to simple chinese" t)
     (setq org-M-RET-may-split-line nil)
     (setq org-todo-keywords '((sequence "TODO(t!)" "DOING(d@)" "|" "DONE(D)")
                               (sequence "BLOCKED(b@)" "|" "CANCELLED(c@)")))
+
     (add-hook 'org-mode-hook 'turn-on-auto-fill)
     (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode 0))))
 
   ;; 关闭频繁弹出的 org-element-cache 警告 buffer 。
   (setq org-element-use-cache nil)
-
 #+END_SRC
 
 ** Org 美化配置
@@ -1346,10 +1345,10 @@ from tradition chinese to simple chinese" t)
     :init
     ;;(setq org-modern-star '("􀄩"))
     ;;(setq org-modern-hide-stars "􀄩")
+    ;;(setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
+    ;;(setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
     ;;(setq org-modern-list '((?- . "•")))
-    ;; (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
-    (setq org-modern-star '(“☯” “☰” “☱” “☲” “☳” “☴” “☵” “☶” “☷”))
-    (setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
+    (setq org-modern-star '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
     (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
     (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
     (setq org-modern-table-vertical 2)
@@ -1357,19 +1356,16 @@ from tradition chinese to simple chinese" t)
     (setq org-modern-keyword nil)
     (setq org-modern-timestamp nil)
     :config
-    (setq org-modern-table nil)  ; 缩放字体时表格边界不对齐，故不美化表格。
-    (global-org-modern-mode 1)
-    ;; 使用 valign 解决 org-modern 下org-mode 表格不对齐的问题
-    ;; (add-hook 'org-mode-hook #'org-modern-mode)
+    (setq org-modern-table nil)  ;  关掉表格美化
+    (add-hook 'org-mode-hook #'valign-mode) ; valign 解决 org-modern 下org-mode 表格不对齐的问题
     )
 
-  
 ;; 使用 valign 解决 org-modern 下org-mode 表格不对齐的问题
 (use-package valign
   :after (org markdown-mode)
   :load-path "~/.emacs.d/vendor/valign"
-  ;; todo:  you can disabled the hook because it slows down opening these files 
-  :hook ((markdown-mode org-mode) . valign-mode)
+  ;;todo:  you can disabled the hook because it slows down opening these files 
+  ;;:hook ((markdown-mode org-mode) . valign-mode)
   :custom ((valign-fancy-bar t)))
 
 #+END_SRC
