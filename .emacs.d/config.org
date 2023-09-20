@@ -1501,6 +1501,9 @@ from tradition chinese to simple chinese" t)
 ;;(setq org-pretty-entities t)
 ;;(setq org-pretty-entities-include-sub-superscripts nil)
 
+;; 为了补全，原来是绑定在了M-TAB上的，但是这个键我绑定在了切换窗口上，于是 把它改成TAB好了：
+(global-set-key (kbd "TAB") 'pcomplete)
+
 #+end_src
 
 * Programming
