@@ -1338,36 +1338,32 @@ from tradition chinese to simple chinese" t)
 ** Org 美化配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-  (use-package org-modern
-    :ensure t
-    :after (org)
-    :init
-    ;;(setq org-modern-star '("􀄩"))
-    ;;(setq org-modern-hide-stars "􀄩")
-    ;;(setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
-    ;;(setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
-    ;;(setq org-modern-list '((?- . "•")))
-    (setq org-modern-star '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
-    (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
-    (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
-    (setq org-modern-table-vertical 2)
-    (setq org-modern-block-name nil)
-    (setq org-modern-keyword nil)
-    (setq org-modern-timestamp nil)
-    :config
-    (setq org-modern-table nil)  ;  关掉表格美化
-    (add-hook 'org-mode-hook #'valign-mode) ; valign 解决 org-modern 下org-mode 表格不对齐的问题
-    )
-
-;; 使用 valign 解决 org-modern 下org-mode 表格不对齐的问题
 (use-package valign
-  :after (org markdown-mode)
-  :load-path "~/.emacs.d/vendor/valign"
-  ;;todo:  you can disabled the hook because it slows down opening these files 
-  ;;:hook ((markdown-mode org-mode) . valign-mode)
-  :custom ((valign-fancy-bar t)))
+  :custom (valign-fancy-bar 1)
+  :hook
+  ((org-mode . valign-mode)
+   (markdown-mode . valign-mode)))
 
+(use-package org-modern
+  :ensure t
+  :after (org)
+  :init
+  ;;(setq org-modern-star '("􀄩"))
+  ;;(setq org-modern-hide-stars "􀄩")
+  ;;(setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
+  ;;(setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
+  ;;(setq org-modern-list '((?- . "•")))
+  (setq org-modern-star '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
+  (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
+  (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
+  (setq org-modern-table-vertical 2)
+  (setq org-modern-block-name nil)
+  (setq org-modern-keyword nil)
+  (setq org-modern-timestamp nil)
+  :config
+  (setq org-modern-table nil)  ;  关掉表格美化
+  (add-hook 'org-mode-hook #'valign-mode) ; valign 解决 org-modern 下org-mode 表格不对齐的问题
+  )
 #+END_SRC
 
 ** Org-Latex-Pdf
@@ -1394,7 +1390,7 @@ from tradition chinese to simple chinese" t)
   (require 'ox-latex)
   (with-eval-after-load 'ox-latex
     ;; latex image 的默认宽度, 可以通过 #+ATTR_LATEX :width xx 配置。
-    (setq org-latex-image-default-width "0.7\\linewidth")
+    (setq org-latex-image-default-width "0.8\\linewidth")
     ;; 使用 booktabs style 来显示表格，例如支持隔行颜色, 这样 #+ATTR_LATEX: 中不需要添加 :booktabs t。
     (setq org-latex-tables-booktabs t)
     ;; 保存 LaTeX 日志文件。
@@ -1429,9 +1425,8 @@ from tradition chinese to simple chinese" t)
 ** Org-Latex-Preview
 
 参考内容
++ https://github.com/opsnull/emacs
 + https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
-+ https://dotdoom.rgoswami.me/config.html
-+ https://www.fromkk.com/posts/preview-latex-in-org-mode-with-emacs-in-macos/
    
 #+begin_src emacs-lisp :tangle yes
 
@@ -1473,6 +1468,27 @@ from tradition chinese to simple chinese" t)
 (plist-put org-format-latex-options :zoom 1.15)
 
 ;;Use `CDLaTeX' to improve editing experiences
+;; Org-mode 和 CDLaTeX虽然同是 Emacs 的 mode，但是地位不同的。
+;; Org-mode 是 Major Mode（主要模块）；CDLaTeX 是 Minor Mode（辅助模块）。
+;; 一般来说 Emacs 是不能同时使用多个 Major Mode。
+;;  CDLaTeX 作用是实现了部分来自另外一个 Major Mode ——AUCTeX 的功能
+;; 让你可以在其他的 Major Mode 里快速输入 LaTeX。
+
+;; 相比直接在 Org-mode 里使用 CDLaTeX,推荐使用 Org-mode 自带的轻量版的 org-cdlatex-mode。
+;; org-cdlatex-mode 依赖 cdlatex.el 和 texmathp.el(来自 AUTeX,判定光标是否在内嵌的 LaTeX 中
+;; 所以需要安的 CDLaTeX 和 AUTeX：
+;; 打开 Org-mode，用 M-x org-cdlatex-mode 打开 CDLaTeX。
+;; 然后你就可以体验的 CDLaTeX 带来的快速输入 LaTeX 的功能了：
+;;
+;;    <TAB> 自动补全一些 LaTeX 模板，如：fr => ~\frac{}{} 和 lr( => \left(\right)。
+;;    <TAB> 也可以用于在各个 {} 之间跳跃；
+;;     _ 和 ^ 会自动补全 {}，不过如果 {} 里只有一个元素的话，也会自动去掉；
+;;     ` 后加一个字母可以快速输入一些 LaTeX 的符号，如 `a => \alpha 和 `b => \beta；
+;;     一些字母之后加上 ' 则是可以修改该字母的字体或者加修饰，如 a'. => \dot{a} 和 a'1 => {\displaystyle a}。
+
+(use-package tex
+  :ensure auctex)
+
 (use-package cdlatex
   :load-path "~/.emacs.d/vendor/cdlatex"
   :diminish (org-cdlatex-mode)
