@@ -1254,6 +1254,7 @@ from tradition chinese to simple chinese" t)
 ** Org 主配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'ob-erlang)
   (use-package org
     :config
     (add-hook 'org-mode-hook #'org-modern-mode)
@@ -1263,8 +1264,9 @@ from tradition chinese to simple chinese" t)
      '((lisp . t)
        (emacs-lisp . t)
        (latex . t)
+       (sql . t)
        (go . t)
-       ;; (erlang . t)
+       (erlang . t)
        ;; (js. t)
        (C . t)
        (python . t)
