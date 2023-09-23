@@ -5,8 +5,8 @@
 :PROPERTIES:
 :header-args+: :results table
 :header-args+: :engine mysql
-:header-args+: :dbhost $0
-:header-args+: :database $1
-:header-args+: :dbuser $2
-:header-args+: :dbpassword $3
+:header-args+: :dbhost $1
+:header-args+: :database $2
+:header-args+: :dbuser $3
+:header-args+: :dbpassword $4
 :END:
