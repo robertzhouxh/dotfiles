@@ -1,7 +1,12 @@
 # -*- mode: snippet -*-
-# name: sql
-# key: sql_
+# name: sqlargs
+# key: sqlargs
 # --
 :PROPERTIES:
-:header-args:sql: :engine mysql :dbhost $0 :database $1 :dbuser $2 :dbpassword "$3"
+:header-args+: :results table
+:header-args+: :engine mysql
+:header-args+: :dbhost $0
+:header-args+: :database $1
+:header-args+: :dbuser $2
+:header-args+: :dbpassword $3
 :END:

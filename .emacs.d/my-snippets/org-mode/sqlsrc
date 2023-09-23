@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: sqlsrc
+# key: sqlsrc
+# --
+:PROPERTIES:
+:header-args:sql: :engine mysql :dbhost $0 :database $1 :dbuser $2 :dbpassword $3
+:END:
+#+begin_src sql
+$4
+#+end_src
