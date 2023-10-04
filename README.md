@@ -284,3 +284,11 @@ sudo systemctl enable v2raya.service
 - 设置端口号： 在设置对话框左下角点击 地址和端口 按钮， 设置 socks5 端口（带分流规则） 为 1080, 并重启 v2raya 服务 sudo systemctl restart v2raya.service
 - 开机自动启动： 在命令行输入 sudo systemctl enable v2raya.service， 让 v2raya 开机自动启动
 
+
+配置浏览器插件 SwitchyOmega
+用 Chrome 开发者模式安装 SwitchyOmega ， 并添加代理配置：
+
+- 代理协议: Socks5
+- 代理服务器: 127.0.0.1
+- 代理端口: 1080
+
