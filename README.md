@@ -292,3 +292,15 @@ sudo systemctl enable v2raya.service
 - 代理服务器: 127.0.0.1
 - 代理端口: 1080
 
+
+安装 chrome
+
+```
+wget -c https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt-get install
+```
+sudo apt-get install -f
+
+离线安装Proxy-SwitchyOmega-Chromium-2.5.15.crx
+下载： https://github.com/FelisCatus/SwitchyOmega/releases/download/v2.5.20/SwitchyOmega_Chromium.crx
