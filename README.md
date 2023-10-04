@@ -254,3 +254,33 @@ brew link openssl@1.1
 + brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
 + brew install CleanShot （截图软件，桃宝宝买licence）
 
+
+# ubuntu 安装- v2rayA
+
+```
+// 添加公钥
+wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/keyrings/v2raya.asc
+
+// 添加源泉
+echo "deb [signed-by=/etc/apt/keyrings/v2raya.asc] https://apt.v2raya.org/ v2raya main" | sudo tee /etc/apt/sources.list.d/v2raya.list
+sudo apt update
+
+// 安装
+sudo apt install v2raya v2ray
+
+// 启动 v2rayA 
+sudo systemctl start v2raya.service
+
+// 设置 v2rayA 自动启动
+sudo systemctl enable v2raya.service
+
+
+
+```
+
+- 订阅机场: 浏览器打开 http://127.0.0.1:2017, 点击导入按钮， 拷贝机场订阅 URL， 点击确定
+- 选择服务器： 选择 S.JISUSUB.CC 标签， 选择一个合适的服务器， 然后选择左上角 启动 按钮
+- 局域网支持： 选择右上角设置按钮， 打开 开启 IP 转发 和 开启端口分享 两个按钮， 让后续的 proxy-ns 可以对接机场
+- 设置端口号： 在设置对话框左下角点击 地址和端口 按钮， 设置 socks5 端口（带分流规则） 为 1080, 并重启 v2raya 服务 sudo systemctl restart v2raya.service
+- 开机自动启动： 在命令行输入 sudo systemctl enable v2raya.service， 让 v2raya 开机自动启动
+
