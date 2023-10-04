@@ -303,4 +303,7 @@ sudo apt-get install
 sudo apt-get install -f
 
 离线安装Proxy-SwitchyOmega-Chromium-2.5.15.crx
-下载： https://github.com/FelisCatus/SwitchyOmega/releases/download/v2.5.20/SwitchyOmega_Chromium.crx
+
+- 下载： https://github.com/FelisCatus/SwitchyOmega/releases/download/v2.5.20/SwitchyOmega_Chromium.crx
+- 将扩展名改为 .zip
+- 打开 chrome 扩展程序，打开开发者模式，加载已经解压缩的文件目录就安装好了
