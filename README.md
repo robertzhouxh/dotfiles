@@ -342,7 +342,9 @@ sudo /etc/init.d/polipo restart
 
 安装 Fcitx5 输入法： https://manateelazycat.github.io/2023/09/11/fcitx-best-config/
 ```
-sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
+// sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
+sudo apt-get install -y  fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
+
 
 ## 然后将下面的内容粘贴到 ~/.pam_environment
 
