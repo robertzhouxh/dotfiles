@@ -72,7 +72,6 @@ apps=(
     openssh-server
     libgtk-3-dev
     libappindicator3-dev
-    ibus-rime
     automake
     texinfo
     pkg-config

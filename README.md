@@ -339,3 +339,103 @@ sudo /etc/init.d/polipo restart
 环境变量的配置了 http_proxy,  https_proxy
 关于地址的写法，只写 127.0.0.1:8123 时，遇到过有软件不能识别的情况，改为写完整的地址 http://127.0.0.1:8123/ 就不会有问题了。
 
+
+安装 Fcitx5 输入法： https://manateelazycat.github.io/2023/09/11/fcitx-best-config/
+```
+sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
+
+## 然后将下面的内容粘贴到 ~/.pam_environment
+
+GTK_IM_MODULE=fcitx5
+XMODIFIERS=@im=fcitx5
+QT_IM_MODULE=fcitx5
+
+## 安装 Fcitx5 输入法皮肤
+
+yay -S fcitx5-skin-adwaita-dark
+```
+
+
+
+安装 Fcitx5 输入法皮肤
+```
+yay -S fcitx5-skin-adwaita-dark
+
+然后修改配置文件 ~/.config/fcitx5/conf/classicui.conf
+
+# 横向候选列表
+Vertical Candidate List=False
+
+# 禁止字体随着 DPI 缩放， 避免界面太大
+PerScreenDPI=False
+
+# 字体和大小， 可以用 fc-list 命令来查看使用
+Font="Noto Sans Mono 13"
+
+# Gnome3 风格的主题
+Theme=adwaita-dark
+
+备注：上面的 Font 可以换成 TsangerJinKai03-6763 15
+
+```
+
+安装雾凇拼音
+
+上面的步骤只是把 Fcitx 的核心和皮肤搞定了， 但是 Fcitx 默认的词库非常难用, 流畅的输入需要安装雾凇输入法。
+使用下面的命令拷贝雾凇拼音的所有 rime 配置到 fcitx 的 rime 配置目录下
+
+```
+git clone https://github.com/iDvel/rime-ice --depth=1
+
+## 修改默认配置
+
+切换到 rime-ice 目录， 做下面三个操作:
+
+1. grep 目录下所有- { when: paging, accept: comma, send: Page_Up } 和 - { when: has_menu, accept: period, send: Page_Down } 内容， 去掉注释
+2. grep 所有 url_2 开头的行的前面都加一个 # 符号注释掉
+3. grep page_size, 把 5 换成 9 即可
+
+前两个操作是实现逗号、 句号翻页， 后面一个操作是更改候选词的数量
+
+```
+
+更新到 Fcitx 目录
+调整完上面配置后， 进行下面拷贝操作
+```
+
+cp -r ./rime-ice/* ~/.config/fcitx/rime/
+cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
+
+~/.config/fcitx/rime/: 这个目录主要是 Emacs 的 emacs-rime 插件会读取
+~/.local/share/fcitx5/rime: 这个目录是 Fcitx 读取的， 用于外部软件使用雾凇输入法
+```
+
+
+安装 emacs-rime
+
+这一节讲的是怎么让 Emacs 可以使用上雾凇输入法。
+
+首先安装 posframe(https://github.com/tumashu/posframe), posframe 可以让侯选词显示在光标处， 所以建议安装。
+
+然后下载 emacs-rime:
+
+ ```
+
+git clone https://github.com/DogLooksGood/emacs-rime
+
+把 emacs-rime 目录放到 load-path 下， 添加以下配置:
+
+(require 'rime)
+
+;;; Code:
+(setq rime-user-data-dir "~/.config/fcitx/rime")
+
+(setq rime-posframe-properties
+      (list :background-color "#333333"
+            :foreground-color "#dcdccc"
+            :font "WenQuanYi Micro Hei Mono-14"
+            :internal-border-width 10))
+
+(setq default-input-method "rime"
+      rime-show-candidate 'posframe)
+```
