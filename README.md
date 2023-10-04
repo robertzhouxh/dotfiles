@@ -293,17 +293,19 @@ sudo systemctl enable v2raya.service
 - 代理端口: 1080
 
 
-安装 chrome
-
+离线安装 chrome
 ```
 wget -c https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
-sudo apt-get install
 ```
-sudo apt-get install -f
 
-离线安装Proxy-SwitchyOmega-Chromium-2.5.15.crx
-
+离线安装Proxy-SwitchyOmega
 - 下载： https://github.com/FelisCatus/SwitchyOmega/releases/download/v2.5.20/SwitchyOmega_Chromium.crx
-- 将扩展名改为 .zip
+- 将扩展名改为 .zip, 解压缩到某个目录
 - 打开 chrome 扩展程序，打开开发者模式，加载已经解压缩的文件目录就安装好了
+
+离线安装  polipo
+```
+wget http://archive.ubuntu.com/ubuntu/pool/universe/p/polipo/polipo_1.1.1-8_amd64.deb
+sudo dpkg -i polipo_1.1.1-8_amd64.deb
+```
