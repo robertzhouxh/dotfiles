@@ -308,4 +308,31 @@ sudo dpkg -i google-chrome-stable_current_amd64.deb
 ```
 wget http://archive.ubuntu.com/ubuntu/pool/universe/p/polipo/polipo_1.1.1-8_amd64.deb
 sudo dpkg -i polipo_1.1.1-8_amd64.deb
+
+vi /etc/polipo/config
+
+# This file only needs to list configuration variables that deviate
+# from the default values.  See /usr/share/doc/polipo/examples/config.sample
+# and "polipo -v" for variables you can tweak and further information.
+
+logSyslog = true
+logFile = /var/log/polipo/polipo.log
+
+proxyAddress = "0.0.0.0"
+
+socksParentProxy = "127.0.0.1:1080"
+socksProxyType = socks5
+
+chunkHighMark = 50331648
+objectHighMark = 16384
+
+serverMaxSlots = 64
+serverSlots = 16
+serverSlots1 = 32
+
+
+# 启动
+sudo /etc/init.d/polipo restart
+
 ```
+
