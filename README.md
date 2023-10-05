@@ -380,10 +380,11 @@ Fcitx 5 提供了一个基于 Qt 的强大易用的 GUI 配置工具，可以对
 
 Fcitx 5 默认的外观比较朴素，用户可以根据喜好使用自定义主题。
 - 第一种方式为使用经典用户界面，可以在 GitHub 搜索主题，然后在 Fcitx5 configtool —— 「附加组件」 —— 「经典用户界面」中设置即可。
-- 第二种方式为使用 Kim面板，一种基于 DBus 接口的用户界面。 此处安装了 Input Method Panel 这个 GNOME 扩展(Firefox 打开安装 https://extensions.gnome.org/extension/261/kimpanel/)， 黑色的风格与正在使用的 GNOME 主题 Orchis-dark 非常搭配。
+- 第二种方式为使用 Kim面板，一种基于 DBus 接口的用户界面。 此处安装了 Input Method Panel 这个 GNOME 扩展(浏览器打开安装 https://extensions.gnome.org/extension/261/kimpanel/)， 黑色的风格与正在使用的 GNOME 主题 Orchis-dark 非常搭配。
 - 安装  Orchis-dark 主题
-- 用 Firefox打开： https://extensions.gnome.org/  接下来 click here to install browser extension 右上角 OK(安装以后就不会出现click here...),  最后安装 User Themes  扩展，确保 Tweaks 中的 Appearance 中的 shell 叹号消失！
+- 用浏览器（chrome 扩展程序）打开： https://extensions.gnome.org/  接下来 click here to install browser extension 右上角 OK(安装以后就不会出现click here...),  安装 User Themes  扩展，确保 Tweaks 中的 Appearance 中的 shell 叹号消失， 最后再已经安装的扩展中找到 对应组件，打开开关
 - Tweaks 配置 Application 和 Shell 的主题
+
 
 ## 安装雾凇拼音( 词库 )
 使用下面的命令拷贝雾凇拼音的所有 rime 配置到 fcitx 的 rime 配置目录下
