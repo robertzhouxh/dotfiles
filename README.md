@@ -341,49 +341,42 @@ sudo /etc/init.d/polipo restart
 
 
 安装 Fcitx5 输入法： https://manateelazycat.github.io/2023/09/11/fcitx-best-config/
+or : https://muzing.top/posts/3fc249cf/
+
 ```
 // sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
-sudo apt-get install -y  fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
-
-
-## 然后将下面的内容粘贴到 ~/.pam_environment
-
-GTK_IM_MODULE=fcitx5
-XMODIFIERS=@im=fcitx5
-QT_IM_MODULE=fcitx5
-
-## 安装 Fcitx5 输入法皮肤
-
-yay -S fcitx5-skin-adwaita-dark
+sudo apt install fcitx5 \
+fcitx5-chinese-addons \
+fcitx5-frontend-gtk4 fcitx5-frontend-gtk3 fcitx5-frontend-gtk2 \
+fcitx5-frontend-qt5
 ```
 
+配置
+使用 im-config 工具可以配置首选输入法，在任意命令行输入： im-config
+根据弹出窗口的提示，将首选输入法设置为 Fcitx 5 即可。
 
-
-安装 Fcitx5 输入法皮肤
-```
-yay -S fcitx5-skin-adwaita-dark
-
-然后修改配置文件 ~/.config/fcitx5/conf/classicui.conf
-
-# 横向候选列表
-Vertical Candidate List=False
-
-# 禁止字体随着 DPI 缩放， 避免界面太大
-PerScreenDPI=False
-
-# 字体和大小， 可以用 fc-list 命令来查看使用
-Font="Noto Sans Mono 13"
-
-# Gnome3 风格的主题
-Theme=adwaita-dark
-
-备注：上面的 Font 可以换成 TsangerJinKai03-6763 15
+-  ~/.bash_profile，这样只对当前用户生效，而不影响其他用户。
+-系统级的 /etc/profile。
 
 ```
+export XMODIFIERS=@im=fcitx
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+```
 
-安装雾凇拼音
+开机自启动: 在 Tweaks（sudo apt install gnome-tweaks）中将 Fcitx 5 添加到「开机启动程序」列表中即可。
+Fcitx 5 提供了一个基于 Qt 的强大易用的 GUI 配置工具，可以对输入法功能进行配置。有多种启动该配置工具的方法：
+注意:「输入法」标签页下，应将「键盘 - 英语」放在首位，拼音（或其他中文输入法）放在后面的位置。
+- 在应用程序列表中打开「Fcitx 配置」
+- 在 Fcitx 托盘上右键打开「设置」
+- 命令行命令 fcitx5-configtool
 
-上面的步骤只是把 Fcitx 的核心和皮肤搞定了， 但是 Fcitx 默认的词库非常难用, 流畅的输入需要安装雾凇输入法。
+自定义主题
+Fcitx 5 默认的外观比较朴素，用户可以根据喜好使用自定义主题。
+- 第一种方式为使用经典用户界面，可以在 GitHub 搜索主题，然后在 Fcitx5 configtool —— 「附加组件」 —— 「经典用户界面」中设置即可。
+- 第二种方式为使用 Kim面板，一种基于 DBus 接口的用户界面。 此处安装了 Input Method Panel 这个 GNOME 扩展(Firefox 打开安装 https://extensions.gnome.org/extension/261/kimpanel/)， 黑色的风格与正在使用的 GNOME 主题 Orchis-dark 非常搭配。
+
+安装雾凇拼音( 词库 )
 使用下面的命令拷贝雾凇拼音的所有 rime 配置到 fcitx 的 rime 配置目录下
 
 ```
@@ -392,19 +385,12 @@ git clone https://github.com/iDvel/rime-ice --depth=1
 ## 修改默认配置
 
 切换到 rime-ice 目录， 做下面三个操作:
-
+前两个操作是实现逗号、 句号翻页， 后面一个操作是更改候选词的数量
 1. grep 目录下所有- { when: paging, accept: comma, send: Page_Up } 和 - { when: has_menu, accept: period, send: Page_Down } 内容， 去掉注释
 2. grep 所有 url_2 开头的行的前面都加一个 # 符号注释掉
 3. grep page_size, 把 5 换成 9 即可
 
-前两个操作是实现逗号、 句号翻页， 后面一个操作是更改候选词的数量
-
-```
-
 更新到 Fcitx 目录
-调整完上面配置后， 进行下面拷贝操作
-```
-
 cp -r ./rime-ice/* ~/.config/fcitx/rime/
 cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
 
@@ -412,20 +398,13 @@ cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
 ~/.local/share/fcitx5/rime: 这个目录是 Fcitx 读取的， 用于外部软件使用雾凇输入法
 ```
 
-
 安装 emacs-rime
-
 这一节讲的是怎么让 Emacs 可以使用上雾凇输入法。
-
 首先安装 posframe(https://github.com/tumashu/posframe), posframe 可以让侯选词显示在光标处， 所以建议安装。
-
 然后下载 emacs-rime:
 
  ```
-
 git clone https://github.com/DogLooksGood/emacs-rime
-
-把 emacs-rime 目录放到 load-path 下， 添加以下配置:
 
 (require 'rime)
 
