@@ -37,13 +37,6 @@ sudo -v
 cecho "config the DNS" $yellow
 echo ""
 
-sudo chmod a+w  /etc/resolv.conf
-cat > /etc/resolv.conf <<EOF
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-nameserver 114.114.114.114
-EOF
-
 # Keep-alive: update existing `sudo` time stamp until the script has finished.
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
@@ -53,34 +46,24 @@ cecho "Now time to install my favorate tools ..." $yellow
 
 apps=(
     # Utilities
+    build-essential
     libncurses5-dev
     libreadline-dev
     libpcre3-dev
-    zlib1g-dev
     libssl-dev
     libssh-dev
+    libgnutls28-dev
+    openssh-server
     openssl
-    build-essential
-    perl
     make
     cmake
     g++
     autoconf
-    m4
-    wget
-    curl
-    openssh-server
     libgtk-3-dev
-    libappindicator3-dev
     automake
     texinfo
     pkg-config
     libxml2 
-    gnutls-dev
-    libgif-dev
-    libxpm-dev
-    neofetch
-    libreoffice
 )
 
 for item in ${apps[@]}; do
@@ -110,10 +93,5 @@ echo ""
 echo -e "\033[40;32m install liquidprompt \033[0m"
 git clone https://github.com/nojhan/liquidprompt.git ~/.liquidprompt
 source ~/.liquidprompt/liquidprompt
-
-echo ""
-echo -e "\033[40;32m install asdf  \033[0m"
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.2
-echo ""
 
 cecho "Done, Happy Hacking At the Speed Of The Thought !!!" $green
