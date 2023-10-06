@@ -257,6 +257,29 @@ brew link openssl@1.1
 
 # ubuntu 安装
 
+
+换清华源
+```
+cp /etc/apt/sources.list /etc/apt/sources.bak
+vi /etc/apt/sources.list
+
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+
+## Not recommended
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+```
+
 ## Install  v2rayA
 ```
 // 添加公钥
@@ -446,10 +469,26 @@ git clone https://github.com/DogLooksGood/emacs-rime
 ```
 git clone --depth 1 https://mirrors.ustc.edu.cn/emacs.git
 
-proxy-ns git pull ; ./configure ; make -j32; sudo make install ; sudo sed -i 's/Exec=emacs/Exec=proxy-ns emacs/g' /usr/local/share/applications/emacs.desktop ; sudo rm /usr/local/share/applications/emacsclient.desktop
+sudo apt build-dep emacs
+sudo apt install libgccjit0 libgccjit-10-dev libjansson4 libjansson-dev \
+    gnutls-bin libtree-sitter-dev gcc-10 imagemagick libmagick++-dev \
+    libwebp-dev webp libxft-dev libxft2
+
+export CC=/usr/bin/gcc-10
+export CXX=/usr/bin/gcc-10
+
+cd emacs-29.1
+./autogen.sh
+./configure --with-native-compilation=aot --with-imagemagick --with-json \
+    --with-tree-sitter --with-xft
+make -j$(nproc)
+
+# test
+./src/emacs -Q
+
+make install
+
 ```
-
-
 
 ## 字体安装
 ```
