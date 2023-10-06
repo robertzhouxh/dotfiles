@@ -255,8 +255,9 @@ brew link openssl@1.1
 + brew install CleanShot （截图软件，桃宝宝买licence）
 
 
-# ubuntu 安装- v2rayA
+# ubuntu 安装
 
+## Install  v2rayA
 ```
 // 添加公钥
 wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/keyrings/v2raya.asc
@@ -273,8 +274,6 @@ sudo systemctl start v2raya.service
 
 // 设置 v2rayA 自动启动
 sudo systemctl enable v2raya.service
-
-
 
 ```
 
@@ -386,12 +385,9 @@ git clone https://github.com/rime/plum.git && cd plum
 rime_frontend=fcitx5-rime bash rime-install array emoji
 
 ## 开机自启动
-
 在 Tweaks（sudo apt install gnome-tweaks）中将 Fcitx 5 添加到「开机启动程序」列表中即可。
-Fcitx 5 提供了一个基于 Qt 的强大易用的 GUI 配置工具，可以对输入法功能进行配置。有多种启动该配置工具的方法：
-
 ## Fcitx 配置
-
+Fcitx 5 提供了一个基于 Qt 的强大易用的 GUI 配置工具，可以对输入法功能进行配置。有多种启动该配置工具的方法：
 - 在应用程序列表中打开「Fcitx 配置」
 - 在 Fcitx 托盘上右键打开「设置」
 - 命令行命令 fcitx5-configtool
@@ -443,4 +439,21 @@ git clone https://github.com/DogLooksGood/emacs-rime
 
 (setq default-input-method "rime"
       rime-show-candidate 'posframe)
+```
+## 安装 Emacs
+
+源码安装
+```
+git clone --depth 1 https://mirrors.ustc.edu.cn/emacs.git
+
+proxy-ns git pull ; ./configure ; make -j32; sudo make install ; sudo sed -i 's/Exec=emacs/Exec=proxy-ns emacs/g' /usr/local/share/applications/emacs.desktop ; sudo rm /usr/local/share/applications/emacsclient.desktop
+```
+
+
+
+## 字体安装
+```
+apt-cache search wqy-microhei
+
+apt install fonts-wqy-microhei
 ```
