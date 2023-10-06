@@ -511,3 +511,33 @@ sudo tar -xvzf plantuml-mit-1.2023.11.jar -C /usr/local/share/plantuml
 sudo ln -s /usr/local/share/plantuml/ /usr/local/bin/plantuml
 
 ```
+
+## 安装 erlang
+```
+
+asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+
+## 不安裝 11-jdk
+## sudo apt-get -y install build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk
+
+sudo apt-get -y install build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev
+
+
+## 建议以下方式安装
+cd /usr/local/src/
+sudo wget https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+
+sudo tar -xf openssl-1.1.1m.tar.gz
+
+cd openssl-1.1.1m
+sudo ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+
+sudo make
+sudo make test
+sudo make install
+
+# install erlang now
+export KERL_CONFIGURE_OPTIONS="-with-ssl=/usr/local/ssl"
+asdf install erlang 24.3.4
+
+```
