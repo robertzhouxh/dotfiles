@@ -89,9 +89,17 @@ if [[ `uname -s` == "Darwin" ]]; then
     export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
     export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
     export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
+
+    . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
 fi
 
-[[ `uname -s` == "Darwin" ]] && . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
-[[ `uname -s` == "Linux" ]] && [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
+
+if [[ `uname -s` == "Darwin" ]]; then
+
+    export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+    export PATH=$PATH:$JAVA_HOME/bin
+
+   [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
+fi
 
 

@@ -493,6 +493,19 @@ make install
 ## 字体安装
 ```
 apt-cache search wqy-microhei
-
 apt install fonts-wqy-microhei
+```
+
+## 安装 openjdk and plantuml
+
+```
+
+apt-cache search openjdk 
+sudo apt-get install openjdk-17-jdk
+sudo apt-get install openjdk-17-jre
+
+wget https://github.com/plantuml/plantuml/releases/download/v1.2023.11/plantuml-mit-1.2023.11.jar
+sudo tar -xvzf plantuml-mit-1.2023.11.jar -C /usr/local/share/plantuml
+sudo ln -s /usr/local/share/plantuml/ /usr/local/bin/plantuml
+
 ```
