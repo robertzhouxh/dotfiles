@@ -503,7 +503,9 @@ apt install fonts-wqy-microhei
 apt-cache search openjdk 
 sudo apt-get install openjdk-17-jdk
 sudo apt-get install openjdk-17-jre
+sudo apt install plantuml
 
+or: 手动安装
 wget https://github.com/plantuml/plantuml/releases/download/v1.2023.11/plantuml-mit-1.2023.11.jar
 sudo tar -xvzf plantuml-mit-1.2023.11.jar -C /usr/local/share/plantuml
 sudo ln -s /usr/local/share/plantuml/ /usr/local/bin/plantuml
