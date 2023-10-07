@@ -34,7 +34,6 @@
 
 #+END_SRC
 
-
 * Bootstrap use-package
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1862,45 +1861,35 @@ install_fonts(){
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package rime
-    :bind
-    (:map rime-active-mode-map
-          ("<tab>" . 'rime-inline-ascii)
-          :map rime-mode-map
-          ("C-`" . 'rime-send-keybinding) 
-          ("M-j" . 'rime-force-enable))
-    :config
-    (when (x/system-is-mac)
-      (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-      (setq rime-share-data-dir zxh-emacs-rime-share-data-dir))
-    ;;(setq rime-emacs-module-header-root zxh-emacs-module-header-root))
-    (when (x/system-is-linux)
-      (when (and (x/system-is-mac) (executable-find "nix"))
-        (setq rime-emacs-module-header-root
-              (concat (shell-command-to-string "nix eval --raw 'nixpkgs#emacs.outPath'") "/include")
-              rime-librime-root
-              (shell-command-to-string "nix eval --raw 'nixpkgs#librime.outPath'")
-              rime-share-data-dir
-              (concat (shell-command-to-string "nix eval --raw 'nixpkgs#brise.outPath'") "/share/rime-data"))))
-    ;;(setq rime-title " ㄓ")
-    (setq rime-posframe-properties
-          (list :background-color "#333333"
-                :foreground-color "#dcdccc"
-                :font "PingFang SC"
-                :internal-border-width 10))
-    (setq rime-translate-keybindings '("C-f" "C-b" "C-n" "C-p" "C-g"))
-    (setq default-input-method "rime"
-          rime-show-candidate 'posframe
-          rime-posframe-style 'vertical
-          )
-    (setq rime-disable-predicates '(rime-predicate-evil-mode-p
-                                    rime-predicate-space-after-cc-p
-                                    rime-predicate-after-alphabet-char-p
-                                    rime-predicate-prog-in-code-p
-                                    rime-predicate-tex-math-or-command-p
-                                    rime-predicate-current-uppercase-letter-p
-                                    rime-predicate-after-ascii-char-p))
-    )
+(use-package rime
+  :bind
+  (:map rime-active-mode-map
+        ("<tab>" . 'rime-inline-ascii)
+        :map rime-mode-map
+        ("C-`" . 'rime-send-keybinding) 
+        ("M-j" . 'rime-force-enable))
+  :config
+  (setq rime-emacs-module-header-root zxh-emacs-module-header-root)
+  (setq rime-user-data-dir zxh-emacs-rime-share-data-dir)
+
+  (setq rime-posframe-properties
+        (list :background-color "#333333"
+              :foreground-color "#dcdccc"
+              :font "TsangerJinKai03-6763-18"
+              :internal-border-width 10))
+
+  (setq default-input-method "rime"
+        rime-show-candidate 'posframe
+        rime-posframe-style 'vertical)
+
+  (setq rime-disable-predicates '(rime-predicate-evil-mode-p
+                                  rime-predicate-space-after-cc-p
+                                  rime-predicate-after-alphabet-char-p
+                                  rime-predicate-prog-in-code-p
+                                  rime-predicate-tex-math-or-command-p
+                                  rime-predicate-current-uppercase-letter-p
+                                  rime-predicate-after-ascii-char-p)))
+
 #+END_SRC
 
 * Platform
