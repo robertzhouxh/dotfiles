@@ -1279,8 +1279,9 @@ from tradition chinese to simple chinese" t)
        (C . t)
        (python . t)
        ))
-    (setq org-ellipsis " ⤵"
-          ;;org-ellipsis "..." 
+    (setq
+          ;;org-ellipsis " ⤵"
+          org-ellipsis "..." 
 
           ;; 使用 UTF-8 显示 LaTeX 或 \xxx 特殊字符， M-x org-entities-help 查看所有特殊字符。
           org-pretty-entities t
@@ -2514,13 +2515,11 @@ install_fonts(){
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; ------------------------------------------------------------------------------------------------
+;; #######################################################################
 ;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-;; ------------------------------------------------------------------------------------------------
 ;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
-;; ------------------------------------------------------------------------------------------------
 ;; 使用 lsp-bridge 关闭其他补全插件， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
-;; ------------------------------------------------------------------------------------------------
+;; #######################################################################
 
 ;; --- 卸载按键, 全局按键的卸载
 (lazy-load-unset-keys  
@@ -2577,25 +2576,6 @@ install_fonts(){
 (global-set-key (kbd "C-M-;")   'magit-status)
 (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
 
-;; 语法跳转
-;; ;;; --- 代码语法补全
-;; (lazy-load-global-keys
-;;  '(
-;;    ("C-7" . lsp-bridge-find-def-return)
-;;    ("C-8" . lsp-bridge-find-def)
-;;    ("M-," . lsp-bridge-code-action)
-;;    ("M-." . lsp-bridge-find-references)
-;;    ("C-9" . lsp-bridge-popup-documentation)
-;;    ("C-0" . lsp-bridge-rename)
-;;    ("M-s-j" . lsp-bridge-diagnostic-jump-next) ;显示下一个错误
-;;    ("M-s-k" . lsp-bridge-diagnostic-jump-prev) ;显示上一个错误
-;;    ("M-s-l" . lsp-bridge-diagnostic-ignore)    ;忽略当前的错误
-;;    ("M-s-u" . lsp-bridge-diagnostic-copy)      ;拷贝诊断信息
-;;    ("M-s-n" . lsp-bridge-popup-documentation-scroll-up) ;向下滚动文档
-;;    ("M-s-p" . lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
-;;    )
-;;  "init-lsp-bridge")
-
 (global-set-key (kbd "C-]")     'lsp-bridge-find-def)
 (global-set-key (kbd "C-t")     'lsp-bridge-find-def-return)
 (global-set-key (kbd "M-,")     'lsp-bridge-code-action) 
@@ -2603,9 +2583,9 @@ install_fonts(){
 (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
 (global-set-key (kbd "C-0")     'lsp-bridge-rename) 
 
-(global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next)       ;显示下一个错误 
-(global-set-key (kbd "M-s-k")  'lsp-bridge-diagnostic-jump-prev)      ;显示上一个错误 
-(global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)              ;忽略当前的错误
+(global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next)            ;显示下一个错误 
+(global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误 
+(global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
 (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
 (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
@@ -2627,4 +2607,4 @@ install_fonts(){
 (global-set-key (kbd "C-c g")   'one-key-menu-git)
 (global-set-key (kbd "C-c d")   'one-key-menu-directory)
 
-  #+END_SRC
+#+END_SRC
