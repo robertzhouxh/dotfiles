@@ -496,6 +496,11 @@ apt-cache search wqy-microhei
 apt install fonts-wqy-microhei
 ```
 
+## 安装 pyqt6
+```
+sudo apt install python3-pip
+pip3 install pyqt6
+```
 ## 安装 openjdk and plantuml
 
 ```

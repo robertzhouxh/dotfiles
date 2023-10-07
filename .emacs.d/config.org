@@ -8,24 +8,32 @@
 * Custom Vars and Const
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
   (setq erlang-lib-tools-version "3.5.2")
-  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.2/libexec/plantuml.jar")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
   (setq epg-gpg-program "gpg2")
+
+  (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
+  (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
+
+  ;; macos 
+  ;; (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.2/libexec/plantuml.jar")
+  ;; (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+  ;; (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
+
+  ;; ubuntu 
+  (setq plantuml-path "/opt/plantuml/plantuml.jar")
+  (defvar zxh-emacs-module-header-root "/usr/local/include")
+  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/"))
+
+  ;; do not check signature
   (setq package-check-signature nil) 
   ;; M-x package-install RET gnu-elpa-keyring-update RET. 
   ;; M-: (setq package-check-signature "allow-unsigned") 
 
-  (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
-  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
-  ;;(defvar zxh-emacs-rime-share-data-dir (file-truename "~/Library/Rime"))
-  (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
-  (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
-
 #+END_SRC
+
 
 * Bootstrap use-package
 
