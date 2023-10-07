@@ -1881,19 +1881,19 @@ install_fonts(){
                                   rime-predicate-tex-math-or-command-p
                                   rime-predicate-current-uppercase-letter-p
                                   rime-predicate-after-ascii-char-p))
-(when (x/system-is-linux)
+(when (x/system-is-mac)
   (setq rime-posframe-properties
         (list :background-color "#333333"
              :foreground-color "#dcdccc"
               :font "PingFang SC"
-              :internal-border-width 10))
-  )
+              :internal-border-width 10)))
 (when (x/system-is-linux)
-  )
-)
+(setq rime-posframe-properties
+      (list :background-color "#333333"
+            :foreground-color "#dcdccc"
+            :font "WenQuanYi Micro Hei Mono-14"
+            :internal-border-width 10))))
 #+END_SRC
-
-
 * Platform
 
 #+BEGIN_SRC emacs-lisp :tangle yes
