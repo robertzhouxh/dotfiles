@@ -117,6 +117,7 @@ rm -rf rime-1.7.3-osx.zip
 + brew install CleanShot （截图软件，桃宝宝买licence）
 
 # ubuntu 部署
+## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## 换清华源
 ```
 cp /etc/apt/sources.list /etc/apt/sources.bak
