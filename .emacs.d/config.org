@@ -8,29 +8,30 @@
 * Custom Vars and Const
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
-  (setq erlang-lib-tools-version "3.5.2")
-  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq epg-gpg-program "gpg2")
 
-  (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
-  (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
+(setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
+(setq erlang-lib-tools-version "3.5.2")
+(setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
+(setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+(setq epg-gpg-program "gpg2")
 
-  ;; macos 
-  ;; (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.2/libexec/plantuml.jar")
-  ;; (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
-  ;; (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime"))
+(defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
+(defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
 
-  ;; ubuntu 
+(when (eq system-type 'gnu/linux)
   (setq plantuml-path "/opt/plantuml/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/usr/local/include")
-  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/"))
+  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
-  ;; do not check signature
-  (setq package-check-signature nil) 
-  ;; M-x package-install RET gnu-elpa-keyring-update RET. 
-  ;; M-: (setq package-check-signature "allow-unsigned") 
+(when (eq system-type 'darwin)
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.2/libexec/plantuml.jar")
+  (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime")))
+
+;; do not check signature
+(setq package-check-signature nil) 
+;; M-x package-install RET gnu-elpa-keyring-update RET. 
+;; M-: (setq package-check-signature "allow-unsigned") 
 
 #+END_SRC
 
@@ -1858,39 +1859,40 @@ install_fonts(){
 #+END_SRC
 
 * Rime
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-
 (use-package rime
   :bind
   (:map rime-active-mode-map
         ("<tab>" . 'rime-inline-ascii)
         :map rime-mode-map
-        ("C-`" . 'rime-send-keybinding) 
+        ("C-`" . 'rie-send-keybinding) 
         ("M-j" . 'rime-force-enable))
   :config
-  (setq rime-emacs-module-header-root zxh-emacs-module-header-root)
-  (setq rime-user-data-dir zxh-emacs-rime-share-data-dir)
-
-  (setq rime-posframe-properties
-        (list :background-color "#333333"
-              :foreground-color "#dcdccc"
-              :font "TsangerJinKai03-6763-18"
-              :internal-border-width 10))
-
+  (setq rime-title " ㄓ")
+  (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+  (setq rime-share-data-dir zxh-emacs-rime-share-data-dir)
   (setq default-input-method "rime"
-        rime-posframe-style 'vertical
+        ;;rime-posframe-style 'vertical
         rime-show-candidate 'posframe)
-
   (setq rime-disable-predicates '(rime-predicate-evil-mode-p
                                   rime-predicate-space-after-cc-p
                                   rime-predicate-after-alphabet-char-p
                                   rime-predicate-prog-in-code-p
                                   rime-predicate-tex-math-or-command-p
                                   rime-predicate-current-uppercase-letter-p
-                                  rime-predicate-after-ascii-char-p)))
-
+                                  rime-predicate-after-ascii-char-p))
+(when (x/system-is-linux)
+  (setq rime-posframe-properties
+        (list :background-color "#333333"
+             :foreground-color "#dcdccc"
+              :font "PingFang SC"
+              :internal-border-width 10))
+  )
+(when (x/system-is-linux)
+  )
+)
 #+END_SRC
+
 
 * Platform
 
