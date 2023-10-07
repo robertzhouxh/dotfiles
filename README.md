@@ -9,7 +9,9 @@
 - brew.sh: macos 工具安裝腳本
 - .macos:   a config script for macos refer: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
 
-# 安装 http->socks5 协议转换代理 
+# 命令行代理 
+安装 http->socks5 协议转换代理
+
     
 ```
 	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
@@ -37,17 +39,21 @@
 ```
 
 # 初始化
-
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 
 ```
 git clone https://github.com/robertzhouxh/dotfiles 
 cd dotfiles
-
+# -------------------------------------------------------------------------------
+# 更新到最新 commit 可以使用  # git submodule update --init --remote
+# 修改 .gitmodules 后 可以执行 # git submodule sync 
+# 更新到 .gitmodules 中的 commit
+# -------------------------------------------------------------------------------
+git submodule update --init
 set -- -f; source bootsrap.sh
 ```
-# 安裝 emacs （linux, macos）
-## 源码安装
+# macos 部署
+## 安裝 emacs
 ```
 # 这里选择选择国内的同步镜像
 # git clone --depth 1 git://git.savannah.gnu.org/emacs.git
@@ -68,34 +74,16 @@ cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
 cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
 ```
 
-## Mac 上建议安装 emacs-plus
+## vim/emacs 部署
 
 ```
-brew tap d12frosted/emacs-plus
-brew install emacs-plus --with-native-comp --with-xwidgets
-ln -s /opt/homebrew/opt/emacs-plus@30/Emacs.app /Applications
-```
-
-# 同步 Emacs Submodules
-
-```
-# -------------------------------------------------------------------------------
-# 更新到最新 commit 可以使用  # git submodule update --init --remote
-# 修改 .gitmodules 后 可以执行 # git submodule sync 
-# 更新到 .gitmodules 中的 commit
-# -------------------------------------------------------------------------------
-git submodule update --init
-```
-
-# vim/emacs 部署
-
-```
-./vim.sh
 rm -rf ~/.emacs*
+./vim.sh
 ./emacs.sh
 ```
+启动 Emacs
 
-# 部署 macos squirrel
+## 安装 squirrel
 
 ```
 brew install --cask squirrel
@@ -108,7 +96,7 @@ cp -r ./rime-ice/*  ~/Library/Rime/
 
 ```
 
-# 部署 emacs squireel
+## 安裝 librime
 
 ```
 curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
@@ -124,141 +112,12 @@ rm -rf rime-1.7.3-osx.zip
 
 ```
 
-# 多語言支持
-1. Erlang/Elixir
-```
-  asdf plugin add erlang 
-  asdf plugin-add rebar 
-
-  export KERL_BUILD_DOCS=yes 
-  export KERL_INSTALL_MANPAGES=yes 
-  export EGREP=egrep 
-  export CC=clang 
-  export CPP="clang -E" 
-  export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
-  #export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
-
-
-  asdf install rebar 3.20.0
-  asdf install erlang 23.3.4
-  asdf install erlang 24.3.4
-  asdf global rebar  3.20.0
-  asdf global erlang 24.3.4
-  
-```
-
-如遇错误:  unable to find crypto OpenSSL lib
-
-参考 https://github.com/erlang/otp/issues/4821 尝试以下方案
-
-```
-export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
-
-vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
-```
-
-wx相关错误,ref: https://github.com/asdf-vm/asdf-erlang/issues/203
-```
-git clone git@github.com:wxWidgets/wxWidgets.git
-cd wxWidgets
-git submodule update --init src/png
-git submodule update --init src/jpeg
-./configure --with-cocoa --prefix=/usr/local --enable-webview --enable-compat28 --with-macosx-version-min=11.3
-make
-sudo make install
-
-export KERL_BUILD_DOCS=yes
-export KERL_INSTALL_MANPAGES=yes
-export wxUSE_MACOSX_VERSION_MIN=11.3
-export EGREP=egrep
-export CC=clang
-export CPP="clang -E"
-export KERL_USE_AUTOCONF=0
-
-export KERL_CONFIGURE_OPTIONS="--disable-debug \
-                               --disable-hipe \
-                               --disable-sctp \
-                               --disable-silent-rules \
-                               --enable-darwin-64bit \
-                               --enable-dynamic-ssl-lib \
-                               --enable-kernel-poll \
-                               --enable-shared-zlib \
-                               --enable-smp-support \
-                               --enable-threads \
-                               --enable-wx \
-                               --with-ssl=/opt/local \
-                               --with-wx-config=/usr/local/bin/wx-config \
-                               --without-javac \
-                               --without-jinterface \
-                               --without-odbc"
-```
-
-2. Golang
-
-```
-    asdf plugin-add golang
-    asdf list all golang
-    asdf install golang 1.19.5
-    asdf global golang 1.19.5
-```
-3. Rust
-
-```
-    asdf plugin-add rust
-    asdf list all rust
-    asdf install rust 1.67.0
-    asdf global rust 1.67.0
-
-```
-
-4. node
-```
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf list all nodejs
-asdf install nodejs latest:16
-asdf install nodejs 19.6.0
-
-# eaf-file-manager 需要高版本的node
-asdf global node 19.6.0
-```
-
-
-2. 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
-
-
-```
-  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
-  (setq erlang-lib-tools-version "3.5.2")
-  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
-  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
-
-```
-
-3. 重新启动 emacs
-
-
-
-```
-brew install openssl@3
-brew install openssl@1.1
-brew unlink openssl@3
-brew link openssl@1.1
-# 按照提示 export 对应的环境变量
-
-```
-
-# Mac 付费软件
+## Mac 付费软件
 + brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
 + brew install CleanShot （截图软件，桃宝宝买licence）
 
-
-# ubuntu 安装
-
-
-换清华源
+# ubuntu 部署
+## 换清华源
 ```
 cp /etc/apt/sources.list /etc/apt/sources.bak
 vi /etc/apt/sources.list
@@ -280,7 +139,7 @@ deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restri
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
 ```
 
-## Install  v2rayA
+## 網絡代理 v2rayA
 ```
 // 添加公钥
 wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/keyrings/v2raya.asc
@@ -362,7 +221,7 @@ sudo /etc/init.d/polipo restart
 关于地址的写法，只写 127.0.0.1:8123 时，遇到过有软件不能识别的情况，改为写完整的地址 http://127.0.0.1:8123/ 就不会有问题了。
 
 
-## 安装中文输入法：
+## 中文输入法
 
 检查系统中文环境
 在 Ubuntu 设置中打开「区域与语言」—— 「管理已安装的语言」，然后会自动检查已安装语言是否完整。若不完整，根据提示安装即可。
@@ -380,7 +239,7 @@ sudo apt install fcitx5-rime
 emacs-rime 会用到这个lib
  
 ```
-## 配置输入法以及环境变量
+### 配置输入法以及环境变量
 
 使用 im-config 工具可以配置首选输入法，在任意命令行输入： im-config
 根据弹出窗口的提示，将首选输入法设置为 Fcitx 5 即可。
@@ -401,15 +260,15 @@ export QT_IM_MODULE=fcitx
  ```
 
 
-## 下載東風破（plum）
+### 下載東風破（plum）
 git clone https://github.com/rime/plum.git && cd plum
 用東風破下載行列輸入法【來源】
 東風破的預設是 ibus-rime，所以要特別指定是 fcitx5-rime
 rime_frontend=fcitx5-rime bash rime-install array emoji
 
-## 开机自启动
+### 开机自启动
 在 Tweaks（sudo apt install gnome-tweaks）中将 Fcitx 5 添加到「开机启动程序」列表中即可。
-## Fcitx 配置
+### Fcitx 配置
 Fcitx 5 提供了一个基于 Qt 的强大易用的 GUI 配置工具，可以对输入法功能进行配置。有多种启动该配置工具的方法：
 - 在应用程序列表中打开「Fcitx 配置」
 - 在 Fcitx 托盘上右键打开「设置」
@@ -417,7 +276,7 @@ Fcitx 5 提供了一个基于 Qt 的强大易用的 GUI 配置工具，可以对
 
 注意:「输入法」标签页下，应将「键盘 - 英语」放在首位，拼音（或其他中文输入法）， Rime  放在后面的位置。
 
-## 安装雾凇拼音( 词库 )
+### 安装雾凇拼音( 词库 )
 使用下面的命令拷贝雾凇拼音的所有 rime 配置到 fcitx 的 rime 配置目录下
 
 ```
@@ -431,7 +290,7 @@ cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
 ~/.config/fcitx/rime/: 这个目录主要是 Emacs 的 emacs-rime 插件会读取
 ~/.local/share/fcitx5/rime: 这个目录是 Fcitx 读取的， 用于外部软件使用雾凇输入法
 ```
-## 自定义主题
+### 自定义主题
     
 Fcitx 5 默认的外观比较朴素，用户可以根据喜好使用自定义主题。
 - 第一种方式为使用经典用户界面，可以在 GitHub 搜索主题，然后在 Fcitx5 configtool —— 「附加组件」 —— 「经典用户界面」中设置即可。
@@ -441,28 +300,6 @@ Fcitx 5 默认的外观比较朴素，用户可以根据喜好使用自定义主
 - Tweaks 配置 Application 和 Shell 的主题
 
 
-## 安装 emacs-rime
-这一节讲的是怎么让 Emacs 可以使用上雾凇输入法。
-首先安装 posframe(https://github.com/tumashu/posframe), posframe 可以让侯选词显示在光标处， 所以建议安装。
-然后下载 emacs-rime:
-
- ```
-git clone https://github.com/DogLooksGood/emacs-rime
-
-(require 'rime)
-
-;;; Code:
-(setq rime-user-data-dir "~/.config/fcitx/rime")
-
-(setq rime-posframe-properties
-      (list :background-color "#333333"
-            :foreground-color "#dcdccc"
-            :font "WenQuanYi Micro Hei Mono-14"
-            :internal-border-width 10))
-
-(setq default-input-method "rime"
-      rime-show-candidate 'posframe)
-```
 ## 安装 Emacs
 
 源码安装
@@ -490,6 +327,22 @@ make install
 
 ```
 
+
+## 安裝 librime
+
+https://github.com/DogLooksGood/emacs-rime/blob/master/INSTALLATION.org
+
+```
+sudo apt install librime-dev
+
+## 请注意 librime-dev 的版本，如果在1.5.3以下，则需要自行编译。
+sudo apt install git build-essential cmake libboost-all-dev libgoogle-glog-dev libleveldb-dev libmarisa-dev libopencc-dev libyaml-cpp-dev libgtest-dev
+git clone https://github.com/rime/librime.git ~/.emacs.d/librime
+cd ~/.emacs.d/librime
+make
+sudo make install
+```
+j d 
 ## 字体安装
 ```
 apt-cache search wqy-microhei
@@ -501,7 +354,7 @@ apt install fonts-wqy-microhei
 sudo apt install python3-pip
 pip3 install pyqt6
 ```
-## 安装 openjdk and plantuml
+## 安装 openjdk 
 
 ```
 
@@ -517,7 +370,106 @@ sudo ln -s /usr/local/share/plantuml/ /usr/local/bin/plantuml
 
 ```
 
-## 安装 erlang
+## 安装 plantuml
+
+```
+
+#!/usr/bin/env bash
+# Install PlantUML
+set -e
+
+PLANTUML_URL="${PLANTUML_URL:-http://sourceforge.net/projects/plantuml/files/plantuml.jar/download}"
+
+if [[ -f "/opt/plantuml/plantuml.jar" && -f "/usr/bin/plantuml" ]]; then
+  echo '[plantuml] PlantUML already installed.'
+  exit
+fi
+
+echo '[plantuml] Installing PlantUML...'
+apt-get install -y default-jre graphviz
+mkdir -p /opt/plantuml
+curl -o /opt/plantuml/plantuml.jar -L "${PLANTUML_URL}"
+printf '#!/bin/sh\nexec java -Djava.awt.headless=true -jar /opt/plantuml/plantuml.jar "$@"' > /usr/bin/plantuml
+chmod +x /usr/bin/plantuml
+
+```
+
+
+# 多語言支持
+
+## Erlang/Elixir on macos
+
+```
+  asdf plugin add erlang 
+  asdf plugin-add rebar 
+
+  export KERL_BUILD_DOCS=yes 
+  export KERL_INSTALL_MANPAGES=yes 
+  export EGREP=egrep 
+  export CC=clang 
+  export CPP="clang -E" 
+  export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
+  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
+  #export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
+
+
+  asdf install rebar 3.20.0
+  asdf install erlang 23.3.4
+  asdf install erlang 24.3.4
+  asdf global rebar  3.20.0
+  asdf global erlang 24.3.4
+  
+```
+
+如遇错误:  unable to find crypto OpenSSL lib
+
+参考 https://github.com/erlang/otp/issues/4821 尝试以下方案
+
+```
+export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
+
+vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
+```
+
+wx相关错误,ref: https://github.com/asdf-vm/asdf-erlang/issues/203
+```
+git clone git@github.com:wxWidgets/wxWidgets.git
+cd wxWidgets
+git submodule update --init src/png
+git submodule update --init src/jpeg
+./configure --with-cocoa --prefix=/usr/local --enable-webview --enable-compat28 --with-macosx-version-min=11.3
+make
+sudo make install
+
+export KERL_BUILD_DOCS=yes
+export KERL_INSTALL_MANPAGES=yes
+export wxUSE_MACOSX_VERSION_MIN=11.3
+export EGREP=egrep
+export CC=clang
+export CPP="clang -E"
+export KERL_USE_AUTOCONF=0
+
+export KERL_CONFIGURE_OPTIONS="--disable-debug \
+                               --disable-hipe \
+                               --disable-sctp \
+                               --disable-silent-rules \
+                               --enable-darwin-64bit \
+                               --enable-dynamic-ssl-lib \
+                               --enable-kernel-poll \
+                               --enable-shared-zlib \
+                               --enable-smp-support \
+                               --enable-threads \
+                               --enable-wx \
+                               --with-ssl=/opt/local \
+                               --with-wx-config=/usr/local/bin/wx-config \
+                               --without-javac \
+                               --without-jinterface \
+                               --without-odbc"
+```
+
+
+## erlang on ubuntu
+
 ```
 
 asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
@@ -547,26 +499,60 @@ asdf install erlang 24.3.4
 
 ```
 
-## 安装 plantuml
+## Golang
+
+```
+    asdf plugin-add golang
+    asdf list all golang
+    asdf install golang 1.19.5
+    asdf global golang 1.19.5
+```
+## Rust
+
+```
+    asdf plugin-add rust
+    asdf list all rust
+    asdf install rust 1.67.0
+    asdf global rust 1.67.0
 
 ```
 
-#!/usr/bin/env bash
-# Install PlantUML
-set -e
+## node
+```
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf list all nodejs
+asdf install nodejs latest:16
+asdf install nodejs 19.6.0
 
-PLANTUML_URL="${PLANTUML_URL:-http://sourceforge.net/projects/plantuml/files/plantuml.jar/download}"
+# eaf-file-manager 需要高版本的node
+asdf global node 19.6.0
+```
 
-if [[ -f "/opt/plantuml/plantuml.jar" && -f "/usr/bin/plantuml" ]]; then
-  echo '[plantuml] PlantUML already installed.'
-  exit
-fi
 
-echo '[plantuml] Installing PlantUML...'
-apt-get install -y default-jre graphviz
-mkdir -p /opt/plantuml
-curl -o /opt/plantuml/plantuml.jar -L "${PLANTUML_URL}"
-printf '#!/bin/sh\nexec java -Djava.awt.headless=true -jar /opt/plantuml/plantuml.jar "$@"' > /usr/bin/plantuml
-chmod +x /usr/bin/plantuml
+# 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
+
 
 ```
+  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
+  (setq erlang-lib-tools-version "3.5.2")
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
+  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
+  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
+
+```
+
+# mac or ubuntu 中的 openssl 版本问题
+## mac
+```
+brew install openssl@3
+brew install openssl@1.1
+brew unlink openssl@3
+brew link openssl@1.1
+# 按照提示 export 对应的环境变量
+
+```
+
+## ubunut
+
+参考 erlang install 部分

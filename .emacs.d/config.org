@@ -1879,8 +1879,8 @@ install_fonts(){
               :internal-border-width 10))
 
   (setq default-input-method "rime"
-        rime-show-candidate 'posframe
-        rime-posframe-style 'vertical)
+        rime-posframe-style 'vertical
+        rime-show-candidate 'posframe)
 
   (setq rime-disable-predicates '(rime-predicate-evil-mode-p
                                   rime-predicate-space-after-cc-p
