@@ -21,12 +21,12 @@
 (when (eq system-type 'gnu/linux)
   (setq plantuml-path "/opt/plantuml/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/usr/local/include")
-  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
+  (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
 (when (eq system-type 'darwin)
   (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.2/libexec/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
-  (defvar zxh-emacs-rime-share-data-dir (concat (getenv "HOME") "/Library/Rime")))
+  (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
 ;; do not check signature
 (setq package-check-signature nil) 
@@ -1865,34 +1865,41 @@ install_fonts(){
   (:map rime-active-mode-map
         ("<tab>" . 'rime-inline-ascii)
         :map rime-mode-map
+        ("M-o" . 'rime--backspace)
+        ("M-m" . 'rime--return)
+        ("M-h" . 'rime--escape)
         ("C-`" . 'rie-send-keybinding) 
         ("M-j" . 'rime-force-enable))
+  :custom
+  (default-input-method "rime")
+  (rime-posframe-style 'vertical)
+  (rime-show-candidate 'posframe)
+  (rime-user-data-dir zxh-emacs-rime-user-data-dir)
+  ;;(rime-librime-root (expand-file-name "librime/dist" user-emacs-directory)
   :config
-  (setq rime-title " ㄓ")
-  (setq rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-  (setq rime-share-data-dir zxh-emacs-rime-share-data-dir)
-  (setq default-input-method "rime"
-        ;;rime-posframe-style 'vertical
-        rime-show-candidate 'posframe)
-  (setq rime-disable-predicates '(rime-predicate-evil-mode-p
-                                  rime-predicate-space-after-cc-p
-                                  rime-predicate-after-alphabet-char-p
-                                  rime-predicate-prog-in-code-p
-                                  rime-predicate-tex-math-or-command-p
-                                  rime-predicate-current-uppercase-letter-p
-                                  rime-predicate-after-ascii-char-p))
-(when (x/system-is-mac)
-  (setq rime-posframe-properties
-        (list :background-color "#333333"
-             :foreground-color "#dcdccc"
-              :font "PingFang SC"
-              :internal-border-width 10)))
-(when (x/system-is-linux)
-(setq rime-posframe-properties
-      (list :background-color "#333333"
-            :foreground-color "#dcdccc"
-            :font "WenQuanYi Micro Hei Mono-14"
-            :internal-border-width 10))))
+  (setq rime-disable-predicates
+        ;; 行首输入符号
+        '(rime-predicate-punctuation-line-begin-p
+          ;; 中文字符加空格之后输入符号
+          rime-predicate-punctuation-after-space-cc-p
+          ;; 中文字符加空格之后输入英文
+          rime-predicate-space-after-cc-p
+          ;; 英文使用半角符号
+          rime-predicate-punctuation-after-ascii-p
+          ;; 编程模式，只在注释中输入中文
+          rime-predicate-prog-in-code-p))
+  (when (x/system-is-mac)
+    (setq rime-posframe-properties
+          (list :background-color "#333333"
+                :foreground-color "#dcdccc"
+                :font "PingFang SC"
+                :internal-border-width 10)))
+  (when (x/system-is-linux)
+    (setq rime-posframe-properties
+          (list :background-color "#333333"
+                :foreground-color "#dcdccc"
+                :font "WenQuanYi Micro Hei Mono-14"
+                :internal-border-width 10))))
 #+END_SRC
 * Platform
 
@@ -2359,9 +2366,9 @@ install_fonts(){
 (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/tao-theme")
 
 (require 'lazycat-theme)
-(lazycat-theme-load-with-sunrise)
-;; ;(lazycat-theme-load-dark)
+;; (lazycat-theme-load-with-sunrise)
 ;; ;(lazycat-theme-load-light)
+(lazycat-theme-load-dark)
 
 (require 'awesome-tray)
 (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
