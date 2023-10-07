@@ -1863,12 +1863,12 @@ install_fonts(){
 (use-package rime
   :bind
   (:map rime-active-mode-map
-        ("<tab>" . 'rime-inline-ascii)
+        ("C-;" . 'rime-inline-ascii)
         :map rime-mode-map
+        ("C-`" . 'rie-send-keybinding) 
         ("M-o" . 'rime--backspace)
         ("M-m" . 'rime--return)
         ("M-h" . 'rime--escape)
-        ("C-`" . 'rie-send-keybinding) 
         ("M-j" . 'rime-force-enable))
   :custom
   (default-input-method "rime")
