@@ -38,7 +38,7 @@
 
 ```
 
-# 初始化
+# 初始
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 
 ```
@@ -117,7 +117,6 @@ rm -rf rime-1.7.3-osx.zip
 + brew install CleanShot （截图软件，桃宝宝买licence）
 
 # ubuntu 部署
-## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## 换清华源
 ```
 cp /etc/apt/sources.list /etc/apt/sources.bak
@@ -395,6 +394,11 @@ chmod +x /usr/bin/plantuml
 
 ```
 
+
+## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
+## Gnome Tweaks 交換 Ctrl 与 Caps
+    
+In Gnome Tweaks, choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
 
 # 多語言支持
 
