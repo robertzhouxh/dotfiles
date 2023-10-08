@@ -139,12 +139,13 @@ deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restri
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
 ```
 
-## 網絡代理 v2rayA
+## 网络代理最土实践-机场 + v2rayA + SwitchyOmega + proxy-ns/polipo/Proxifier
+### 安装 v2rayA 
 ```
 // 添加公钥
 wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/keyrings/v2raya.asc
 
-// 添加源泉
+// 添加源
 echo "deb [signed-by=/etc/apt/keyrings/v2raya.asc] https://apt.v2raya.org/ v2raya main" | sudo tee /etc/apt/sources.list.d/v2raya.list
 sudo apt update
 
@@ -174,7 +175,7 @@ sudo systemctl enable v2raya.service
 - 代理端口: 1080
 
 
-离线安装 chrome
+### 离线安装 chrome + Proxy-SwitchyOmega
 ```
 wget -c https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
@@ -185,7 +186,7 @@ sudo dpkg -i google-chrome-stable_current_amd64.deb
 - 将扩展名改为 .zip, 解压缩到某个目录
 - 打开 chrome 扩展程序，打开开发者模式，加载已经解压缩的文件目录就安装好了
 
-离线安装  polipo
+### 离线安装 polipo
 ```
 wget http://archive.ubuntu.com/ubuntu/pool/universe/p/polipo/polipo_1.1.1-8_amd64.deb
 sudo dpkg -i polipo_1.1.1-8_amd64.deb
@@ -219,6 +220,32 @@ sudo /etc/init.d/polipo restart
 
 环境变量的配置了 http_proxy,  https_proxy
 关于地址的写法，只写 127.0.0.1:8123 时，遇到过有软件不能识别的情况，改为写完整的地址 http://127.0.0.1:8123/ 就不会有问题了。
+
+
+## 网络代理最佳实践-机场 + v2raya + GFWList(来自emacs 大神 lazycat)
+
+机场 + v2raya + GFWList 全局透明代理， (不再需要 SwitchyOmega 和 proxy-ns/polipo/Proxifier)
+
+- 购买机场， 安装 v2raya, 浏览器打开 http://127.0.0.1:2017 登录以后进行配置：
+- 订阅机场: 拷贝机场订阅 URL, 点击导入按钮导入
+- 选择服务器： 选择 S.JISUSUB.CC 标签， 选择一个合适的服务器， 然后选择左上角启动按钮
+- 更新 GFWList： 点击页面右上角设置按钮， 在设置对话框右上角点击更新按钮更新 GFWLIST， 然后再按照下面的步骤对设置页面进行配置
+- 透明代理/系统代理： 启用 GFWList 模式
+- 透明代理/系统代理实现方式： redirect
+- 规则端口的分流模式： GFWList 模式
+- 防止 DNS 污染： DNS-over-HTTPS
+- 特殊模式： supervisor
+- TCPFastOpen: 关闭
+- 多路复用： 关闭
+- 自动更新 GFWList: 每个 1 小时自动更新
+- 自动更新订阅: 每个 1 小时自动更新
+- 解析订阅地址/更新时优先使用： 不进行分流
+
+故障解决
+
+failed to start v2ray-core: LocateServerRaw: ID or Sub exceed range
+- 删除 “/etc/v2raya” 目录下所有文件， 
+- 然后重启 v2raya sudo systemctl restart v2raya 后， 重新导入机场地址即可.
 
 
 ## 中文输入法
