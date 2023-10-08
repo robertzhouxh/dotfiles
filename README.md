@@ -9,36 +9,8 @@
 - brew.sh: macos 工具安裝腳本
 - .macos:   a config script for macos refer: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
 
-# 命令行代理 
-安装 http->socks5 协议转换代理
+# 初始化
 
-    
-```
-	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
-	tar zxvf polipo-1.1.1.tar.gz
-	cd polipo-1.1
-	make all
-	nohup ./polipo -c ~/.polipo &
-```
-注意：
-
-+ Docker for Mac 代理不要配成127.0.0.1:8123,
-+ 原因 docker 命令是运行在 docker machine (Mac上的虚拟机)中，127.0.0.1会走其代理
-+ 一定要配置成宿主机 Ip
-+  定义命令别名随时在terminal 切换是否使用 polipo 代理
-
-```
-  alias hproxy='export http_proxy=http://10.1.105.135:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy'
-  alias proxy='export ALL_PROXY=socks5://10.1.105.135:1080'
-
-  alias nohproxy='unset http_proxy;unset HTTPS_PROXY;unset HTTP_PROXY;unset https_proxy'
-  alias noproxy='unset ALL_PROXY'
-
-  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
-
-```
-
-# 初始
 同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
 
 ```
@@ -83,12 +55,13 @@ rm -rf ~/.emacs*
 ```
 启动 Emacs
 
-## 安装 squirrel
+## 安装鼠须管输入法+雾凇词库
 
 ```
 brew install --cask squirrel
 mkdir -p  ~/Library/Rime
 rm -rf ~/Library/Rime/*
+
 git clone https://github.com/iDvel/rime-ice --depth=1
 cp -r ./rime-ice/*  ~/Library/Rime/
 
@@ -96,12 +69,11 @@ cp -r ./rime-ice/*  ~/Library/Rime/
 
 ```
 
-## 安裝 librime
+## 安裝 Emacs 需要的 librime
 
 ```
-curl -L -O https://github.com/rime/librime/releases/download/1.7.3/rime-1.7.3-osx.zip
-unzip rime-1.7.3-osx.zip -d ~/.emacs.d/librime
-rm -rf rime-1.7.3-osx.zip
+curl -L -O https://github.com/rime/librime/releases/download/1.9.0/rime-a608767-macOS.tar.bz2
+tar jxvf rime-a608767-macOS.tar.bz2 -d ~/.emacs.d/librime
 
 # 如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
 # 
@@ -112,10 +84,12 @@ rm -rf rime-1.7.3-osx.zip
 
 ```
 
-## Mac 付费软件
-+ brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
-+ brew install CleanShot （截图软件，桃宝宝买licence）
+## Mac 付费软件推荐
 
+```
+brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
+brew install CleanShot （截图软件，桃宝宝买licence）
+```
 # ubuntu 部署
 ## 换清华源
 ```
@@ -186,7 +160,8 @@ sudo dpkg -i google-chrome-stable_current_amd64.deb
 - 将扩展名改为 .zip, 解压缩到某个目录
 - 打开 chrome 扩展程序，打开开发者模式，加载已经解压缩的文件目录就安装好了
 
-### 离线安装 polipo
+### 离线安装 polipo(http->socks5)
+
 ```
 wget http://archive.ubuntu.com/ubuntu/pool/universe/p/polipo/polipo_1.1.1-8_amd64.deb
 sudo dpkg -i polipo_1.1.1-8_amd64.deb
@@ -221,6 +196,33 @@ sudo /etc/init.d/polipo restart
 环境变量的配置了 http_proxy,  https_proxy
 关于地址的写法，只写 127.0.0.1:8123 时，遇到过有软件不能识别的情况，改为写完整的地址 http://127.0.0.1:8123/ 就不会有问题了。
 
+
+### 源码安装 Polipo(http->socks5)
+
+```
+	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
+	tar zxvf polipo-1.1.1.tar.gz
+	cd polipo-1.1
+	make all
+	nohup ./polipo -c ~/.polipo &
+```
+注意：
+
++ Docker for Mac 代理不要配成127.0.0.1:8123,
++ 原因 docker 命令是运行在 docker machine (Mac上的虚拟机)中，127.0.0.1会走其代理
++ 一定要配置成宿主机 Ip
++  定义命令别名随时在terminal 切换是否使用 polipo 代理
+
+```
+  alias hproxy='export http_proxy=http://10.1.105.135:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy'
+  alias proxy='export ALL_PROXY=socks5://10.1.105.135:1080'
+
+  alias nohproxy='unset http_proxy;unset HTTPS_PROXY;unset HTTP_PROXY;unset https_proxy'
+  alias noproxy='unset ALL_PROXY'
+
+  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
+
+```
 
 ## 网络代理最佳实践-机场 + v2raya + GFWList(来自emacs 大神 lazycat)
 
@@ -259,10 +261,10 @@ sudo apt install fcitx5 \
     fcitx5-frontend-gtk4 fcitx5-frontend-gtk3 fcitx5-frontend-gtk2 \
     fcitx5-frontend-qt5
 
-## 安装 RIME 输入法
+// 安装 RIME 输入法
 sudo apt install fcitx5-rime
 
-## 安装 librime   
+// 安装 librime
 emacs-rime 会用到这个lib
  
 ```
@@ -369,8 +371,8 @@ cd ~/.emacs.d/librime
 make
 sudo make install
 ```
-j d 
-## 字体安装
+
+## 文泉驿字体安装
 ```
 apt-cache search wqy-microhei
 apt install fonts-wqy-microhei
@@ -423,9 +425,10 @@ chmod +x /usr/bin/plantuml
 
 
 ## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
-## Gnome Tweaks 交換 Ctrl 与 Caps
+## Ctrl 与 Caps 键位交换
     
-In Gnome Tweaks, choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
+- 打开 Gnome Tweaks,
+- 选择 choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
 
 # 多語言支持
 
