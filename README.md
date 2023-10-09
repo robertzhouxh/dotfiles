@@ -430,8 +430,31 @@ chmod +x /usr/bin/plantuml
 - 打开 Gnome Tweaks,
 - 选择 choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
 # 坑爹的 NVIDIA 显卡驱动-(附重启黑屏解决办法）
-外星人M18 安装 Ubuntu 22.04 以后需要安装显卡驱动， ~首先需要F2 进入 BIOS 中设置 secure mode 为 false~
-推荐用第三种安装方式
+外星人M18 安装 Ubuntu 22.04 以后需要安装显卡驱动， 
+- 推荐用第三种安装方式
+- 首先需要F2 进入 BIOS 中设置 secure mode 为 false~
+ - 确定显卡型号 
+ ```
+$ ubuntu-drivers devices
+
+== /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
+modalias : pci:v000010DEd00002206sv00001458sd0000403Fbc03sc00i00
+vendor : NVIDIA Corporation
+model : GA102 [GeForce RTX 3080]
+driver : nvidia-driver-470 - distro non-free recommended
+driver : nvidia-driver-470-server - distro non-free
+driver : nvidia-driver-495 - distro non-free
+driver : nvidia-driver-460-server - distro non-free
+driver : xserver-xorg-video-nouveau - distro free builtin
+
+```
+
+注解： 
+
+- the current system has NVIDIA GeForce RTX 3080 graphic card installed
+- the recommend driver to install is nvidia-driver-470.
+- sudo apt install nvidia-driver-470
+
 ## 官网手动下载安装( 最终黑屏 )
 
 官网下载对应版本的显卡驱动 ( 会自动识别 ) - https://www.nvidia.com/download/index.aspx
@@ -454,8 +477,7 @@ sudo apt autoremove
 sudo apt autoclean
 
 # Install the required driver version
-sudo apt-get install nvidia-utils-535
-sudo apt-get install nvidia-driver-535
+ sudo apt install nvidia-driver-470
 
 # Check the installation
 nvidia-settings -q NvidiaDriverVersion
