@@ -433,8 +433,9 @@ chmod +x /usr/bin/plantuml
 外星人M18 安装 Ubuntu 22.04 以后需要安装显卡驱动， 
 - 推荐用第三种安装方式
 - 首先需要F2 进入 BIOS 中设置 secure mode 为 false~
- - 确定显卡型号 
- ```
+- 确定显卡型号 
+
+```
 $ ubuntu-drivers devices
 
 == /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
@@ -454,14 +455,14 @@ driver : xserver-xorg-video-nouveau - distro free builtin
 - the current system has NVIDIA GeForce RTX 3080 graphic card installed
 - the recommend driver to install is nvidia-driver-470.
 - sudo apt install nvidia-driver-470
-
-## 官网手动下载安装( 最终黑屏 )
+  
+## 官网手动下载安装( 重启以后直接黑屏，卡死，进不去系统 )
 
 官网下载对应版本的显卡驱动 ( 会自动识别 ) - https://www.nvidia.com/download/index.aspx
 
 ```
-chmod +x xxxx.run
-sudo ./xxx.run 
+chmod +x NVIDIA-Linux-x86_64-535.113.01.run
+sudo ./NVIDIA-Linux-x86_64-535.113.01.run
 nvidia-settings -q NvidiaDriverVersion
 nvidia-smi
 ```
@@ -497,12 +498,13 @@ sudo reboot
 - 启动PC ，方向键选择 Advanced options for Ubuntu
 - 进入下一个界面，选 recovery mode
 - 进入Recovery Menu，选 root 
+- 卸载 nvidia 驱动（源安装则： apt remove --purge nvidia*）（官网下载安装： nvidia-uninsatll ）
 - cp /etc/default/grub /etc/default/grub.bak  && vim /etc/default/grub
 
 ```
-GRUB_CMDLINE_LINUX_DEFAULT="quiet"  ---> 注释掉这一行                # GRUB_CMDLINE_LINUX_DEFAULT="quiet"
-GRUB_CMDLINE_LINUX=""                               ---> ""内改为 text                GRUB_CMDLINE_LINUX="text"
-#GRUB_TERMINAL=console                             ---> 去掉注释                      GRUB_TERMINAL=console
+GRUB_CMDLINE_LINUX_DEFAULT="quiet"  ---> 注释掉这一行          # GRUB_CMDLINE_LINUX_DEFAULT="quiet"
+GRUB_CMDLINE_LINUX=""               ---> ""内改为 text        GRUB_CMDLINE_LINUX="text"
+#GRUB_TERMINAL=console              ---> 去掉注释             GRUB_TERMINAL=console
 ```
 - update-grub
 - reboot
@@ -511,9 +513,11 @@ GRUB_CMDLINE_LINUX=""                               ---> ""内改为 text       
 - 再次重启就可以了
 - 可以重新进入 recovery mode - root - 恢复 (mv  /etc/default/grub.bak /etc/default/grub) --> update-grub -> reboot 
 
+参考:
 
-ref: https://zhuanlan.zhihu.com/p/608786007
-
+- https://zhuanlan.zhihu.com/p/608786007
+- https://www.alibabacloud.com/help/en/elastic-gpu-service/latest/uninstall-a-gpu-driver#section-t1c-es8-mb5
+- https://www.techsupportall.com/how-to-uninstall-nvidia-driver/#linux
 
 # 多語言支持
 
