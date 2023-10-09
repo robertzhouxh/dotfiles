@@ -429,6 +429,69 @@ chmod +x /usr/bin/plantuml
     
 - 打开 Gnome Tweaks,
 - 选择 choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
+# 坑爹的 NVIDIA 显卡驱动-(附重启黑屏解决办法）
+外星人M18 安装 Ubuntu 22.04 以后需要安装显卡驱动， ~首先需要F2 进入 BIOS 中设置 secure mode 为 false~
+推荐用第三种安装方式
+## 官网手动下载安装( 最终黑屏 )
+
+官网下载对应版本的显卡驱动 ( 会自动识别 ) - https://www.nvidia.com/download/index.aspx
+
+```
+chmod +x xxxx.run
+sudo ./xxx.run 
+nvidia-settings -q NvidiaDriverVersion
+nvidia-smi
+```
+
+## 利用源来安装
+```
+# Check the current installed nvidia driver
+sudo apt list '*nvidia-driver*'
+
+# Remove the current driver and tools if neccessary
+sudo apt-get purge '*nvidia*'
+sudo apt autoremove
+sudo apt autoclean
+
+# Install the required driver version
+sudo apt-get install nvidia-utils-535
+sudo apt-get install nvidia-driver-535
+
+# Check the installation
+nvidia-settings -q NvidiaDriverVersion
+nvidia-smi
+
+sudo reboot
+```
+
+## Software & Updates 安装
+- 搜索 Software & Updates 
+- 切换到 Additional Drivers
+- 选择合适的显卡驱动，点击右下方的 Apply Changes 按钮。
+- 结束后重启计算机。
+
+## 重启黑屏解决方案
+
+- 启动PC ，方向键选择 Advanced options for Ubuntu
+- 进入下一个界面，选 recovery mode
+- 进入Recovery Menu，选 root 
+- cp /etc/default/grub /etc/default/grub.bak  && vim /etc/default/grub
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT="quiet"  ---> 注释掉这一行                # GRUB_CMDLINE_LINUX_DEFAULT="quiet"
+GRUB_CMDLINE_LINUX=""                               ---> ""内改为 text                GRUB_CMDLINE_LINUX="text"
+#GRUB_TERMINAL=console                             ---> 去掉注释                      GRUB_TERMINAL=console
+```
+- update-grub
+- reboot
+
+- 重启正常以后，选择上述第三种 Software & Updates 安装对应版本的驱动
+- 再次重启就可以了
+- 可以重新进入 recovery mode - root - 恢复 (mv  /etc/default/grub.bak /etc/default/grub) --> update-grub -> reboot 
+
+
+ref: https://zhuanlan.zhihu.com/p/608786007
+
 
 # 多語言支持
 
