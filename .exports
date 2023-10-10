@@ -37,12 +37,11 @@ export GPG_TTY=$(tty);
 export BASH_SILENCE_DEPRECATION_WARNING=1;
 
 
-# ===================== custom your exports here ... ======================
 
-export HOMEBREW_NO_AUTO_UPDATE=1
-
+# ########################### custom your exports here ###################################
 if [[ `uname -s` == "Darwin" ]]; then
 
+    export HOMEBREW_NO_AUTO_UPDATE=1
     BREW_PREFIX=$(brew --prefix)
 
     #if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
@@ -62,23 +61,6 @@ if [[ `uname -s` == "Darwin" ]]; then
     PATH="${JDK_PREFIX}/bin:$PATH"
     #fi
 
-    #------------------------------------------------------------
-    # Rust
-    if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
-      PATH=$PATH:$(asdf where rust)/bin 
-    fi
-
-
-    #------------------------------------------------------------
-    # golang
-    if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
-      export GOPATH="/Users/zxh/githubs/go"
-      export GOROOT=$(asdf where golang)/go
-      PATH=$PATH:${GOROOT}/bin 
-      PATH=$PATH:$GOPATH/bin
-      #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
-    fi
-
     # for emacs eaf depens bins
     PATH=$PATH:"/Users/zxh/Library/Python/3.9/lib/python/site-packages"
 
@@ -94,12 +76,25 @@ if [[ `uname -s` == "Darwin" ]]; then
 fi
 
 
-if [[ `uname -s` == "Darwin" ]]; then
-
-    export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-    export PATH=$PATH:$JAVA_HOME/bin
-
-   [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
+if [[ `uname -s` == "Linux" ]]; then
+    [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
 fi
 
+if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
+    PATH=$PATH:$(asdf where rust)/bin 
+fi
 
+if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
+    export GOPATH="/Users/zxh/githubs/go"
+    export GOROOT=$(asdf where golang)/go
+    PATH=$PATH:${GOROOT}/bin 
+    PATH=$PATH:$GOPATH/bin
+    #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+fi
+
+if which asdf &> /dev/null && asdf list | grep erlang > /dev/null; then
+    PATH=$PATH:$(asdf where erlang)/bin 
+fi
+
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+export PATH=$PATH:$JAVA_HOME/bin
