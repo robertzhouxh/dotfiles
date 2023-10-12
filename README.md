@@ -424,6 +424,40 @@ chmod +x /usr/bin/plantuml
 ```
 
 
+## 安装 texlive
+
+```
+
+apt-cache search texlive
+// Tex Live: Basic LaTex packages.
+sudo apt install texlive-latex-base
+
+// Installs all LaTex CJK packages.（Chinese，Japanese，Korea）
+apt-cache search cjk
+sudo apt install latex-cjk-all
+
+// 有些.sty文件可能没有安装，如：lastpage.sty. 
+// 注意不要加.sty文件后缀
+// texlive-latex-extra - TeX Live: LaTeX supplementary packages
+apt-cache search lastpage
+sudo apt install texlive-latex-extra
+
+// 以上三步，可以满足需求。
+// 需要使用到新的包，可以查找相应的安装包安装
+
+// texmaker程序，它是一个图形化界面的Tex书写，编译，生成，预览集合为一体的程序。
+sudo apt install texmaker
+
+// XeLaTex
+sudo apt install texlive-xete
+
+// Texlive-publishers-support for publishers, theses, standards, conferences, etc. 
+sudo apt install texlive-publishers
+
+
+# 使用apt-cache show texlive-publishers命令可以看到它所支持的CTAN包的信息
+
+```
 ## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## Ctrl 与 Caps 键位交换
     
