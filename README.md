@@ -250,6 +250,28 @@ failed to start v2ray-core: LocateServerRaw: ID or Sub exceed range
 - 然后重启 v2raya sudo systemctl restart v2raya 后， 重新导入机场地址即可.
 
 
+## 安装字体
+```
+apt-cache search wqy-microhei
+apt install fonts-wqy-microhei
+
+// 查看已经安装的字体
+$ sudo fc-list :lang=zh
+
+apt-cache search fonts | grep noto
+
+// 看看是否安装
+dpkg -l *fonts-noto*
+
+// 如果没有安装则
+sudo apt-get install fonts-noto-cjk
+sudo apt-get install fonts-noto-mono
+sudo apt-get install fonts-noto-color-emoji
+
+// 管理字体
+sudo apt install font-manager
+
+```
 ## 中文输入法
 
 检查系统中文环境
@@ -372,12 +394,6 @@ make
 sudo make install
 ```
 
-## 文泉驿字体安装
-```
-apt-cache search wqy-microhei
-apt install fonts-wqy-microhei
-```
-
 ## 安装 pyqt6
 ```
 sudo apt install python3-pip
@@ -481,22 +497,6 @@ sudo mktexlsr
 
 ```
 
-## 安装字体
-```
-// 查看已经安装的字体
-$ sudo fc-list :lang=zh
-
-apt-cache search fonts | grep noto
-
-// 看看是否安装
-dpkg -l *fonts-noto*
-
-// 如果没有安装则
-sudo apt-get install fonts-noto-cjk
-sudo apt-get install fonts-noto-mono
-sudo apt-get install fonts-noto-color-emoji
-
-```
 ## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## Ctrl 与 Caps 键位交换
     

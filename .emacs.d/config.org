@@ -1226,7 +1226,6 @@ from tradition chinese to simple chinese" t)
 
 + 参考(org-latex-preview)：https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
 + 参考(org-latex)：https://github.com/opsnull/emacs
-+ 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
 
 ** Org 辅助配置
 
@@ -1379,7 +1378,6 @@ from tradition chinese to simple chinese" t)
 
 ** Org-Latex-Pdf
 
-+ 先安装 LaTex 完整版, MacTeX
 + 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
 + 参考内容：https://github.com/opsnull/emacs
    
@@ -1414,11 +1412,12 @@ from tradition chinese to simple chinese" t)
     ;; 	"\\maketitle\n\\setcounter{page}{0}\n\\thispagestyle{empty}\n\\newpage \n")
 
     ;; 使用支持中文的 xelatex。
-    ;; (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
-    (setq org-latex-pdf-process '
-          ("latexmk -xelatex -quiet -shell-escape -f %f"
-           "rm -fr %b.out %b.tex %b.brf %b.bbl"))
-           ;;"rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"))
+    ;;(setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+    (setq org-latex-pdf-process '("latexmk -xelatex -shell-escape -f %f" "rm -fr %b.out %b.tex %b.brf %b.bbl"))
+    ;; (setq org-latex-pdf-process '
+    ;;       ("latexmk -xelatex -quiet -shell-escape -f %f"
+    ;;        "rm -fr %b.out %b.tex %b.brf %b.bbl"))
+    ;;        ;;"rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"))
 
     (add-to-list 'org-latex-classes
                  '("ctexart"
