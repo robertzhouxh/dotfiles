@@ -1417,7 +1417,8 @@ from tradition chinese to simple chinese" t)
     ;; (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
     (setq org-latex-pdf-process '
           ("latexmk -xelatex -quiet -shell-escape -f %f"
-           "rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"))
+           "rm -fr %b.out %b.tex %b.brf %b.bbl"))
+           ;;"rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"))
 
     (add-to-list 'org-latex-classes
                  '("ctexart"
@@ -1680,10 +1681,9 @@ from tradition chinese to simple chinese" t)
 #+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
 #+LATEX_COMPILER: xelatex
 #+LATEX_CLASS: ctexart
-# 引用自定义 latext style 文件，需要去掉 .sty 后缀。
-#+LATEX_HEADER: \\usepackage{/Users/zxh/.emacs.d/mystyle}
-
-# 定制 PDF 封面和目录。
+# 引用自定义 latext style 文件，需要去掉 .sty 后缀。" n
+"#+LATEX_HEADER: \\usepackage{"(concat (getenv "HOME") "/.emacs.d/mystyle")"}" n
+"# 定制 PDF 封面和目录。
 #+begin_export latex
 % 封面页
 \\begin{titlepage}

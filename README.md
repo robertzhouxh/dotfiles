@@ -425,6 +425,8 @@ chmod +x /usr/bin/plantuml
 
 
 ## 安装 texlive
+如果不嫌安装包大，可以按照官网的方式安装：https://tug.org/texlive/doc/texlive-en/texlive-en.html#x1-160003.1.1
+
 
 ```
 
@@ -444,20 +446,41 @@ sudo apt install texlive-latex-extra
 
 // 以上三步，可以满足需求。
 // 需要使用到新的包，可以查找相应的安装包安装
+// ! LaTeX Error: File `siunitx.sty' not found.
+apt-cache  search  siunitx
+// texlive-science - TeX Live: Mathematics, natural sciences, computer science packages
 
 // texmaker程序，它是一个图形化界面的Tex书写，编译，生成，预览集合为一体的程序。
 sudo apt install texmaker
 
 // XeLaTex
-sudo apt install texlive-xete
+sudo apt install texlive-xetex
 
-// Texlive-publishers-support for publishers, theses, standards, conferences, etc. 
-sudo apt install texlive-publishers
-
-
-# 使用apt-cache show texlive-publishers命令可以看到它所支持的CTAN包的信息
+// latexmk
+sudo apt install latexmk
 
 ```
+
+### 如何解决! LaTeX Error: File `physics2.sty' not found.
+
+这里选择手动安装
+
+```
+find /usr/share/texlive -name "*.sty"
+=> 输出文件列表， latex,luatex,xetex,generic 表示不同的 pdf 编译器
+/usr/share/texlive/texmf-dist/tex/xetex/xetexko/xetexko.sty
+/usr/share/texlive/texmf-dist/tex/{latex,xelatex,luatex,xetex,generic...}/*
+
+// 这里我使用 xelatex 作为 pdf 编译器
+git clone git@github.com:AlphaZTX/physics2.git
+
+sudo mkdir -p /usr/share/texlive/texmf-dist/tex/xelatex/phy
+cp -rf ./physics2/tex/* /usr/share/texlive/texmf-dist/tex/xelatex/phy
+
+sudo mktexlsr 
+
+```
+
 ## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## Ctrl 与 Caps 键位交换
     
