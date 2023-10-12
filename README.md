@@ -481,6 +481,22 @@ sudo mktexlsr
 
 ```
 
+## 安装字体
+```
+// 查看已经安装的字体
+$ sudo fc-list :lang=zh
+
+apt-cache search fonts | grep noto
+
+// 看看是否安装
+dpkg -l *fonts-noto*
+
+// 如果没有安装则
+sudo apt-get install fonts-noto-cjk
+sudo apt-get install fonts-noto-mono
+sudo apt-get install fonts-noto-color-emoji
+
+```
 ## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## Ctrl 与 Caps 键位交换
     
