@@ -250,6 +250,18 @@ failed to start v2ray-core: LocateServerRaw: ID or Sub exceed range
 - 然后重启 v2raya sudo systemctl restart v2raya 后， 重新导入机场地址即可.
 
 
+## 安装星火应用商店
+https://spark-app.store/
+
+```
+wget https://gitee.com/deepin-community-store/spark-store/releases/download/4.2.7.3/spark-store_4.2.7.3_amd64.deb
+
+// 不可以！不可以！不可以！直接调用dpkg是不处理依赖的！使用
+[❌] sudo dpkg -i spark-store_4.2.7.3_amd64.deb 
+[✅] sudo apt install ./spark-store_4.2.7.3_amd64.deb 
+```
+- 安装微信
+- 安装字体
 ## 安装字体
 ```
 apt-cache search wqy-microhei
@@ -267,6 +279,16 @@ dpkg -l *fonts-noto*
 sudo apt-get install fonts-noto-cjk
 sudo apt-get install fonts-noto-mono
 sudo apt-get install fonts-noto-color-emoji
+
+// 下载 Noto_Sans/Serif_SC 字体： https://fonts.google.com/
+// 下载鸿蒙字体： https://developer.harmonyos.com/cn/docs/design/des-guides/font-0000001157868583
+
+unzip fontsxxx.zip
+mkdir ~/.fonts
+cp -rf HarmonyOS_ ~/.fonts
+cp -rf Noto_* ~/.fonts
+
+fc-cache -f
 
 // 管理字体
 sudo apt install font-manager
