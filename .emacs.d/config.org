@@ -1377,10 +1377,6 @@ from tradition chinese to simple chinese" t)
 #+END_SRC
 
 ** Org-Latex-Pdf
-
-+ 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
-+ 参考内容：https://github.com/opsnull/emacs
-   
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; engrave-faces 相比 minted 渲染速度更快。
@@ -1413,10 +1409,10 @@ from tradition chinese to simple chinese" t)
 
     ;; 使用支持中文的 xelatex。
     ;;(setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
-    (setq org-latex-pdf-process '("latexmk -xelatex -shell-escape -f %f" "rm -fr %b.out %b.tex %b.brf %b.bbl"))
-    ;; (setq org-latex-pdf-process '
-    ;;       ("latexmk -xelatex -quiet -shell-escape -f %f"
-    ;;        "rm -fr %b.out %b.tex %b.brf %b.bbl"))
+    (setq org-latex-pdf-process '
+          ;;("latexmk -xelatex -quiet -shell-escape -f %f"
+          ("latexmk -xelatex -shell-escape -f %f"
+           "rm -fr %b.out %b.tex %b.brf %b.bbl"))
     ;;        ;;"rm -fr %b.out %b.log %b.tex %b.brf %b.bbl"))
 
     (add-to-list 'org-latex-classes
@@ -1434,11 +1430,6 @@ from tradition chinese to simple chinese" t)
 #+END_SRC
 
 ** Org-Latex-Preview
-
-参考内容
-+ https://github.com/opsnull/emacs
-+ https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
-   
 #+begin_src emacs-lisp :tangle yes
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1516,7 +1507,6 @@ from tradition chinese to simple chinese" t)
 (global-set-key (kbd "TAB") 'pcomplete)
 
 #+end_src
-
 * Programming
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1730,86 +1720,7 @@ from tradition chinese to simple chinese" t)
 ;;               auto-insert-alist))
 #+END_SRC
 
-* Tramp
-
-Tramp 是 Emacs 中用来编辑远端文件的模块，全称为『Transparent Remote (file) Access, Multiple Protocol
-
-+ 打开远程主机上的文件: C-x C-f  /method:user@remotehost:filename)
-  eg: C-x C-f /ssh:root@ssb.willschenk.com:/etc/host
-
-+ 借助于 ssh 的 config 文件，简化打开文件的命令
-  eg:
-
-   - /ssh:devhost:/etc/hosts 
-   - /-:devhost:/etc/hosts
-
-   # ~/.ssh/config
-   Host devhost
-   HostName 192.168.31.92
-   User vagrant
-   IdentityFile ~/Documents/configs/vagrant-pk
-   ControlMaster auto
-   ControlPath ~/.ssh/master-%C
-   ControlPersist 1h
-  
-   
-+ 也可以通过配置 directory-abbrev-alist 进一步简化：
-   eg:
-
-   - (setq directory-abbrev-alist '(("^/dev" . "/-:dev:/etc")))
-   - c-x c-f /dev TAB 会自动打开 /-:dev:/etc
-  
-+ sudo 打开文件
-   eg:
-
-   - /sudo::/etc/host RET
-   - /ssh:you@remotehost|sudo::/etc/host RET
-   
-+ 多级跳跃 multiple hops
-  eg:
-
-  - C-x C-f /ssh:jumperUser@bastion|ssh:admin@production:/path RET
-  - 先用 jumper 用户登录堡垒机 bastion, 之后在堡垒机上以 admin 用户登录 production 打开 /path 
-   
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-  (use-package tramp
-    :ensure nil
-    :custom
-    (tramp-use-ssh-controlmaster-options nil) ; Don't override SSH config.
-    (tramp-default-method "ssh")              ; ssh / sshx=‘ssh -t -t host -l user /bin/sh’ to open a connection with a “standard” login shell.”
-    :config
-    ;; (tramp-set-completion-function "sshx"
-    (tramp-set-completion-function "ssh"
-                                   '((tramp-parse-sconfig "/etc/ssh_config")
-                                     (tramp-parse-sconfig "~/.ssh/config")))
-    (setq directory-abbrev-alist '(("^/trojan" . "/-:trojan:~/")))
-    )
-
-#+END_SRC
-
 * Font
-** 如果是Ubuntu 系统，请先安装字体：
-
-#+begin_src shell  :tangle no
-install_fonts(){
-    if cat /etc/issue | grep -q -E -i "debian|ubuntu"; then
-        [-d $fontsDir/PesMono ] && mkdir -p $fontsDir/PesMono
-        FONTSURL="https://raw.githubusercontent.com/ilyaw39/PesMono/main/pes-mono.ttf"
-        wget -q -N -t2 -T3 $FONTSURL -O $fontsDir/PesMono/pes-mono.ttf ||
-            wget -q -N -t2 -T3 https://cdn.jsdelivr.net/gh/ilyaw39/PesMono@master/pes-mono.ttf -O $fontsDir/PesMono/pes-mono.ttf ||
-            wget -q -N -t2 -T3 https://ghproxy.com/$FONTSURL -O $fontsDir/PesMono/pes-mono.ttf
-        mkfontdir && fc-cache -f
-        [ $(fc-list| grep -q pes-mono) ] || echo -e "\033[31mPesMono font installation failed.Please check.\033[0m"
-    fi
-}
-#+end_src
-
-** 如果是MacOS 系统，请先安装字体
-
-+  brew tap moritzsternemann/apple-fonts && brew install --cask font-sf-pro
-+  noto-cjk 中文字体(for org-to-latex-pdf): git clone https://github.com/googlefonts/noto-cjk.git
-   
 ** 字体配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
