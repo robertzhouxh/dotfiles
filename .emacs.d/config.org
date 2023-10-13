@@ -1722,7 +1722,7 @@ from tradition chinese to simple chinese" t)
          (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
         (t
          (let ((emacs-font-size 20)
-               (chinese-font-name  "TsangerJinKai05-w03")
+               (chinese-font-name  "TsangerJinKai05")
                english-font-name)
            (cond
             ((featurep 'cocoa)
@@ -1791,7 +1791,7 @@ from tradition chinese to simple chinese" t)
 
   (interactive)
   (let* ((efl '("Monaco" "WenQuanYi Micro Hei Mono" "Source Code Pro" "Ubuntu Mono"))
-         (cfl '("TsangerJinKai05-w03" "楷体" "黑体" "STHeiti" "STKaiti"))
+         (cfl '("TsangerJinKai05" "楷体" "黑体" "STHeiti" "STKaiti"))
 
 	     (cf (available-font cfl))
 	     (ef (available-font efl)))
@@ -1851,14 +1851,14 @@ from tradition chinese to simple chinese" t)
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
                 ;; :font "PingFang SC"
-                :font "TsangerJinKai05-w03"
+                :font "TsangerJinKai05"
                 :internal-border-width 10)))
   (when (x/system-is-linux)
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
                 ;; :font "WenQuanYi Micro Hei Mono-14"
-                :font "TsangerJinKai05-w03"
+                :font "TsangerJinKai05-18"
                 :internal-border-width 10)))
 )
 #+END_SRC
