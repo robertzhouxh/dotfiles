@@ -1223,10 +1223,6 @@ from tradition chinese to simple chinese" t)
 #+END_SRC
 
 * Org-Mode
-
-+ 参考(org-latex-preview)：https://github.com/ilyaw39/.emacs.d/blob/main/lisp/init-org.el
-+ 参考(org-latex)：https://github.com/opsnull/emacs
-
 ** Org 辅助配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1358,14 +1354,10 @@ from tradition chinese to simple chinese" t)
   :ensure t
   :after (org)
   :init
-  ;;(setq org-modern-star '("􀄩"))
-  ;;(setq org-modern-hide-stars "􀄩")
   ;;(setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
   ;;(setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
   ;;(setq org-modern-list '((?- . "•")))
   (setq org-modern-star '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
-  (setq org-modern-checkbox '((?X . "􀃰") (?- . "􀃞") (?\s . "􀂒")))
-  (setq org-modern-progress '("􀛪" "􀛩" "􀺶" "􀺸" "􀛨"))
   (setq org-modern-table-vertical 2)
   (setq org-modern-block-name nil)
   (setq org-modern-keyword nil)
@@ -1721,51 +1713,106 @@ from tradition chinese to simple chinese" t)
 #+END_SRC
 
 * Font
-** 字体配置
+** Lazycat's Font Config
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; stolen from https://github.com/cabins/.emacs.d/blob/dev/lisp/init-ui.el
-  ;; adjust the fonts
-  (require 'subr-x)
+(defun load-font-setup()
+  (cond ((eq window-system 'pgtk)
+         (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
+        (t
+         (let ((emacs-font-size 20)
+               (chinese-font-name  "TsangerJinKai05-w03")
+               english-font-name)
+           (cond
+            ((featurep 'cocoa)
+             (setq english-font-name "Monaco"))
+            ((string-equal system-type "gnu/linux")
+             (setq english-font-name "WenQuanYi Micro Hei Mono")))
+           (when (display-grayscale-p)
+             (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
+             (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
 
-  (defun font-installed-p (font-name)
-    "Check if font with FONT-NAME is available."
-    (find-font (font-spec :name font-name)))
+             (dolist (charset '(kana han symbol cjk-misc bopomofo))
+               (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family (eval chinese-font-name))))
+             )))))
 
-  (defun cabins/font-setup ()
-    "Font setup."
+(load-font-setup)
 
-    (interactive)
-    (when (display-graphic-p)
-      ;; Default font
-      (cl-loop for font in '("SF Pro" "Monaco" "Hack" "Consolas" "Source Code Pro" "Menlo" "DejaVu Sans Mono")
-               when (font-installed-p font)
-               return (set-face-attribute 'default nil :family font))
+;; This is hacking to fix Emacs 29 will decrease font after standby.
+(add-function :after after-focus-change-function #'load-font-setup)
 
-      ;; Unicode characters
-      (cl-loop for font in '("Segoe UI Symbol" "Symbola" "Symbol")
-               when (font-installed-p font)
-               return (set-fontset-font t 'unicode font nil 'prepend))
+(dolist (hook (list
+               'c-mode-common-hook
+               'c-mode-hook
+               'c++-mode-hook
+               'java-mode-hook
+               'haskell-mode-hook
+               'emacs-lisp-mode-hook
+               'lisp-interaction-mode-hook
+               'lisp-mode-hook
+               'maxima-mode-hook
+               'ielm-mode-hook
+               'sh-mode-hook
+               'makefile-gmake-mode-hook
+               'python-mode-hook
+               'js-mode-hook
+               'go-mode-hook
+               'qml-mode-hook
+               'jade-mode-hook
+               'css-mode-hook
+               'coffee-mode-hook
+               'rust-mode-hook
+               'qmake-mode-hook
+               'lua-mode-hook
+               'web-mode-hook
+               'markdown-mode-hook
+               'conf-toml-mode-hook
+               'typescript-mode-hook
+               ))
+  (add-hook hook #'(lambda () (load-font-setup))))
+#+END_SRC
 
-      ;; Emoji
-      (cl-loop for font in '("Noto Color Emoji" "Apple Color Emoji")
-               when (font-installed-p font)
-               return (set-fontset-font t 'emoji (font-spec :family font) nil 'prepend))
+** 废弃
 
-      ;; Chinese characters
-      ;; (cl-loop for font in '("LXGW WenKai" "TsangerJinKai05" "FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
-      (cl-loop for font in '("FZLanTingHeiS-EL-GB" "PingFang SC" "Microsoft Yahei UI" "Microsoft Yahei" "STFangsong")
-               when (font-installed-p font)
-               return (progn
-                                          ;(setq face-font-rescale-alist `((,font . 1.2)))
-                        (set-fontset-font t '(#x4e00 . #x9fff) (font-spec :family font))))))
+#+BEGIN_SRC emacs-lisp :tangle no 
 
-  (add-hook 'emacs-startup-hook 'cabins/font-setup)
-  (when (daemonp) (add-hook 'after-make-frame-functions (lambda (frame) (with-selected-frame frame (cabins/font-setup)))))
+(toggle-frame-maximized)
 
-  (set-face-attribute 'default nil :height 160)
+(defun available-font (font-list)
+  "Get the first available font from FONT-LIST."
+  (catch 'font
+    (dolist (font font-list)
+      (if (member font (font-family-list))
+	      (throw 'font font)))))
 
+(defun zxh/setup-font ()
+  "Font setup."
+
+  (interactive)
+  (let* ((efl '("Monaco" "WenQuanYi Micro Hei Mono" "Source Code Pro" "Ubuntu Mono"))
+         (cfl '("TsangerJinKai05-w03" "楷体" "黑体" "STHeiti" "STKaiti"))
+
+	     (cf (available-font cfl))
+	     (ef (available-font efl)))
+
+    (when ef
+      (dolist (face '(default fixed-pitch fixed-pitch-serif variable-pitch))
+	    (set-face-attribute face nil :family ef)))
+
+    (when cf
+      (dolist (charset '(kana han cjk-misc bopomofo))
+	    (set-fontset-font t charset cf))
+      (setq face-font-rescale-alist
+	        (mapcar (lambda (item) (cons item 1.2)) cfl)))))
+
+;; settings for daemon mode
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+	          (lambda (frame)
+		        (with-selected-frame frame
+		          (cabins/setup-font))))
+  (add-hook 'after-init-hook #'zxh/setup-font))
 
 #+END_SRC
 
@@ -1803,14 +1850,17 @@ from tradition chinese to simple chinese" t)
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
-                :font "PingFang SC"
+                ;; :font "PingFang SC"
+                :font "TsangerJinKai05-w03"
                 :internal-border-width 10)))
   (when (x/system-is-linux)
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
-                :font "WenQuanYi Micro Hei Mono-14"
-                :internal-border-width 10))))
+                ;; :font "WenQuanYi Micro Hei Mono-14"
+                :font "TsangerJinKai05-w03"
+                :internal-border-width 10)))
+)
 #+END_SRC
 * Platform
 
@@ -1871,70 +1921,6 @@ from tradition chinese to simple chinese" t)
 * Reading & OpenAI
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Epub reader: https://chainsawriot.com/postmannheim/2022/12/22/aoe22.html
-
-  (add-hook 'nov-mode-hook 'visual-line-mode)
-  (add-hook 'nov-mode-hook 'visual-fill-column-mode)
-  (setq nov-text-width 120)
-  (defvar nov-cursor nil "Whether the cursor is enabled")
-
-  (defun toggle-nov-cursor ()
-    "Toggle nov cursor mode"
-    (interactive)
-    (if nov-cursor
-  	  (progn
-  		(setq cursor-type nil
-  			  nov-cursor nil)
-  		(scroll-lock-mode 1))
-      (progn
-  	  (setq cursor-type t
-  			nov-cursor t)
-  	  (scroll-lock-mode -1)
-  	  )))
-  
-  ;;(with-eval-after-load 'shr (set-face-attribute 'variable-pitch nil :font (format "%s:pixelsize=%d" "TsangerJinKai05" 24)))
-  ;;(with-eval-after-load 'shr (set-face-attribute 'variable-pitch nil :font (format "%s:pixelsize=%d" "仓耳今楷 01" 24)))
-  (defun nov-display ()
-    (face-remap-add-relative 'variable-pitch :family "TsangerJinKai05" :height 1.5)
-    ;; (face-remap-add-relative 'variable-pitch :family "LXGW WenKai" :height 1.5)
-    (scroll-lock-mode 1)
-    (toggle-scroll-bar -1)
-    (setq mode-line-format nil
-  		nov-header-line-format ""
-  		cursor-type nil))
-
-  (use-package visual-fill-column
-    :config
-    (setq-default visual-fill-column-center-text t)
-    (setq-default visual-fill-column-width 120))
-
-  (use-package nov 
-    :load-path "~/.emacs.d/vendor/nov"
-    :mode ("\\.epub\\'" . nov-mode)
-    :bind (:map nov-mode-map
-                ("C-q" . 'toggle-nov-cursor)
-                ("j" . scroll-up-line)
-                ("k" . scroll-down-line))
-    :config
-    (add-hook 'nov-mode-hook 'nov-display)
-    (add-hook 'nov-mode-hook 'visual-fill-column-mode)
-    (with-no-warnings
-      ;; WORKAROUND: errors while opening `nov' files with Unicode characters
-      ;; @see https://github.com/wasamasa/nov.el/issues/63
-      (defun my-nov-content-unique-identifier (content)
-        "Return the the unique identifier for CONTENT."
-        (let* ((name (nov-content-unique-identifier-name content))
-               (selector (format "package>metadata>identifier[id='%s']"
-                                 (regexp-quote name)))
-               (id (car (esxml-node-children (esxml-query selector content)))))
-          (and id (intern id))))
-      (advice-add #'nov-content-unique-identifier :override #'my-nov-content-unique-identifier))
-  
-    ;; Fix encoding issue on Windows
-    (when sys/win32p
-      (setq process-coding-system-alist
-            (cons `(,nov-unzip-program . (gbk . gbk))
-                  process-coding-system-alist))))
 
   ;;(use-package calibredb
   ;;  :ensure t

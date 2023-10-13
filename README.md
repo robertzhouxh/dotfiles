@@ -280,6 +280,10 @@ sudo apt-get install fonts-noto-cjk
 sudo apt-get install fonts-noto-mono
 sudo apt-get install fonts-noto-color-emoji
 
+// 下载苍耳今楷字体： http://tsanger.cn/product/47 
+wget http://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BB%8A%E6%A5%B705-W03.ttf
+mv 仓耳今楷05-W03.ttf ~/.fonts/TsangerJinKai05-w03.ttf
+
 // 下载 Noto_Sans/Serif_SC 字体： https://fonts.google.com/
 // 下载鸿蒙字体： https://developer.harmonyos.com/cn/docs/design/des-guides/font-0000001157868583
 
