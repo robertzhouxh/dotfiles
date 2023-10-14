@@ -529,7 +529,7 @@ sudo mktexlsr
     
 - 打开 Gnome Tweaks,
 - 选择 choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
-# 坑爹的 NVIDIA 显卡驱动-(附重启黑屏解决办法）
+## 坑爹的 NVIDIA 显卡驱动-(附重启黑屏解决办法）
 外星人M18 安装 Ubuntu 22.04 以后需要安装显卡驱动， 
 - 推荐用第三种安装方式
 - 首先需要F2 进入 BIOS 中设置 secure mode 为 false~
@@ -618,6 +618,96 @@ GRUB_CMDLINE_LINUX=""               ---> ""内改为 text        GRUB_CMDLINE_LI
 - https://zhuanlan.zhihu.com/p/608786007
 - https://www.alibabacloud.com/help/en/elastic-gpu-service/latest/uninstall-a-gpu-driver#section-t1c-es8-mb5
 - https://www.techsupportall.com/how-to-uninstall-nvidia-driver/#linux
+
+## debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
+
+Nvidia 官方驱动是基于X11环境的，而 debian/ubuntu 的 Gnome 桌面 在 x11 环境下不支持触摸板手势
+需要安装以下插件，让其支持触摸板手势
+
+🌀步骤1：安装Touchegg
+      Ubuntu 系统建议使用ppa进行安装
+
+① sudo add-apt-repository ppa:touchegg/stable
+② sudo apt update
+③ sudo apt install touchegg
+
+如系统无法以ppa安装，则请下载合适的安装档进行安装
+① https://github.com/JoseExposito/touchegg/releases
+② sudo apt install ./touchegg_*.deb 进行安装
+
+🌀步骤2： 安装 X11 Gestures: https://extensions.gnome.org/extension/4033/x11-gestures/
+
+装好 gnome 插件后一切正常.
+如果触摸板手势用着不舒服或者需要很长路径才能触发，按照文档配置以下参数即可
+https://github.com/JoseExposito/touchegg#daemon-configuration
+
+🌀步骤3： 安装图形化手势配置管理
+
+Touche是Touchegg的图形化设定软件，建议由Flatpak进行安装：
+
+① 先安裝flatpack
+
+sudo apt install flatpak
+flatpak remote-add --if-not-exists flathub  https://flathub.org/repo/flathub.flatpakrepo
+sudo reboot
+
+② 安装 Touche: flatpak install flathub com.github.joseexposito.touche 
+③ 运行 Touche: flatpak run com.github.joseexposito.touche 
+
+🌀步骤4[可选]：在Touche 设定三指&四指手势
+
+Touche的选单提供了8 种系统动作，可依需求自行指定到不同的触控手势：
+窗口最大化Maximize or restore a window
+♦ 窗口最小化Minimize a window
+♦ 平铺窗口Tile a window
+♦ 全屏幕窗口Fullscreen a window
+♦ 结束窗口Close a window
+♦ 切换桌面Switch desktops/workspaces
+♦ 显示桌面Show desktop
+♦ 执行自定义的快捷键Keyboard shortcut
+
+例如设定手势为：
+- 3指向上滑，将APP窗口最大化；
+- 3指向下滑，将APP窗口最小化；
+- 3指向左/右滑，将APP窗口平铺至左半边或右半边。
+
+Touche 的手勢可以设定为全系统通用、或通用于某特定应用， 选择 Touche 左下角的+，再点想新增的应用程序视窗，即可將该应用程序新增至Touche
+
+🌀步骤5[可选]：手动设定Touchegg 两指缩放手势
+
+Touchegg的两指缩放动作必须使用Keyboard Shortcut，建议直接打开Touchegg的配置文件手动设定：
+
+① 打开Touchegg 配置文件 vim /.config/touchegg/touchegg.conf
+② 将下方红框内容,复制贴到＜application name ="ALL">之下
+
+```
+<gesture type="PINCH" fingers="2" direction="IN">
+<action type="SEND_KEYS">
+<repeat>true</repeat>
+<modifiers>Control_L</modifiers>
+<keys>KP_Subtract</keys>
+<decreaseKeys>KP_Add</decreaseKeys>
+</action>
+</gesture>
+<gesture type="PINCH" fingers="2" direction="OUT">
+<action type="SEND_KEYS">
+<repeat>true</repeat>
+<modifiers>Control_L</modifiers>
+<keys>KP_Add</keys>
+<decreaseKeys>KP_Subtract</decreaseKeys>
+</action>
+</gesture>
+```
+
+问题：
+
+- 若在 /.config/touchegg/ 里没有找到touchegg.conf, 请自行由 /usr/share/touchegg/ 中， 将touchegg.conf 复制到 /.config/touchegg/
+- 若Touchegg已成功执行，但触控手势没有反应，请检查 /.config/touchegg/文件夹内，是否有一个错误的文件档 (.lock)？删除该文件档后，触控手势即可正常执行
+- 不想安装Touche, Touche的功能是为Touchegg提供图形化设定，不安装Touche亦可执行Touchegg。
+① 打开Terminal
+② 输入 touchegg
+③ 显示 Connection with Touchegg established ，执行成功。
+
 
 # 多語言支持
 
