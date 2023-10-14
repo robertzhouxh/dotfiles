@@ -624,24 +624,47 @@ GRUB_CMDLINE_LINUX=""               ---> ""内改为 text        GRUB_CMDLINE_LI
 Nvidia 官方驱动是基于X11环境的，而 debian/ubuntu 的 Gnome 桌面 在 x11 环境下不支持触摸板手势
 需要安装以下插件，让其支持触摸板手势
 
-🌀步骤1：安装Touchegg
-      Ubuntu 系统建议使用ppa进行安装
+🌀步骤1：安装Touchegg: https://github.com/JoseExposito/touchegg
 
-① sudo add-apt-repository ppa:touchegg/stable
-② sudo apt update
-③ sudo apt install touchegg
-
+Ubuntu 系统建议使用ppa进行安装
+```
+sudo add-apt-repository ppa:touchegg/stable
+sudo apt update
+sudo apt install touchegg
+```
 如系统无法以ppa安装，则请下载合适的安装档进行安装
 ① https://github.com/JoseExposito/touchegg/releases
 ② sudo apt install ./touchegg_*.deb 进行安装
 
 🌀步骤2： 安装 X11 Gestures: https://extensions.gnome.org/extension/4033/x11-gestures/
 
-装好 gnome 插件后一切正常.
 如果触摸板手势用着不舒服或者需要很长路径才能触发，按照文档配置以下参数即可
 https://github.com/JoseExposito/touchegg#daemon-configuration
 
-🌀步骤3： 安装图形化手势配置管理
+🌀步骤3：如果不想安装图形化配置可以直接在操作配置文件
+
+```
+mkdir -p ~/.config/touchegg && cp -n /usr/share/touchegg/touchegg.conf ~/.config/touchegg/touchegg.conf
+vim ~/.config/touchegg/touchegg.conf
+rm ~/.config/touchegg/.touchegg:1.lock
+```
+
+- 也可以参考全局配置选项： https://github.com/JoseExposito/touchegg#global-settings
+- 注意：删除 ~/.config/touchegg/.touchegg:1.lock
+- 可参考仓库中的 touchegg.conf 文件， 注意，这里的<action type="SEND_KEYS">的手势，是基于你的自定义快捷键（settings->keyboard）
+
+1、三指左右滑动可切换工作区
+2、三指上滑可以显示概览窗口，即活动窗口，再次上滑可取消概览窗口
+3、三指下滑可最小化当前窗口
+4、三指内缩可关闭窗口，这是个持续动作，内缩回收可撤回（不止聚焦的窗口可用，只要在屏幕上显示的窗口都可以使用）
+5、三指点击表示鼠标中键
+6、四指上滑可显示全部菜单，再次上滑可回到概览窗口
+7、四指左、右滑动，可将当前窗口移动至左、右工作区
+8、四指外阔显示桌面
+9、单指，双指保持正常逻辑
+
+### 图形化配置【可选】
+🌀步骤1： 安装图形化手势配置管理
 
 Touche是Touchegg的图形化设定软件，建议由Flatpak进行安装：
 
@@ -654,7 +677,7 @@ sudo reboot
 ② 安装 Touche: flatpak install flathub com.github.joseexposito.touche 
 ③ 运行 Touche: flatpak run com.github.joseexposito.touche 
 
-🌀步骤4[可选]：在Touche 设定三指&四指手势
+🌀步骤2：在Touche 设定三指&四指手势
 
 Touche的选单提供了8 种系统动作，可依需求自行指定到不同的触控手势：
 窗口最大化Maximize or restore a window
@@ -670,44 +693,6 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
 - 3指向上滑，将APP窗口最大化；
 - 3指向下滑，将APP窗口最小化；
 - 3指向左/右滑，将APP窗口平铺至左半边或右半边。
-
-Touche 的手勢可以设定为全系统通用、或通用于某特定应用， 选择 Touche 左下角的+，再点想新增的应用程序视窗，即可將该应用程序新增至Touche
-
-🌀步骤5[可选]：手动设定Touchegg 两指缩放手势
-
-Touchegg的两指缩放动作必须使用Keyboard Shortcut，建议直接打开Touchegg的配置文件手动设定：
-
-① 打开Touchegg 配置文件 vim /.config/touchegg/touchegg.conf
-② 将下方红框内容,复制贴到＜application name ="ALL">之下
-
-```
-<gesture type="PINCH" fingers="2" direction="IN">
-<action type="SEND_KEYS">
-<repeat>true</repeat>
-<modifiers>Control_L</modifiers>
-<keys>KP_Subtract</keys>
-<decreaseKeys>KP_Add</decreaseKeys>
-</action>
-</gesture>
-<gesture type="PINCH" fingers="2" direction="OUT">
-<action type="SEND_KEYS">
-<repeat>true</repeat>
-<modifiers>Control_L</modifiers>
-<keys>KP_Add</keys>
-<decreaseKeys>KP_Subtract</decreaseKeys>
-</action>
-</gesture>
-```
-
-问题：
-
-- 若在 /.config/touchegg/ 里没有找到touchegg.conf, 请自行由 /usr/share/touchegg/ 中， 将touchegg.conf 复制到 /.config/touchegg/
-- 若Touchegg已成功执行，但触控手势没有反应，请检查 /.config/touchegg/文件夹内，是否有一个错误的文件档 (.lock)？删除该文件档后，触控手势即可正常执行
-- 不想安装Touche, Touche的功能是为Touchegg提供图形化设定，不安装Touche亦可执行Touchegg。
-① 打开Terminal
-② 输入 touchegg
-③ 显示 Connection with Touchegg established ，执行成功。
-
 
 # 多語言支持
 
