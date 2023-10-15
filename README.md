@@ -524,6 +524,37 @@ sudo mktexlsr
 
 ```
 
+## 安装 docker
+
+参考官方安装方法： https://docs.docker.com/engine/install/ubuntu/
+```
+# Set up the Docker daemon, systemd/cgroupfs
+
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "registry-mirrors":["https://bycacelf.mirror.aliyuncs.com"],
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+# Create /etc/systemd/system/docker.service.d
+sudo mkdir -p /etc/systemd/system/docker.service.d
+
+# Restart Docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+# 彻底卸载 docker
+sudo apt-get purge docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
+sudo rm -rf /var/lib/docker
+sudo rm -rf /var/lib/containerd
+```
+
 ## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 ## Ctrl 与 Caps 键位交换
     
