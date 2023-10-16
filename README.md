@@ -743,10 +743,14 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
   #export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
 
 
-  asdf install rebar 3.20.0
+  asdf list all rebar
+  asdf install rebar 3.22.1
   asdf install erlang 23.3.4
   asdf install erlang 24.3.4
-  asdf global rebar  3.20.0
+
+  asdf list rebar
+
+  asdf global rebar  3.22.1
   asdf global erlang 24.3.4
   
 ```
