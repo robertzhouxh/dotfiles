@@ -2226,11 +2226,11 @@ from tradition chinese to simple chinese" t)
 ;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
 
 ;; Refer: https://emacs-china.org/t/lsp-bridge/20786/3221
-;; (setq lsp-bridge-get-project-path-by-filepath
-;;       (lambda (filepath)
-;;         (save-match-data
-;;           (and (string-match "/Users/zxh/githubs/gld/\\([^/]*\\)" filepath)
-;;                (match-string 0 filepath)))))
+(setq lsp-bridge-get-project-path-by-filepath
+      (lambda (filepath)
+        (save-match-data
+          (and (string-match (concat (getenv "HOME") "/zxh/githubs/gld/\\([^/]*\\)") filepath)
+               (match-string 0 filepath)))))
 
 #+END_SRC
 

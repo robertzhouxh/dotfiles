@@ -73,7 +73,7 @@ cp -r ./rime-ice/*  ~/Library/Rime/
 
 ```
 curl -L -O https://github.com/rime/librime/releases/download/1.9.0/rime-a608767-macOS.tar.bz2
-tar jxvf rime-a608767-macOS.tar.bz2 -d ~/.emacs.d/librime
+tar jxvf rime-a608767-macOS.tar.bz2 -C ~/.emacs.d/librime
 
 # 如果MacOS Gatekeeper阻止第三方软件运行，可以暂时关闭它：
 # 
@@ -760,9 +760,14 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
 参考 https://github.com/erlang/otp/issues/4821 尝试以下方案
 
 ```
-export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
+# export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
+export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl@1.1) --disable-parallel-configure"
+
+asdf install erlang 23.3.4
 
 vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
+
+asdf install erlang 23.3.4
 ```
 
 wx相关错误,ref: https://github.com/asdf-vm/asdf-erlang/issues/203
