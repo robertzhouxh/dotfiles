@@ -2196,12 +2196,11 @@ from tradition chinese to simple chinese" t)
 
 (setq lsp-bridge-enable-completion-in-minibuffer t)
 (setq lsp-bridge-signature-show-function 'lsp-bridge-signature-show-with-frame)
+(setq lsp-bridge-enable-with-tramp t)
 (setq acm-enable-quick-access t)
 (setq acm-backend-yas-match-by-trigger-keyword t)
 (setq acm-enable-tabnine nil)
-
-;; todo: 临时关掉，否则启动的时报提示 [LSP-Bridge] Waiting for Codeium local server to start...
-;;(setq acm-enable-codeium t)
+(setq acm-enable-codeium nil)
 
 (global-lsp-bridge-mode)
 
@@ -2227,11 +2226,11 @@ from tradition chinese to simple chinese" t)
 ;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
 
 ;; Refer: https://emacs-china.org/t/lsp-bridge/20786/3221
-(setq lsp-bridge-get-project-path-by-filepath
-      (lambda (filepath)
-        (save-match-data
-          (and (string-match "/Users/zxh/githubs/gld/\\([^/]*\\)" filepath)
-               (match-string 0 filepath)))))
+;; (setq lsp-bridge-get-project-path-by-filepath
+;;       (lambda (filepath)
+;;         (save-match-data
+;;           (and (string-match "/Users/zxh/githubs/gld/\\([^/]*\\)" filepath)
+;;                (match-string 0 filepath)))))
 
 #+END_SRC
 
