@@ -738,8 +738,8 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
   export CC=clang 
   export CPP="clang -E" 
   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
-  #export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
+  # export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
+  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
 
 
   asdf list all rebar
@@ -828,19 +828,6 @@ asdf install nodejs 19.6.0
 asdf global node 19.6.0
 ```
 
-
-# 适配章节 .emacs.d/config.org 中 ( Custom Var) 中的变量
-
-
-```
-  (setq erlang-path-prefix "~/.asdf/installs/erlang/24.3.4")
-  (setq erlang-lib-tools-version "3.5.2")
-  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.1/libexec/plantuml.jar")
-  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq emacs-module-header-root "/opt/homebrew/Cellar/emacs-mac/emacs-28.2-mac-9.1/include")
-
-```
 
 # mac or ubuntu 中的 openssl 版本问题
 ## mac
