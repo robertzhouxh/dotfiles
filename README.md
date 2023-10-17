@@ -748,7 +748,7 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
   asdf list all erlang
   asdf list all rebar
 
-  asdf install erlang 24.3.4
+ asdf install erlang 24.3.4
   asdf install rebar 3.22.1
 
   asdf global rebar  3.22.1
