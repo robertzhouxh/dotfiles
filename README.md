@@ -725,7 +725,7 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
 - 3指向下滑，将APP窗口最小化；
 - 3指向左/右滑，将APP窗口平铺至左半边或右半边。
 
-# 多語言支持
+# 多语言支持
 ## Erlang/Elixir on macos
 
 ```
@@ -738,36 +738,21 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
   export CC=clang 
   export CPP="clang -E" 
   export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-  # export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) -with-wx-config=/opt/homebrew/bin/wx-config"
-  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
 
+  # export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
 
+  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl@1.1) --without-wx"
+
+  asdf plugin-update --all
+
+  asdf list all erlang
   asdf list all rebar
-  asdf install rebar 3.22.1
-  asdf install erlang 23.3.4
-  asdf install erlang 24.3.4
 
-  asdf list rebar
+  asdf install rebar 3.22.1
+  asdf install erlang 24.3.4
 
   asdf global rebar  3.22.1
   asdf global erlang 24.3.4
-  
-```
-如遇错误:  unable to find crypto OpenSSL lib
-参考 https://github.com/erlang/otp/issues/4821 尝试以下方案
-
-```
-# export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --disable-parallel-configure"
-export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl@1.1) --disable-parallel-configure"
-
-asdf install erlang 23.3.4
-
-vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
-
-asdf plugin-update --all
-asdf install erlang 24.3.4
-asdf global erlang 24.3.4
-
 ```
 ## erlang on ubuntu
 
@@ -825,7 +810,7 @@ asdf install nodejs latest:16
 asdf install nodejs 19.6.0
 
 # eaf-file-manager 需要高版本的node
-asdf global node 19.6.0
+asdf global nodejs 19.6.0
 ```
 
 
