@@ -726,7 +726,6 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
 - 3指向左/右滑，将APP窗口平铺至左半边或右半边。
 
 # 多語言支持
-
 ## Erlang/Elixir on macos
 
 ```
@@ -754,9 +753,7 @@ Touche的选单提供了8 种系统动作，可依需求自行指定到不同的
   asdf global erlang 24.3.4
   
 ```
-
 如遇错误:  unable to find crypto OpenSSL lib
-
 参考 https://github.com/erlang/otp/issues/4821 尝试以下方案
 
 ```
@@ -767,52 +764,16 @@ asdf install erlang 23.3.4
 
 vi ~/.asdf/plugins/erlang/kerl,  search  "we need to",  Darwin)  改为： Darwin-disabled)
 
-asdf install erlang 23.3.4
+asdf plugin-update --all
+asdf install erlang 24.3.4
+asdf global erlang 24.3.4
+
 ```
-
-wx相关错误,ref: https://github.com/asdf-vm/asdf-erlang/issues/203
-```
-git clone git@github.com:wxWidgets/wxWidgets.git
-cd wxWidgets
-git submodule update --init src/png
-git submodule update --init src/jpeg
-./configure --with-cocoa --prefix=/usr/local --enable-webview --enable-compat28 --with-macosx-version-min=11.3
-make
-sudo make install
-
-export KERL_BUILD_DOCS=yes
-export KERL_INSTALL_MANPAGES=yes
-export wxUSE_MACOSX_VERSION_MIN=11.3
-export EGREP=egrep
-export CC=clang
-export CPP="clang -E"
-export KERL_USE_AUTOCONF=0
-
-export KERL_CONFIGURE_OPTIONS="--disable-debug \
-                               --disable-hipe \
-                               --disable-sctp \
-                               --disable-silent-rules \
-                               --enable-darwin-64bit \
-                               --enable-dynamic-ssl-lib \
-                               --enable-kernel-poll \
-                               --enable-shared-zlib \
-                               --enable-smp-support \
-                               --enable-threads \
-                               --enable-wx \
-                               --with-ssl=/opt/local \
-                               --with-wx-config=/usr/local/bin/wx-config \
-                               --without-javac \
-                               --without-jinterface \
-                               --without-odbc"
-```
-
-
 ## erlang on ubuntu
 
 ```
-
 asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
-
+    
 ## 不安裝 11-jdk
 ## sudo apt-get -y install build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk
 
@@ -883,12 +844,16 @@ asdf global node 19.6.0
 
 # mac or ubuntu 中的 openssl 版本问题
 ## mac
+
+按照提示 export 对应的环境变量
+
 ```
 brew install openssl@3
 brew install openssl@1.1
 brew unlink openssl@3
 brew link openssl@1.1
-# 按照提示 export 对应的环境变量
+
+brew --prefix openssl@1.1
 
 ```
 
