@@ -59,6 +59,12 @@ rm -rf ~/.emacs*
 ```
 启动 Emacs
 
+## 安装苍耳今楷字体
+
+```
+wget http://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BB%8A%E6%A5%B705-W03.ttf
+```
+
 ## 安装鼠须管输入法+雾凇词库
 
 ```
