@@ -1833,7 +1833,7 @@ from tradition chinese to simple chinese" t)
   (rime-posframe-style 'vertical)
   (rime-show-candidate 'posframe)
   (rime-user-data-dir zxh-emacs-rime-user-data-dir)
-  ;;(rime-librime-root (expand-file-name "librime/dist" user-emacs-directory)
+  (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
   :config
   (setq rime-disable-predicates
         ;; 行首输入符号
