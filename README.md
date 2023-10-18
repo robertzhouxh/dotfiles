@@ -597,7 +597,7 @@ driver : xserver-xorg-video-nouveau - distro free builtin
 - the recommend driver to install is nvidia-driver-470.
 - sudo apt install nvidia-driver-470
   
-## 官网手动下载安装( 重启以后直接黑屏，卡死，进不去系统 )
+### 官网手动下载安装( 重启以后直接黑屏，卡死，进不去系统 )
 
 官网下载对应版本的显卡驱动 ( 会自动识别 ) - https://www.nvidia.com/download/index.aspx
 
@@ -608,7 +608,7 @@ nvidia-settings -q NvidiaDriverVersion
 nvidia-smi
 ```
 
-## 利用源来安装
+### 利用源来安装
 ```
 # Check the current installed nvidia driver
 sudo apt list '*nvidia-driver*'
@@ -628,13 +628,13 @@ nvidia-smi
 sudo reboot
 ```
 
-## Software & Updates 安装
+### Software & Updates 安装
 - 搜索 Software & Updates 
 - 切换到 Additional Drivers
 - 选择合适的显卡驱动，点击右下方的 Apply Changes 按钮。
 - 结束后重启计算机。
 
-## 重启黑屏解决方案
+### 重启黑屏解决方案
 
 - 启动PC ，方向键选择 Advanced options for Ubuntu
 - 进入下一个界面，选 recovery mode
