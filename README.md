@@ -694,47 +694,6 @@ rm ~/.config/touchegg/.touchegg:1.lock
 - 注意：删除 ~/.config/touchegg/.touchegg:1.lock
 - 可参考仓库中的 touchegg.conf 文件， 注意，这里的<action type="SEND_KEYS">的手势，是基于你的自定义快捷键（settings->keyboard）
 
-1、三指左右滑动可切换工作区
-2、三指上滑可以显示概览窗口，即活动窗口，再次上滑可取消概览窗口
-3、三指下滑可最小化当前窗口
-4、三指内缩可关闭窗口，这是个持续动作，内缩回收可撤回（不止聚焦的窗口可用，只要在屏幕上显示的窗口都可以使用）
-5、三指点击表示鼠标中键
-6、四指上滑可显示全部菜单，再次上滑可回到概览窗口
-7、四指左、右滑动，可将当前窗口移动至左、右工作区
-8、四指外阔显示桌面
-9、单指，双指保持正常逻辑
-
-### 图形化配置【可选】
-🌀步骤1： 安装图形化手势配置管理
-
-Touche是Touchegg的图形化设定软件，建议由Flatpak进行安装：
-
-① 先安裝flatpack
-
-sudo apt install flatpak
-flatpak remote-add --if-not-exists flathub  https://flathub.org/repo/flathub.flatpakrepo
-sudo reboot
-
-② 安装 Touche: flatpak install flathub com.github.joseexposito.touche 
-③ 运行 Touche: flatpak run com.github.joseexposito.touche 
-
-🌀步骤2：在Touche 设定三指&四指手势
-
-Touche的选单提供了8 种系统动作，可依需求自行指定到不同的触控手势：
-窗口最大化Maximize or restore a window
-♦ 窗口最小化Minimize a window
-♦ 平铺窗口Tile a window
-♦ 全屏幕窗口Fullscreen a window
-♦ 结束窗口Close a window
-♦ 切换桌面Switch desktops/workspaces
-♦ 显示桌面Show desktop
-♦ 执行自定义的快捷键Keyboard shortcut
-
-例如设定手势为：
-- 3指向上滑，将APP窗口最大化；
-- 3指向下滑，将APP窗口最小化；
-- 3指向左/右滑，将APP窗口平铺至左半边或右半边。
-
 # 多语言支持
 ## Erlang/Elixir on macos
 
