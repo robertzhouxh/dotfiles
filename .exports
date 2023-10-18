@@ -64,13 +64,19 @@ if [[ `uname -s` == "Darwin" ]]; then
     # for emacs eaf depens bins
     PATH=$PATH:"/Users/zxh/Library/Python/3.9/lib/python/site-packages"
 
-    #------------------------------------------------------------
-    # latex
     # PATH="$PATH:/Library/TeX/texbin"
-    #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
-    export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
-    export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
-    export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
+
+    #------------------------------------------------------------
+    # openssl 版本问题
+    # 使用 openssl@3
+    # export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
+    # export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
+    # export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
+    
+    # 使用 openssl@1.1
+    export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@1.1/lib"
+    export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@1.1/include -I${JDK_PREFIX}/include"
+    export PATH="${BREW_PREFIX}/opt/openssl@1.1/bin:$PATH"
 
     . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
 fi

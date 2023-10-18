@@ -832,10 +832,24 @@ asdf global nodejs 19.6.0
 ```
 brew install openssl@3
 brew install openssl@1.1
-brew unlink openssl@3
-brew link openssl@1.1
 
 brew --prefix openssl@1.1
+
+vi ~/.exports
+ #------------------------------------------------------------
+ # openssl 版本问题
+ # 使用 openssl@3
+ # export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
+ # export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
+ # export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
+ 
+ # 使用 openssl@1.1
+ export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@1.1/lib"
+ export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@1.1/include -I${JDK_PREFIX}/include"
+ export PATH="${BREW_PREFIX}/opt/openssl@1.1/bin:$PATH"
+
+brew unlink openssl@3
+brew link openssl@1.1
 
 ```
 
