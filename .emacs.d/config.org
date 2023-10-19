@@ -379,365 +379,360 @@ from tradition chinese to simple chinese" t)
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (defconst sys/win32p (eq system-type 'windows-nt) "Are we running on a WinTel system?")
-  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
-  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
-  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
-  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
-  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
-  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-  (defconst sys/cygwinp (eq system-type 'cygwin) "Are we running on a Cygwin system?")
-  (defconst sys/rootp (string-equal "root" (getenv "USER")) "Are you using ROOT user?")
-  (defconst emacs/>=27p
-    (>= emacs-major-version 27)
-    "Emacs is 27 or above.")
-  
-  (defconst emacs/>=28p
-    (>= emacs-major-version 28)
-    "Emacs is 28 or above.")
-  
-  (defconst emacs/>=29p
-    (>= emacs-major-version 29)
-    "Emacs is 29 or above.")
+(defconst sys/win32p (eq system-type 'windows-nt) "Are we running on a WinTel system?")
+(defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+(defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+(defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
+(defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
+(defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
+(defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
+(defconst sys/cygwinp (eq system-type 'cygwin) "Are we running on a Cygwin system?")
+(defconst sys/rootp (string-equal "root" (getenv "USER")) "Are you using ROOT user?")
+(defconst emacs/>=27p
+  (>= emacs-major-version 27)
+  "Emacs is 27 or above.")
 
-  (defvar socks-noproxy)
-  (defvar socks-server)
-  (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
+(defconst emacs/>=28p
+  (>= emacs-major-version 28)
+  "Emacs is 28 or above.")
 
-  ;; from lazycat emacs config
-  (defun org-export-docx ()
-    (interactive)
-    (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-          (template-file (concat (file-name-as-directory zxh-emacs-root-dir)
-                                 "template.docx")))
-      (message (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file)) 
-      (shell-command (format "pandoc %s -o %s --reference-doc=%s"
-                             (buffer-file-name)
-                             docx-file
-                             template-file
-                             ))
-      (message "Convert finish: %s" docx-file)))
+(defconst emacs/>=29p
+  (>= emacs-major-version 29)
+  "Emacs is 29 or above.")
+
+(defvar socks-noproxy)
+(defvar socks-server)
+(defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
+
+;; from lazycat emacs config
+(defun org-export-docx ()
+  (interactive)
+  (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
+        (template-file (concat (file-name-as-directory zxh-emacs-root-dir)
+                               "template.docx")))
+    (message (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file)) 
+    (shell-command (format "pandoc %s -o %s --reference-doc=%s"
+                           (buffer-file-name)
+                           docx-file
+                           template-file
+                           ))
+    (message "Convert finish: %s" docx-file)))
 
 
-  ;; --------------------------------------------
-  ;; 辅助函数
-  ;; --------------------------------------------
-  (defun x/system-is-mac () (interactive) (string-equal system-type "darwin"))
+;; --------------------------------------------
+;; 辅助函数
+;; --------------------------------------------
+(defun x/system-is-mac () (interactive) (string-equal system-type "darwin"))
 
-  (defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
+(defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
 
-  (defun format-function-parameters ()
-    "Turn the list of function parameters into multiline."
-    (interactive)
-    (beginning-of-line)
-    (search-forward "(" (line-end-position))
-    (newline-and-indent)
-    (while (search-forward "," (line-end-position) t)
-      (newline-and-indent))
-    (end-of-line)
-    (c-hungry-delete-forward)
-    (insert " ")
-    (search-backward ")")
+(defun format-function-parameters ()
+  "Turn the list of function parameters into multiline."
+  (interactive)
+  (beginning-of-line)
+  (search-forward "(" (line-end-position))
+  (newline-and-indent)
+  (while (search-forward "," (line-end-position) t)
     (newline-and-indent))
+  (end-of-line)
+  (c-hungry-delete-forward)
+  (insert " ")
+  (search-backward ")")
+  (newline-and-indent))
 
-  (defun my-org-screenshot ()
-    "Take a screenshot into a time stamped unique-named file in the
-            same directory as the org-buffer and insert a link to this file."
-    (interactive)
-    (org-display-inline-images)
+(defun my-org-screenshot ()
+  "Take a screenshot into a time stamped unique-named file in the
+same directory as the org-buffer and insert a link to this file."
+  (interactive)
+  (org-display-inline-images)
+  (setq filename
+        (concat
+         (make-temp-name
+          (concat (file-name-nondirectory (buffer-file-name))
+                  "assets/"
+                  (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
+  (unless (file-exists-p (file-name-directory filename))
+    (make-directory (file-name-directory filename)))
+  ; take screenshot
+  (if (eq system-type 'darwin)
+      (call-process "screencapture" nil nil nil "-i" filename))
+  (if (eq system-type 'gnu/linux)
+      (call-process "import" nil nil nil filename))
+  ; insert into file if correctly taken
+  (if (file-exists-p filename)
+    (insert (concat "[[file:" filename "]]"))))
 
-    (setq filename
-          (concat
-           (make-temp-name
-            (concat (file-name-directory (buffer-file-name))
-                    "/imgs/"
-                    (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
-    (unless (file-exists-p (file-name-directory filename))
-      (make-directory (file-name-directory filename)))
-                                          ; take screenshot
-    (if (eq system-type 'darwin)
-        (progn
-          (call-process-shell-command "screencapture" nil nil nil nil " -s " (concat
-                                                                              "\"" filename "\"" ))
-          (call-process-shell-command "convert" nil nil nil nil (concat "\"" filename "\" -resize  \"50%\"" ) (concat "\"" filename "\"" ))
-          ))
+;; --------------------------------------------
+;; proxy 操作辅助函数
+;; --------------------------------------------
+(defun proxy-http-show ()
+  "Show HTTP/HTTPS proxy."
+  (interactive)
+  (if url-proxy-services
+      (message "Current HTTP proxy is `%s'" http-proxy)
+    (message "No HTTP proxy")))
 
-    (setq relative-dir (concat "./imgs/" (file-name-nondirectory filename)))
-    (if (file-exists-p filename)
-        (insert (concat "[[file:" relative-dir "]]")))
-    (org-display-inline-images))
+(defun proxy-http-enable ()
+  "Enable HTTP/HTTPS proxy."
+  (interactive)
+  (setq url-proxy-services
+        `(("http" . ,http-proxy)
+          ("https" . ,http-proxy)
+          ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
+  (proxy-http-show))
 
-  ;; --------------------------------------------
-  ;; proxy 操作辅助函数
-  ;; --------------------------------------------
-  (defun proxy-http-show ()
-    "Show HTTP/HTTPS proxy."
-    (interactive)
-    (if url-proxy-services
-        (message "Current HTTP proxy is `%s'" http-proxy)
-      (message "No HTTP proxy")))
+(defun proxy-http-disable ()
+  "Disable HTTP/HTTPS proxy."
+  (interactive)
+  (setq url-proxy-services nil)
+  (proxy-http-show))
 
-  (defun proxy-http-enable ()
-    "Enable HTTP/HTTPS proxy."
-    (interactive)
-    (setq url-proxy-services
-          `(("http" . ,http-proxy)
-            ("https" . ,http-proxy)
-            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-    (proxy-http-show))
+(defun proxy-http-toggle ()
+  "Toggle HTTP/HTTPS proxy."
+  (interactive)
+  (if (bound-and-true-p url-proxy-services)
+      (proxy-http-disable)
+    (proxy-http-enable)))
 
-  (defun proxy-http-disable ()
-    "Disable HTTP/HTTPS proxy."
-    (interactive)
-    (setq url-proxy-services nil)
-    (proxy-http-show))
-
-  (defun proxy-http-toggle ()
-    "Toggle HTTP/HTTPS proxy."
-    (interactive)
-    (if (bound-and-true-p url-proxy-services)
-        (proxy-http-disable)
-      (proxy-http-enable)))
-
-  (defun proxy-socks-show ()
-    "Show SOCKS proxy."
-    (interactive)
-    (when (fboundp 'cadddr)                ; defined 25.2+
-      (if (bound-and-true-p socks-noproxy)
-          (message "Current SOCKS%d proxy is %s:%s"
-                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-        (message "No SOCKS proxy"))))
-
-  (defun proxy-socks-enable ()
-    "Enable SOCKS proxy."
-    (interactive)
-    (require 'socks)
-    (setq url-gateway-method 'socks
-          socks-noproxy '("localhost"))
-    (let* ((proxy (split-string socks-proxy ":"))
-           (host (car proxy))
-           (port (cadr  proxy)))
-      (setq socks-server `("Default server" ,host ,port 5)))
-    (setenv "all_proxy" (concat "socks5://" socks-proxy))
-    (proxy-socks-show))
-
-  (defun proxy-socks-disable ()
-    "Disable SOCKS proxy."
-    (interactive)
-    (setq url-gateway-method 'native
-          socks-noproxy nil
-          socks-server nil)
-    (setenv "all_proxy" "")
-    (proxy-socks-show))
-
-  (defun proxy-socks-toggle ()
-    "Toggle SOCKS proxy."
-    (interactive)
+(defun proxy-socks-show ()
+  "Show SOCKS proxy."
+  (interactive)
+  (when (fboundp 'cadddr)                ; defined 25.2+
     (if (bound-and-true-p socks-noproxy)
-        (proxy-socks-disable)
-      (proxy-socks-enable)))
+        (message "Current SOCKS%d proxy is %s:%s"
+                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+      (message "No SOCKS proxy"))))
+
+(defun proxy-socks-enable ()
+  "Enable SOCKS proxy."
+  (interactive)
+  (require 'socks)
+  (setq url-gateway-method 'socks
+        socks-noproxy '("localhost"))
+  (let* ((proxy (split-string socks-proxy ":"))
+         (host (car proxy))
+         (port (cadr  proxy)))
+    (setq socks-server `("Default server" ,host ,port 5)))
+  (setenv "all_proxy" (concat "socks5://" socks-proxy))
+  (proxy-socks-show))
+
+(defun proxy-socks-disable ()
+  "Disable SOCKS proxy."
+  (interactive)
+  (setq url-gateway-method 'native
+        socks-noproxy nil
+        socks-server nil)
+  (setenv "all_proxy" "")
+  (proxy-socks-show))
+
+(defun proxy-socks-toggle ()
+  "Toggle SOCKS proxy."
+  (interactive)
+  (if (bound-and-true-p socks-noproxy)
+      (proxy-socks-disable)
+    (proxy-socks-enable)))
 
 
-  ;; --------------------------------------------
-  ;; FIle 操作与编码辅助函数
-  ;; --------------------------------------------
-  (defun x/save-all ()
-    "Save all file-visiting buffers without prompting."
-    (interactive)
-    (save-some-buffers t))
+;; --------------------------------------------
+;; FIle 操作与编码辅助函数
+;; --------------------------------------------
+(defun x/save-all ()
+  "Save all file-visiting buffers without prompting."
+  (interactive)
+  (save-some-buffers t))
 
-  (defun x/open-init-file ()
-    (interactive)
-    (find-file user-init-file))
+(defun x/open-init-file ()
+  (interactive)
+  (find-file user-init-file))
 
-  (defun x/reload-init-file ()
-    "Reload init.el file."
-    (interactive)
-    (load user-init-file)
-    (message "Reloaded init.el OK."))
+(defun x/reload-init-file ()
+  "Reload init.el file."
+  (interactive)
+  (load user-init-file)
+  (message "Reloaded init.el OK."))
 
-  (defun sudo ()
-    "Use TRAMP to `sudo' the current buffer"
-    (interactive)
-    (when buffer-file-name
-      (find-alternate-file
-       (concat "/sudo:root@localhost:"
-               buffer-file-name))))
-  (defun dos2unix ()
-    "Convert the current buffer to UNIX file format."
-    (interactive)
-    (set-buffer-file-coding-system 'undecided-unix nil))
+(defun sudo ()
+  "Use TRAMP to `sudo' the current buffer"
+  (interactive)
+  (when buffer-file-name
+    (find-alternate-file
+     (concat "/sudo:root@localhost:"
+             buffer-file-name))))
+(defun dos2unix ()
+  "Convert the current buffer to UNIX file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-unix nil))
 
-  (defun unix2dos ()
-    "Convert the current buffer to DOS file format."
-    (interactive)
-    (set-buffer-file-coding-system 'undecided-dos nil))
+(defun unix2dos ()
+  "Convert the current buffer to DOS file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-dos nil))
 
-  (defun delete-trailing-M()
-    "Delete `^M' characters in the buffer.
+(defun delete-trailing-M()
+  "Delete `^M' characters in the buffer.
               Same as `replace-string C-q C-m RET RET'."
-    (interactive)
-    (save-excursion
-      (goto-char 0)
-      (while (search-forward "\r" nil :noerror)
-        (replace-match ""))))
+  (interactive)
+  (save-excursion
+    (goto-char 0)
+    (while (search-forward "\r" nil :noerror)
+      (replace-match ""))))
 
-  (defun save-buffer-as-utf8 (coding-system)
-    "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
-    (interactive "zCoding system for visited file (default nil):")
-    (revert-buffer-with-coding-system coding-system)
-    (set-buffer-file-coding-system 'utf-8)
-    (save-buffer))
+(defun save-buffer-as-utf8 (coding-system)
+  "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
+  (interactive "zCoding system for visited file (default nil):")
+  (revert-buffer-with-coding-system coding-system)
+  (set-buffer-file-coding-system 'utf-8)
+  (save-buffer))
 
-  (defun save-buffer-gbk-as-utf8 ()
-    "Revert a buffer with GBK and save as UTF-8."
-    (interactive)
+(defun save-buffer-gbk-as-utf8 ()
+  "Revert a buffer with GBK and save as UTF-8."
+  (interactive)
 
-    (save-buffer-as-utf8 'gbk))
-
-
-  ;; --------------------------------------------
-  ;; buffer 操作辅助函数
-  ;; --------------------------------------------
-  (defun switch-to-messages ()
-    "Select buffer *message* in the current window."
-    (interactive)
-    (switch-to-buffer "*Messages*"))
-
-  (defun switch-to-dashboard ()
-    "Select buffer *message* in the current window."
-    (interactive)
-    (switch-to-buffer "*Dashboard*"))
-
-  (defun hold-line-scroll-up ()
-    "Scroll the page with the cursor in the same line"
-    (interactive)
-    ;; move the cursor also
-    (let ((tmp (current-column)))
-      (scroll-up 1)
-      (line-move-to-column tmp)
-      (forward-line 1)))
-
-  (defun hold-line-scroll-down ()
-    "Scroll the page with the cursor in the same line"
-    (interactive)
-    ;; move the cursor also
-    (let ((tmp (current-column)))
-      (scroll-down 1)
-      (line-move-to-column tmp)
-      (forward-line -1)))
+  (save-buffer-as-utf8 'gbk))
 
 
-  ;; -------------------------------------------
-  ;; Company 辅助函数
-  ;; -------------------------------------------
-  (defun do-yas-expand ()
-    (let ((yas/fallback-behavior 'return-nil))
-      (yas/expand)))
+;; --------------------------------------------
+;; buffer 操作辅助函数
+;; --------------------------------------------
+(defun switch-to-messages ()
+  "Select buffer *message* in the current window."
+  (interactive)
+  (switch-to-buffer "*Messages*"))
 
-  (defun tab-indent-or-complete ()
-    (interactive)
-    (if (minibufferp)
-        (minibuffer-complete)
-      (if (or (not yas/minor-mode)
-              (null (do-yas-expand)))
-          (if (check-expansion)
-              (company-complete-common)
-            (indent-for-tab-command)))))
+(defun switch-to-dashboard ()
+  "Select buffer *message* in the current window."
+  (interactive)
+  (switch-to-buffer "*Dashboard*"))
+
+(defun hold-line-scroll-up ()
+  "Scroll the page with the cursor in the same line"
+  (interactive)
+  ;; move the cursor also
+  (let ((tmp (current-column)))
+    (scroll-up 1)
+    (line-move-to-column tmp)
+    (forward-line 1)))
+
+(defun hold-line-scroll-down ()
+  "Scroll the page with the cursor in the same line"
+  (interactive)
+  ;; move the cursor also
+  (let ((tmp (current-column)))
+    (scroll-down 1)
+    (line-move-to-column tmp)
+    (forward-line -1)))
 
 
-  ;; --------------------------------------------
-  ;; 文件操作辅助函数
-  ;; --------------------------------------------
-  (defun +rename-current-file (newname)
-    "Rename current visiting file to NEWNAME.
+;; -------------------------------------------
+;; Company 辅助函数
+;; -------------------------------------------
+(defun do-yas-expand ()
+  (let ((yas/fallback-behavior 'return-nil))
+    (yas/expand)))
+
+(defun tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (or (not yas/minor-mode)
+            (null (do-yas-expand)))
+        (if (check-expansion)
+            (company-complete-common)
+          (indent-for-tab-command)))))
+
+
+;; --------------------------------------------
+;; 文件操作辅助函数
+;; --------------------------------------------
+(defun +rename-current-file (newname)
+  "Rename current visiting file to NEWNAME.
         If NEWNAME is a directory, move file to it."
-    (interactive
-     (progn
-       (unless buffer-file-name
-         (user-error "No file is visiting"))
-       (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
-         (when (equal (file-truename name)
-                      (file-truename buffer-file-name))
-           (user-error "Can't rename file to itself"))
-         (list name))))
-    ;; NEWNAME is a directory
-    (when (equal newname (file-name-as-directory newname))
-      (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
-    (rename-file buffer-file-name newname)
-    (set-visited-file-name newname)
-    (rename-buffer newname))
+  (interactive
+   (progn
+     (unless buffer-file-name
+       (user-error "No file is visiting"))
+     (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
+       (when (equal (file-truename name)
+                    (file-truename buffer-file-name))
+         (user-error "Can't rename file to itself"))
+       (list name))))
+  ;; NEWNAME is a directory
+  (when (equal newname (file-name-as-directory newname))
+    (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
+  (rename-file buffer-file-name newname)
+  (set-visited-file-name newname)
+  (rename-buffer newname))
 
-  (defun +delete-current-file (file)
-    "Delete current visiting FILE."
-    (interactive
-     (list (or buffer-file-name
-               (user-error "No file is visiting"))))
-    (when (y-or-n-p (format "Really delete '%s'? " file))
-      (kill-this-buffer)
-      (delete-file file)))
+(defun +delete-current-file (file)
+  "Delete current visiting FILE."
+  (interactive
+   (list (or buffer-file-name
+             (user-error "No file is visiting"))))
+  (when (y-or-n-p (format "Really delete '%s'? " file))
+    (kill-this-buffer)
+    (delete-file file)))
 
-  (defun +copy-current-file (new-path &optional overwrite-p)
-    "Copy current buffer's file to `NEW-PATH'.
+(defun +copy-current-file (new-path &optional overwrite-p)
+  "Copy current buffer's file to `NEW-PATH'.
           If `OVERWRITE-P', overwrite the destination file without
           confirmation."
-    (interactive
-     (progn
-       (unless buffer-file-name
-         (user-error "No file is visiting"))
-       (list (read-file-name "Copy file to: ")
-             current-prefix-arg)))
-    (let ((old-path (buffer-file-name))
-          (new-path (expand-file-name new-path)))
-      (make-directory (file-name-directory new-path) t)
-      (copy-file old-path new-path (or overwrite-p 1))))
+  (interactive
+   (progn
+     (unless buffer-file-name
+       (user-error "No file is visiting"))
+     (list (read-file-name "Copy file to: ")
+           current-prefix-arg)))
+  (let ((old-path (buffer-file-name))
+        (new-path (expand-file-name new-path)))
+    (make-directory (file-name-directory new-path) t)
+    (copy-file old-path new-path (or overwrite-p 1))))
 
-  (defun +copy-current-filename (file)
-    "Copy the full path to the current FILE."
-    (interactive
-     (list (or buffer-file-name
-               (user-error "No file is visiting"))))
-    (kill-new file)
-    (message "Copying '%s' to clipboard" file))
+(defun +copy-current-filename (file)
+  "Copy the full path to the current FILE."
+  (interactive
+   (list (or buffer-file-name
+             (user-error "No file is visiting"))))
+  (kill-new file)
+  (message "Copying '%s' to clipboard" file))
 
-  (defun +copy-current-buffer-name ()
-    "Copy the name of current buffer."
-    (interactive)
-    (kill-new (buffer-name))
-    (message "Copying '%s' to clipboard" (buffer-name)))
+(defun +copy-current-buffer-name ()
+  "Copy the name of current buffer."
+  (interactive)
+  (kill-new (buffer-name))
+  (message "Copying '%s' to clipboard" (buffer-name)))
 
 
-  ;; --------------------------------------------
-  ;; Window 操作辅助函数
-  ;; --------------------------------------------
-  (defvar toggle-one-window-window-configuration nil
-    "The window configuration use for `toggle-one-window'.")
+;; --------------------------------------------
+;; Window 操作辅助函数
+;; --------------------------------------------
+(defvar toggle-one-window-window-configuration nil
+  "The window configuration use for `toggle-one-window'.")
 
-  (defun toggle-one-window ()
-    "Toggle between window layout and one window."
-    (interactive)
-    (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
-        (if toggle-one-window-window-configuration
-            (progn
-              (set-window-configuration toggle-one-window-window-configuration)
-              (setq toggle-one-window-window-configuration nil))
-          (message "No other windows exist."))
-      (setq toggle-one-window-window-configuration (current-window-configuration))
-      (delete-other-windows)))
+(defun toggle-one-window ()
+  "Toggle between window layout and one window."
+  (interactive)
+  (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
+      (if toggle-one-window-window-configuration
+          (progn
+            (set-window-configuration toggle-one-window-window-configuration)
+            (setq toggle-one-window-window-configuration nil))
+        (message "No other windows exist."))
+    (setq toggle-one-window-window-configuration (current-window-configuration))
+    (delete-other-windows)))
 
-  (defun set-control-w-shortcuts ()
-    (define-prefix-command 'my-window-map)
-    (global-set-key (kbd "C-w") 'my-window-map)
-    (define-key my-window-map (kbd "h") 'windmove-left)
-    (define-key my-window-map (kbd "j") 'windmove-down)
-    (define-key my-window-map (kbd "k") 'windmove-up)
-    (define-key my-window-map (kbd "l") 'windmove-right)
-    (define-key my-window-map (kbd "v") 'split-window-right)
-    (define-key my-window-map (kbd "b") 'split-window-below)
-    (define-key my-window-map (kbd "d") 'delete-window)
-    (define-key my-window-map (kbd "D") 'delete-other-windows)
-    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
-    (define-key my-window-map (kbd "o") 'toggle-one-window))
+(defun set-control-w-shortcuts ()
+  (define-prefix-command 'my-window-map)
+  (global-set-key (kbd "C-w") 'my-window-map)
+  (define-key my-window-map (kbd "h") 'windmove-left)
+  (define-key my-window-map (kbd "j") 'windmove-down)
+  (define-key my-window-map (kbd "k") 'windmove-up)
+  (define-key my-window-map (kbd "l") 'windmove-right)
+  (define-key my-window-map (kbd "v") 'split-window-right)
+  (define-key my-window-map (kbd "b") 'split-window-below)
+  (define-key my-window-map (kbd "d") 'delete-window)
+  (define-key my-window-map (kbd "D") 'delete-other-windows)
+  (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
+  (define-key my-window-map (kbd "o") 'toggle-one-window))
 
 #+END_SRC
 
@@ -1237,20 +1232,27 @@ from tradition chinese to simple chinese" t)
   :ensure t
   :hook (org-mode . toc-org-mode))
 
-  (use-package org-download
-    :after org
-    :defer nil
-    :custom
-    (org-download-method 'directory)
-    (org-download-image-dir "static/imgs")
-    (org-download-heading-lvl nil)
-    (org-download-timestamp "%Y%m%d-%H%M%S_")
-    (org-image-actual-width 420)
-    (org-download-screenshot-method "/opt/homebrew/bin/pngpaste %s")
-    :bind
-    ("C-M-y" . org-download-screenshot)
-    :config
-    (require 'org-download))
+(use-package org-download
+  :ensure t
+  :after org
+  :config
+  (setq-default
+   org-download-image-dir "assets"
+   ;; Basename setting seems to be simply ignored.
+   org-download-screenshot-basename ".org.png"
+   org-download-timestamp "org_%Y%m%d-%H%M%S_"
+   org-download-heading-lvl nil)
+  :custom
+  (org-download-screenshot-method
+   (cond
+    ((eq system-type 'gnu/linux)
+     "xclip -selection clipboard -t image/png -o > '%s'")
+    ((eq system-type 'darwin)
+     "pngpaste %s")))
+  :bind
+  (:map org-mode-map
+        (("C-M-y" . org-download-screenshot)
+         ("s-y" . org-download-yank))))
 
 #+END_SRC
 
