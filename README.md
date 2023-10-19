@@ -784,8 +784,9 @@ asdf global nodejs 19.6.0
 ```
 
 
-# mac or ubuntu 中的 openssl 版本问题
-## mac
+# 其他
+## mac/ubuntu 中的 openssl 版本问题
+### mac
 
 按照提示 export 对应的环境变量
 
@@ -813,6 +814,14 @@ brew link openssl@1.1
 
 ```
 
-## ubunut
+### ubunut
 
 参考 erlang install 部分
+
+## Rustdesk
+### mac 
+
+1) privacy-> Accessbility -> 开启 RustDesk
+2) privacy-> Screen Recording -> 开启 RustDesk
+
+如果重启软件以后还报警告，那么请通过 - 按钮删除 RustDesk 然后重新添加
