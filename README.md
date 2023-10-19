@@ -694,6 +694,9 @@ rm ~/.config/touchegg/.touchegg:1.lock
 - 注意：删除 ~/.config/touchegg/.touchegg:1.lock
 - 可参考仓库中的 touchegg.conf 文件， 注意，这里的<action type="SEND_KEYS">的手势，是基于你的自定义快捷键（settings->keyboard）
 
+## ubuntu 软件推荐
+- 截图软件
+sudo apt install flameshot
 ## 最后打开夜灯模式（settings->display->nightlight）
 # 多语言支持
 ## Erlang/Elixir on macos
