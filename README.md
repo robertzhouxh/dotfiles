@@ -713,7 +713,21 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 # 之后通过一下命令安装 archlinuxcn-keyring 包导入 GPG key。
 
 sudo pacman -Sy archlinuxcn-keyring
+
 ```
+
+## 一键安装 v2raya 
+
+```
+yay -S v2raya
+sudo systemctl status v2raya.service
+sudo systemctl start v2raya.service
+sudo systemctl ensure v2raya.service
+
+```
+
+图形界面找到应用程序，click v2raya 图片-> 127.0.0.1:27017
+
 # 多语言支持
 ## Erlang/Elixir on macos
 
