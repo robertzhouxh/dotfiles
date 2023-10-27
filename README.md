@@ -700,6 +700,20 @@ rm ~/.config/touchegg/.touchegg:1.lock
 - 截图软件： sudo apt install flameshot
 
 ## 最后打开夜灯模式（settings->display->nightlight）
+# EndeavourOS 部署
+## 添加 ArchLinuxCn 的源
+
+```
+sudo vi /etc/pacman.conf
+# 文件末尾添加以下两行
+
+[archlinuxcn]
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+
+# 之后通过一下命令安装 archlinuxcn-keyring 包导入 GPG key。
+
+sudo pacman -Sy archlinuxcn-keyring
+```
 # 多语言支持
 ## Erlang/Elixir on macos
 
