@@ -790,15 +790,15 @@ sudo pacman -S gnome
 # gnome-tweak-tool
 sudo pacman -S gnome-tweaks
 
-# 然后安装GDM窗口管理器
+# 然后安装GDM窗口管理器（ welcome 界面-> Display-manager 改为 gdm ）
 sudo pacman -S gdm
 
 #设置开机启动GDM服务，这样我们开机时就会自动载入桌面
 sudo systemctl enable gdm.service
 
 # 可以在gui选择启动桌面管理器为 gdm 然后重
-# 官网安装浏览器插件，
-yay -S gnome-browser-connector
+# 官网安装浏览器插件
+sudo yay -S gnome-browser-connector
 
 # 访问官网安装插件即可
 https://extensions.gnome.org/
