@@ -701,6 +701,8 @@ rm ~/.config/touchegg/.touchegg:1.lock
 
 ## 最后打开夜灯模式（settings->display->nightlight）
 # EndeavourOS 部署
+建议先通过图形化界面更新系统
+ref: https://manateelazycat.github.io/2023/09/10/endeavour-os/
 ## 添加 ArchLinuxCn 的源
 
 ```
@@ -727,6 +729,50 @@ sudo systemctl ensure v2raya.service
 ```
 
 图形界面找到应用程序，click v2raya 图片-> 127.0.0.1:27017
+
+## 拼音
+```
+sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
+
+## 然后将下面的内容粘贴到 ~/.pam_environment
+
+GTK_IM_MODULE=fcitx5
+XMODIFIERS=@im=fcitx5
+QT_IM_MODULE=fcitx5
+```
+
+### 安装 Fcitx5 输入法皮肤
+
+```
+yay -S fcitx5-skin-adwaita-dark
+
+然后修改配置文件 ~/.config/fcitx5/conf/classicui.conf
+# 横向候选列表
+Vertical Candidate List=False
+
+# 禁止字体随着 DPI 缩放， 避免界面太大
+PerScreenDPI=False
+
+# 字体和大小， 可以用 fc-list 命令来查看使用
+Font="Noto Sans Mono 13"
+
+# Gnome3 风格的主题
+Theme=adwaita-dark
+```
+
+### 安装雾凇拼音
+```
+git clone https://github.com/iDvel/rime-ice --depth=1
+cp -r ./rime-ice/* ~/.config/fcitx/rime/
+cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
+```
+
+## Gnome
+
+```
+sudo pacman -S gnome
+
+```
 
 # 多语言支持
 ## Erlang/Elixir on macos
