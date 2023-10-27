@@ -800,7 +800,7 @@ sudo systemctl enable gdm.service
 # 官网安装浏览器插件
 sudo yay -S gnome-browser-connector
 
-# 访问官网安装插件即可
+# 访问官网安装插件即可（先在 Chrome 商店安装 Gnome Shell 扩展）
 https://extensions.gnome.org/
 
 ```
