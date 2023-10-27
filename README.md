@@ -778,6 +778,14 @@ sudo systemctl enable bluetooth
 pacman -S alsa-utils pulseaudio pulseaudio-bluetooth
 pacman -S cups
 ```
+## 安装 chrome
+
+yay 不要加 sudo
+
+```
+yay -S google-chrome
+```
+
 ## Gnome(当离线安装os时，需要手动联网安装 gnome)
 
 ```
