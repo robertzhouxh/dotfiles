@@ -718,7 +718,7 @@ sudo pacman -Sy archlinuxcn-keyring
 
 ```
 
-## 一键安装 v2raya 
+## 安装 v2raya 
 
 ```
 yay -S v2raya
@@ -767,12 +767,41 @@ cp -r ./rime-ice/* ~/.config/fcitx/rime/
 cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
 ```
 
+## 蓝牙
+```
+sudo pacman -S --needed bluez bluez-utils
+sudo pacman -S blueberry
+sudo systemctl enable bluetooth
+```
+## 安装声音+打印管理程序
+```
+pacman -S alsa-utils pulseaudio pulseaudio-bluetooth
+pacman -S cups
+```
 ## Gnome
 
 ```
-sudo pacman -S gnome
+# sudo pacman -S gnome
+sudo pacman -S gnome gnome-tweak-tool
+
+# 然后安装GDM窗口管理器
+sudo pacman -S gdm
+
+#设置开机启动GDM服务，这样我们开机时就会自动载入桌面
+sudo systemctl enable gdm.service
+
+# 官网安装浏览器插件，
+yay -S gnome-browser-connector
+
+# 访问官网安装插件即可
 
 ```
+## 安装字体
+这里安装加入微软雅黑的CJK字体的Consolas字体：$ yay -S ttf-consolas-with-yahei
+安装完成后可以在gnome-tweak-tool里启用。
+## 键盘映射
+
+tweaks -- Keyboard & Mouse -- Additional Layout Options -- CapsLock behavior
 
 # 多语言支持
 ## Erlang/Elixir on macos
