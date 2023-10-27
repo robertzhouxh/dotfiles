@@ -781,8 +781,14 @@ pacman -S cups
 ## Gnome
 
 ```
-# sudo pacman -S gnome
-sudo pacman -S gnome gnome-tweak-tool
+# update cache
+sudo pacman -Sy
+
+# gnome
+sudo pacman -S gnome
+
+# gnome-tweak-tool
+sudo pacman -S gnome-tweaks
 
 # 然后安装GDM窗口管理器
 sudo pacman -S gdm
