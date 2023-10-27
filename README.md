@@ -778,7 +778,7 @@ sudo systemctl enable bluetooth
 pacman -S alsa-utils pulseaudio pulseaudio-bluetooth
 pacman -S cups
 ```
-## Gnome
+## Gnome(当离线安装os时，需要手动联网安装 gnome)
 
 ```
 # update cache
@@ -796,6 +796,7 @@ sudo pacman -S gdm
 #设置开机启动GDM服务，这样我们开机时就会自动载入桌面
 sudo systemctl enable gdm.service
 
+# 可以在gui选择启动桌面管理器为 gdm 然后重
 # 官网安装浏览器插件，
 yay -S gnome-browser-connector
 
