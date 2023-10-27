@@ -800,6 +800,7 @@ sudo systemctl enable gdm.service
 yay -S gnome-browser-connector
 
 # 访问官网安装插件即可
+https://extensions.gnome.org/
 
 ```
 ## 安装字体
