@@ -831,6 +831,27 @@ https://extensions.gnome.org/
 sudo pacman -S noto-fonts-cjk wqy-microhei wqy-microhei-lite wqy-bitmapfont
 yay -S ttf-consolas-with-yahei
 ```
+## 安装 wps+wechat 
+```
+yay -S wps-office-cn wps-office-mui-zh-cn ttf-wps-fonts
+
+sudo pacman -S automake
+
+### https://github.com/tom-snow/wechat-windows-versions/releases/tag/v3.9.0.28
+### 下载 WeChatSetup-3.9.0.28.exe 然后替换 ~/.cache/yay/deepin-wine-wechat 内的 WeChatSetup-3.9.0.28.exe
+
+### 先更新
+sudo pacman -Syu
+
+yay -S deepin-wine-wechat
+
+vim /etc/environment， 添加： DEEPIN_WINE_SCALE=1.25
+
+```
+## 安装闭源 Nvidia 显卡驱动
+
+ref: https://manateelazycat.github.io/2023/06/03/nvidia-driver/
+
 ## 安装 emacs
 ### git version:
 
