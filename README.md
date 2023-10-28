@@ -769,7 +769,12 @@ cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
 
 ## 蓝牙
 ```
+## If you are using pipewire (default since Atlantis release):
 sudo pacman -S --needed bluez bluez-utils
+
+## If you are using pulseaudio (older installs or manual switching to pulseaudio):
+sudo pacman -S --needed bluez bluez-utils pulseaudio-bluetooth
+
 sudo pacman -S blueberry
 sudo systemctl enable bluetooth
 ```
@@ -786,8 +791,9 @@ yay 不要加 sudo
 yay -S google-chrome
 ```
 
-## Gnome(当离线安装os时，需要手动联网安装 gnome)
+## Gnome 桌面
 
+当离线安装os时，需要手动联网安装 gnome
 ```
 # update cache
 sudo pacman -Sy
@@ -813,8 +819,21 @@ https://extensions.gnome.org/
 
 ```
 ## 安装字体
-这里安装加入微软雅黑的CJK字体的Consolas字体：$ yay -S ttf-consolas-with-yahei
 安装完成后可以在gnome-tweak-tool里启用。
+```
+sudo pacman -S wqy-microhei
+yay -S ttf-consolas-with-yahei
+```
+## 安装 emacs
+### git version:
+
+```
+sudo pacman -S emacs-git
+```
+### compile from source code:
+
+proxy-ns git pull ; ./configure ; make -j32; sudo make install ; sudo sed -i 's/Exec=emacs/Exec=proxy-ns emacs/g' /usr/local/share/applications/emacs.desktop ; sudo rm /usr/local/share/applications/emacsclient.desktop
+
 ## 键盘映射
 
 tweaks -- Keyboard & Mouse -- Additional Layout Options -- CapsLock behavior
