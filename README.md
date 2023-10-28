@@ -777,6 +777,7 @@ sudo pacman -S --needed bluez bluez-utils pulseaudio-bluetooth
 
 sudo pacman -S blueberry
 sudo systemctl enable bluetooth
+    
 ```
 ## 安装声音+打印管理程序
 ```
@@ -832,8 +833,14 @@ sudo pacman -S emacs-git
 ```
 ### compile from source code:
 
-proxy-ns git pull ; ./configure ; make -j32; sudo make install ; sudo sed -i 's/Exec=emacs/Exec=proxy-ns emacs/g' /usr/local/share/applications/emacs.desktop ; sudo rm /usr/local/share/applications/emacsclient.desktop
+```
+git clone --depth 1 git://git.savannah.gnu.org/emacs.git
 
+cd emacs
+
+./configure ; make -j32; sudo make install
+
+```
 ## 键盘映射
 
 tweaks -- Keyboard & Mouse -- Additional Layout Options -- CapsLock behavior
