@@ -778,7 +778,12 @@ sudo pacman -S --needed bluez bluez-utils pulseaudio-bluetooth
 sudo pacman -S blueberry
 sudo systemctl enable bluetooth
     
+
+## 命令行手动连接蓝牙设备
+bluetoothctl ----> scan on ------> trust {MacAddr}----> pair {MacAddr} ---> connect {MacAddr}
+
 ```
+
 ## 安装声音+打印管理程序
 ```
 pacman -S alsa-utils pulseaudio pulseaudio-bluetooth
