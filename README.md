@@ -844,6 +844,14 @@ yay -S deepin-wine-wechat
 
 vim /etc/environment， 添加： DEEPIN_WINE_SCALE=1.25
 
+解决无法切换中文输入法的问题
+> sudo vim /opt/apps/com.qq.im.deepin/files/run.sh 
+
+env locale=zh_CN
+export XIM="fcitx"
+export XMODIFIERS="@im=fcitx"
+export GTK_IM_MODULE="fcitx"
+export QT_IM_MODULE="fcitx"
 ```
 ## 安装闭源 Nvidia 显卡驱动
 
