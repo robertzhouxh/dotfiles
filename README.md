@@ -837,9 +837,6 @@ yay -S wps-office-cn wps-office-mui-zh-cn ttf-wps-fonts
 
 sudo pacman -S automake
 
-### https://github.com/tom-snow/wechat-windows-versions/releases/tag/v3.9.0.28
-### 下载 WeChatSetup-3.9.0.28.exe 然后替换 ~/.cache/yay/deepin-wine-wechat 内的 WeChatSetup-3.9.0.28.exe
-
 ### 先更新
 sudo pacman -Syu
 
