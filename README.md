@@ -822,7 +822,8 @@ https://extensions.gnome.org/
 ## 安装字体
 安装完成后可以在gnome-tweak-tool里启用。
 ```
-sudo pacman -S wqy-microhei
+### sudo pacman -S wqy-microhei
+sudo pacman -S noto-fonts-cjk wqy-microhei wqy-microhei-lite wqy-bitmapfont
 yay -S ttf-consolas-with-yahei
 ```
 ## 安装 emacs
