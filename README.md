@@ -24,7 +24,7 @@ cd dotfiles
 git submodule update --init
 set -- -f; source bootsrap.sh
 ```
-# macos 部署
+# MacOS 
 ## 安裝 emacs
 ```
 # 这里选择选择国内的同步镜像
@@ -100,7 +100,7 @@ tar jxvf rime-a608767-macOS.tar.bz2 -C ~/.emacs.d/librime
 brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
 brew install CleanShot （截图软件，桃宝宝买licence）
 ```
-# ubuntu 部署
+# UbuntuOS
 ## 换清华源
 ```
 cp /etc/apt/sources.list /etc/apt/sources.bak
@@ -565,13 +565,40 @@ sudo rm -rf /var/lib/docker
 sudo rm -rf /var/lib/containerd
 ```
 
-## 恢复到原始桌面配置： $dconf reset -f /org/gnome/
-## Ctrl 与 Caps 键位交
-换
-    
-- 打开 Gnome Tweaks,
-- 选择 choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
-## 坑爹的 NVIDIA 显卡驱动-(附重启黑屏解决办法）
+## 其他 
+
+1. 截图软件： sudo apt install flameshot
+2. 恢复到原始桌面配置： $dconf reset -f /org/gnome/
+3. 护眼： 打开夜灯模式（settings->display->nightlight）
+3. Ctrl 与 Caps 键位交换: Gnome Tweaks -> Choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
+4. debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
+
+Nvidia 官方驱动是基于X11环境的，而 debian/ubuntu 的 Gnome 桌面 在 x11 环境下不支持触摸板手势
+需要安装以下插件，让其支持触摸板手势
+
+🌀步骤1：安装Touchegg: https://github.com/JoseExposito/touchegg
+
+Ubuntu 系统建议使用ppa进行安装
+```
+sudo add-apt-repository ppa:touchegg/stable
+sudo apt update
+sudo apt install touchegg
+```
+如系统无法以ppa安装，则请下载合适的安装档进行安装
+① https://github.com/JoseExposito/touchegg/releases
+② sudo apt install ./touchegg_*.deb 进行安装
+
+🌀步骤2： 安装 X11 Gestures: https://extensions.gnome.org/extension/4033/x11-gestures/
+
+如果触摸板手势用着不舒服或者需要很长路径才能触发，按照文档配置以下参数即可
+https://github.com/JoseExposito/touchegg#daemon-configuration
+
+- 也可以参考全局配置选项： https://github.com/JoseExposito/touchegg#global-settings
+- 注意：删除 ~/.config/touchegg/.touchegg:1.lock
+- 可参考仓库中的 touchegg.conf 文件， 注意，这里的<action type="SEND_KEYS">的手势，是基于你的自定义快捷键（settings->keyboard）
+
+## 坑爹的 NVIDIA 显卡驱动
+### 驱动安装
 外星人M18 安装 Ubuntu 22.04 以后需要安装显卡驱动， 
 - 推荐用第三种安装方式
 - 首先需要F2 进入 BIOS 中设置 secure mode 为 false~
@@ -598,7 +625,7 @@ driver : xserver-xorg-video-nouveau - distro free builtin
 - the recommend driver to install is nvidia-driver-470.
 - sudo apt install nvidia-driver-470
   
-### 官网手动下载安装( 重启以后直接黑屏，卡死，进不去系统 )
+1. 官网手动下载安装( 重启以后直接黑屏，卡死，进不去系统 )
 
 官网下载对应版本的显卡驱动 ( 会自动识别 ) - https://www.nvidia.com/download/index.aspx
 
@@ -609,7 +636,7 @@ nvidia-settings -q NvidiaDriverVersion
 nvidia-smi
 ```
 
-### 利用源来安装
+2. 利用源来安装
 ```
 # Check the current installed nvidia driver
 sudo apt list '*nvidia-driver*'
@@ -629,11 +656,9 @@ nvidia-smi
 sudo reboot
 ```
 
-### Software & Updates 安装
-- 搜索 Software & Updates 
-- 切换到 Additional Drivers
-- 选择合适的显卡驱动，点击右下方的 Apply Changes 按钮。
-- 结束后重启计算机。
+3. Software & Updates 安装
+
+Software & Updates -> Additional Drivers -> 选择显卡驱动 -> 点右下方 Apply Changes -> 重启
 
 ### 重启黑屏解决方案
 
@@ -661,46 +686,21 @@ GRUB_CMDLINE_LINUX=""               ---> ""内改为 text        GRUB_CMDLINE_LI
 - https://www.alibabacloud.com/help/en/elastic-gpu-service/latest/uninstall-a-gpu-driver#section-t1c-es8-mb5
 - https://www.techsupportall.com/how-to-uninstall-nvidia-driver/#linux
 
-## debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
-
-Nvidia 官方驱动是基于X11环境的，而 debian/ubuntu 的 Gnome 桌面 在 x11 环境下不支持触摸板手势
-需要安装以下插件，让其支持触摸板手势
-
-🌀步骤1：安装Touchegg: https://github.com/JoseExposito/touchegg
-
-Ubuntu 系统建议使用ppa进行安装
-```
-sudo add-apt-repository ppa:touchegg/stable
-sudo apt update
-sudo apt install touchegg
-```
-如系统无法以ppa安装，则请下载合适的安装档进行安装
-① https://github.com/JoseExposito/touchegg/releases
-② sudo apt install ./touchegg_*.deb 进行安装
-
-🌀步骤2： 安装 X11 Gestures: https://extensions.gnome.org/extension/4033/x11-gestures/
-
-如果触摸板手势用着不舒服或者需要很长路径才能触发，按照文档配置以下参数即可
-https://github.com/JoseExposito/touchegg#daemon-configuration
-
-🌀步骤3：如果不想安装图形化配置可以直接在操作配置文件
+### 安装 NVIDIA Container Toolkit 
+https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#setting-up-nvidia-container-toolkit
 
 ```
-mkdir -p ~/.config/touchegg && cp -n /usr/share/touchegg/touchegg.conf ~/.config/touchegg/touchegg.conf
-vim ~/.config/touchegg/touchegg.conf
-rm ~/.config/touchegg/.touchegg:1.lock
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list \
+  && \
+    sudo apt-get update
+
+sudo apt-get install -y nvidia-container-toolkit
 ```
 
-- 也可以参考全局配置选项： https://github.com/JoseExposito/touchegg#global-settings
-- 注意：删除 ~/.config/touchegg/.touchegg:1.lock
-- 可参考仓库中的 touchegg.conf 文件， 注意，这里的<action type="SEND_KEYS">的手势，是基于你的自定义快捷键（settings->keyboard）
-
-## ubuntu 软件推荐
-
-- 截图软件： sudo apt install flameshot
-
-## 最后打开夜灯模式（settings->display->nightlight）
-# EndeavourOS 部署
+# EndeavourOS
 建议先通过图形化界面更新系统
 ref: https://manateelazycat.github.io/2023/09/10/endeavour-os/
 ## 添加 ArchLinuxCn 的源
