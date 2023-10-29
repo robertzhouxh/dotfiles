@@ -1,4 +1,4 @@
-# 文件說明
+# 文件说明
 
 - .aliases: 命令別名
 - .exports: 环境变量
@@ -698,6 +698,8 @@ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dear
     sudo apt-get update
 
 sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
 ```
 
 # EndeavourOS
