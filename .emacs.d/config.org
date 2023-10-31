@@ -2304,7 +2304,7 @@ same directory as the org-buffer and insert a link to this file."
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (require 'eaf)
-  (require 'eaf-image-viewer)
+  ;;(require 'eaf-image-viewer)
   (require 'eaf-pdf-viewer)
   (require 'eaf-browser)
   (require 'eaf-file-manager)
