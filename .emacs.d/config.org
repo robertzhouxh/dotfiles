@@ -1237,6 +1237,7 @@ same directory as the org-buffer and insert a link to this file."
   :after org
   :config
   (setq-default
+   org-download-annotate-function 'ignore
    org-download-image-dir "assets"
    ;; Basename setting seems to be simply ignored.
    org-download-screenshot-basename ".org.png"
