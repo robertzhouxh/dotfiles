@@ -30,10 +30,6 @@ url = https://github.com/plantuml-stdlib/C4-PlantUML
 path = .emacs.d/vendor/plantuml-style-c4
 url = https://github.com/xuanye/plantuml-style-c4
 
-[submodule ".emacs.d/vendor/lsp-bridge"]
-path = .emacs.d/vendor/lsp-bridge
-url = https://github.com/manateelazycat/lsp-bridge
-
 [submodule ".emacs.d/vendor/org-bars"]
 path = .emacs.d/vendor/org-bars
 url = https://github.com/tonyaldon/org-bars
@@ -124,11 +120,14 @@ path = .emacs.d/vendor/cdlatex
 url = https://github.com/cdominik/cdlatex
 
 [submodule ".emacs.d/vendor/tao-theme-emacs"]
-	path = .emacs.d/vendor/tao-theme-emacs
-	url = https://github.com/11111000000/tao-theme-emacs
+path = .emacs.d/vendor/tao-theme-emacs
+url = https://github.com/11111000000/tao-theme-emacs
+
 [submodule ".emacs.d/vendor/emacs-dashboard"]
-	path = .emacs.d/vendor/emacs-dashboard
-	url = https://github.com/emacs-dashboard/emacs-dashboard
+path = .emacs.d/vendor/emacs-dashboard
+url = https://github.com/emacs-dashboard/emacs-dashboard
+
 [submodule ".emacs.d/vendor/ob-erlang"]
-	path = .emacs.d/vendor/ob-erlang
-	url = https://github.com/xfwduke/ob-erlang
+path = .emacs.d/vendor/ob-erlang
+url = https://github.com/xfwduke/ob-erlang
+
