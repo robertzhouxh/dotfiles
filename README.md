@@ -571,7 +571,8 @@ sudo rm -rf /var/lib/containerd
 2. 恢复到原始桌面配置： $dconf reset -f /org/gnome/
 3. 护眼： 打开夜灯模式（settings->display->nightlight）
 3. Ctrl 与 Caps 键位交换: Gnome Tweaks -> Choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
-4. debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
+4. 按键全局使用 Emacs 模式： Gnome Tweaks -> Keyboard&Mouse -> Emacs Input 打开
+5. debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
 
 Nvidia 官方驱动是基于X11环境的，而 debian/ubuntu 的 Gnome 桌面 在 x11 环境下不支持触摸板手势
 需要安装以下插件，让其支持触摸板手势
