@@ -6,7 +6,8 @@
 :header-args+: :results table
 :header-args+: :engine mysql
 :header-args+: :dbhost $1
-:header-args+: :database $2
-:header-args+: :dbuser $3
-:header-args+: :dbpassword $4
+:header-args+: :dbport $2
+:header-args+: :database $3
+:header-args+: :dbuser $4
+:header-args+: :dbpassword $5
 :END:
