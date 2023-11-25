@@ -3,9 +3,9 @@
 # key: sqlsrc
 # --
 :PROPERTIES:
-:header-args:sql: :engine mysql :dbhost $1 :database $2 :dbuser $3 :dbpassword $4
+:header-args:sql: :engine mysql :dbhost $1 :dbport $2 :database $3 :dbuser $4 :dbpassword $5
 :END:
 
 #+begin_src sql
-$5
+$6
 #+end_src
