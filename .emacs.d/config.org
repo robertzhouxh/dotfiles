@@ -2314,6 +2314,7 @@ same directory as the org-buffer and insert a link to this file."
   (require 'eaf-git)
   (require 'eaf-map)
   (require 'eaf-system-monitor)
+  (require 'eaf-video-player)
 
   ;; Code: 
   ;; You need configuration your own local proxy program first.

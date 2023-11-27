@@ -7,5 +7,6 @@
 :END:
 
 #+begin_src sql
+// 请注意，上述属性要紧随 org 某个主题下，而且要有数据库名字
 $6
 #+end_src
