@@ -161,3 +161,5 @@ export SSH_KEY_PATH="~/.ssh/id_rsa"
 alias dssh='do_ssh'
 alias rm="trash"
 alias jumper='expect ~/.ssh/jumper.expect'
+
+alias python=/usr/bin/python3
