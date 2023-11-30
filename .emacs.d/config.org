@@ -2307,7 +2307,7 @@ same directory as the org-buffer and insert a link to this file."
   (require 'eaf-image-viewer)
   (require 'eaf-pdf-viewer)
   (require 'eaf-browser)
-  (require 'eaf-file-manager)
+  ;;(require 'eaf-file-manager)
   (require 'eaf-mindmap)
   (require 'eaf-markmap)
   (require 'eaf-org-previewer)
