@@ -23,6 +23,12 @@ cd dotfiles
 # -------------------------------------------------------------------------------
 git submodule update --init
 set -- -f; source bootsrap.sh
+
+# --------------------------------------------------------
+# 安装 eaf 相关内容
+# --------------------------------------------------------
+cd .emacs.d/vendor/emacs-application-framework
+ ./install-eaf.py 
 ```
 # MacOS 
 ## 安裝 emacs
