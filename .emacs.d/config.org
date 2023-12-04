@@ -1038,7 +1038,7 @@ same directory as the org-buffer and insert a link to this file."
       ;; dired
       ;; "dj" 'dired-jump
       ;; "dJ" 'dired-jump-other-window
-      "d" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
+      ;; "d" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
 
       ;; external Apps
       "eY" 'youdao-dictionary-search-from-input
@@ -1052,7 +1052,7 @@ same directory as the org-buffer and insert a link to this file."
       "eo" 'org-export-docx
 
       ;; file
-      "fh" '(lambda () (interactive) (eaf-open-in-file-manager "~/"))
+      ;; "fh" '(lambda () (interactive) (eaf-open-in-file-manager "~/"))
       "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
       "fi" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
       "ff" 'find-file
@@ -2307,7 +2307,7 @@ same directory as the org-buffer and insert a link to this file."
   (require 'eaf-image-viewer)
   (require 'eaf-pdf-viewer)
   (require 'eaf-browser)
-  (require 'eaf-file-manager)
+  ;(require 'eaf-file-manager)
   (require 'eaf-mindmap)
   (require 'eaf-markmap)
   (require 'eaf-org-previewer)
@@ -2353,7 +2353,7 @@ same directory as the org-buffer and insert a link to this file."
   (one-key-create-menu
    "GIT"
    '(
-     (("s" . "Git status") . eaf-open-git)
+     ;; (("s" . "Git status") . eaf-open-git)
      (("u" . "Git push to remote") . eaf-git-push)
      (("i" . "Git pull") . eaf-git-pull)
      (("c" . "Git clone") . eaf-git-clone)
@@ -2361,22 +2361,22 @@ same directory as the org-buffer and insert a link to this file."
      )
    t)
 
-  (one-key-create-menu
-   "DIRECTORY"
-   '(
-     (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
-     (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
-     (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
-     (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
-     (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
-     (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
-     (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
-     (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
-     (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
-     (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
-     (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
-     )
-   t)
+  ;; (one-key-create-menu
+  ;;  "DIRECTORY"
+  ;;  '(
+  ;;    (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
+  ;;    (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
+  ;;    (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
+  ;;    (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
+  ;;    (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
+  ;;    (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
+  ;;    (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
+  ;;    (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
+  ;;    (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
+  ;;    (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
+  ;;    (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
+  ;;    )
+  ;;  t)
 
   ;;; Require
   (require 'mind-wave)
