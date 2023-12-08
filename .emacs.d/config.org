@@ -1232,29 +1232,35 @@ same directory as the org-buffer and insert a link to this file."
   :ensure t
   :hook (org-mode . toc-org-mode))
 
-(use-package org-download
-  :ensure t
-  :after org
+;; (use-package org-download
+;;   :ensure t
+;;   :after org
+;;   :config
+;;   (setq-default
+;;    org-download-annotate-function 'ignore
+;;    org-download-image-dir "assets"
+;;    ;; Basename setting seems to be simply ignored.
+;;    org-download-screenshot-basename ".org.png"
+;;    org-download-timestamp "org_%Y%m%d-%H%M%S_"
+;;    org-download-heading-lvl nil)
+;;   :custom
+;;   (org-download-screenshot-method
+;;    (cond
+;;     ((eq system-type 'gnu/linux)
+;;      "xclip -selection clipboard -t image/png -o > '%s'")
+;;     ((eq system-type 'darwin)
+;;      "pngpaste %s")))
+;;   :bind
+;;   (:map org-mode-map
+;;         (("C-M-y" . org-download-screenshot)
+;;          ("s-y" . org-download-yank))))
+(use-package org-imagine
+  :load-path "~/.emacs.d/vendor/org-imagine/"
   :config
-  (setq-default
-   org-download-annotate-function 'ignore
-   org-download-image-dir "assets"
-   ;; Basename setting seems to be simply ignored.
-   org-download-screenshot-basename ".org.png"
-   org-download-timestamp "org_%Y%m%d-%H%M%S_"
-   org-download-heading-lvl nil)
-  :custom
-  (org-download-screenshot-method
-   (cond
-    ((eq system-type 'gnu/linux)
-     "xclip -selection clipboard -t image/png -o > '%s'")
-    ((eq system-type 'darwin)
-     "pngpaste %s")))
-  :bind
-  (:map org-mode-map
-        (("C-M-y" . org-download-screenshot)
-         ("s-y" . org-download-yank))))
-
+  (setq
+    org-imagine-cache-dir "./.org-imagine"
+    org-imagine-is-overwrite nil)
+    )
 #+END_SRC
 
 ** Org 主配置

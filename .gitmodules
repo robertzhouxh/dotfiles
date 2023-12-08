@@ -135,3 +135,6 @@ url = https://github.com/xfwduke/ob-erlang
 	path = .emacs.d/vendor/lsp-bridge
 	url = https://github.com/manateelazycat/lsp-bridge
 	branch = master
+[submodule ".emacs.d/vendor/org-imagine"]
+	path = .emacs.d/vendor/org-imagine
+	url = https://github.com/metaescape/org-imagine
