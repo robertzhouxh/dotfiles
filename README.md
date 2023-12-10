@@ -107,6 +107,10 @@ brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
 brew install CleanShot （截图软件，桃宝宝买licence）
 ```
 # UbuntuOS
+## disable-while-typing
+```
+gsettings set org.gnome.desktop.peripherals.touchpad disable-while-typing true
+```
 ## 换清华源
 ```
 cp /etc/apt/sources.list /etc/apt/sources.bak
