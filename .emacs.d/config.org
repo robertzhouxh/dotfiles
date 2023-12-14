@@ -136,31 +136,32 @@
 * Elf-mode
 
 #+begin_src emacs-lisp :tangle yes
-;;(defvar-local elf-mode nil)
-;;
-;;(defun elf-setup-default ()
-;;  "Make `elf-mode' get called automatically for binaries."
-;;  (add-to-list 'magic-mode-alist (cons "ELF" 'elf-mode)))
-;;
-;;(defvar elf-mode-command "readelf --syms -W %s"
-;;  "The shell command to use for `elf-mode'.")
-;;
-;;;;;###autoload
-;;(defun elf-mode ()
-;;  (interactive)
-;;  (let ((inhibit-read-only t))
-;;    (if elf-mode
-;;        (progn
-;;          (erase-buffer)
-;;          (insert-file-contents (buffer-file-name))
-;;          (setq elf-mode nil))
-;;      (setq elf-mode t)
-;;      (erase-buffer)
-;;      (insert (shell-command-to-string
-;;               (format elf-mode-command (buffer-file-name)))))
-;;    (set-buffer-modified-p nil)
-;;    (read-only-mode 1)))
+(defvar-local elf-mode nil)
 
+(defun elf-setup-default ()
+  "Make `elf-mode' get called automatically for binaries."
+  (add-to-list 'magic-mode-alist (cons "ELF" 'elf-mode)))
+
+(defvar elf-mode-command "readelf --syms -W %s"
+  "The shell command to use for `elf-mode'.")
+
+;;;###autoload
+(defun elf-mode ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (if elf-mode
+        (progn
+          (erase-buffer)
+          (insert-file-contents (buffer-file-name))
+          (setq elf-mode nil))
+      (setq elf-mode t)
+      (erase-buffer)
+      (insert (shell-command-to-string
+               (format elf-mode-command (buffer-file-name)))))
+    (set-buffer-modified-p nil)
+    (read-only-mode 1)))
+
+(elf-setup-default)                   ;二进制文件默认用elf模式打开
 #+end_src
 * Idle
 
@@ -217,7 +218,6 @@ from tradition chinese to simple chinese" t)
               (not redefine)        ;重新定义的函数 (比如参数数量改变)
               (not cl-functions)    ;`CL' 包中的运行时调用的函数
               )))
-(elf-setup-default)                   ;二进制文件默认用elf模式打开
 (setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
 (tooltip-mode -1)                       ;不要显示任何 tooltips
 
