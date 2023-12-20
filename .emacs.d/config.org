@@ -135,7 +135,7 @@
 
 * Elf-mode
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (defvar-local elf-mode nil)
 
 (defun elf-setup-default ()
