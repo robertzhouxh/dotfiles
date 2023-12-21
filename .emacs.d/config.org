@@ -1725,8 +1725,11 @@ same directory as the org-buffer and insert a link to this file."
                (chinese-font-name  "TsangerJinKai05")
                english-font-name)
            (cond
-            ((featurep 'cocoa) (setq english-font-name "Monaco"))
-            ((string-equal system-type "gnu/linux") (setq english-font-name "WenQuanYi Micro Hei Mono")))
+            ((featurep 'cocoa)
+             (setq english-font-name "Monaco"))
+            ((string-equal system-type "gnu/linux")
+             (setq english-font-name "WenQuanYi Micro Hei Mono")))
+
            (when (display-grayscale-p)
              (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
              (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
