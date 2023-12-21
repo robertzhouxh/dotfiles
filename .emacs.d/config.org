@@ -252,7 +252,10 @@ from tradition chinese to simple chinese" t)
 (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
 (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
 (setq split-width-threshold nil)        ;分屏的时候使用上下分屏
-(setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
+
+;; Todo
+;;(setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
+
 (setq confirm-kill-processes nil)       ;退出自动杀掉进程
 (setq async-bytecomp-allowed-packages nil) ;避免magit报错
 (setq word-wrap-by-category t)             ;按照中文折行
@@ -1722,10 +1725,8 @@ same directory as the org-buffer and insert a link to this file."
                (chinese-font-name  "TsangerJinKai05")
                english-font-name)
            (cond
-            ((featurep 'cocoa)
-             (setq english-font-name "Monaco"))
-            ((string-equal system-type "gnu/linux")
-             (setq english-font-name "WenQuanYi Micro Hei Mono")))
+            ((featurep 'cocoa) (setq english-font-name "Monaco"))
+            ((string-equal system-type "gnu/linux") (setq english-font-name "WenQuanYi Micro Hei Mono")))
            (when (display-grayscale-p)
              (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
              (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
@@ -1770,49 +1771,6 @@ same directory as the org-buffer and insert a link to this file."
   (add-hook hook #'(lambda () (load-font-setup))))
 #+END_SRC
 
-** 废弃
-
-#+BEGIN_SRC emacs-lisp :tangle no 
-
-(toggle-frame-maximized)
-
-(defun available-font (font-list)
-  "Get the first available font from FONT-LIST."
-  (catch 'font
-    (dolist (font font-list)
-      (if (member font (font-family-list))
-	      (throw 'font font)))))
-
-(defun zxh/setup-font ()
-  "Font setup."
-
-  (interactive)
-  (let* ((efl '("Monaco" "WenQuanYi Micro Hei Mono" "Source Code Pro" "Ubuntu Mono"))
-         (cfl '("TsangerJinKai05" "楷体" "黑体" "STHeiti" "STKaiti"))
-
-	     (cf (available-font cfl))
-	     (ef (available-font efl)))
-
-    (when ef
-      (dolist (face '(default fixed-pitch fixed-pitch-serif variable-pitch))
-	    (set-face-attribute face nil :family ef)))
-
-    (when cf
-      (dolist (charset '(kana han cjk-misc bopomofo))
-	    (set-fontset-font t charset cf))
-      (setq face-font-rescale-alist
-	        (mapcar (lambda (item) (cons item 1.2)) cfl)))))
-
-;; settings for daemon mode
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-	          (lambda (frame)
-		        (with-selected-frame frame
-		          (cabins/setup-font))))
-  (add-hook 'after-init-hook #'zxh/setup-font))
-
-#+END_SRC
-
 * Rime
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rime
@@ -1843,7 +1801,8 @@ same directory as the org-buffer and insert a link to this file."
           rime-predicate-punctuation-after-ascii-p
           ;; 编程模式，只在注释中输入中文
           rime-predicate-prog-in-code-p))
-  (when (x/system-is-mac)
+  ;;(when (x/system-is-mac)
+  (when (string-equal system-type "darwin")
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
@@ -1851,7 +1810,8 @@ same directory as the org-buffer and insert a link to this file."
                 ;; :font "TsangerJinKai05"
                 :font "TsangerJinKai05-18"
                 :internal-border-width 10)))
-  (when (x/system-is-linux)
+  ;;(when (x/system-is-linux)
+  (when (string-equal system-type "gnu/linux")
     (setq rime-posframe-properties
           (list :background-color "#333333"
                 :foreground-color "#dcdccc"
