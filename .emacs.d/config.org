@@ -1721,7 +1721,7 @@ same directory as the org-buffer and insert a link to this file."
   (cond ((eq window-system 'pgtk)
          (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
         (t
-         (let ((emacs-font-size 20)
+         (let ((emacs-font-size 14)
                (chinese-font-name  "TsangerJinKai05")
                english-font-name)
            (cond
@@ -1729,6 +1729,9 @@ same directory as the org-buffer and insert a link to this file."
              (setq english-font-name "Monaco"))
             ((string-equal system-type "gnu/linux")
              (setq english-font-name "WenQuanYi Micro Hei Mono")))
+
+           ;;(set-face-attribute 'default nil :height 140 :family (eval english-font-name))
+           ;;(set-face-attribute 'default nil :height 140 :family (eval chinese-font-name))
 
            (when (display-grayscale-p)
              (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
