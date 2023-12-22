@@ -1503,115 +1503,127 @@ same directory as the org-buffer and insert a link to this file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package plantuml-mode
-    :ensure t
-    :mode ("\\.plantuml\\'" . plantuml-mode)
-    :init
-    ;; enable plantuml babel support
-    (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 (append org-babel-load-languages
-                                         '((plantuml . t))))
-    :config
-    (setq org-plantuml-exec-mode 'plantuml)
-    (setq org-plantuml-executable-path "plantuml")
-    (setq plantuml-executable-path "plantuml")
-    (setq plantuml-default-exec-mode 'executable)
-    ;; set default babel header arguments
-    (setq org-babel-default-header-args:plantuml
-          '((:exports . "results")
-            (:results . "file")
-            ))
-    )
 
-  ;;---------------------------------------------------------
-  ;; Golang
-  (use-package go-mode)
+(use-package disable-mouse
+  :ensure t
+  :config
+  (global-disable-mouse-mode))
 
-  ;;---------------------------------------------------------
-  ;; Erlang 
-  (let* ((tools-version erlang-lib-tools-version)
-         (path-prefix erlang-path-prefix)
-         (tools-path
-          (concat path-prefix "/lib/tools-" tools-version "/emacs")))
-    (when (file-exists-p tools-path)
-      (setq load-path (cons tools-path load-path))
-      (setq erlang-root-dir (concat path-prefix "/erlang"))
-      (setq exec-path (cons (concat path-prefix "/bin") exec-path))
-      (require 'erlang-start)
-      (defvar inferior-erlang-prompt-timeout t)))
+(mapc #'disable-mouse-in-keymap
+  (list evil-motion-state-map
+        evil-normal-state-map
+        evil-visual-state-map
+        evil-insert-state-map))
 
-  ;;---------------------------------------------------------
-  ;; C/C++
-  (use-package cc-mode
-    :ensure nil
-    :bind (:map c-mode-base-map
-                ("C-c c" . compile))
-    :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
-    :init (setq-default c-basic-offset 4)
-    :config
-    (use-package modern-cpp-font-lock
-      :init (modern-c++-font-lock-global-mode t)))
+(use-package plantuml-mode
+  :ensure t
+  :mode ("\\.plantuml\\'" . plantuml-mode)
+  :init
+  ;; enable plantuml babel support
+  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((plantuml . t))))
+  :config
+  (setq org-plantuml-exec-mode 'plantuml)
+  (setq org-plantuml-executable-path "plantuml")
+  (setq plantuml-executable-path "plantuml")
+  (setq plantuml-default-exec-mode 'executable)
+  ;; set default babel header arguments
+  (setq org-babel-default-header-args:plantuml
+        '((:exports . "results")
+          (:results . "file")
+          ))
+  )
 
-  ;;---------------------------------------------------------
-  ;; Python 
-  ;; Install: pip install pyflakes autopep8
-  (use-package python
-    :ensure nil
-    :hook (inferior-python-mode . (lambda ()
-                                    (process-query-on-exit-flag
-                                     (get-process "Python"))))
-    :init
-    ;; Disable readline based native completion
-    (setq python-shell-completion-native-enable nil)
-    :config
-    ;; Default to Python 3. Prefer the versioned Python binaries since some
-    ;; systems stupidly make the unversioned one point at Python 2.
-    (when (and (executable-find "python3")
-               (string= python-shell-interpreter "python"))
-      (setq python-shell-interpreter "python3"))
+;;---------------------------------------------------------
+;; Golang
+(use-package go-mode)
 
-    ;; Env vars
-    (with-eval-after-load 'exec-path-from-shell
-      (exec-path-from-shell-copy-env "PYTHONPATH"))
+;;---------------------------------------------------------
+;; Erlang 
+(let* ((tools-version erlang-lib-tools-version)
+       (path-prefix erlang-path-prefix)
+       (tools-path
+        (concat path-prefix "/lib/tools-" tools-version "/emacs")))
+  (when (file-exists-p tools-path)
+    (setq load-path (cons tools-path load-path))
+    (setq erlang-root-dir (concat path-prefix "/erlang"))
+    (setq exec-path (cons (concat path-prefix "/bin") exec-path))
+    (require 'erlang-start)
+    (defvar inferior-erlang-prompt-timeout t)))
 
-    ;; Live Coding in Python
-    (use-package live-py-mode))
+;;---------------------------------------------------------
+;; C/C++
+(use-package cc-mode
+  :ensure nil
+  :bind (:map c-mode-base-map
+              ("C-c c" . compile))
+  :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
+  :init (setq-default c-basic-offset 4)
+  :config
+  (use-package modern-cpp-font-lock
+    :init (modern-c++-font-lock-global-mode t)))
+
+;;---------------------------------------------------------
+;; Python 
+;; Install: pip install pyflakes autopep8
+(use-package python
+  :ensure nil
+  :hook (inferior-python-mode . (lambda ()
+                                  (process-query-on-exit-flag
+                                   (get-process "Python"))))
+  :init
+  ;; Disable readline based native completion
+  (setq python-shell-completion-native-enable nil)
+  :config
+  ;; Default to Python 3. Prefer the versioned Python binaries since some
+  ;; systems stupidly make the unversioned one point at Python 2.
+  (when (and (executable-find "python3")
+             (string= python-shell-interpreter "python"))
+    (setq python-shell-interpreter "python3"))
+
+  ;; Env vars
+  (with-eval-after-load 'exec-path-from-shell
+    (exec-path-from-shell-copy-env "PYTHONPATH"))
+
+  ;; Live Coding in Python
+  (use-package live-py-mode))
 
   ;;;---------------------------------------------------------
-  ;; rust
-  ;; brew install rust-analyzer
-  ;; rustup component add rust-src rustfmt clippy rls rust-analysis
+;; rust
+;; brew install rust-analyzer
+;; rustup component add rust-src rustfmt clippy rls rust-analysis
   ;;;---------------------------------------------------------
-  ;;(use-package lsp-mode
-  ;;:init
-  ;;:custom
-  ;;(lsp-eldoc-render-all t)
-  ;;(lsp-idle-delay 0.6)
+;;(use-package lsp-mode
+;;:init
+;;:custom
+;;(lsp-eldoc-render-all t)
+;;(lsp-idle-delay 0.6)
   ;;; enable / disable the hints as you prefer:
-  ;;(lsp-rust-analyzer-server-display-inlay-hints t)
-  ;;(lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  ;;(lsp-rust-analyzer-display-chaining-hints t)
-  ;;(lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  ;;(lsp-rust-analyzer-display-closure-return-type-hints t)
-  ;;(lsp-rust-analyzer-display-parameter-hints nil)
-  ;;(lsp-rust-analyzer-display-reborrow-hints nil)
-  ;;)
-  (use-package rust-mode
-    ;;:hook ((rust-mode . my/rust-lsp))
-    :config
-    (setq rust-format-on-save t)
-    (defun my/rust-lsp ()
-      (setq-local lsp-completion-enable nil
-                  compile-command "cargo build")
-      ))
+;;(lsp-rust-analyzer-server-display-inlay-hints t)
+;;(lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+;;(lsp-rust-analyzer-display-chaining-hints t)
+;;(lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+;;(lsp-rust-analyzer-display-closure-return-type-hints t)
+;;(lsp-rust-analyzer-display-parameter-hints nil)
+;;(lsp-rust-analyzer-display-reborrow-hints nil)
+;;)
+(use-package rust-mode
+  ;;:hook ((rust-mode . my/rust-lsp))
+  :config
+  (setq rust-format-on-save t)
+  (defun my/rust-lsp ()
+    (setq-local lsp-completion-enable nil
+                compile-command "cargo build")
+    ))
 
-  ;;---------------------------------------------------------
-  ;; Other languages
-  ;;---------------------------------------------------------
-  (use-package sh-script :defer t :config (setq sh-basic-offset 4))
-  (use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
-  (use-package yaml-mode :ensure t)
+;;---------------------------------------------------------
+;; Other languages
+;;---------------------------------------------------------
+(use-package sh-script :defer t :config (setq sh-basic-offset 4))
+(use-package lua-mode  :defer t :config (add-hook 'lua-mode-hook #'company-mode))
+(use-package yaml-mode :ensure t)
 
 #+END_SRC
 
