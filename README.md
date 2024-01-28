@@ -244,44 +244,6 @@ sudo /etc/init.d/polipo restart
 
 ```
 
-## 网络代理最佳实践-机场 + v2raya + GFWList(来自emacs 大神 lazycat)
-
-机场 + v2raya + GFWList 全局透明代理， (不再需要 SwitchyOmega 和 proxy-ns/polipo/Proxifier)
-
-- 购买机场， 安装 v2raya, 浏览器打开 http://127.0.0.1:2017 登录以后进行配置：
-- 订阅机场: 拷贝机场订阅 URL, 点击导入按钮导入
-- 选择服务器： 选择 S.JISUSUB.CC 标签， 选择一个合适的服务器， 然后选择左上角启动按钮
-- 更新 GFWList： 点击页面右上角设置按钮， 在设置对话框右上角点击更新按钮更新 GFWLIST， 然后再按照下面的步骤对设置页面进行配置
-- 透明代理/系统代理： 启用 GFWList 模式
-- 透明代理/系统代理实现方式： redirect
-- 规则端口的分流模式： GFWList 模式
-- 防止 DNS 污染： DNS-over-HTTPS
-- 特殊模式： supervisor
-- TCPFastOpen: 关闭
-- 多路复用： 关闭
-- 自动更新 GFWList: 每个 1 小时自动更新
-- 自动更新订阅: 每个 1 小时自动更新
-- 解析订阅地址/更新时优先使用： 不进行分流
-
-故障解决
-
-failed to start v2ray-core: LocateServerRaw: ID or Sub exceed range
-- 删除 “/etc/v2raya” 目录下所有文件， 
-- 然后重启 v2raya sudo systemctl restart v2raya 后， 重新导入机场地址即可.
-
-
-## 安装星火应用商店
-https://spark-app.store/
-
-```
-wget https://gitee.com/deepin-community-store/spark-store/releases/download/4.2.7.3/spark-store_4.2.7.3_amd64.deb
-
-// 不可以！不可以！不可以！直接调用dpkg是不处理依赖的！使用
-[❌] sudo dpkg -i spark-store_4.2.7.3_amd64.deb 
-[✅] sudo apt install ./spark-store_4.2.7.3_amd64.deb 
-```
-- 安装微信
-- 安装字体
 ## 安装字体
 ``` 
 apt-cache search wqy-microhei
@@ -711,6 +673,18 @@ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dear
 sudo apt-get install -y nvidia-container-toolkit
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
+```
+
+## 命令行操作蓝牙
+
+```
+sudo systemctl status bluetooth
+bluetoothctl scan on
+bluetoothctl discoverable on
+bluetoothctl pair ？？？？？？
+bluetoothctl paired-devices
+bluetoothctl connect ？？？？？？
+bluetoothctl trust ？？？？？？
 ```
 
 # EndeavourOS
