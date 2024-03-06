@@ -24,7 +24,7 @@
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
 (when (eq system-type 'darwin)
-  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2023.11/libexec/plantuml.jar")
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
@@ -2238,9 +2238,9 @@ same directory as the org-buffer and insert a link to this file."
 (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/tao-theme")
 
 (require 'lazycat-theme)
-(lazycat-theme-load-with-sunrise)
+;;(lazycat-theme-load-with-sunrise)
 ;; ;(lazycat-theme-load-light)
-;; (lazycat-theme-load-dark)
+(lazycat-theme-load-dark)
 
 (require 'awesome-tray)
 (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
