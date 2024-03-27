@@ -1296,7 +1296,7 @@ same directory as the org-buffer and insert a link to this file."
           ;; 不在线显示图片，手动点击显示更容易控制大小。
           ;; org-startup-with-inline-images nil
           ;; 先从 #+ATTR.* 获取宽度，如果没有设置则默认为 300 。
-          org-image-actual-width '(420)
+          org-image-actual-width '(1270)
           org-cycle-inline-images-display nil
           org-html-validation-link nil
           org-export-with-broken-links t
