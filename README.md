@@ -677,7 +677,18 @@ sudo systemctl restart docker
 
 ## 命令行操作蓝牙
 
+
 ```
+
+## 安装驱动并reboot
+sudo apt-get install --reinstall bluez
+
+## 如果还不行，那么更新最新的内核版本， 新的内核版本可能包含对蓝牙设备的更好支持。
+sudo add-apt-repository ppa:canonical-kernel-team/ppa
+sudo apt-get update
+sudo apt-get install linux-generic
+
+## Op
 sudo systemctl status bluetooth
 bluetoothctl scan on
 bluetoothctl discoverable on
