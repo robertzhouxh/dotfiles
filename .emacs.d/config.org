@@ -766,10 +766,9 @@ same directory as the org-buffer and insert a link to this file."
   (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOROOT" "GOPATH" "PYTHONPATH"))
 
   ;;;; 设成nil 则不从 .zshrc 读 只从 .zshenv读（可以加快速度，但是需要你将环境变量相关的都放到 .zshenv 中，而非 .zshrc 中）
-  (setq exec-path-from-shell-check-startup-files nil) 
-
+  ;;(setq exec-path-from-shell-check-startup-files nil) 
   ;;环境变量都在 ~/.profile 中设置，并没有必要执行 ~/.bashrc，所以不需要 -i 选项，
-  (setq exec-path-from-shell-arguments '("-l" )) ;remove -i read form .zshenv/.profile
+  ;;(setq exec-path-from-shell-arguments '("-l" )) ;remove -i read form .zshenv/.profile
   (exec-path-from-shell-initialize))
 
 (use-package which-key
