@@ -179,7 +179,7 @@
 	insteadOf = "gist:"
 
 
-[url "git@git.shudieds.com"]
+[url "git@git.shudieds.com/"]
 
 	insteadOf = "https://gitlab.shudieds.com/"
 
