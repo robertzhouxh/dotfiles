@@ -64,19 +64,17 @@ if [[ `uname -s` == "Darwin" ]]; then
     # for emacs eaf depens bins
     PATH=$PATH:"/Users/zxh/Library/Python/3.9/lib/python/site-packages"
 
-    # PATH="$PATH:/Library/TeX/texbin"
-
     #------------------------------------------------------------
-    # openssl 版本问题
-    # 使用 openssl@3
-    # export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
-    # export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
-    # export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
-    
-    # 使用 openssl@1.1
-    export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@1.1/lib"
-    export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@1.1/include -I${JDK_PREFIX}/include"
-    export PATH="${BREW_PREFIX}/opt/openssl@1.1/bin:$PATH"
+    # latex
+    # PATH="$PATH:/Library/TeX/texbin"
+    # export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@1.1/lib"
+    # export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@1.1/include -I${JDK_PREFIX}/include"
+    # export PATH="${BREW_PREFIX}/opt/openssl@1.1/bin:$PATH"
+
+    #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
+    export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
+    export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
+    export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
 
     . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
 fi
@@ -91,11 +89,14 @@ if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
 fi
 
 if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
-    export GOPATH="/Users/zxh/githubs/go"
+    #export GOPATH="/Users/zxh/githubs/go"
+    export GOPATH="/home/zxh/githubs/go"
     export GOROOT=$(asdf where golang)/go
     PATH=$PATH:${GOROOT}/bin 
     PATH=$PATH:$GOPATH/bin
-    #go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+    export GOPROXY=https://goproxy.cn
+    # go env -w GOPRIVATE=gitlab.shudieds.com
+    go env -w GOPRIVATE=gitlab.shudieds.com GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
 fi
 
 if which asdf &> /dev/null && asdf list | grep erlang > /dev/null; then
