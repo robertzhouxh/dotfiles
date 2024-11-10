@@ -94,10 +94,6 @@ url = https://github.com/rksm/org-ai.git
 path = .emacs.d/vendor/everforest-theme
 url = https://github.com/Theory-of-Everything/everforest-emacs
 
-[submodule ".emacs.d/vendor/mind-wave"]
-path = .emacs.d/vendor/mind-wave
-url = https://github.com/manateelazycat/mind-wave
-
 [submodule ".emacs.d/vendor/vundo"]
 path = .emacs.d/vendor/vundo
 url = https://github.com/casouri/vundo
@@ -132,9 +128,11 @@ path = .emacs.d/vendor/ob-erlang
 url = https://github.com/xfwduke/ob-erlang
 
 [submodule ".emacs.d/vendor/lsp-bridge"]
-	path = .emacs.d/vendor/lsp-bridge
-	url = https://github.com/manateelazycat/lsp-bridge
-	branch = master
+path = .emacs.d/vendor/lsp-bridge
+url = https://github.com/manateelazycat/lsp-bridge
+branch = master
+
 [submodule ".emacs.d/vendor/org-imagine"]
-	path = .emacs.d/vendor/org-imagine
-	url = https://github.com/metaescape/org-imagine
+path = .emacs.d/vendor/org-imagine
+url = https://github.com/metaescape/org-imagine
+

@@ -2396,114 +2396,91 @@ same directory as the org-buffer and insert a link to this file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (require 'eaf)
-  (require 'eaf-image-viewer)
-  (require 'eaf-pdf-viewer)
-  (require 'eaf-browser)
-  (require 'eaf-file-manager)
-  (require 'eaf-mindmap)
-  (require 'eaf-markmap)
-  (require 'eaf-org-previewer)
-  (require 'eaf-git)
-  (require 'eaf-map)
-  (require 'eaf-system-monitor)
-  (require 'eaf-video-player)
-
-  ;; Code: 
-  ;; You need configuration your own local proxy program first.
-  ;;(setq eaf-proxy-type "socks5")
-  ;;(setq eaf-proxy-host "127.0.0.1")
-  ;;(setq eaf-proxy-port "1080")
-
-  ;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
-  (setq eaf-browser-continue-where-left-off t)
-
-  (eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
-  (eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
-  (eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
-  (eaf-bind-key scroll_down "M-k" eaf-browser-keybinding)
-  (eaf-bind-key scroll_up_page "M-n" eaf-browser-keybinding)
-  (eaf-bind-key scroll_down_page "M-p" eaf-browser-keybinding)
-  (eaf-bind-key open_link "M-h" eaf-browser-keybinding)
-  (eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
-  (eaf-bind-key insert_or_open_link_new_buffer "D" eaf-browser-keybinding)
-  (eaf-bind-key insert_or_open_link_background_buffer "F" eaf-browser-keybinding)
-  (eaf-bind-key watch-other-window-up-line "M-<" eaf-browser-keybinding)
-  (eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
-  (eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
-  (eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
-
-  (defun eaf-goto-left-tab ()
-    (interactive)
-    (sort-tab-select-prev-tab))
-
-  (defun eaf-goto-right-tab ()
-    (interactive)
-    (sort-tab-select-next-tab))
-
-  (setq eaf-goto-right-after-close-buffer t)
-
-  (one-key-create-menu
-   "GIT"
-   '(
-     ;; (("s" . "Git status") . eaf-open-git)
-     (("u" . "Git push to remote") . eaf-git-push)
-     (("i" . "Git pull") . eaf-git-pull)
-     (("c" . "Git clone") . eaf-git-clone)
-     (("h" . "Git history") . eaf-git-show-history)
-     )
-   t)
-
-  (one-key-create-menu
-   "DIRECTORY"
-   '(
-     (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
-     (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
-     (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
-     (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
-     (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
-     (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
-     (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
-     (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
-     (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
-     (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
-     (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
-     )
-   t)
-
-  ;;; Require
-  (require 'mind-wave)
-  
-  ;;; Code:
-  (setq mind-wave-chat-model "gpt-4")
-  (setq mind-wave-async-text-model "gpt-4")
-  (setq mind-wave-action-code-model "gpt-4")
-  (setq mind-wave-explain-word-model "gpt-4")
-  
-  (one-key-create-menu
-   "MIND-WAVE"
-   '(
-     (("t" . "Translate to english") . mind-wave-translate-to-english)
-     (("T" . "Explain word") . mind-wave-explain-word)
-     (("d" . "Proofreading doc") . mind-wave-proofreading-doc)
-     (("f" . "Fix typos") . mind-wave-check-typos)
-     (("r" . "Refactory code") . mind-wave-refactory-code)
-     (("R" . "Refactory code with input") . mind-wave-refactory-code-with-input)
-     (("c" . "Comment code") . mind-wave-comment-code)
-     (("e" . "Explain code") . mind-wave-explain-code)
-     (("E" . "Explain point") . mind-wave-explain-point)
-     (("a" . "Adjust text") . mind-wave-adjust-text)
-     (("g" . "Generate code") . mind-wave-generate-code)
-     (("G" . "Generate patch name") . mind-wave-generate-commit-name)
-     (("v" . "Summary video") . mind-wave-summary-video)
-     (("w" . "Summary video") . mind-wave-summary-web)
-     (("x" . "Restore window configuration") . mind-wave-restore-window-configuration)
-     )
-   t)
-
-(add-hook 'eaf-git-commit-and-push-hook #'mind-wave-generate-commit-name)
+(require 'eaf)
+(require 'eaf-image-viewer)
+(require 'eaf-pdf-viewer)
+(require 'eaf-browser)
+(require 'eaf-file-manager)
+(require 'eaf-mindmap)
+(require 'eaf-markmap)
+(require 'eaf-org-previewer)
+(require 'eaf-git)
+(require 'eaf-map)
+(require 'eaf-system-monitor)
+(require 'eaf-video-player)
 
 
+;; ai programming
+(require 'aider)
+(setq aider-args '("--no-auto-commits" "--model" "openrouter/deepseek/deepseek-coder"))
+(setenv "OPENROUTER_API_KEY" (with-temp-buffer
+                               (insert-file-contents "~/.config/openrouter/key.txt")
+                               (string-trim (buffer-string))))
+
+;; Code: 
+;; You need configuration your own local proxy program first.
+;;(setq eaf-proxy-type "socks5")
+;;(setq eaf-proxy-host "127.0.0.1")
+;;(setq eaf-proxy-port "1080")
+
+;; Make `eaf-browser-restore-buffers' restore last close browser buffers.
+(setq eaf-browser-continue-where-left-off t)
+
+(eaf-bind-key undo_action "C-/" eaf-browser-keybinding)
+(eaf-bind-key redo_action "C-?" eaf-browser-keybinding)
+(eaf-bind-key scroll_up "M-j" eaf-browser-keybinding)
+(eaf-bind-key scroll_down "M-k" eaf-browser-keybinding)
+(eaf-bind-key scroll_up_page "M-n" eaf-browser-keybinding)
+(eaf-bind-key scroll_down_page "M-p" eaf-browser-keybinding)
+(eaf-bind-key open_link "M-h" eaf-browser-keybinding)
+(eaf-bind-key open_link_new_buffer "M-H" eaf-browser-keybinding)
+(eaf-bind-key insert_or_open_link_new_buffer "D" eaf-browser-keybinding)
+(eaf-bind-key insert_or_open_link_background_buffer "F" eaf-browser-keybinding)
+(eaf-bind-key watch-other-window-up-line "M-<" eaf-browser-keybinding)
+(eaf-bind-key watch-other-window-down-line "M->" eaf-browser-keybinding)
+(eaf-bind-key emacs-session-save "<f5>" eaf-browser-keybinding)
+(eaf-bind-key refresh_page "M-r" eaf-browser-keybinding)
+
+(defun eaf-goto-left-tab ()
+  (interactive)
+  (sort-tab-select-prev-tab))
+
+(defun eaf-goto-right-tab ()
+  (interactive)
+  (sort-tab-select-next-tab))
+
+(setq eaf-goto-right-after-close-buffer t)
+
+
+(one-key-create-menu
+ "DIRECTORY"
+ '(
+   (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
+   (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
+   (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
+   (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
+   (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
+   (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
+   (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
+   (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
+   (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
+   (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
+   (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
+   )
+ t)
+
+
+(one-key-create-menu
+ "GIT"
+ '(
+   (("s" . "Git status") . eaf-open-git)
+   (("u" . "Git push to remote") . eaf-git-push)
+   (("i" . "Git pull") . eaf-git-pull)
+   (("b" . "Git submodule pull") . eaf-git-submodule-pull)
+   (("c" . "Git clone") . eaf-git-clone)
+   (("h" . "Git history") . eaf-git-show-history)
+   )
+ t)
 #+END_SRC
 
 * Key-Bindings
