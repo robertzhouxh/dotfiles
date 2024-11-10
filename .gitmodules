@@ -86,10 +86,6 @@ url = https://github.com/purcell/diredfl
 path = .emacs.d/vendor/nov
 url = https://depp.brause.cc/nov.el.git
 
-[submodule ".emacs.d/vendor/org-ai"]
-path = .emacs.d/vendor/org-ai
-url = https://github.com/rksm/org-ai.git
-
 [submodule ".emacs.d/vendor/everforest-theme"]
 path = .emacs.d/vendor/everforest-theme
 url = https://github.com/Theory-of-Everything/everforest-emacs

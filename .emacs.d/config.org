@@ -2015,38 +2015,6 @@ same directory as the org-buffer and insert a link to this file."
 
 #+END_SRC
 
-* Reading & OpenAI
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-  ;;(use-package calibredb
-  ;;  :ensure t
-  ;;  :commands calibredb
-  ;;  :bind ("\e\e b" . calibredb)
-  ;;  :config
-  ;;  (setq calibredb-root-dir "~/Calibre")
-  ;;  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
-  ;;  (setq calibredb-library-alist '(("~/Books/books")
-  ;;                                  ))
-
-  ;;  (setq calibredb-format-icons-in-terminal t)
-  ;;  (setq calibredb-id-width 0)
-  ;;  )
-
-  ;; (use-package org-ai
-  ;;   :load-path "~/.emacs.d/vendor/org-ai"
-  ;;   :bind (
-  ;;          ("C-c q" . org-ai-prompt)
-  ;;          ("C-c x" . org-ai-on-region)
-  ;;          )
-  ;;   :hook (org-mode . org-ai-mode)
-  ;;   :config
-  ;;   ;;(setq org-ai-openai-api-token "sk-")
-  ;;   (setq org-ai-default-max-tokens 480)
-  ;;   (setq org-ai-default-chat-system-prompt "你是一个Emacs助手，请以Org-mode的格式来回复我")
-  ;;   )
-#+END_SRC
-
 * Lazycat Plugins
 
 #+BEGIN_SRC emacs-lisp :tangle yes
