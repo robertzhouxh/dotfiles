@@ -138,3 +138,9 @@ url = https://github.com/xfwduke/ob-erlang
 [submodule ".emacs.d/vendor/org-imagine"]
 	path = .emacs.d/vendor/org-imagine
 	url = https://github.com/metaescape/org-imagine
+[submodule ".emacs.d/vendor/ws-butler"]
+	path = .emacs.d/vendor/ws-butler
+	url = https://github.com/lewang/ws-butler
+[submodule ".emacs.d/vendor/auto-sudoedit"]
+	path = .emacs.d/vendor/auto-sudoedit
+	url = https://github.com/ncaq/auto-sudoedit

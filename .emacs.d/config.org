@@ -1,5 +1,4 @@
 :PROPERTIES: header-args:emacs-lisp :tangle
-:ID:       E7980AE6-D0E5-4796-83D5-2A0F81400FC2
 :END:
 #+title: 我的 Emacs 配置
 #+date: 2023-02-10 15:21:00 
@@ -743,7 +742,7 @@ same directory as the org-buffer and insert a link to this file."
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package use-package-ensure-system-package)
+;(use-package use-package-ensure-system-package)
 (use-package protobuf-mode)
 (use-package markdown-mode)
 (use-package dockerfile-mode)
@@ -2065,13 +2064,19 @@ same directory as the org-buffer and insert a link to this file."
 (require 'blink-search)
 (require 'markmacro)
 
-;; (require 'sort-tab)
-;; (sort-tab-mode 1)
+;; ----------------------------------------------------------
+;; auto-save
+(require 'auto-save)
+(require 'ws-butler)
+(auto-save-enable)
+(setq auto-save-silent t)
+(ws-butler-global-mode)
 
-;; (require 'auto-save)
-;; (auto-save-enable)
-;; (setq auto-save-silent t)
-;; (setq auto-save-delete-trailing-whitespace nil)
+;; Just hook on `find-file-hook', don't hook `dired-mode-hook', it's unnecessary.
+(add-hook 'find-file-hook
+          #'(lambda ()
+              (require 'auto-sudoedit)
+              (auto-sudoedit)))         ;默认打开忽略模式
 
 ;; ----------------------------------------------------------
 ;; auto mode
@@ -2214,60 +2219,6 @@ same directory as the org-buffer and insert a link to this file."
   (add-hook hook (lambda () (display-line-numbers-mode))))
 
 ;;----------------------------------------------------------
-;; fingertip
-;; (when (or (string-match "Emacs 30." (emacs-version))
-;;           (string-match "Emacs 31." (emacs-version)))
-;;   (require 'fingertip)
-;;   (message "For Emacs 29+, load fingertip")
-;;   (dolist (hook (list
-;;                  'c-mode-common-hook
-;;                  'c-mode-hook
-;;                  'c++-mode-hook
-;;                  'java-mode-hook
-;;                  'haskell-mode-hook
-;;                  'emacs-lisp-mode-hook
-;;                  'lisp-interaction-mode-hook
-;;                  'lisp-mode-hook
-;;                  'maxima-mode-hook
-;;                  'ielm-mode-hook
-;;                  'sh-mode-hook
-;;                  'makefile-gmake-mode-hook
-;;                  'php-mode-hook
-;;                  'python-mode-hook
-;;                  'js-mode-hook
-;;                  'go-mode-hook
-;;                  'qml-mode-hook
-;;                  'jade-mode-hook
-;;                  'css-mode-hook
-;;                  'ruby-mode-hook
-;;                  'coffee-mode-hook
-;;                  'rust-mode-hook
-;;                  'qmake-mode-hook
-;;                  'lua-mode-hook
-;;                  'swift-mode-hook
-;;                  'web-mode-hook
-;;                  'markdown-mode-hook
-;;                  'llvm-mode-hook
-;;                  'conf-toml-mode-hook
-;;                  'nim-mode-hook
-;;                  'typescript-mode-hook
-
-;;                  'c-ts-mode-hook
-;;                  'c++-ts-mode-hook
-;;                  'cmake-ts-mode-hook
-;;                  'toml-ts-mode-hook
-;;                  'css-ts-mode-hook
-;;                  'js-ts-mode-hook
-;;                  'json-ts-mode-hook
-;;                  'python-ts-mode-hook
-;;                  'bash-ts-mode-hook
-;;                  'typescript-ts-mode-hook
-;;                  ))
-;;     (add-hook hook #'(lambda () (fingertip-mode 1))))
-;;   )
-
-
-;;----------------------------------------------------------
 ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
 ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
 
@@ -2290,19 +2241,30 @@ same directory as the org-buffer and insert a link to this file."
 (require 'lsp-bridge-jdtls)
 
 ;;; Code:
-
 (setq lsp-bridge-enable-completion-in-minibuffer t)
 (setq lsp-bridge-signature-show-function 'lsp-bridge-signature-show-with-frame)
 (setq lsp-bridge-enable-with-tramp t)
+(setq lsp-bridge-enable-org-babel t)
+(setq acm-enable-capf t)
 (setq acm-enable-quick-access t)
 (setq acm-backend-yas-match-by-trigger-keyword t)
 (setq acm-enable-tabnine nil)
 (setq acm-enable-codeium nil)
+(setq acm-enable-lsp-workspace-symbol t)
+(setq lsp-bridge-enable-inlay-hint t)
+(setq lsp-bridge-semantic-tokens t)
+(setq-default lsp-bridge-semantic-tokens-ignore-modifier-limit-types ["variable"])
 
 (global-lsp-bridge-mode)
 
+(add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("html") . "html_tailwindcss"))
+(add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("css") . "css_tailwindcss"))
+
+(setq lsp-bridge-csharp-lsp-server "csharp-ls")
+(setq lsp-bridge-nix-lsp-server "nil")
+
 ;; 打开日志，开发者才需要
-(setq lsp-bridge-enable-log t)
+;; (setq lsp-bridge-enable-log t)
 
 (setq lsp-bridge-get-multi-lang-server-by-project
       (lambda (project-path filepath)
