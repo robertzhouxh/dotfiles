@@ -39,65 +39,70 @@ export BASH_SILENCE_DEPRECATION_WARNING=1;
 
 
 # ########################### custom your exports here ###################################
-if [[ `uname -s` == "Darwin" ]]; then
-
+if [[ "$(uname -s)" == "Darwin" ]]; then
     export HOMEBREW_NO_AUTO_UPDATE=1
     BREW_PREFIX=$(brew --prefix)
-
-    #if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
-    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-    #fi
-
-    #if which brew &> /dev/null && brew list --formula | grep make > /dev/null; then
-    PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
-    #fi
-
-    #if which brew &> /dev/null && brew list --formula | grep gnu-sed > /dev/null; then
-    PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH"
-    #fi
-
-    #if which brew &> /dev/null && brew list --formula | grep openjdk > /dev/null; then
     JDK_PREFIX=$(brew --prefix openjdk)
-    PATH="${JDK_PREFIX}/bin:$PATH"
-    #fi
 
+    # 确保 `brew` 安装了相关工具后再修改 PATH
+    for formula in coreutils make gnu-sed; do
+        if brew list --formula | grep -q "^$formula$"; then
+            PATH="$(brew --prefix $formula)/libexec/gnubin:$PATH"
+        fi
+    done
 
-    #------------------------------------------------------------
-    # latex
-    # PATH="$PATH:/Library/TeX/texbin"
-    #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
+    # 解析 JAVA_HOME，避免 `realpath` 失败
+    if [[ -d "$JDK_PREFIX" ]]; then
+        export JAVA_HOME="$JDK_PREFIX"
+        export PATH="$JAVA_HOME/bin:$PATH"
+    fi
+
+    # 设置 OpenSSL 相关路径
     export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
     export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
     export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
 
-    . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
+    # 加载其他环境配置
+    . "${BREW_PREFIX}/share/liquidprompt"
+    . "${BREW_PREFIX}/etc/profile.d/z.sh"
+    . "$(brew --prefix asdf)/libexec/asdf.sh"
+fi
+
+if [[ "$(uname -s)" == "Linux" && $- == *i* ]]; then
+    # 只在交互式 shell 中执行
+    source ~/.liquidprompt/liquidprompt
+    . ~/z/z.sh
+    . "$HOME/.asdf/asdf.sh"
 fi
 
 
-if [[ `uname -s` == "Linux" ]]; then
-    [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
+# if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
+#     #export GOPATH="/Users/zxh/githubs/go"
+#     export GOPATH="/home/zxh/githubs/go"
+#     export GOROOT=$(asdf where golang)/go
+#     PATH=$PATH:${GOROOT}/bin
+#     PATH=$PATH:$GOPATH/bin
+#     export GOPROXY=https://goproxy.cn
+# fi
+if command -v asdf &>/dev/null && asdf list golang &>/dev/null; then
+    export GOPATH="$HOME/githubs/go"
+    export GOROOT="$(asdf where golang)/go" || exit 1
+
+    export PATH+=":$GOROOT/bin:$GOPATH/bin"
+    export GOPROXY="https://goproxy.cn"
+    export GOBIN="$GOPATH/bin"  # 推荐：让 go install 默认安装到这里
 fi
 
-if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
-    PATH=$PATH:$(asdf where rust)/bin 
+if command -v asdf &>/dev/null && asdf list erlang &>/dev/null; then
+    export PATH+=":$(asdf where erlang)/bin" || exit 1
 fi
 
-if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
-    #export GOPATH="/Users/zxh/githubs/go"
-    export GOPATH="/home/zxh/githubs/go"
-    export GOROOT=$(asdf where golang)/go
-    PATH=$PATH:${GOROOT}/bin 
-    PATH=$PATH:$GOPATH/bin
-    export GOPROXY=https://goproxy.cn
+if command -v asdf &>/dev/null && asdf list python &>/dev/null; then
+    USER_BASE_BIN=$(python -m site --user-base 2>/dev/null)/bin
+    ASDF_PYTHON_BIN=$(asdf where python 2>/dev/null)/bin || exit 1
+    export PATH="$USER_BASE_BIN:$ASDF_PYTHON_BIN:$PATH"
 fi
 
-if which asdf &> /dev/null && asdf list | grep erlang > /dev/null; then
-    PATH=$PATH:$(asdf where erlang)/bin 
+if command -v asdf &>/dev/null && asdf list rust &>/dev/null; then
+    export PATH+=":$(asdf where rust)/bin" || exit 1
 fi
-
-if which asdf &> /dev/null && asdf list | grep python > /dev/null; then
-    PATH=$(python -m site --user-base)/bin:$PATH:$(asdf where python)/bin 
-fi
-
-export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-export PATH=$PATH:$JAVA_HOME/bin
