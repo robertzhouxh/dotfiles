@@ -1,7 +1,6 @@
 :PROPERTIES: header-args:emacs-lisp :tangle
 :END:
 #+title: 我的 Emacs 配置
-#+date: 2023-02-10 15:21:00 
 #+auto_tangle: t
 
 * Custom Vars and Const
@@ -27,37 +26,88 @@
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
-;; do not check signature
-(setq package-check-signature nil) 
-;; M-x package-install RET gnu-elpa-keyring-update RET. 
-;; M-: (setq package-check-signature "allow-unsigned") 
+;; UserInfo
+(setq user-full-name "John Doe")
+(setq user-mail-address "johndoe@johndoe.net")
+;; -UserInfo
+
+;; Consts
+(defconst *sys/win32*
+  (eq system-type 'windows-nt)
+  "Are we running on a WinTel system?")
+
+(defconst *sys/linux*
+  (eq system-type 'gnu/linux)
+  "Are we running on a GNU/Linux system?")
+
+(defconst *sys/mac*
+  (eq system-type 'darwin)
+  "Are we running on a Mac system?")
+
+(defconst python-p
+  (or (executable-find "python3")
+      (and (executable-find "python")
+           (> (length (shell-command-to-string "python --version | grep 'Python 3'")) 0)))
+  "Do we have python3?")
+
+(defconst pip-p
+  (or (executable-find "pip3")
+      (and (executable-find "pip")
+           (> (length (shell-command-to-string "pip --version | grep 'python 3'")) 0)))
+  "Do we have pip3?")
+
+(defconst clangd-p
+  (or (executable-find "clangd")  ;; usually
+      (executable-find "/usr/local/opt/llvm/bin/clangd"))  ;; macOS
+  "Do we have clangd?")
+
+(defconst eaf-env-p
+  (and (display-graphic-p) python-p pip-p)
+  "Do we have EAF environment setup?")
+;; -Consts
 
 #+END_SRC
 
 * Bootstrap use-package
-
 #+BEGIN_SRC emacs-lisp :tangle yes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;; Code:
 
-(require 'package)
-(package-initialize)
-
-(setq package-archives '
-      (("gnu" . "http://mirrors.ustc.edu.cn/elpa/gnu/")
-        ("melpa" . "http://mirrors.ustc.edu.cn/elpa/melpa/")
-        ("ox-odt" . "https://kjambunathan.github.io/elpa/")))
-
-
-;; Install use-package if not installed
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-;;; Solve for package-check signature
-;;; set it t if you thought it is not secure.
+;; StraightBootstrap
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(setq straight-use-package-by-default t)
 (setq package-check-signature nil)
+;; -StraightBootstrap
 
-(require 'use-package)
-(setq use-package-always-ensure t)
+;; StraightUsePackage
+(straight-use-package 'use-package)
+
+(eval-and-compile
+  (setq use-package-verbose t
+        use-package-expand-minimally t
+        use-package-compute-statistics t
+        use-package-enable-imenu-support t))
+
+(eval-when-compile
+  (require 'use-package)
+  (require 'bind-key))
+;; -StraightUsePackage
+
+;; DimPac
+(use-package diminish)
+;; -DimPac
 
 
 (defun add-subdirs-to-load-path (search-dir)
@@ -71,9 +121,9 @@
                    ;; 不是目录的文件都移除
                    (not (file-directory-p (concat dir subdir)))
                    ;; 父目录、 语言相关和版本控制目录都移除
-                   (member subdir '("." ".." 
-                                    "dist" "node_modules" "__pycache__" 
-                                    "RCS" "CVS" "rcs" "cvs" ".git" ".github")))) 
+                   (member subdir '("." ".."
+                                    "dist" "node_modules" "__pycache__"
+                                    "RCS" "CVS" "rcs" "cvs" ".git" ".github"))))
               (directory-files dir)))
       (let ((subdir-path (concat dir (file-name-as-directory subdir))))
         ;; 目录下有 .el .so .dll 文件的路径才添加到 `load-path' 中，提升Emacs启动速度
@@ -82,11 +132,11 @@
                                 ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
                                 (member (file-name-extension subdir-file) '("el" "so" "dll"))))
                        (directory-files subdir-path))
-          
+
           ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
           ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
           (add-to-list 'load-path subdir-path t))
-        
+
         ;; 继续递归搜索子目录
         (add-subdirs-to-load-path subdir-path)))))
 
@@ -956,12 +1006,6 @@ same directory as the org-buffer and insert a link to this file."
       (bind-key "N" 'compilation-next-file ag-mode-map)
       (bind-key "P" 'compilation-previous-file ag-mode-map)))
 
-  (use-package dumb-jump
-    :config
-    (setq dumb-jump-aggressive nil)
-    (setq dumb-jump-selector 'ivy)
-    (setq dumb-jump-prefer-searcher 'ag))
-
   ;; Hiding structured data
   (use-package hideshow
     :hook (prog-mode . hs-minor-mode)
@@ -1331,47 +1375,6 @@ same directory as the org-buffer and insert a link to this file."
     )
   )
 
-;; 更加复杂的表格，举个例子
-;; #+CAPTION: 示例列表表格
-;; #+NAME: 示例列表表格
-;; #+ATTR_ODT: :list-table t
-;; -
-;;   - 标题1
-;;   - 标题2
-;;   - 标题3
-;; - ----------------
-;;   - 2007
-;;   -
-;;     - 很好
-;;     - 非常好
-;;     - 特别好
-;;   -
-;;     - [ ] 待办1
-;;     - [ ] 待办2
-;;     - [ ] 待办3
-;; - ---------------
-;;   -
-;;      噼里啪啦第一段话
-;; 
-;;      噼里啪啦第二段话
-;;   -
-;;      [[https://orgmode.org/resources/img/org-mode-unicorn.svg]]
-;;   -
-;;      | 标题1 | 标题2     |
-;;      |-------+-----------|
-;;      |  2008 | good      |
-;;      |  2010 | wonderful |
-(use-package ox-odt
-  :ensure t
-  :after (org ox ox-html)
-  :init
-  (add-to-list
-   'org-export-filter-parse-tree-functions
-   (defun org-html--translate-list-tables (tree backend info)
-     (if (member backend '(html latex))
-         (org-odt--translate-list-tables tree backend info)
-       tree)))
-  )
 #+END_SRC
 
 ** Org 主配置
@@ -1379,6 +1382,8 @@ same directory as the org-buffer and insert a link to this file."
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'ob-erlang)
   (use-package org
+    :straight (:type built-in)
+    :defer t
     :config
     (add-hook 'org-mode-hook #'org-modern-mode)
     (add-hook 'LaTeX-mode-hook 'turn-on-reftex) 
@@ -1599,9 +1604,6 @@ same directory as the org-buffer and insert a link to this file."
 ;;     _ 和 ^ 会自动补全 {}，不过如果 {} 里只有一个元素的话，也会自动去掉；
 ;;     ` 后加一个字母可以快速输入一些 LaTeX 的符号，如 `a => \alpha 和 `b => \beta；
 ;;     一些字母之后加上 ' 则是可以修改该字母的字体或者加修饰，如 a'. => \dot{a} 和 a'1 => {\displaystyle a}。
-
-(use-package tex
-  :ensure auctex)
 
 (use-package cdlatex
   :load-path "~/.emacs.d/vendor/cdlatex"
