@@ -36,7 +36,8 @@ export GPG_TTY=$(tty);
 # Hide the “default interactive shell is now zsh” warning on macOS.
 export BASH_SILENCE_DEPRECATION_WARNING=1;
 
-
+export DEEPSEEK_API_KEY="YourKey"
+export OPENROUTER_API_KEY="YourKey"
 
 # ########################### custom your exports here ###################################
 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -89,7 +90,7 @@ if command -v asdf &>/dev/null && asdf list golang &>/dev/null; then
     export GOROOT="$(asdf where golang)/go" || exit 1
 
     export PATH+=":$GOROOT/bin:$GOPATH/bin"
-    export GOPROXY="https://goproxy.cn"
+    export GOPROXY="https://goproxy.cn,direct"
     export GOBIN="$GOPATH/bin"  # 推荐：让 go install 默认安装到这里
 fi
 

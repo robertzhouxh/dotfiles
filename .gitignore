@@ -15,7 +15,7 @@ Thumbs.db
 
 .vim
 rime
-
+.emacs.d/amx-items
 .emacs.d/org-roam.db
 .emacs.d/librime
 .emacs.d/.lsp-session-v1

@@ -1,3 +1,4 @@
+
 # 文件说明
 
 - .aliases: 命令別名
@@ -74,15 +75,9 @@ wget http://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BB%8A%E6%A5%B705-W03.ttf
 ## 安装鼠须管输入法+雾凇词库
 
 ```
-brew install --cask squirrel
-mkdir -p  ~/Library/Rime
-rm -rf ~/Library/Rime/*
-
-git clone https://github.com/iDvel/rime-ice --depth=1
-cp -r ./rime-ice/*  ~/Library/Rime/
-
-# redeploy siquirrel
-
+git clone --depth=1 https://github.com/Mark24Code/rime-auto-deploy.git --branch latest
+cd rime-auto-deploy
+./installer.rb
 ```
 
 ## 安裝 Emacs 需要的 librime

@@ -7,1034 +7,906 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
-(setq erlang-lib-tools-version "3.5.2")
-(setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-(setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-(setq epg-gpg-program "gpg2")
+  (setenv "OPENAI_API_KEY" nil)
+  (setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
+  (setq erlang-lib-tools-version "3.5.2")
+  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
+  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
+  (setq epg-gpg-program "gpg2")
 
-(defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
-(defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
+  (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
+  (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
 
-(when (eq system-type 'gnu/linux)
-  (setq plantuml-path "/opt/plantuml/plantuml.jar")
-  (defvar zxh-emacs-module-header-root "/usr/local/include")
-  (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
+  (when (eq system-type 'gnu/linux)
+    (setq plantuml-path "/opt/plantuml/plantuml.jar")
+    (defvar zxh-emacs-module-header-root "/usr/local/include")
+    (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
-(when (eq system-type 'darwin)
-  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
-  (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
-  (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
+  (when (eq system-type 'darwin)
+    (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
+    (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+    (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
-;; UserInfo
-(setq user-full-name "John Doe")
-(setq user-mail-address "johndoe@johndoe.net")
-;; -UserInfo
+  (setenv "EMACS_MODULE_HEADER_ROOT" zxh-emacs-module-header-root)
 
-;; Consts
-(defconst *sys/win32*
-  (eq system-type 'windows-nt)
-  "Are we running on a WinTel system?")
+  ;; UserInfo
+  (setq user-full-name "John Doe")
+  (setq user-mail-address "johndoe@johndoe.net")
+  ;; -UserInfo
 
-(defconst *sys/linux*
-  (eq system-type 'gnu/linux)
-  "Are we running on a GNU/Linux system?")
+  ;; Consts
+  (defconst *sys/win32*
+    (eq system-type 'windows-nt)
+    "Are we running on a WinTel system?")
 
-(defconst *sys/mac*
-  (eq system-type 'darwin)
-  "Are we running on a Mac system?")
+  (defconst *sys/linux*
+    (eq system-type 'gnu/linux)
+    "Are we running on a GNU/Linux system?")
 
-(defconst python-p
-  (or (executable-find "python3")
-      (and (executable-find "python")
-           (> (length (shell-command-to-string "python --version | grep 'Python 3'")) 0)))
-  "Do we have python3?")
+  (defconst *sys/mac*
+    (eq system-type 'darwin)
+    "Are we running on a Mac system?")
 
-(defconst pip-p
-  (or (executable-find "pip3")
-      (and (executable-find "pip")
-           (> (length (shell-command-to-string "pip --version | grep 'python 3'")) 0)))
-  "Do we have pip3?")
+  (defconst python-p
+    (or (executable-find "python3")
+        (and (executable-find "python")
+             (> (length (shell-command-to-string "python --version | grep 'Python 3'")) 0)))
+    "Do we have python3?")
 
-(defconst clangd-p
-  (or (executable-find "clangd")  ;; usually
-      (executable-find "/usr/local/opt/llvm/bin/clangd"))  ;; macOS
-  "Do we have clangd?")
+  (defconst pip-p
+    (or (executable-find "pip3")
+        (and (executable-find "pip")
+             (> (length (shell-command-to-string "pip --version | grep 'python 3'")) 0)))
+    "Do we have pip3?")
 
-(defconst eaf-env-p
-  (and (display-graphic-p) python-p pip-p)
-  "Do we have EAF environment setup?")
-;; -Consts
+  (defconst clangd-p
+    (or (executable-find "clangd")  ;; usually
+        (executable-find "/usr/local/opt/llvm/bin/clangd"))  ;; macOS
+    "Do we have clangd?")
+
+  (defconst eaf-env-p
+    (and (display-graphic-p) python-p pip-p)
+    "Do we have EAF environment setup?")
+  ;; -Consts
 
 #+END_SRC
 
 * Bootstrap use-package
 #+BEGIN_SRC emacs-lisp :tangle yes
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;; Code:
+  ;; StraightBootstrap
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+  (setq straight-use-package-by-default t)
+  (setq package-check-signature nil)
+  ;; -StraightBootstrap
 
-;; StraightBootstrap
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(setq straight-use-package-by-default t)
-(setq package-check-signature nil)
-;; -StraightBootstrap
+  ;; StraightUsePackage
+  (straight-use-package 'use-package)
 
-;; StraightUsePackage
-(straight-use-package 'use-package)
+  (eval-and-compile
+    (setq use-package-verbose t
+          use-package-expand-minimally t
+          use-package-compute-statistics t
+          use-package-enable-imenu-support t))
 
-(eval-and-compile
-  (setq use-package-verbose t
-        use-package-expand-minimally t
-        use-package-compute-statistics t
-        use-package-enable-imenu-support t))
+  (eval-when-compile
+    (require 'use-package)
+    (require 'bind-key))
 
-(eval-when-compile
-  (require 'use-package)
-  (require 'bind-key))
-;; -StraightUsePackage
+  (use-package diminish)
 
-;; DimPac
-(use-package diminish)
-;; -DimPac
+  ;; DefBindings
+  ;; Unbind unneeded keys
+  (global-set-key (kbd "C-z") nil)
+  (global-set-key (kbd "M-z") nil)
+  (global-set-key (kbd "M-m") nil)
+  (global-set-key (kbd "C-x C-z") nil)
+  (global-set-key (kbd "M-/") nil)
+  ;; Truncate lines
+  (global-set-key (kbd "C-x C-l") #'toggle-truncate-lines)
+  ;; Adjust font size like web browsers
+  (global-set-key (kbd "C-=") #'text-scale-increase)
+  (global-set-key (kbd "C-+") #'text-scale-increase)
+  (global-set-key (kbd "C--") #'text-scale-decrease)
+  ;; Move up/down paragraph
+  (global-set-key (kbd "M-n") #'forward-paragraph)
+  (global-set-key (kbd "M-p") #'backward-paragraph)
+  ;; Revert buffer
+  (global-set-key (kbd "<f5>") #'revert-buffer-quick)
+  ;; -DefBindings
 
-;; DefBindings
-;; Unbind unneeded keys
-(global-set-key (kbd "C-z") nil)
-(global-set-key (kbd "M-z") nil)
-(global-set-key (kbd "M-m") nil)
-(global-set-key (kbd "C-x C-z") nil)
-(global-set-key (kbd "M-/") nil)
-;; Truncate lines
-(global-set-key (kbd "C-x C-l") #'toggle-truncate-lines)
-;; Adjust font size like web browsers
-(global-set-key (kbd "C-=") #'text-scale-increase)
-(global-set-key (kbd "C-+") #'text-scale-increase)
-(global-set-key (kbd "C--") #'text-scale-decrease)
-;; Move up/down paragraph
-(global-set-key (kbd "M-n") #'forward-paragraph)
-(global-set-key (kbd "M-p") #'backward-paragraph)
-;; Revert buffer
-(global-set-key (kbd "<f5>") #'revert-buffer-quick)
-;; -DefBindings
+  (defun add-subdirs-to-load-path (search-dir)
+    (interactive)
+    (let* ((dir (file-name-as-directory search-dir)))
+      (dolist (subdir
+               ;; 过滤出不必要的目录，提升Emacs启动速度
+               (cl-remove-if
+                #'(lambda (subdir)
+                    (or
+                     ;; 不是目录的文件都移除
+                     (not (file-directory-p (concat dir subdir)))
+                     ;; 父目录、 语言相关和版本控制目录都移除
+                     (member subdir '("." ".."
+                                      "dist" "node_modules" "__pycache__"
+                                      "RCS" "CVS" "rcs" "cvs" ".git" ".github"))))
+                (directory-files dir)))
+        (let ((subdir-path (concat dir (file-name-as-directory subdir))))
+          ;; 目录下有 .el .so .dll 文件的路径才添加到 `load-path' 中，提升Emacs启动速度
+          (when (cl-some #'(lambda (subdir-file)
+                             (and (file-regular-p (concat subdir-path subdir-file))
+                                  ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
+                                  (member (file-name-extension subdir-file) '("el" "so" "dll"))))
+                         (directory-files subdir-path))
 
-(defun add-subdirs-to-load-path (search-dir)
-  (interactive)
-  (let* ((dir (file-name-as-directory search-dir)))
-    (dolist (subdir
-             ;; 过滤出不必要的目录，提升Emacs启动速度
-             (cl-remove-if
-              #'(lambda (subdir)
-                  (or
-                   ;; 不是目录的文件都移除
-                   (not (file-directory-p (concat dir subdir)))
-                   ;; 父目录、 语言相关和版本控制目录都移除
-                   (member subdir '("." ".."
-                                    "dist" "node_modules" "__pycache__"
-                                    "RCS" "CVS" "rcs" "cvs" ".git" ".github"))))
-              (directory-files dir)))
-      (let ((subdir-path (concat dir (file-name-as-directory subdir))))
-        ;; 目录下有 .el .so .dll 文件的路径才添加到 `load-path' 中，提升Emacs启动速度
-        (when (cl-some #'(lambda (subdir-file)
-                           (and (file-regular-p (concat subdir-path subdir-file))
-                                ;; .so .dll 文件指非Elisp语言编写的Emacs动态库
-                                (member (file-name-extension subdir-file) '("el" "so" "dll"))))
-                       (directory-files subdir-path))
+            ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
+            ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
+            (add-to-list 'load-path subdir-path t))
 
-          ;; 注意：`add-to-list' 函数的第三个参数必须为 t ，表示加到列表末尾
-          ;; 这样Emacs会从父目录到子目录的顺序搜索Elisp插件，顺序反过来会导致Emacs无法正常启动
-          (add-to-list 'load-path subdir-path t))
+          ;; 继续递归搜索子目录
+          (add-subdirs-to-load-path subdir-path)))))
 
-        ;; 继续递归搜索子目录
-        (add-subdirs-to-load-path subdir-path)))))
-
-(add-subdirs-to-load-path zxh-emacs-vendor-dir)
-
-#+END_SRC
-
-* Accelerate
-
-#+begin_src emacs-lisp :tangle yes
-
-(tool-bar-mode -1)                      ;禁用工具栏
-(menu-bar-mode -1)                      ;禁用菜单栏
-(scroll-bar-mode -1)                    ;禁用滚动条
-
-(setq
- ;; 不要缩放frame.
- frame-inhibit-implied-resize t
- ;; 默认用最简单的模式
- initial-major-mode 'fundamental-mode
- ;; 不要自动启用package
- package-enable-at-startup nil
- package--init-file-ensured t)
-
-#+end_src
-* Bootstrap-Init
-#+begin_src emacs-lisp :tangle yes
-(let (
-      ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
-      (gc-cons-threshold most-positive-fixnum)
-      (gc-cons-percentage 0.6)
-      ;; 清空避免加载远程文件的时候分析文件。
-      (file-name-handler-alist nil))
-
-  ;; 让窗口启动更平滑
-  (setq frame-inhibit-implied-resize t)
-  (setq-default inhibit-redisplay t
-                inhibit-message t)
-  (add-hook 'window-setup-hook
-            (lambda ()
-              (setq-default inhibit-redisplay nil
-                            inhibit-message nil)
-              (redisplay)))
-)
-#+end_src
-
-* Idle
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; idel
-;;(pretty-lambda-for-modes)
-;;(browse-kill-ring-default-keybindings)    ;加载默认的按键邦定
-;;(setq browse-kill-ring-quit-action        ;设置退出动作
-;;      (quote save-and-restore))           ;保存还原窗口设置
-(autoload 'hanconvert-region "hanconvert" ;简繁中文互相转换
-  "Convert a region from simple chinese to tradition chinese or
-from tradition chinese to simple chinese" t)
-(autoload 'irfc "init-irfc")
-(custom-set-variables '(tramp-verbose 0)) ;设置tramp的响应方式, 关闭后不弹出消息
-(setq max-lisp-eval-depth 40000)          ;lisp最大执行深度
-(setq max-specpdl-size 10000)             ;最大容量
-(setq kill-ring-max 1024) ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
-(setq mark-ring-max 1024) ;设置的mark ring容量
-(setq eval-expression-print-length nil) ;设置执行表达式的长度没有限制
-(setq eval-expression-print-level nil)  ;设置执行表达式的深度没有限制
-(auto-compression-mode 1)               ;打开压缩文件时自动解压缩
-(setq read-quoted-char-radix 16)        ;设置 引用字符 的基数
-(setq global-mark-ring-max 1024)        ;设置最大的全局标记容量
-(global-hl-line-mode 1)                 ;高亮当前行
-(setq isearch-allow-scroll t)           ;isearch搜索时是可以滚动屏幕的
-(setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
-(setq history-delete-duplicates t)      ;删除minibuffer的重复历史
-(setq minibuffer-message-timeout 1)     ;显示消息超时的时间
-(setq auto-revert-mode 1)               ;自动更新buffer
-(show-paren-mode t)                     ;显示括号匹配
-(setq show-paren-style 'parentheses) ;括号匹配显示但不是烦人的跳到另一个括号。
-(setq blink-matching-paren nil)      ;当插入右括号时不显示匹配的左括号
-(setq message-log-max t)         ;设置message记录全部消息, 而不用截去
-(setq require-final-newline nil) ;不自动添加换行符到末尾, 有些情况会出现错误
-(setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
-(setq x-stretch-cursor t)         ;光标在 TAB 字符上会显示为一个大方块
-(put 'narrow-to-region 'disabled nil)   ;开启变窄区域
-(setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
-(setq tramp-default-method "ssh")       ;设置传送文件默认的方法
-(setq void-text-area-pointer nil)       ;禁止显示鼠标指针
-(setq byte-compile-warnings
-      (quote (
-              ;; 显示的警告
-              free-vars                 ;不在当前范围的引用变量
-              unresolved                ;不知道的函数
-              callargs                  ;函数调用的参数和定义的不匹配
-              obsolete                  ;荒废的变量和函数
-              noruntime                 ;函数没有定义在运行时期
-              interactive-only          ;正常不被调用的命令
-              make-local ;调用 `make-variable-buffer-local' 可能会不正确的
-              mapcar     ;`mapcar' 调用
-              ;;
-              ;; 抑制的警告
-              (not redefine)        ;重新定义的函数 (比如参数数量改变)
-              (not cl-functions)    ;`CL' 包中的运行时调用的函数
-              )))
-(setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
-(tooltip-mode -1)                       ;不要显示任何 tooltips
+  (add-subdirs-to-load-path zxh-emacs-vendor-dir)
 
 #+END_SRC
 
 * Generic
-
 #+begin_src emacs-lisp :tangle yes
+  (tool-bar-mode -1)                      ;禁用工具栏
+  (menu-bar-mode -1)                      ;禁用菜单栏
+  (scroll-bar-mode -1)                    ;禁用滚动条
+  (tooltip-mode -1)                       ;禁用tooltips
+  (auto-compression-mode 1)               ;打开压缩文件时自动解压缩
+  (global-hl-line-mode 1)                 ;高亮当前行
+  (show-paren-mode t)                     ;显示括号匹配
+  (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
 
-;; Restore emacs session.
-;; (setq initial-buffer-choice t)
-;; (run-with-timer 1 nil #'(lambda () (bury-buffer)))
+  (setq void-text-area-pointer nil)       ;禁止显示鼠标指针
+  (setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
+  (setq kill-ring-max 1024)               ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
+  (setq mark-ring-max 1024)               ;设置的mark ring容量
+  (setq eval-expression-print-length nil) ;设置执行表达式的长度没有限制
+  (setq eval-expression-print-level nil)  ;设置执行表达式的深度没有限制
+  (setq isearch-allow-scroll t)           ;isearch搜索时是可以滚动屏幕的
+  (setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
+  (setq history-delete-duplicates t)      ;删除minibuffer的重复历史
+  (setq minibuffer-message-timeout 1)     ;显示消息超时的时间
+  (setq auto-revert-mode 1)               ;自动更新buffer
+  (setq show-paren-style 'parentheses)    ;括号匹配显示但不是烦人的跳到另一个括号。
+  (setq blink-matching-paren nil)         ;当插入右括号时不显示匹配的左括号
+  (setq message-log-max t)                ;设置message记录全部消息, 而不用截去
+  (setq require-final-newline nil)        ;不自动添加换行符到末尾, 有些情况会出现错误
+  (setq x-stretch-cursor t)               ;光标在 TAB 字符上会显示为一个大方块
+  (setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
+  (setq tramp-default-method "ssh")       ;设置传送文件默认的方法
+  (setq x-alt-keysym 'meta)               ;Map Alt key to Meta
+  (setq confirm-kill-emacs 'y-or-n-p)     ;Yes-y, No-n
+  (setq confirm-kill-processes nil)       ;Automatically kill all active processes when closing Emacs
+  (setq ad-redefinition-action 'accept)   ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
+  (setq ring-bell-function 'ignore)       ;Do not noise
+  (setq use-dialog-box nil)               ;never pop dialog
+  (setq inhibit-startup-screen t)         ;inhibit start screen
+  (setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
+  (setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
+  (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
+  (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
+  (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
+  (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
-;; 增加长行处理性能
-(setq bidi-inhibit-bpa t)
-(setq-default bidi-paragraph-direction 'left-to-right)
+  (setq-default comment-style 'indent)    ;设定自动缩进的注释风格
+  (setq-default create-lockfiles nil)     ;Do not create lock files
+  (setq-default history-length 500)       ;Set history-length longer
+  (setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
 
-;; 增加IO性能
-(setq process-adaptive-read-buffering nil)
-(setq read-process-output-max (* 1024 1024))
+  (setq byte-compile-warnings
+        (quote (
+                ;; 显示的警告
+                free-vars                 ;不在当前范围的引用变量
+                unresolved                ;不知道的函数
+                callargs                  ;函数调用的参数和定义的不匹配
+                obsolete                  ;荒废的变量和函数
+                noruntime                 ;函数没有定义在运行时期
+                interactive-only          ;正常不被调用的命令
+                make-local ;调用 `make-variable-buffer-local' 可能会不正确的
+                mapcar     ;`mapcar' 调用
+                ;;
+                ;; 抑制的警告
+                (not redefine)        ;重新定义的函数 (比如参数数量改变)
+                (not cl-functions)    ;`CL' 包中的运行时调用的函数
+                )))
 
-(fset 'yes-or-no-p 'y-or-n-p)           ;以 y/n代表 yes/no
-(blink-cursor-mode -1)                  ;指针不闪动
-(transient-mark-mode 1)                 ;标记高亮
-(global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
-(setq use-dialog-box nil)               ;never pop dialog
-(setq inhibit-startup-screen t)         ;inhibit start screen
-(setq initial-scratch-message "") ;关闭启动空白buffer, 这个buffer会干扰session恢复
-(setq-default comment-style 'indent)    ;设定自动缩进的注释风格
-(setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
-(setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
-(setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
-(setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
-(setq split-width-threshold nil)        ;分屏的时候使用上下分屏
+  ;; Better Compilation
+  (setq-default compilation-always-kill t)      ; kill compilation process before starting another
+  (setq-default compilation-ask-about-save nil) ; save all buffers on `compile'
+  (setq-default compilation-scroll-output t)
 
-;; Todo
-;;(setq inhibit-compacting-font-caches t) ;使用字体缓存，避免卡顿
+  ;; 处理性能
+  ;; SmoothScroll
+  ;; Vertical Scroll
+  (setq scroll-step 1)
+  (setq scroll-margin 1)
+  (setq scroll-conservatively 101)
+  (setq scroll-up-aggressively 0.01)
+  (setq scroll-down-aggressively 0.01)
+  (setq auto-window-vscroll nil)
+  (setq fast-but-imprecise-scrolling nil)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+  (setq mouse-wheel-progressive-speed nil)
+  ;; Horizontal Scroll
+  (setq hscroll-step 1)
+  (setq hscroll-margin 1)
 
-(setq confirm-kill-processes nil)       ;退出自动杀掉进程
-(setq word-wrap-by-category t)             ;按照中文折行
-(add-hook 'find-file-hook 'highlight-parentheses-mode t) ;增强的括号高亮
+  ;; Disable garbage collection when entering commands.
+  (setq gc-cons-threshold (* 50 1000 1000)) ;; 启动时提升 GC 阈值
+  (add-hook 'emacs-startup-hook (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
+  (setq native-comp-deferred-compilation t)   ; Emacs 原生编译 Lisp 代码，提高加载速度。
 
-(setq completion-auto-select nil)       ;避免默认自动选择
+  ;; 增加长行处理性能
+  (when (fboundp 'global-so-long-mode) (global-so-long-mode))
+  (setq-default bidi-display-reordering nil)  ; Improve the performance of rendering long lines.
+  (setq bidi-inhibit-bpa t)
+  (setq-default bidi-paragraph-direction 'left-to-right)
 
-(setq ad-redefinition-action 'accept)   ;不要烦人的 redefine warning
-(setq frame-resize-pixelwise t) ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
-
-;; 平滑地进行半屏滚动，避免滚动后recenter操作
-(setq scroll-step 1
-      scroll-conservatively 10000)
-
-;; 不显示 *scratch*
-(defun remove-scratch-buffer ()
-  (if (get-buffer "*scratch*")
-      (kill-buffer "*scratch*")))
-(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
-
-;; Don't ask me when close emacs with process is running
-;;(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
-;;  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
-;;  (require 'noflet)
-;;  (noflet ((process-list ())) ad-do-it))
-
-;; Don't ask me when kill process buffer
-(setq kill-buffer-query-functions
-      (remq 'process-kill-buffer-query-function
-            kill-buffer-query-functions))
+  ;; 增加IO性能
+  (setq process-adaptive-read-buffering nil)
+  (setq read-process-output-max (* 1024 1024))
 
 #+end_src
+
 * Indent
 #+begin_src emacs-lisp :tangle yes
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
 
-(defun adjust-languages-indent (n)
-  (setq-local c-basic-offset n)
+  (defun adjust-languages-indent (n)
+    (setq-local c-basic-offset n)
 
-  (setq-local coffee-tab-width n)
-  (setq-local javascript-indent-level n)
-  (setq-local js-indent-level n)
-  (setq-local js2-basic-offset n)
+    (setq-local coffee-tab-width n)
+    (setq-local javascript-indent-level n)
+    (setq-local js-indent-level n)
+    (setq-local js2-basic-offset n)
 
-  (setq-local web-mode-attr-indent-offset n)
-  (setq-local web-mode-attr-value-indent-offset n)
-  (setq-local web-mode-code-indent-offset n)
-  (setq-local web-mode-css-indent-offset n)
-  (setq-local web-mode-markup-indent-offset n)
-  (setq-local web-mode-sql-indent-offset n)
+    (setq-local web-mode-attr-indent-offset n)
+    (setq-local web-mode-attr-value-indent-offset n)
+    (setq-local web-mode-code-indent-offset n)
+    (setq-local web-mode-css-indent-offset n)
+    (setq-local web-mode-markup-indent-offset n)
+    (setq-local web-mode-sql-indent-offset n)
 
-  (setq-local css-indent-offset n)
+    (setq-local css-indent-offset n)
 
-  (setq-local typescript-indent-level n))
+    (setq-local typescript-indent-level n))
 
-(dolist (hook (list
-               'c-mode-hook
-               'c++-mode-hook
-               'java-mode-hook
-               'haskell-mode-hook
-               'asm-mode-hook
-               'sh-mode-hook
-               'haskell-cabal-mode-hook
-               'ruby-mode-hook
-               'qml-mode-hook
-               'scss-mode-hook
-               'coffee-mode-hook
-               'rust-mode-hook
-               ))
-  (add-hook hook #'(lambda ()
-                     (setq indent-tabs-mode nil)
-                     (adjust-languages-indent 4)
-                     )))
+  (dolist (hook (list
+                 'c-mode-hook
+                 'c++-mode-hook
+                 'java-mode-hook
+                 'haskell-mode-hook
+                 'asm-mode-hook
+                 'sh-mode-hook
+                 'haskell-cabal-mode-hook
+                 'ruby-mode-hook
+                 'qml-mode-hook
+                 'scss-mode-hook
+                 'coffee-mode-hook
+                 'rust-mode-hook
+                 ))
+    (add-hook hook #'(lambda ()
+                       (setq indent-tabs-mode nil)
+                       (adjust-languages-indent 4)
+                       )))
 
-(dolist (hook (list
-               'web-mode-hook
-               'js-mode-hook
-               'typescript-mode-hook
-               ))
-  (add-hook hook #'(lambda ()
-                     (setq indent-tabs-mode nil)
-                     (adjust-languages-indent 2)
-                     )))
+  (dolist (hook (list
+                 'web-mode-hook
+                 'js-mode-hook
+                 'typescript-mode-hook
+                 ))
+    (add-hook hook #'(lambda ()
+                       (setq indent-tabs-mode nil)
+                       (adjust-languages-indent 2)
+                       )))
 #+end_src
-* Encode
+* UTF8
 #+begin_src emacs-lisp :tangle yes
-;; Code
-(prefer-coding-system 'utf-8)
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US.UTF-8")
-
-;; Set UTF-8 as the default coding system
-(set-charset-priority 'unicode)
-(set-default-coding-systems 'utf-8)
-(set-selection-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-clipboard-coding-system 'utf-8)
-(set-file-name-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-(setq locale-coding-system 'utf-8)
+  ;; UTF8Coding
+  (unless *sys/win32*
+    (set-selection-coding-system 'utf-8)
+    (prefer-coding-system 'utf-8)
+    (set-language-environment "UTF-8")
+    (set-default-coding-systems 'utf-8)
+    (set-terminal-coding-system 'utf-8)
+    (set-keyboard-coding-system 'utf-8)
+    (setq locale-coding-system 'utf-8))
+  ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+  (when (display-graphic-p)
+    (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+  ;; -UTF8Coding
 #+end_src
-* Performance
-
-#+begin_src emacs-lisp :tangle yes
-;; Disable garbage collection when entering commands.
-(setq gc-cons-threshold (* 50 1000 1000)) ;; 启动时提升 GC 阈值
-(add-hook 'emacs-startup-hook
-          (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
-
-;; Improve the performance of rendering long lines.
-(setq-default bidi-display-reordering nil)
-
-;; Emacs 原生编译 Lisp 代码，提高加载速度。
-(setq native-comp-deferred-compilation t)
-#+end_src
-
 * Functions
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(defconst sys/win32p (eq system-type 'windows-nt) "Are we running on a WinTel system?")
-(defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
-(defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
-(defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
-(defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
-(defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
-(defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-(defconst sys/cygwinp (eq system-type 'cygwin) "Are we running on a Cygwin system?")
-(defconst sys/rootp (string-equal "root" (getenv "USER")) "Are you using ROOT user?")
-(defconst emacs/>=27p
-  (>= emacs-major-version 27)
-  "Emacs is 27 or above.")
+  (defconst sys/win32p (eq system-type 'windows-nt) "Are we running on a WinTel system?")
+  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
+  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
+  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
+  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
+  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
+  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
+  (defconst sys/cygwinp (eq system-type 'cygwin) "Are we running on a Cygwin system?")
+  (defconst sys/rootp (string-equal "root" (getenv "USER")) "Are you using ROOT user?")
+  (defconst emacs/>=27p
+    (>= emacs-major-version 27)
+    "Emacs is 27 or above.")
 
-(defconst emacs/>=28p
-  (>= emacs-major-version 28)
-  "Emacs is 28 or above.")
+  (defconst emacs/>=28p
+    (>= emacs-major-version 28)
+    "Emacs is 28 or above.")
 
-(defconst emacs/>=29p
-  (>= emacs-major-version 29)
-  "Emacs is 29 or above.")
+  (defconst emacs/>=29p
+    (>= emacs-major-version 29)
+    "Emacs is 29 or above.")
 
-(defvar socks-noproxy)
-(defvar socks-server)
-(defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
+  (defvar socks-noproxy)
+  (defvar socks-server)
+  (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
 
-;; from lazycat emacs config
-(defun org-export-docx ()
-  (interactive)
-  (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
-        (template-file (concat (file-name-as-directory zxh-emacs-root-dir)
-                               "template.docx")))
-    (message (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
-    (shell-command (format "pandoc %s -o %s --reference-doc=%s"
-                           (buffer-file-name)
-                           docx-file
-                           template-file
-                           ))
-    (message "Convert finish: %s" docx-file)))
+  ;; from lazycat emacs config
+  (defun org-export-docx ()
+    (interactive)
+    (let ((docx-file (concat (file-name-sans-extension (buffer-file-name)) ".docx"))
+          (template-file (concat (file-name-as-directory zxh-emacs-root-dir)
+                                 "template.docx")))
+      (message (format "pandoc %s -o %s --reference-doc=%s" (buffer-file-name) docx-file template-file))
+      (shell-command (format "pandoc %s -o %s --reference-doc=%s"
+                             (buffer-file-name)
+                             docx-file
+                             template-file
+                             ))
+      (message "Convert finish: %s" docx-file)))
 
 
-;; --------------------------------------------
-;; 辅助函数
-;; --------------------------------------------
-(defun x/system-is-mac () (interactive) (string-equal system-type "darwin"))
+  ;; --------------------------------------------
+  ;; 辅助函数
+  ;; --------------------------------------------
+  (defun x/system-is-mac () (interactive) (string-equal system-type "darwin"))
 
-(defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
+  (defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
 
-(defun format-function-parameters ()
-  "Turn the list of function parameters into multiline."
-  (interactive)
-  (beginning-of-line)
-  (search-forward "(" (line-end-position))
-  (newline-and-indent)
-  (while (search-forward "," (line-end-position) t)
+  (defun format-function-parameters ()
+    "Turn the list of function parameters into multiline."
+    (interactive)
+    (beginning-of-line)
+    (search-forward "(" (line-end-position))
+    (newline-and-indent)
+    (while (search-forward "," (line-end-position) t)
+      (newline-and-indent))
+    (end-of-line)
+    (c-hungry-delete-forward)
+    (insert " ")
+    (search-backward ")")
     (newline-and-indent))
-  (end-of-line)
-  (c-hungry-delete-forward)
-  (insert " ")
-  (search-backward ")")
-  (newline-and-indent))
 
-(defun my-org-screenshot ()
-  "Take a screenshot into a time stamped unique-named file in the
-same directory as the org-buffer and insert a link to this file."
-  (interactive)
-  (org-display-inline-images)
-  (setq filename
-        (concat
-         (make-temp-name
-          (concat (file-name-nondirectory (buffer-file-name))
-                  "assets/"
-                  (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
-  (unless (file-exists-p (file-name-directory filename))
-    (make-directory (file-name-directory filename)))
-  ; take screenshot
-  (if (eq system-type 'darwin)
-      (call-process "screencapture" nil nil nil "-i" filename))
-  (if (eq system-type 'gnu/linux)
-      (call-process "import" nil nil nil filename))
-  ; insert into file if correctly taken
-  (if (file-exists-p filename)
-    (insert (concat "[[file:" filename "]]"))))
+  (defun my-org-screenshot ()
+    "Take a screenshot into a time stamped unique-named file in the
+  same directory as the org-buffer and insert a link to this file."
+    (interactive)
+    (org-display-inline-images)
+    (setq filename
+          (concat
+           (make-temp-name
+            (concat (file-name-nondirectory (buffer-file-name))
+                    "assets/"
+                    (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
+    (unless (file-exists-p (file-name-directory filename))
+      (make-directory (file-name-directory filename)))
+                                          ; take screenshot
+    (if (eq system-type 'darwin)
+        (call-process "screencapture" nil nil nil "-i" filename))
+    (if (eq system-type 'gnu/linux)
+        (call-process "import" nil nil nil filename))
+                                          ; insert into file if correctly taken
+    (if (file-exists-p filename)
+        (insert (concat "[[file:" filename "]]"))))
 
 
-;; --------------------------------------------
-;; proxy 操作辅助函数
-;; --------------------------------------------
-(defun proxy-http-show ()
-  "Show HTTP/HTTPS proxy."
-  (interactive)
-  (if url-proxy-services
-      (message "Current HTTP proxy is `%s'" http-proxy)
-    (message "No HTTP proxy")))
+  ;; --------------------------------------------
+  ;; proxy 操作辅助函数
+  ;; --------------------------------------------
+  (defun proxy-http-show ()
+    "Show HTTP/HTTPS proxy."
+    (interactive)
+    (if url-proxy-services
+        (message "Current HTTP proxy is `%s'" http-proxy)
+      (message "No HTTP proxy")))
 
-(defun proxy-http-enable ()
-  "Enable HTTP/HTTPS proxy."
-  (interactive)
-  (setq url-proxy-services
-        `(("http" . ,http-proxy)
-          ("https" . ,http-proxy)
-          ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-  (proxy-http-show))
+  (defun proxy-http-enable ()
+    "Enable HTTP/HTTPS proxy."
+    (interactive)
+    (setq url-proxy-services
+          `(("http" . ,http-proxy)
+            ("https" . ,http-proxy)
+            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
+    (proxy-http-show))
 
-(defun proxy-http-disable ()
-  "Disable HTTP/HTTPS proxy."
-  (interactive)
-  (setq url-proxy-services nil)
-  (proxy-http-show))
+  (defun proxy-http-disable ()
+    "Disable HTTP/HTTPS proxy."
+    (interactive)
+    (setq url-proxy-services nil)
+    (proxy-http-show))
 
-(defun proxy-http-toggle ()
-  "Toggle HTTP/HTTPS proxy."
-  (interactive)
-  (if (bound-and-true-p url-proxy-services)
-      (proxy-http-disable)
-    (proxy-http-enable)))
+  (defun proxy-http-toggle ()
+    "Toggle HTTP/HTTPS proxy."
+    (interactive)
+    (if (bound-and-true-p url-proxy-services)
+        (proxy-http-disable)
+      (proxy-http-enable)))
 
-(defun proxy-socks-show ()
-  "Show SOCKS proxy."
-  (interactive)
-  (when (fboundp 'cadddr)                ; defined 25.2+
+  (defun proxy-socks-show ()
+    "Show SOCKS proxy."
+    (interactive)
+    (when (fboundp 'cadddr)                ; defined 25.2+
+      (if (bound-and-true-p socks-noproxy)
+          (message "Current SOCKS%d proxy is %s:%s"
+                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+        (message "No SOCKS proxy"))))
+
+  (defun proxy-socks-enable ()
+    "Enable SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (setq url-gateway-method 'socks
+          socks-noproxy '("localhost"))
+    (let* ((proxy (split-string socks-proxy ":"))
+           (host (car proxy))
+           (port (cadr  proxy)))
+      (setq socks-server `("Default server" ,host ,port 5)))
+    (setenv "all_proxy" (concat "socks5://" socks-proxy))
+    (proxy-socks-show))
+
+  (defun proxy-socks-disable ()
+    "Disable SOCKS proxy."
+    (interactive)
+    (setq url-gateway-method 'native
+          socks-noproxy nil
+          socks-server nil)
+    (setenv "all_proxy" "")
+    (proxy-socks-show))
+
+  (defun proxy-socks-toggle ()
+    "Toggle SOCKS proxy."
+    (interactive)
     (if (bound-and-true-p socks-noproxy)
-        (message "Current SOCKS%d proxy is %s:%s"
-                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-      (message "No SOCKS proxy"))))
+        (proxy-socks-disable)
+      (proxy-socks-enable)))
 
-(defun proxy-socks-enable ()
-  "Enable SOCKS proxy."
-  (interactive)
-  (require 'socks)
-  (setq url-gateway-method 'socks
-        socks-noproxy '("localhost"))
-  (let* ((proxy (split-string socks-proxy ":"))
-         (host (car proxy))
-         (port (cadr  proxy)))
-    (setq socks-server `("Default server" ,host ,port 5)))
-  (setenv "all_proxy" (concat "socks5://" socks-proxy))
-  (proxy-socks-show))
+  (defun x/save-all ()
+    "Save all file-visiting buffers without prompting."
+    (interactive)
+    (save-some-buffers t))
 
-(defun proxy-socks-disable ()
-  "Disable SOCKS proxy."
-  (interactive)
-  (setq url-gateway-method 'native
-        socks-noproxy nil
-        socks-server nil)
-  (setenv "all_proxy" "")
-  (proxy-socks-show))
+  (defun x/open-init-file ()
+    (interactive)
+    (find-file user-init-file))
 
-(defun proxy-socks-toggle ()
-  "Toggle SOCKS proxy."
-  (interactive)
-  (if (bound-and-true-p socks-noproxy)
-      (proxy-socks-disable)
-    (proxy-socks-enable)))
+  (defun x/reload-init-file ()
+    "Reload init.el file."
+    (interactive)
+    (load user-init-file)
+    (message "Reloaded init.el OK."))
 
+  (defun sudo ()
+    "Use TRAMP to `sudo' the current buffer"
+    (interactive)
+    (when buffer-file-name
+      (find-alternate-file
+       (concat "/sudo:root@localhost:"
+               buffer-file-name))))
+  (defun dos2unix ()
+    "Convert the current buffer to UNIX file format."
+    (interactive)
+    (set-buffer-file-coding-system 'undecided-unix nil))
 
-;; --------------------------------------------
-;; FIle 操作与编码辅助函数
-;; --------------------------------------------
-(defun x/save-all ()
-  "Save all file-visiting buffers without prompting."
-  (interactive)
-  (save-some-buffers t))
+  (defun unix2dos ()
+    "Convert the current buffer to DOS file format."
+    (interactive)
+    (set-buffer-file-coding-system 'undecided-dos nil))
 
-(defun x/open-init-file ()
-  (interactive)
-  (find-file user-init-file))
+  (defun delete-trailing-M()
+    "Delete `^M' characters in the buffer.
+                Same as `replace-string C-q C-m RET RET'."
+    (interactive)
+    (save-excursion
+      (goto-char 0)
+      (while (search-forward "\r" nil :noerror)
+        (replace-match ""))))
 
-(defun x/reload-init-file ()
-  "Reload init.el file."
-  (interactive)
-  (load user-init-file)
-  (message "Reloaded init.el OK."))
+  (defun save-buffer-as-utf8 (coding-system)
+    "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
+    (interactive "zCoding system for visited file (default nil):")
+    (revert-buffer-with-coding-system coding-system)
+    (set-buffer-file-coding-system 'utf-8)
+    (save-buffer))
 
-(defun sudo ()
-  "Use TRAMP to `sudo' the current buffer"
-  (interactive)
-  (when buffer-file-name
-    (find-alternate-file
-     (concat "/sudo:root@localhost:"
-             buffer-file-name))))
-(defun dos2unix ()
-  "Convert the current buffer to UNIX file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-unix nil))
+  (defun save-buffer-gbk-as-utf8 ()
+    "Revert a buffer with GBK and save as UTF-8."
+    (interactive)
+    (save-buffer-as-utf8 'gbk))
 
-(defun unix2dos ()
-  "Convert the current buffer to DOS file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-dos nil))
+  (defun switch-to-messages ()
+    "Select buffer *message* in the current window."
+    (interactive)
+    (switch-to-buffer "*Messages*"))
 
-(defun delete-trailing-M()
-  "Delete `^M' characters in the buffer.
-              Same as `replace-string C-q C-m RET RET'."
-  (interactive)
-  (save-excursion
-    (goto-char 0)
-    (while (search-forward "\r" nil :noerror)
-      (replace-match ""))))
+  (defun switch-to-dashboard ()
+    "Select buffer *message* in the current window."
+    (interactive)
+    (switch-to-buffer "*Dashboard*"))
 
-(defun save-buffer-as-utf8 (coding-system)
-  "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
-  (interactive "zCoding system for visited file (default nil):")
-  (revert-buffer-with-coding-system coding-system)
-  (set-buffer-file-coding-system 'utf-8)
-  (save-buffer))
+  (defun hold-line-scroll-up ()
+    "Scroll the page with the cursor in the same line"
+    (interactive)
+    ;; move the cursor also
+    (let ((tmp (current-column)))
+      (scroll-up 1)
+      (line-move-to-column tmp)
+      (forward-line 1)))
 
-(defun save-buffer-gbk-as-utf8 ()
-  "Revert a buffer with GBK and save as UTF-8."
-  (interactive)
+  (defun hold-line-scroll-down ()
+    "Scroll the page with the cursor in the same line"
+    (interactive)
+    ;; move the cursor also
+    (let ((tmp (current-column)))
+      (scroll-down 1)
+      (line-move-to-column tmp)
+      (forward-line -1)))
 
-  (save-buffer-as-utf8 'gbk))
+  (defun +rename-current-file (newname)
+    "Rename current visiting file to NEWNAME.
+          If NEWNAME is a directory, move file to it."
+    (interactive
+     (progn
+       (unless buffer-file-name
+         (user-error "No file is visiting"))
+       (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
+         (when (equal (file-truename name)
+                      (file-truename buffer-file-name))
+           (user-error "Can't rename file to itself"))
+         (list name))))
+    ;; NEWNAME is a directory
+    (when (equal newname (file-name-as-directory newname))
+      (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
+    (rename-file buffer-file-name newname)
+    (set-visited-file-name newname)
+    (rename-buffer newname))
 
+  (defun +delete-current-file (file)
+    "Delete current visiting FILE."
+    (interactive
+     (list (or buffer-file-name
+               (user-error "No file is visiting"))))
+    (when (y-or-n-p (format "Really delete '%s'? " file))
+      (kill-this-buffer)
+      (delete-file file)))
 
-;; --------------------------------------------
-;; buffer 操作辅助函数
-;; --------------------------------------------
-(defun switch-to-messages ()
-  "Select buffer *message* in the current window."
-  (interactive)
-  (switch-to-buffer "*Messages*"))
+  (defun +copy-current-file (new-path &optional overwrite-p)
+    "Copy current buffer's file to `NEW-PATH'.
+            If `OVERWRITE-P', overwrite the destination file without
+            confirmation."
+    (interactive
+     (progn
+       (unless buffer-file-name
+         (user-error "No file is visiting"))
+       (list (read-file-name "Copy file to: ")
+             current-prefix-arg)))
+    (let ((old-path (buffer-file-name))
+          (new-path (expand-file-name new-path)))
+      (make-directory (file-name-directory new-path) t)
+      (copy-file old-path new-path (or overwrite-p 1))))
 
-(defun switch-to-dashboard ()
-  "Select buffer *message* in the current window."
-  (interactive)
-  (switch-to-buffer "*Dashboard*"))
+  (defun +copy-current-filename (file)
+    "Copy the full path to the current FILE."
+    (interactive
+     (list (or buffer-file-name
+               (user-error "No file is visiting"))))
+    (kill-new file)
+    (message "Copying '%s' to clipboard" file))
 
-(defun hold-line-scroll-up ()
-  "Scroll the page with the cursor in the same line"
-  (interactive)
-  ;; move the cursor also
-  (let ((tmp (current-column)))
-    (scroll-up 1)
-    (line-move-to-column tmp)
-    (forward-line 1)))
-
-(defun hold-line-scroll-down ()
-  "Scroll the page with the cursor in the same line"
-  (interactive)
-  ;; move the cursor also
-  (let ((tmp (current-column)))
-    (scroll-down 1)
-    (line-move-to-column tmp)
-    (forward-line -1)))
-
-
-;; -------------------------------------------
-;; Company 辅助函数
-;; -------------------------------------------
-(defun do-yas-expand ()
-  (let ((yas/fallback-behavior 'return-nil))
-    (yas/expand)))
-
-(defun tab-indent-or-complete ()
-  (interactive)
-  (if (minibufferp)
-      (minibuffer-complete)
-    (if (or (not yas/minor-mode)
-            (null (do-yas-expand)))
-        (if (check-expansion)
-            (company-complete-common)
-          (indent-for-tab-command)))))
-
-
-;; --------------------------------------------
-;; 文件操作辅助函数
-;; --------------------------------------------
-(defun +rename-current-file (newname)
-  "Rename current visiting file to NEWNAME.
-        If NEWNAME is a directory, move file to it."
-  (interactive
-   (progn
-     (unless buffer-file-name
-       (user-error "No file is visiting"))
-     (let ((name (read-file-name "Rename to: " nil buffer-file-name 'confirm)))
-       (when (equal (file-truename name)
-                    (file-truename buffer-file-name))
-         (user-error "Can't rename file to itself"))
-       (list name))))
-  ;; NEWNAME is a directory
-  (when (equal newname (file-name-as-directory newname))
-    (setq newname (concat newname (file-name-nondirectory buffer-file-name))))
-  (rename-file buffer-file-name newname)
-  (set-visited-file-name newname)
-  (rename-buffer newname))
-
-(defun +delete-current-file (file)
-  "Delete current visiting FILE."
-  (interactive
-   (list (or buffer-file-name
-             (user-error "No file is visiting"))))
-  (when (y-or-n-p (format "Really delete '%s'? " file))
-    (kill-this-buffer)
-    (delete-file file)))
-
-(defun +copy-current-file (new-path &optional overwrite-p)
-  "Copy current buffer's file to `NEW-PATH'.
-          If `OVERWRITE-P', overwrite the destination file without
-          confirmation."
-  (interactive
-   (progn
-     (unless buffer-file-name
-       (user-error "No file is visiting"))
-     (list (read-file-name "Copy file to: ")
-           current-prefix-arg)))
-  (let ((old-path (buffer-file-name))
-        (new-path (expand-file-name new-path)))
-    (make-directory (file-name-directory new-path) t)
-    (copy-file old-path new-path (or overwrite-p 1))))
-
-(defun +copy-current-filename (file)
-  "Copy the full path to the current FILE."
-  (interactive
-   (list (or buffer-file-name
-             (user-error "No file is visiting"))))
-  (kill-new file)
-  (message "Copying '%s' to clipboard" file))
-
-(defun +copy-current-buffer-name ()
-  "Copy the name of current buffer."
-  (interactive)
-  (kill-new (buffer-name))
-  (message "Copying '%s' to clipboard" (buffer-name)))
+  (defun +copy-current-buffer-name ()
+    "Copy the name of current buffer."
+    (interactive)
+    (kill-new (buffer-name))
+    (message "Copying '%s' to clipboard" (buffer-name)))
 
 
-;; ;; --------------------------------------------
-;; ;; Window 操作辅助函数
-;; ;; --------------------------------------------
- (defvar toggle-one-window-window-configuration nil
-   "The window configuration use for `toggle-one-window'.")
+  (defvar toggle-one-window-window-configuration nil
+    "The window configuration use for `toggle-one-window'.")
+  (defun toggle-one-window ()
+    "Toggle between window layout and one window."
+    (interactive)
+    (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
+        (if toggle-one-window-window-configuration
+            (progn
+              (set-window-configuration toggle-one-window-window-configuration)
+              (setq toggle-one-window-window-configuration nil))
+          (message "No other windows exist."))
+      (setq toggle-one-window-window-configuration (current-window-configuration))
+      (delete-other-windows)))
 
- (defun toggle-one-window ()
-   "Toggle between window layout and one window."
-   (interactive)
-   (if (equal (length (cl-remove-if #'window-dedicated-p (window-list))) 1)
-       (if toggle-one-window-window-configuration
-           (progn
-             (set-window-configuration toggle-one-window-window-configuration)
-             (setq toggle-one-window-window-configuration nil))
-         (message "No other windows exist."))
-     (setq toggle-one-window-window-configuration (current-window-configuration))
-     (delete-other-windows)))
+  (defun set-control-w-shortcuts ()
+    (define-prefix-command 'my-window-map)
+    (global-set-key (kbd "C-w") 'my-window-map)
+    (define-key my-window-map (kbd "h") 'windmove-left)
+    (define-key my-window-map (kbd "j") 'windmove-down)
+    (define-key my-window-map (kbd "k") 'windmove-up)
+    (define-key my-window-map (kbd "l") 'windmove-right)
+    (define-key my-window-map (kbd "v") 'split-window-right)
+    (define-key my-window-map (kbd "b") 'split-window-below)
+    (define-key my-window-map (kbd "d") 'delete-window)
+    (define-key my-window-map (kbd "D") 'delete-other-windows)
+    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
+    (define-key my-window-map (kbd "o") 'toggle-one-window))
 
- (defun set-control-w-shortcuts ()
-   (define-prefix-command 'my-window-map)
-   (global-set-key (kbd "C-w") 'my-window-map)
-   (define-key my-window-map (kbd "h") 'windmove-left)
-   (define-key my-window-map (kbd "j") 'windmove-down)
-   (define-key my-window-map (kbd "k") 'windmove-up)
-   (define-key my-window-map (kbd "l") 'windmove-right)
-   (define-key my-window-map (kbd "v") 'split-window-right)
-   (define-key my-window-map (kbd "b") 'split-window-below)
-   (define-key my-window-map (kbd "d") 'delete-window)
-   (define-key my-window-map (kbd "D") 'delete-other-windows)
-   (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
-   (define-key my-window-map (kbd "o") 'toggle-one-window))
+  ;; ResizeWidthHeight
+  ;; Resizes the window width based on the input
+  (defun resize-window-dimension (dimension)
+    "Resize window by DIMENSION (width or height) with percentage input."
+    (lambda (percent)
+      (interactive (list (if (> (count-windows) 1)
+                            (read-number (format "Set current window %s in [1~9]x10%%: " dimension))
+                          (error "You need more than 1 window to execute this function!"))))
+      (message "%s" percent)
+      (let ((is-width (eq dimension 'width)))
+        (window-resize nil
+                      (- (truncate (* (/ percent 10.0)
+                                     (if is-width (frame-width) (frame-height))))
+                         (if is-width (window-total-width) (window-total-height)))
+                      is-width))))
 
-;; ;; ResizeWidthHeight
-;; ;; Resizes the window width based on the input
-;; (defun resize-window-dimension (dimension)
-;;   "Resize window by DIMENSION (width or height) with percentage input."
-;;   (lambda (percent)
-;;     (interactive (list (if (> (count-windows) 1)
-;;                           (read-number (format "Set current window %s in [1~9]x10%%: " dimension))
-;;                         (error "You need more than 1 window to execute this function!"))))
-;;     (message "%s" percent)
-;;     (let ((is-width (eq dimension 'width)))
-;;       (window-resize nil
-;;                     (- (truncate (* (/ percent 10.0)
-;;                                    (if is-width (frame-width) (frame-height))))
-;;                        (if is-width (window-total-width) (window-total-height)))
-;;                     is-width))))
+  (defalias 'resize-window-width (resize-window-dimension 'width)
+    "Resizes the window width based on percentage input.")
+  (defalias 'resize-window-height (resize-window-dimension 'height)
+    "Resizes the window height based on percentage input.")
 
-;; (defalias 'resize-window-width (resize-window-dimension 'width)
-;;   "Resizes the window width based on percentage input.")
-;; (defalias 'resize-window-height (resize-window-dimension 'height)
-;;   "Resizes the window height based on percentage input.")
+  ;; Setup shorcuts for window resize width and height
+  ;;(global-set-key (kbd "C-z w") #'resize-window-width)
+  ;;(global-set-key (kbd "C-z h") #'resize-window-height)
 
-;; ;; Setup shorcuts for window resize width and height
-;; ;;(global-set-key (kbd "C-z w") #'resize-window-width)
-;; ;;(global-set-key (kbd "C-z h") #'resize-window-height)
+  (defun resize-window (width delta)
+    "Resize the current window's size.  If WIDTH is non-nil, resize width by some DELTA."
+    (if (> (count-windows) 1)
+        (window-resize nil delta width)
+      (error "You need more than 1 window to execute this function!")))
 
-;; (defun resize-window (width delta)
-;;   "Resize the current window's size.  If WIDTH is non-nil, resize width by some DELTA."
-;;   (if (> (count-windows) 1)
-;;       (window-resize nil delta width)
-;;     (error "You need more than 1 window to execute this function!")))
+  ;; Setup shorcuts for window resize width and height
+  (defun window-width-increase ()
+    (interactive)
+    (resize-window t 5))
 
-;; ;; Setup shorcuts for window resize width and height
-;; (defun window-width-increase ()
-;;   (interactive)
-;;   (resize-window t 5))
+  (defun window-width-decrease ()
+    (interactive)
+    (resize-window t -5))
 
-;; (defun window-width-decrease ()
-;;   (interactive)
-;;   (resize-window t -5))
+  (defun window-height-increase ()
+    (interactive)
+    (resize-window nil 5))
 
-;; (defun window-height-increase ()
-;;   (interactive)
-;;   (resize-window nil 5))
+  (defun window-height-decrease ()
+    (interactive)
+    (resize-window nil -5))
 
-;; (defun window-height-decrease ()
-;;   (interactive)
-;;   (resize-window nil -5))
+  (global-set-key (kbd "M-W =") #'window-width-increase)
+  (global-set-key (kbd "M-W M-+") #'window-width-increase)
+  (global-set-key (kbd "M-W -") #'window-width-decrease)
+  (global-set-key (kbd "M-W M-_") #'window-width-decrease)
 
-;; (global-set-key (kbd "M-W =") #'window-width-increase)
-;; (global-set-key (kbd "M-W M-+") #'window-width-increase)
-;; (global-set-key (kbd "M-W -") #'window-width-decrease)
-;; (global-set-key (kbd "M-W M-_") #'window-width-decrease)
+  (global-set-key (kbd "M-Q =") #'window-height-increase)
+  (global-set-key (kbd "M-Q M-+") #'window-height-increase)
+  (global-set-key (kbd "M-Q -") #'window-height-decrease)
+  (global-set-key (kbd "M-Q M-_") #'window-height-decrease)
 
-;; (global-set-key (kbd "M-Q =") #'window-height-increase)
-;; (global-set-key (kbd "M-Q M-+") #'window-height-increase)
-;; (global-set-key (kbd "M-Q -") #'window-height-decrease)
-;; (global-set-key (kbd "M-Q M-_") #'window-height-decrease)
-;; ;; -ResizeWidthheight
+  (defun edit-configs ()
+    "Opens the README.org file."
+    (interactive)
+    (find-file "~/.emacs.d/init.org"))
 
-;; ;; EditConfig
-;; (defun edit-configs ()
-;;   "Opens the README.org file."
-;;   (interactive)
-;;   (find-file "~/.emacs.d/init.org"))
+  ;; (global-set-key (kbd "C-z e") #'edit-configs)
 
-;; ;; (global-set-key (kbd "C-z e") #'edit-configs)
-;; ;; -EditConfig
+  ;; OrgIncludeAuto
+  (defun save-and-update-includes ()
+    "Update the line numbers of #+INCLUDE:s in current buffer.
+  Only looks at INCLUDEs that have either :range-begin or :range-end.
+  This function does nothing if not in `org-mode', so you can safely
+  add it to `before-save-hook'."
+    (interactive)
+    (when (derived-mode-p 'org-mode)
+      (save-excursion
+        (goto-char (point-min))
+        (while (search-forward-regexp
+                "^\\s-*#\\+INCLUDE: *\"\\([^\"]+\\)\".*:range-\\(begin\\|end\\)"
+                nil 'noerror)
+          (let* ((file (expand-file-name (match-string-no-properties 1)))
+                 lines begin end)
+            (forward-line 0)
+            (when (looking-at "^.*:range-begin *\"\\([^\"]+\\)\"")
+              (setq begin (match-string-no-properties 1)))
+            (when (looking-at "^.*:range-end *\"\\([^\"]+\\)\"")
+              (setq end (match-string-no-properties 1)))
+            (setq lines (decide-line-range file begin end))
+            (when lines
+              (if (looking-at ".*:lines *\"\\([-0-9]+\\)\"")
+                  (replace-match lines :fixedcase :literal nil 1)
+                (goto-char (line-end-position))
+                (insert " :lines \"" lines "\""))))))))
 
-;; ;; OrgIncludeAuto
-;; (defun save-and-update-includes ()
-;;   "Update the line numbers of #+INCLUDE:s in current buffer.
-;; Only looks at INCLUDEs that have either :range-begin or :range-end.
-;; This function does nothing if not in `org-mode', so you can safely
-;; add it to `before-save-hook'."
-;;   (interactive)
-;;   (when (derived-mode-p 'org-mode)
-;;     (save-excursion
-;;       (goto-char (point-min))
-;;       (while (search-forward-regexp
-;;               "^\\s-*#\\+INCLUDE: *\"\\([^\"]+\\)\".*:range-\\(begin\\|end\\)"
-;;               nil 'noerror)
-;;         (let* ((file (expand-file-name (match-string-no-properties 1)))
-;;                lines begin end)
-;;           (forward-line 0)
-;;           (when (looking-at "^.*:range-begin *\"\\([^\"]+\\)\"")
-;;             (setq begin (match-string-no-properties 1)))
-;;           (when (looking-at "^.*:range-end *\"\\([^\"]+\\)\"")
-;;             (setq end (match-string-no-properties 1)))
-;;           (setq lines (decide-line-range file begin end))
-;;           (when lines
-;;             (if (looking-at ".*:lines *\"\\([-0-9]+\\)\"")
-;;                 (replace-match lines :fixedcase :literal nil 1)
-;;               (goto-char (line-end-position))
-;;               (insert " :lines \"" lines "\""))))))))
+  (add-hook 'before-save-hook #'save-and-update-includes)
 
-;; (add-hook 'before-save-hook #'save-and-update-includes)
+  (defun decide-line-range (file begin end)
+    "Visit FILE and decide which lines to include.
+  BEGIN and END are regexps which define the line range to use."
+    (let (l r)
+      (save-match-data
+        (with-temp-buffer
+          (insert-file-contents file)
+          (goto-char (point-min))
+          (if (null begin)
+              (setq l "")
+            (search-forward-regexp begin)
+            (setq l (line-number-at-pos (match-beginning 0))))
+          (if (null end)
+              (setq r "")
+            (search-forward-regexp end)
+            (setq r (1+ (line-number-at-pos (match-end 0)))))
+          (format "%s-%s" (+ l 1) (- r 1)))))) ;; Exclude wrapper
 
-;; (defun decide-line-range (file begin end)
-;;   "Visit FILE and decide which lines to include.
-;; BEGIN and END are regexps which define the line range to use."
-;;   (let (l r)
-;;     (save-match-data
-;;       (with-temp-buffer
-;;         (insert-file-contents file)
-;;         (goto-char (point-min))
-;;         (if (null begin)
-;;             (setq l "")
-;;           (search-forward-regexp begin)
-;;           (setq l (line-number-at-pos (match-beginning 0))))
-;;         (if (null end)
-;;             (setq r "")
-;;           (search-forward-regexp end)
-;;           (setq r (1+ (line-number-at-pos (match-end 0)))))
-;;         (format "%s-%s" (+ l 1) (- r 1)))))) ;; Exclude wrapper
-;; ;; -OrgIncludeAuto
+  ;; BetterMiniBuffer
+  (defun abort-minibuffer-using-mouse ()
+    "Abort the minibuffer when using the mouse."
+    (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
+      (abort-recursive-edit)))
 
-;; ;; BetterMiniBuffer
-;; (defun abort-minibuffer-using-mouse ()
-;;   "Abort the minibuffer when using the mouse."
-;;   (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
-;;     (abort-recursive-edit)))
+  (add-hook 'mouse-leave-buffer-hook 'abort-minibuffer-using-mouse)
 
-;; (add-hook 'mouse-leave-buffer-hook 'abort-minibuffer-using-mouse)
+  ;; keep the point out of the minibuffer
+  (setq-default minibuffer-prompt-properties '(read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt))
 
-;; ;; keep the point out of the minibuffer
-;; (setq-default minibuffer-prompt-properties '(read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt))
-;; ;; -BetterMiniBuffer
+  ;; DisplayLineOverlay
+  (defun display-line-overlay+ (pos str &optional face)
+    "Display line at POS as STR with FACE.
 
-;; ;; DisplayLineOverlay
-;; (defun display-line-overlay+ (pos str &optional face)
-;;   "Display line at POS as STR with FACE.
+  FACE defaults to inheriting from default and highlight."
+    (let ((ol (save-excursion
+                (goto-char pos)
+                (make-overlay (line-beginning-position)
+                              (line-end-position)))))
+      (overlay-put ol 'display str)
+      (overlay-put ol 'face
+                   (or face '(:background null :inherit highlight)))
+      ol))
 
-;; FACE defaults to inheriting from default and highlight."
-;;   (let ((ol (save-excursion
-;;               (goto-char pos)
-;;               (make-overlay (line-beginning-position)
-;;                             (line-end-position)))))
-;;     (overlay-put ol 'display str)
-;;     (overlay-put ol 'face
-;;                  (or face '(:background null :inherit highlight)))
-;;     ol))
-;; ;; -DisplayLineOverlay
+  ;; ReadLines
+  (defun read-lines (file-path)
+    "Return a list of lines of a file at FILE-PATH."
+    (with-temp-buffer (insert-file-contents file-path)
+                      (split-string (buffer-string) "\n" t)))
 
-;; ;; ReadLines
-;; (defun read-lines (file-path)
-;;   "Return a list of lines of a file at FILE-PATH."
-;;   (with-temp-buffer (insert-file-contents file-path)
-;;                     (split-string (buffer-string) "\n" t)))
-;; ;; -ReadLines
-
-;; ;; WhereAmI
-;; (defun where-am-i ()
-;;   "An interactive function showing function `buffer-file-name' or `buffer-name'."
-;;   (interactive)
-;;   (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
-;; ;; -WhereAmI
-
-
+  (defun where-am-i ()
+    "An interactive function showing function `buffer-file-name' or `buffer-name'."
+    (interactive)
+    (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
 #+END_SRC
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package protobuf-mode)
-(use-package markdown-mode)
-(use-package dockerfile-mode)
-(use-package nginx-mode)
-(use-package json-mode)
-(use-package json-reformat)
-(use-package comment-dwim-2)
-(use-package buffer-flip)
-(use-package projectile :config (projectile-global-mode))
-(use-package flycheck :config (global-flycheck-mode 1))
-(use-package restclient :config (setq restclient-inhibit-cookies t))
-(use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
-(use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
-(use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-(use-package all-the-icons :when (display-graphic-p) :commands all-the-icons-install-fonts)
-(use-package exec-path-from-shell
-  :if (or sys/mac-x-p sys/linux-x-p)
-  :config
-  (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH"))
+  (use-package discover-my-major :bind ("C-h C-m" . discover-my-major))
+  (use-package protobuf-mode)
+  (use-package markdown-mode)
+  (use-package dockerfile-mode)
+  (use-package nginx-mode)
+  (use-package json-mode)
+  (use-package json-reformat)
+  (use-package comment-dwim-2)
+  (use-package buffer-flip)
+  (use-package projectile :config (projectile-global-mode))
+  (use-package restclient :config (setq restclient-inhibit-cookies t))
+  (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
+  (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
+  (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  (use-package all-the-icons :when (display-graphic-p) :commands all-the-icons-install-fonts)
+  (use-package exec-path-from-shell
+    :if (or sys/mac-x-p sys/linux-x-p)
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY"))
 
-  ;;;; 设成nil 则不从 .zshrc 读 只从 .zshenv读（可以加快速度，但是需要你将环境变量相关的都放到 .zshenv 中，而非 .zshrc 中）
-  ;;(setq exec-path-from-shell-check-startup-files nil) 
-  ;;环境变量都在 ~/.profile 中设置，并没有必要执行 ~/.bashrc，所以不需要 -i 选项，
-  ;;(setq exec-path-from-shell-arguments '("-l" )) ;remove -i read form .zshenv/.profile
-  (exec-path-from-shell-initialize))
+    ;;;; 设成nil 则不从 .zshrc 读 只从 .zshenv读（可以加快速度，但是需要你将环境变量相关的都放到 .zshenv 中，而非 .zshrc 中）
+    ;;(setq exec-path-from-shell-check-startup-files nil)
+    ;;环境变量都在 ~/.profile 中设置，并没有必要执行 ~/.bashrc，所以不需要 -i 选项，
+    ;;(setq exec-path-from-shell-arguments '("-l" )) ;remove -i read form .zshenv/.profile
+    (exec-path-from-shell-initialize))
 
-;; SudoEditPac
-(use-package sudo-edit
-  :commands (sudo-edit))
-;; -SudoEditPac
+  ;; SudoEditPac
+  (use-package sudo-edit
+    :commands (sudo-edit))
+  ;; -SudoEditPac
 
-;; HackerNewsPac
-(use-package hackernews
-  :commands (hackernews)
-  :bind
-  (("M-z h" . hackernews)
-   ("M-m h" . hackernews))
-)
-;; -HackerNewsPac
+  ;; HackerNewsPac
+  (use-package hackernews
+    :commands (hackernews)
+    :bind
+    (("M-z h" . hackernews)
+     ("M-m h" . hackernews))
+    )
+  ;; -HackerNewsPac
 
-(use-package which-key
-  :hook (after-init . which-key-mode)
-  :config
-  (progn
-    (which-key-mode)
-    (which-key-setup-side-window-right)))
+  (use-package which-key
+    :hook (after-init . which-key-mode)
+    :config
+    (progn
+      (which-key-mode)
+      (which-key-setup-side-window-right)))
 #+END_SRC
 
 * Search
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; IvyPac
-(use-package ivy
-  :diminish
-  :init
-  (use-package amx :defer t)
-  (use-package counsel :diminish :config (counsel-mode 1))
-  (use-package swiper :defer t)
-  (ivy-mode 1)
-  :bind
-  (("C-s" . swiper-isearch)
-   ;;("C-z s" . counsel-rg)
-   ;;("C-z b" . counsel-buffer-or-recentf)
-   ;("C-z C-b" . counsel-ibuffer)
-   ("M-y" . counsel-yank-pop)
-   (:map ivy-minibuffer-map
-         ("M-RET" . ivy-immediate-done))
-   (:map counsel-find-file-map
-         ("C-~" . counsel-goto-local-home)))
-  :custom
-  (ivy-use-virtual-buffers t)
-  (ivy-height 10)
-  (ivy-on-del-error-function nil)
-  (ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
-  (ivy-count-format "【%d/%d】")
-  (ivy-wrap t)
-  :config
-  (defun counsel-goto-local-home ()
+  ;; IvyPac
+  (use-package ivy
+    :diminish
+    :init
+    (use-package amx :defer t)
+    (use-package counsel :diminish :config (counsel-mode 1))
+    (use-package swiper :defer t)
+    (ivy-mode 1)
+    :bind
+    (("C-s" . swiper-isearch)
+     ;;("C-z s" . counsel-rg)
+     ;;("C-z b" . counsel-buffer-or-recentf)
+                                          ;("C-z C-b" . counsel-ibuffer)
+     ("M-y" . counsel-yank-pop)
+     (:map ivy-minibuffer-map
+           ("M-RET" . ivy-immediate-done))
+     (:map counsel-find-file-map
+           ("C-~" . counsel-goto-local-home)))
+    :custom
+    (ivy-use-virtual-buffers t)
+    (ivy-height 10)
+    (ivy-on-del-error-function nil)
+    (ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
+    (ivy-count-format "【%d/%d】")
+    (ivy-wrap t)
+    :config
+    (defun counsel-goto-local-home ()
       "Go to the $HOME of the local machine."
       (interactive)
-    (ivy--cd "~/")))
-;; -IvyPac
+      (ivy--cd "~/")))
+  ;; -IvyPac
 
-;; ColorRGPac
-(use-package color-rg
-  :straight (color-rg :type git :host github :repo "manateelazycat/color-rg")
-  :if (executable-find "rg")
-  :bind ("C-M-s" . color-rg-search-input))
-;; -ColorRGPac
+  ;; ColorRGPac
+  (use-package color-rg
+    :straight (color-rg :type git :host github :repo "manateelazycat/color-rg")
+    :if (executable-find "rg")
+    :bind ("C-M-s" . color-rg-search-input))
+  ;; -ColorRGPac
 
-;; FFIPPac
-(use-package find-file-in-project
-  :if (executable-find "find")
-  :init
-  (when (executable-find "fd")
-    (setq ffip-use-rust-fd t))
-  ;;:bind (("C-z o" . ffap)
-  ;;      ("C-z p" . ffip))
-)
-;; -FFIPPac
+  ;; FFIPPac
+  (use-package find-file-in-project
+    :if (executable-find "find")
+    :init
+    (when (executable-find "fd")
+      (setq ffip-use-rust-fd t))
+    ;;:bind (("C-z o" . ffap)
+    ;;      ("C-z p" . ffip))
+    )
+  ;; -FFIPPac
 #+END_SRC
 * Quick Search And Move
 
@@ -1042,26 +914,26 @@ same directory as the org-buffer and insert a link to this file."
 
   (use-package avy)
   (use-package vundo
-   :defer t
-   :load-path "~/.emacs.d/vendor/vundo"
-   :commands (vundo)
-   :config
-   ;; Take less on-screen space.
-   (setq vundo-compact-display t)
-   (custom-set-faces
-    '(vundo-node ((t (:foreground "#808080"))))
-    '(vundo-stem ((t (:foreground "#808080"))))
-    '(vundo-highlight ((t (:foreground "#FFFF00")))))
-   ;; Use `HJKL` VIM-like motion
-   (define-key vundo-mode-map (kbd "l") #'vundo-forward)
-   (define-key vundo-mode-map (kbd "h") #'vundo-backward)
-   (define-key vundo-mode-map (kbd "j") #'vundo-next)
-   (define-key vundo-mode-map (kbd "k") #'vundo-previous)
-   (define-key vundo-mode-map (kbd "a") #'vundo-stem-root)
-   (define-key vundo-mode-map (kbd "e") #'vundo-stem-end)
-   (define-key vundo-mode-map (kbd "q") #'vundo-quit)
-   (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
-   (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
+    :defer t
+    :load-path "~/.emacs.d/vendor/vundo"
+    :commands (vundo)
+    :config
+    ;; Take less on-screen space.
+    (setq vundo-compact-display t)
+    (custom-set-faces
+     '(vundo-node ((t (:foreground "#808080"))))
+     '(vundo-stem ((t (:foreground "#808080"))))
+     '(vundo-highlight ((t (:foreground "#FFFF00")))))
+    ;; Use `HJKL` VIM-like motion
+    (define-key vundo-mode-map (kbd "l") #'vundo-forward)
+    (define-key vundo-mode-map (kbd "h") #'vundo-backward)
+    (define-key vundo-mode-map (kbd "j") #'vundo-next)
+    (define-key vundo-mode-map (kbd "k") #'vundo-previous)
+    (define-key vundo-mode-map (kbd "a") #'vundo-stem-root)
+    (define-key vundo-mode-map (kbd "e") #'vundo-stem-end)
+    (define-key vundo-mode-map (kbd "q") #'vundo-quit)
+    (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
+    (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
 
   ;; Hiding structured data
   (use-package hideshow
@@ -1118,28 +990,31 @@ same directory as the org-buffer and insert a link to this file."
     (unless (display-graphic-p)
       (diff-hl-margin-mode)))
 
-              ;;;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
-              ;;;; (setq auto-revert-check-vc-info t)
+                ;;;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
+                ;;;; (setq auto-revert-check-vc-info t)
   (use-package magit
     :bind (("C-x g" . magit-status))
     :custom
     ;; 在当前窗口显示 `magit-status`，commit diff（magit-diff & magit-revision）在右侧半屏
+    (magit-diff-long-lines-threshold nil)
+    (magit-show-long-lines-warning nil)
     (magit-display-buffer-function #'my-magit-display-buffer)
     :config
     (defun my-magit-display-buffer (buffer)
       "自定义 Magit buffer 显示策略：
-      - `magit-status` 在当前窗口打开
-      - `magit-diff`、`magit-log`、`magit-revision` 在右侧半屏打开"
+  - `magit-status` 和 `magit-log` 在当前窗口打开；
+  - `magit-diff` 和 `magit-revision` 在右侧半屏打开。"
       (let ((mode (buffer-local-value 'major-mode buffer)))
-        (if (memq mode '(magit-diff-mode magit-log-mode magit-revision-mode))
-            (display-buffer buffer
-                            '((display-buffer-in-side-window)
-                              (side . right)
-                              (slot . 0)
-                              (window-width . 0.5)))  ;; 右侧 50%
-          (display-buffer buffer
-                          '((display-buffer-same-window))))))
-
+        (if (memq mode '(magit-diff-mode magit-revision-mode))
+            (display-buffer
+             buffer
+             '((display-buffer-in-side-window)
+               (side . right)
+               (slot . 0)
+               (window-width . 0.5)))  ;; 右侧窗口宽度为当前窗口的 50%
+          (display-buffer
+           buffer
+           '((display-buffer-same-window))))))
     ;; 绑定 M-RET 让 Diff 直接在其他窗口打开
     (with-eval-after-load 'magit
       (define-key magit-status-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)))
@@ -1156,7 +1031,9 @@ same directory as the org-buffer and insert a link to this file."
       ","  'avy-goto-char-2
       ":"  'eval-expression
 
-      "A"  'align-regexp
+      "ai" 'aider-transient-menu
+      "ao" 'aidermacs-transient-menu
+      "aa" 'align-regexp
 
       ;; buffer & bookmark
       "bb" 'switch-to-buffer
@@ -1187,18 +1064,9 @@ same directory as the org-buffer and insert a link to this file."
       "cm" 'delete-trailing-M
 
       ;; dired
-      ;; "dj" 'dired-jump
-      ;; "dJ" 'dired-jump-other-window
       "d" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
 
       ;; external Apps
-      "eY" 'youdao-dictionary-search-from-input
-      "ep" 'plantuml–parse-headlines
-      "ej" 'plantuml-display-json-open
-      "ey" 'plantuml-display-yaml-open
-      "em" 'plantuml-org-to-mindmap-open
-      "ew" 'plantuml-org-to-wbs-open
-      "ea" 'plantuml-auto-convert-open
       "es" 'my-org-screenshot
       "eo" 'org-export-docx
 
@@ -1207,44 +1075,42 @@ same directory as the org-buffer and insert a link to this file."
       "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
       "fi" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
       "ff" 'find-file
-      "fF" 'find-file-other-frame
+      "fO" 'find-file-other-frame
       "fo" 'find-file-other-window
       "fd" '+delete-current-file
       "fn" '+copy-current-filename
       "fr" '+rename-current-file
       "fR" 'recentf-open-files
-      "fs" 'sudo
       "fa" 'x/save-all
-      "f-" 'text-scale-decrease        ;减小字体大小
-      "f=" 'text-scale-increase        ;增加字体大小
 
       ;; magit
-      ;; "gs" 'magit-status
-      ;; "gb" 'magit-branch-checkout
-      ;; "gp" 'magit-pull
-      ;; "gB" 'global-blamer-mode
-      ;; "gt" 'magit-blame-toggle
+      "gs" 'magit-status
+      "gb" 'magit-branch-checkout
+      "gp" 'magit-pull
+      "gt" 'magit-blame-toggle
       "gm" 'one-key-menu-git
-      "gs" 'eaf-open-git
+      "go"  'eaf-open-git
 
-      ;; project && proxy
-      "pf" 'counsel-projectile-find-file
-      "pp" 'counsel-projectile-switch-project
-      "pb" 'counsel-projectile-switch-to-buffer
+      ;; magit-blame
+      ;; 可以在 magit-status (C-x g) 里进入 l（log）菜单后，选择 b（blame）来查看文件的 blame 记录
+      "mb" 'magit-blame           ;;默认完整模式
+      "ma" 'magit-blame-addition  ;;仅显示新增的 commit 影响
+      "md" 'magit-blame-delete    ;;仅显示删除的 commit 影响
+      "mq" 'magit-blame-quit      ;;仅显示删除的 commit 影响
+
+      ;; project
+      "pf" 'ffip
+      ;;"pf" 'projectile-find-file
+      "pb" 'projectile-switch-to-buffer
+      "pp" 'projectile-switch-project
       "pk" 'projectile-kill-buffers
-      "ps" 'proxy-socks-toggle
-      "ph" 'proxy-http-toggle
 
       ;; search
       "sI" 'imenu
-      "s/" 'counsel-rg
-      "sj" 'evil-show-jumps
-      "sm" 'evil-show-marks
-      "sr" 'evil-show-registers
+      "sr" 'counsel-rg
       "si" 'color-rg-search-input
       "ss" 'color-rg-search-symbol-in-project
       "sp" 'color-rg-search-project
-      "sl" 'counsel-projectile-rg
 
       ;; window && frame
       "ww" 'other-window
@@ -1258,9 +1124,7 @@ same directory as the org-buffer and insert a link to this file."
       "zc" 'evil-close-fold
       "zC" 'evil-close-fold-rec
       "zt" 'evil-toggle-fold
-
-      )
-    )
+      ))
 
   (use-package undo-fu :straight t :ensure t)
   (use-package evil
@@ -1289,9 +1153,10 @@ same directory as the org-buffer and insert a link to this file."
   (dolist (p '((minibuffer-inactive-mode . emacs)
                (magit-log-edit-mode . emacs)
                (magit-status-mode . emacs)
-               (magit-reversion . normal)
+               (magit-revision . normal)
                (color-rg-mode . emacs)
                (eaf-mode . emacs)
+               (comint-mode . emacs)
                (dired-mode . normal)
                (fundamental-mode . normal)
                (grep-mode . emacs)
@@ -1325,13 +1190,13 @@ same directory as the org-buffer and insert a link to this file."
 
   ;; evilmode-map
   (defun smart-q ()
-      "Delete window in read-only buffers, otherwise record macro."
-      (interactive)
-      (if buffer-read-only
-          (if (= 1 (count-windows))
-              (bury-buffer)
-            (delete-window))
-        (call-interactively 'evil-record-macro)))
+    "Delete window in read-only buffers, otherwise record macro."
+    (interactive)
+    (if buffer-read-only
+        (if (= 1 (count-windows))
+            (bury-buffer)
+          (delete-window))
+      (call-interactively 'evil-record-macro)))
   (with-eval-after-load 'evil
     (define-key evil-normal-state-map (kbd "q") 'smart-q)
     (define-key evil-motion-state-map (kbd "SPC") nil)
@@ -1339,7 +1204,7 @@ same directory as the org-buffer and insert a link to this file."
     (define-key evil-motion-state-map (kbd "TAB") nil)
     (define-key evil-normal-state-map (kbd "C-t") nil)
     (define-key evil-normal-state-map (kbd "C-]") nil)
-    (define-key evil-normal-state-map (kbd "/")  'swiper)
+    ;; (define-key evil-normal-state-map (kbd "/")  'swiper)
     (define-key evil-motion-state-map (kbd "C-6") nil))
 
 #+END_SRC
@@ -1349,10 +1214,7 @@ same directory as the org-buffer and insert a link to this file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package valign :defer t :custom (valign-fancy-bar 1) :hook ((org-mode . valign-mode)))
-  (use-package org-auto-tangle
-    :hook (org-mode . org-auto-tangle-mode)
-    :config
-    (setq org-auto-tangle-default t))
+  (use-package org-auto-tangle :hook (org-mode . org-auto-tangle-mode) :config (setq org-auto-tangle-default t))
   (use-package toc-org :ensure t :hook (org-mode . toc-org-mode))
   (use-package f :ensure t)
   (use-package emacs
@@ -1363,7 +1225,7 @@ same directory as the org-buffer and insert a link to this file."
     :config
     (defun my/org-insert-clipboard-image (width)
       "create a time stamped unique-named file from the clipboard in the sub-directory
-   (%filename.assets) as the org-buffer and insert a link to this file."
+     (%filename.assets) as the org-buffer and insert a link to this file."
       (interactive (list
                     (read-string (format "Input image width, default is 800: ")
                                  nil nil "800")))
@@ -1394,218 +1256,125 @@ same directory as the org-buffer and insert a link to this file."
                       width
                       "\n[[file:" relativeFilename "]]\n"))
       ;; 重新显示一下图片
-      (org-redisplay-inline-images)
-      )
-    )
+      (org-redisplay-inline-images)))
 
-
-  ;; (use-package org-modern
-  ;;   :ensure t
-  ;;   :after (org)
-  ;;   :init
-  ;;   ;;(setq org-modern-list '((43 . "🔘") (45 . "🔸") (42 . "")))
-  ;;   ;;(setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"))
-  ;;   ;;(setq org-modern-list '((?- . "•")))
-  ;;   (setq org-modern-star '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
-  ;;   (setq org-modern-table-vertical 2)
-  ;;   (setq org-modern-block-name nil)
-  ;;   (setq org-modern-keyword nil)
-  ;;   (setq org-modern-timestamp nil)
-  ;;   :config
-  ;;   (setq org-modern-table nil)  ;  关掉表格美化
-  ;;   (add-hook 'org-mode-hook #'valign-mode) ; valign 解决 org-modern 下org-mode 表格不对齐的问题
-  ;;   )
-
+  (use-package plantuml-mode :defer t :custom (org-plantuml-jar-path (expand-file-name plantuml-path)))
+  (use-package polymode)
 #+END_SRC
 
 ** Org 主配置
-
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package org
     :straight (:type built-in)
     :defer t
+    :bind (("C-c l" . org-store-link)
+           ("C-c a" . org-agenda)
+           ("C-c c" . org-capture)
+           (:map org-mode-map (("C-c C-p" . eaf-org-export-to-pdf-and-open)
+                               ("C-c ;" . nil))))
+    :custom
+    (org-log-done 'time)
+    (calendar-latitude 43.65107) ;; Prerequisite: set it to your location, currently default: Toronto, Canada
+    (calendar-longitude -79.347015) ;; Usable for M-x `sunrise-sunset' or in `org-agenda'
+    (org-export-backends (quote (ascii html icalendar latex md odt)))
+    (org-use-speed-commands t)
+    (org-confirm-babel-evaluate 'nil)
+    (org-image-actual-width '(1270))
+    (org-startup-folded 'content)
+    ;; (org-latex-listings-options '(("breaklines" "true")))
+    ;; (org-latex-listings t)
+    (org-deadline-warning-days 7)
+    (org-todo-keywords
+     '((sequence "TODO" "IN-PROGRESS" "REVIEW" "|" "DONE" "CANCELED")))
+    (org-agenda-window-setup 'other-window)
+    ;; (org-latex-pdf-process
+    ;;  '("pdflatex -shelnl-escape -interaction nonstopmode -output-directory %o %f"
+    ;;    "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+    :custom-face
+    (org-agenda-current-time ((t (:foreground "spring green"))))
     :config
-    (add-hook 'org-mode-hook #'org-modern-mode)
-    (add-hook 'LaTeX-mode-hook 'turn-on-reftex) 
+    (add-to-list 'org-latex-packages-alist '("" "listings"))
+    (unless (version< org-version "9.2")
+      (require 'org-tempo))
+    (when (file-directory-p "~/org/agenda/")
+      (setq org-agenda-files (list "~/org/agenda/")))
     (org-babel-do-load-languages
      'org-babel-load-languages
-     '((lisp . t)
-       (emacs-lisp . t)
-       (latex . t)
-       (sql . t)
-       ;;(go . t)
-       ;;(erlang . t)
-       ;; (js. t)
-       ;;(C . t)
+     '(;; other Babel languages
+       (C . t)
        (python . t)
-       ))
-    (setq
-          ;;org-ellipsis " ⤵"
-          org-ellipsis "..." 
+       (plantuml . t)))
+    ;; (defun org-export-toggle-syntax-highlight ()
+    ;;   "Setup variables to turn on syntax highlighting when calling `org-latex-export-to-pdf'."
+    ;;   (interactive)
+    ;;   (setq-local org-latex-listings 'minted)
+    ;;   (add-to-list 'org-latex-packages-alist '("newfloat" "minted")))
 
-          ;; 使用 UTF-8 显示 LaTeX 或 \xxx 特殊字符， M-x org-entities-help 查看所有特殊字符。
-          org-pretty-entities t
-          org-highlight-latex-and-related '(latex)
-          ;; 只显示而不处理和解释 latex 标记，例如 \xxx 或 \being{xxx}, 避免 export pdf 时出错。
-          org-export-with-latex 'verbatim
-          org-hide-emphasis-markers t
-          org-hide-block-startup t
-          org-hidden-keywords '(title)
-          org-cycle-separator-lines 2
-          org-cycle-level-faces t
-          org-n-level-faces 4
-          ;; TODO 状态更新记录到 LOGBOOK Drawer 中。
-          org-log-into-drawer t
-          ;; TODO 状态更新时记录 note.
-          org-log-done 'note ;; note, time
-          ;; 不在线显示图片，手动点击显示更容易控制大小。
-          ;; org-startup-with-inline-images nil
-          ;; 先从 #+ATTR.* 获取宽度，如果没有设置则默认为 300 。
-          org-image-actual-width '(1270)
-          org-cycle-inline-images-display nil
-          org-html-validation-link nil
-          org-export-with-broken-links t
-          ;; 文件链接使用相对路径, 解决 hugo 等 image 引用的问题。
-          org-link-file-path-type 'relative
-          org-startup-folded 'content
-          ;; 使用 R_{s} 形式的下标（默认是 R_s, 容易与正常内容混淆) 。
-          org-use-sub-superscripts nil
-          ;; 如果对 headline 编号，则 latext 输出时会导致 toc 缺失，故关闭。
-          org-startup-numerated nil
-          org-startup-indented t
-          ;; export 时不处理 super/subscripting, 等效于 #+OPTIONS: ^:nil 。
-          org-export-with-sub-superscripts nil
-          org-hide-leading-stars t
-          org-indent-indentation-per-level 2
-          ;; 内容缩进与对应 headerline 一致。
-          org-adapt-indentation t
-          org-list-indent-offset 2
-          ;; org-timer 到期时发送声音提示。
-          org-clock-sound t)
-    ;; 不自动缩进。
-    (setq org-src-preserve-indentation t)
-    (setq org-edit-src-content-indentation 0)
-    ;; 不自动对齐 tag。
-    (setq org-tags-column 0)
-    (setq org-auto-align-tags nil)
-    ;; 显示不可见的编辑。
-    (setq org-catch-invisible-edits 'show-and-error)
-    (setq org-fold-catch-invisible-edits t)
-    (setq org-special-ctrl-a/e t)
-    (setq org-insert-heading-respect-content t)
-    ;; 支持 ID property 作为 internal link target(默认是 CUSTOM_ID property)
-    (setq org-id-link-to-org-use-id t)
-    (setq org-M-RET-may-split-line nil)
-    (setq org-todo-keywords '((sequence "TODO(t!)" "DOING(d@)" "|" "DONE(D)")
-                              (sequence "BLOCKED(b@)" "|" "CANCELLED(c@)")))
+    (defun org-table-insert-vertical-hline ()
+      "Insert a #+attr_latex to the current buffer, default the align to |c|c|c|, adjust if necessary."
+      (interactive)
+      (insert "#+attr_latex: :align |c|c|c|"))
+    )
 
-    (add-hook 'org-mode-hook 'turn-on-auto-fill)
-    (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode 0))))
-
-  ;; 关闭频繁弹出的 org-element-cache 警告 buffer 。
-  (setq org-element-use-cache nil)
-#+END_SRC
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; OrgPac
-(use-package org
-  :straight (:type built-in)
-  :defer t
-  :bind (("C-c l" . org-store-link)
-         ("C-c a" . org-agenda)
-         ("C-c c" . org-capture)
-         (:map org-mode-map (("C-c C-p" . eaf-org-export-to-pdf-and-open)
-                             ("C-c ;" . nil))))
-  :custom
-  (org-log-done 'time)
-  (calendar-latitude 43.65107) ;; Prerequisite: set it to your location, currently default: Toronto, Canada
-  (calendar-longitude -79.347015) ;; Usable for M-x `sunrise-sunset' or in `org-agenda'
-  (org-export-backends (quote (ascii html icalendar latex md odt)))
-  (org-use-speed-commands t)
-  (org-confirm-babel-evaluate 'nil)
-  (org-latex-listings-options '(("breaklines" "true")))
-  (org-latex-listings t)
-  (org-deadline-warning-days 7)
-  (org-todo-keywords
-   '((sequence "TODO" "IN-PROGRESS" "REVIEW" "|" "DONE" "CANCELED")))
-  (org-agenda-window-setup 'other-window)
-  (org-latex-pdf-process
-   '("pdflatex -shelnl-escape -interaction nonstopmode -output-directory %o %f"
-     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  :custom-face
-  (org-agenda-current-time ((t (:foreground "spring green"))))
-  :config
-  (add-to-list 'org-latex-packages-alist '("" "listings"))
-  (unless (version< org-version "9.2")
-    (require 'org-tempo))
-  (when (file-directory-p "~/org/agenda/")
-    (setq org-agenda-files (list "~/org/agenda/")))
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(;; other Babel languages
-     (C . t)
-     (python . t)
-     (plantuml . t)))
-  (defun org-export-toggle-syntax-highlight ()
-    "Setup variables to turn on syntax highlighting when calling `org-latex-export-to-pdf'."
-    (interactive)
-    (setq-local org-latex-listings 'minted)
-    (add-to-list 'org-latex-packages-alist '("newfloat" "minted")))
-
-  (defun org-table-insert-vertical-hline ()
-    "Insert a #+attr_latex to the current buffer, default the align to |c|c|c|, adjust if necessary."
-    (interactive)
-    (insert "#+attr_latex: :align |c|c|c|")))
-;; -OrgPac
-#+END_SRC
-
-* PDF
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-;; PDFToolsPac
-(use-package pdf-tools
-  :straight t
-  :ensure t
-  :if (and (display-graphic-p) (not *sys/win32*) (not eaf-env-p))
-  :mode ("\\.pdf\\'" . pdf-view-mode)  ;; 关联 PDF 文件
-  :commands (pdf-loader-install)
-  :custom
-  (pdf-view-midnight-colors '("#ffffff" . "#000000")) ;; 夜间模式
-  (TeX-view-program-selection '((output-pdf "PDF Tools"))) ;; AUCTeX 兼容
-  (TeX-view-program-list '(("PDF Tools" "TeX-pdf-tools-sync-view")))
-  :hook
-  (pdf-view-mode . (lambda () (display-line-numbers-mode -1))) ;; 关闭行号
-  :config
-  (pdf-tools-install)  ;; 安装 pdf-tools
-  (pdf-loader-install))  ;; 加载 pdf-tools
-;; -PDFToolsPac
 #+END_SRC
 
 * Org-Latex
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; AUCTeXPac
-(use-package auctex
-  :defer t
-  :custom
-  (TeX-auto-save t)
-  (TeX-parse-self t)
-  (TeX-master nil)
-  ;; to use pdfview with auctex
-  (TeX-view-program-selection '((output-pdf "pdf-tools"))
-                              TeX-source-correlate-start-server t)
-  (TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
-  (TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-  :hook
-  (LaTeX-mode . (lambda ()
-                  (turn-on-reftex)
-                  (setq reftex-plug-into-AUCTeX t)
-                  (reftex-isearch-minor-mode)
-                  (setq TeX-PDF-mode t)
-                  (setq TeX-source-correlate-method 'synctex)
-                  (setq TeX-source-correlate-start-server t)))
-  :config
-  (when (version< emacs-version "26")
-    (add-hook LaTeX-mode-hook #'display-line-numbers-mode)))
-;; -AUCTeXPac
+  ;; AUCTeXPac
+  ;; (use-package auctex
+  ;;   :defer t
+  ;;   :custom
+  ;;   (TeX-auto-save t)
+  ;;   (TeX-parse-self t)
+  ;;   (TeX-master nil)
+  ;;   ;; to use pdfview with auctex
+  ;;   (TeX-view-program-selection '((output-pdf "pdf-tools"))
+  ;;                               TeX-source-correlate-start-server t)
+  ;;   (TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+  ;;   (TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+  ;;   :hook
+  ;;   (LaTeX-mode . (lambda ()
+  ;;                   (turn-on-reftex)
+  ;;                   (setq reftex-plug-into-AUCTeX t)
+  ;;                   (reftex-isearch-minor-mode)
+  ;;                   (setq TeX-PDF-mode t)
+  ;;                   (setq TeX-source-correlate-method 'synctex)
+  ;;                   (setq TeX-source-correlate-start-server t)))
+  ;;   :config
+  ;;   (when (version< emacs-version "26")
+  ;;     (add-hook LaTeX-mode-hook #'display-line-numbers-mode)))
+  ;; -AUCTeXPac
+  (use-package auctex
+    :defer t
+    :custom
+    (TeX-auto-save t)                        ;; 自动保存 TeX 缓存数据
+    (TeX-parse-self t)                       ;; 自动解析 TeX 头部信息
+    (TeX-master nil)                         ;; 默认不指定 master 文件
+    (TeX-engine 'xetex)                      ;; 默认使用 XeLaTeX，可根据需要更改为 pdflatex 或 lualatex
+    (TeX-source-correlate-method 'synctex)     ;; 启用 synctex 反向搜索
+    (TeX-source-correlate-start-server t)      ;; 启动反向搜索服务器
+    (TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)  ;; 编译完成后自动刷新 PDF buffer
+    :hook
+    (LaTeX-mode . my-latex-setup)             ;; 自定义 LaTeX 模式初始化
+    (LaTeX-mode . display-line-numbers-mode)  ;; 启用行号（仅在需要时）
+    :config
+    (defun my-latex-setup ()
+      "为 AUCTeX 启动 RefTeX 支持。"
+      (reftex-mode 1)
+      (setq reftex-plug-into-AUCTeX t))
+
+    ;; 根据可用性选择 PDF 查看器：优先使用 EAF PDF，其次 pdf-tools，再不行则使用默认查看器
+    (cond
+     ((require 'eaf-pdf nil 'noerror)
+      (setq TeX-view-program-selection '((output-pdf "EAF PDF")))
+      (add-to-list 'TeX-view-program-list '("EAF PDF" "eaf-open \"%o\"")))
+     ;; ((require 'pdf-tools nil 'noerror)
+     ;;  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+     ;;  (add-to-list 'TeX-view-program-list '("PDF Tools" "TeX-pdf-tools-sync-view")))
+     ;; (t
+     ;;  (setq TeX-view-program-selection '((output-pdf "Evince"))))
+     ))
+
 #+END_SRC
 
 * Org-Latex-Theme
@@ -1661,178 +1430,178 @@ same directory as the org-buffer and insert a link to this file."
                    ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 #+END_SRC
 
+* PDF
+#+BEGIN_SRC emacs-lisp :tangle no
+
+  ;; PDFToolsPac
+  (use-package pdf-tools
+    :straight t
+    :ensure t
+    :if (and (display-graphic-p) (not *sys/win32*) (not eaf-env-p))
+    :mode ("\\.pdf\\'" . pdf-view-mode)  ;; 关联 PDF 文件
+    :commands (pdf-loader-install)
+    :custom
+    (pdf-view-midnight-colors '("#ffffff" . "#000000")) ;; 夜间模式
+    (TeX-view-program-selection '((output-pdf "PDF Tools"))) ;; AUCTeX 兼容
+    (TeX-view-program-list '(("PDF Tools" "TeX-pdf-tools-sync-view")))
+    :hook
+    (pdf-view-mode . (lambda () (display-line-numbers-mode -1))) ;; 关闭行号
+    :config
+    (pdf-tools-install)  ;; 安装 pdf-tools
+    (pdf-loader-install))  ;; 加载 pdf-tools
+  ;; -PDFToolsPac
+#+END_SRC
 * Dired
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 
-;; DiredPackage
-(use-package dired
-  :straight (:type built-in)
-  :bind
-  (("C-x C-j" . dired-jump))
-  :custom
-  ;; Always delete and copy recursively
-  (dired-listing-switches "-lah")
-  (dired-recursive-deletes 'always)
-  (dired-recursive-copies 'always)
-  ;; Auto refresh Dired, but be quiet about it
-  (global-auto-revert-non-file-buffers t)
-  (auto-revert-verbose nil)
-  ;; Quickly copy/move file in Dired
-  (dired-dwim-target t)
-  ;; Move files to trash when deleting
-  (delete-by-moving-to-trash t)
-  ;; Load the newest version of a file
-  (load-prefer-newer t)
-  ;; Detect external file changes and auto refresh file
-  (auto-revert-use-notify nil)
-  (auto-revert-interval 3) ; Auto revert every 3 sec
-  :config
-  ;; Enable global auto-revert
-  (global-auto-revert-mode t)
-  ;; Reuse same dired buffer, to prevent numerous buffers while navigating in dired
-  (put 'dired-find-alternate-file 'disabled nil)
-  :hook
-  (dired-mode . (lambda ()
-                  (local-set-key (kbd "<mouse-2>") #'dired-find-alternate-file)
-                  (local-set-key (kbd "RET") #'dired-find-alternate-file)
-                  (local-set-key (kbd "^")
-                                 (lambda () (interactive) (find-alternate-file ".."))))))
-;; -DiredPackage
+  ;; DiredPackage
+  (use-package dired
+    :straight (:type built-in)
+    :bind
+    (("C-x C-j" . dired-jump))
+    :custom
+    ;; Always delete and copy recursively
+    (dired-listing-switches "-lah")
+    (dired-recursive-deletes 'always)
+    (dired-recursive-copies 'always)
+    ;; Auto refresh Dired, but be quiet about it
+    (global-auto-revert-non-file-buffers t)
+    (auto-revert-verbose nil)
+    ;; Quickly copy/move file in Dired
+    (dired-dwim-target t)
+    ;; Move files to trash when deleting
+    (delete-by-moving-to-trash t)
+    ;; Load the newest version of a file
+    (load-prefer-newer t)
+    ;; Detect external file changes and auto refresh file
+    (auto-revert-use-notify nil)
+    (auto-revert-interval 3) ; Auto revert every 3 sec
+    :config
+    ;; Enable global auto-revert
+    (global-auto-revert-mode t)
+    ;; Reuse same dired buffer, to prevent numerous buffers while navigating in dired
+    (put 'dired-find-alternate-file 'disabled nil)
+    :hook
+    (dired-mode . (lambda ()
+                    (local-set-key (kbd "<mouse-2>") #'dired-find-alternate-file)
+                    (local-set-key (kbd "RET") #'dired-find-alternate-file)
+                    (local-set-key (kbd "^")
+                                   (lambda () (interactive) (find-alternate-file ".."))))))
+  ;; -DiredPackage
 
-;; DiskUsage
-(use-package disk-usage
-  :commands (disk-usage))
-;; -DiskUsage
+  ;; DiskUsage
+  (use-package disk-usage
+    :commands (disk-usage))
+  ;; -DiskUsage
 
-;; SaveAllBuffers
-(defun save-all-buffers ()
-  "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
-  (interactive)
-  (save-some-buffers t))
-(global-set-key (kbd "C-x C-s") nil)
-(global-set-key (kbd "C-x C-s") #'save-all-buffers)
-;; -SaveAllBuffers
+  ;; SaveAllBuffers
+  (defun save-all-buffers ()
+    "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
+    (interactive)
+    (save-some-buffers t))
+  (global-set-key (kbd "C-x C-s") nil)
+  (global-set-key (kbd "C-x C-s") #'save-all-buffers)
+  ;; -SaveAllBuffers
 #+END_SRC
 
+* Treesit-Auto
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package treesit-auto
+  :if (version<= "29" emacs-version)
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (when (version<= "30" emacs-version)
+    (error "The treesit-auto package maybe obsolete!"))
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode)
+  (defun treesit-show-parser-used-at-point ()
+    "Shows treesit parser used at point."
+    (interactive)
+    (if (and (fboundp 'treesit-available-p)
+             (treesit-available-p))
+        (message (format "%s" (treesit-language-at (point))))
+      (message "treesit is not available"))))
+#+END_SRC
 * Programming
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Header2Pac
-;; (use-package header2
-;;   :straight (header2 :type git :host github :repo "emacsmirror/header2")
-;;   :custom
-;;   (header-copyright-notice (concat "Copyright (C) 2019 " (user-full-name) "\n"))
-;;   :hook (emacs-lisp-mode . auto-make-header)
-;;   :config
-;;   (add-to-list 'write-file-functions 'auto-update-file-header)
-;;   (autoload 'auto-make-header "header2")
-;;   (autoload 'auto-update-file-header "header2"))
-;; -Header2Pac
+  ;; (use-package header2
+  ;;   :straight (header2 :type git :host github :repo "emacsmirror/header2")
+  ;;   :custom
+  ;;   (header-copyright-notice (concat "Copyright (C) 2019 " (user-full-name) "\n"))
+  ;;   :hook (emacs-lisp-mode . auto-make-header)
+  ;;   :config
+  ;;   (add-to-list 'write-file-functions 'auto-update-file-header)
+  ;;   (autoload 'auto-make-header "header2")
+  ;;   (autoload 'auto-update-file-header "header2"))
 
-;; FormatAllPac
-;; (use-package format-all
-;;   :bind ("C-c C-f" . format-all-buffer))
-;; -FormatAllPac
+  (use-package ediff
+    :custom
+    (ediff-split-window-function #'split-window-horizontally)
+    (ediff-window-setup-function #'ediff-setup-windows-plain))
 
-;; EdiffPac
-(use-package ediff
-  :custom
-  (ediff-split-window-function #'split-window-horizontally)
-  (ediff-window-setup-function #'ediff-setup-windows-plain))
-;; -EdiffPac
+  ;; Golang
+  (use-package go-mode)
 
-(use-package plantuml-mode
-  :ensure t
-  :mode ("\\.plantuml\\'" . plantuml-mode)
-  :init
-  ;; enable plantuml babel support
-  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               (append org-babel-load-languages
-                                       '((plantuml . t))))
-  :config
-  (setq org-plantuml-exec-mode 'plantuml)
-  (setq org-plantuml-executable-path "plantuml")
-  (setq plantuml-executable-path "plantuml")
-  (setq plantuml-default-exec-mode 'executable)
-  ;; set default babel header arguments
-  (setq org-babel-default-header-args:plantuml
-        '((:exports . "results")
-          (:results . "file")
-          ))
-  )
+  ;; Erlang
+  (let* ((tools-version erlang-lib-tools-version)
+         (path-prefix erlang-path-prefix)
+         (tools-path
+          (concat path-prefix "/lib/tools-" tools-version "/emacs")))
+    (when (file-exists-p tools-path)
+      (setq load-path (cons tools-path load-path))
+      (setq erlang-root-dir (concat path-prefix "/erlang"))
+      (setq exec-path (cons (concat path-prefix "/bin") exec-path))
+      (require 'erlang-start)
+      (defvar inferior-erlang-prompt-timeout t)))
 
-;;---------------------------------------------------------
-;; Golang
-(use-package go-mode)
+  ;;---------------------------------------------------------
+  (use-package cc-mode
+    :ensure nil
+    :bind (:map c-mode-base-map
+                ("C-c c" . compile))
+    :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
+    :init (setq-default c-basic-offset 4)
+    :config
+    (use-package modern-cpp-font-lock
+      :init (modern-c++-font-lock-global-mode t)))
 
-;;---------------------------------------------------------
-;; Erlang
-(let* ((tools-version erlang-lib-tools-version)
-       (path-prefix erlang-path-prefix)
-       (tools-path
-        (concat path-prefix "/lib/tools-" tools-version "/emacs")))
-  (when (file-exists-p tools-path)
-    (setq load-path (cons tools-path load-path))
-    (setq erlang-root-dir (concat path-prefix "/erlang"))
-    (setq exec-path (cons (concat path-prefix "/bin") exec-path))
-    (require 'erlang-start)
-    (defvar inferior-erlang-prompt-timeout t)))
+  ;;---------------------------------------------------------
+  (use-package python-mode
+    :straight (:type built-in)
+    :mode "\\.py\\'"
+    :custom
+    (python-indent-offset 4)
+    (flycheck-python-pycompile-executable "python3")
+    (python-shell-interpreter "python3"))
 
-;;---------------------------------------------------------
-;; C/C++
-(use-package cc-mode
-  :ensure nil
-  :bind (:map c-mode-base-map
-              ("C-c c" . compile))
-  :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
-  :init (setq-default c-basic-offset 4)
-  :config
-  (use-package modern-cpp-font-lock
-    :init (modern-c++-font-lock-global-mode t)))
+  ;;;---------------------------------------------------------
+  (use-package rust-mode
+    :config
+    (setq rust-format-on-save t)
+    (defun my/rust-lsp ()
+      (setq-local lsp-completion-enable nil
+                  compile-command "cargo build")))
 
-;;---------------------------------------------------------
-;; PythonConfig
-(use-package python-mode
-  :straight (:type built-in)
-  :mode "\\.py\\'"
-  :custom
-  (python-indent-offset 4)
-  (flycheck-python-pycompile-executable "python3")
-  (python-shell-interpreter "python3"))
-;; -PythonConfig
+  ;;---------------------------------------------------------
+  ;; Other languages
+  ;;---------------------------------------------------------
+  (use-package sh-script :defer t :config (setq sh-basic-offset 4))
+  (use-package lua-mode)
+  (use-package yaml-mode)
 
-;;;---------------------------------------------------------
-(use-package rust-mode
-  ;;:hook ((rust-mode . my/rust-lsp))
-  :config
-  (setq rust-format-on-save t)
-  (defun my/rust-lsp ()
-    (setq-local lsp-completion-enable nil
-                compile-command "cargo build")
-    ))
-
-;;---------------------------------------------------------
-;; Other languages
-;;---------------------------------------------------------
-(use-package sh-script :defer t :config (setq sh-basic-offset 4))
-(use-package lua-mode)
-(use-package yaml-mode)
-
-;; EINPac
-(use-package ein
-  :if (executable-find "jupyter")
-  :bind
-  (("C-c e" . ein:worksheet-execute-cell)
-   ("C-c C-e" . ein:worksheet-execute-all-cells))
-  :custom-face
-  (ein:basecell-input-area-face ((t (:extend t :background "#303640"))))
-  :defer t
-  :custom
-  (ein:worksheet-enable-undo t))
-;; -EINPac
+  (use-package ein
+    :if (executable-find "jupyter")
+    :bind
+    (("C-c e" . ein:worksheet-execute-cell)
+     ("C-c C-e" . ein:worksheet-execute-all-cells))
+    :custom-face
+    (ein:basecell-input-area-face ((t (:extend t :background "#303640"))))
+    :defer t
+    :custom
+    (ein:worksheet-enable-undo t))
 
 #+END_SRC
 
@@ -1841,468 +1610,454 @@ same directory as the org-buffer and insert a link to this file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(defun load-font-setup()
-  (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
-        (t
-         (let ((emacs-font-size 14)
-               (chinese-font-name  "TsangerJinKai05")
-               english-font-name)
-           (cond
-            ((featurep 'cocoa)
-             (setq english-font-name "Monaco"))
-            ((string-equal system-type "gnu/linux")
-             (setq english-font-name "WenQuanYi Micro Hei Mono")))
+  (defun load-font-setup()
+    (cond ((eq window-system 'pgtk)
+           (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
+          (t
+           (let ((emacs-font-size 14)
+                 (chinese-font-name  "TsangerJinKai05")
+                 english-font-name)
+             (cond
+              ((featurep 'cocoa)
+               (setq english-font-name "Monaco"))
+              ((string-equal system-type "gnu/linux")
+               (setq english-font-name "WenQuanYi Micro Hei Mono")))
 
-           ;;(set-face-attribute 'default nil :height 140 :family (eval english-font-name))
-           ;;(set-face-attribute 'default nil :height 140 :family (eval chinese-font-name))
+             ;;(set-face-attribute 'default nil :height 140 :family (eval english-font-name))
+             ;;(set-face-attribute 'default nil :height 140 :family (eval chinese-font-name))
 
-           (when (display-grayscale-p)
-             (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
-             (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
+             (when (display-grayscale-p)
+               (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
+               (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
 
-             (dolist (charset '(kana han symbol cjk-misc bopomofo))
-               (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family (eval chinese-font-name))))
-             )))))
+               (dolist (charset '(kana han symbol cjk-misc bopomofo))
+                 (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family (eval chinese-font-name))))
+               )))))
 
-(load-font-setup)
+  (load-font-setup)
 
-;; This is hacking to fix Emacs 29 will decrease font after standby.
-(add-function :after after-focus-change-function #'load-font-setup)
+  ;; This is hacking to fix Emacs 29 will decrease font after standby.
+  (add-function :after after-focus-change-function #'load-font-setup)
 
-(dolist (hook (list
-               'c-mode-common-hook
-               'c-mode-hook
-               'c++-mode-hook
-               'java-mode-hook
-               'haskell-mode-hook
-               'emacs-lisp-mode-hook
-               'lisp-interaction-mode-hook
-               'lisp-mode-hook
-               'maxima-mode-hook
-               'ielm-mode-hook
-               'sh-mode-hook
-               'makefile-gmake-mode-hook
-               'python-mode-hook
-               'js-mode-hook
-               'go-mode-hook
-               'qml-mode-hook
-               'jade-mode-hook
-               'css-mode-hook
-               'coffee-mode-hook
-               'rust-mode-hook
-               'qmake-mode-hook
-               'lua-mode-hook
-               'web-mode-hook
-               'markdown-mode-hook
-               'conf-toml-mode-hook
-               'typescript-mode-hook
-               ))
-  (add-hook hook #'(lambda () (load-font-setup))))
+  (dolist (hook (list
+                 'c-mode-common-hook
+                 'c-mode-hook
+                 'c++-mode-hook
+                 'java-mode-hook
+                 'haskell-mode-hook
+                 'emacs-lisp-mode-hook
+                 'lisp-interaction-mode-hook
+                 'lisp-mode-hook
+                 'maxima-mode-hook
+                 'ielm-mode-hook
+                 'sh-mode-hook
+                 'makefile-gmake-mode-hook
+                 'python-mode-hook
+                 'js-mode-hook
+                 'go-mode-hook
+                 'qml-mode-hook
+                 'jade-mode-hook
+                 'css-mode-hook
+                 'coffee-mode-hook
+                 'rust-mode-hook
+                 'qmake-mode-hook
+                 'lua-mode-hook
+                 'web-mode-hook
+                 'markdown-mode-hook
+                 'conf-toml-mode-hook
+                 'typescript-mode-hook
+                 ))
+    (add-hook hook #'(lambda () (load-font-setup))))
 #+END_SRC
 
 * Rime
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; YoudaoPac
-(use-package youdao-dictionary
-  :commands (youdao-dictionary-search
-             youdao-dictionary-search-at-point
-             youdao-dictionary-search-at-point-posframe)
-  :bind ("C-M-y" . youdao-dictionary-search-at-point-posframe))
-;; -YoudaoPac
+  ;; YoudaoPac
+  (use-package youdao-dictionary
+    :commands (youdao-dictionary-search
+               youdao-dictionary-search-at-point
+               youdao-dictionary-search-at-point-posframe)
+    :bind ("C-M-y" . youdao-dictionary-search-at-point-posframe))
+  ;; -YoudaoPac
 
-(use-package rime
-  :bind
-  (:map rime-active-mode-map
-        ("C-;" . 'rime-inline-ascii)
-        :map rime-mode-map
-        ("C-`" . 'rie-send-keybinding) 
-        ("M-o" . 'rime--backspace)
-        ("M-m" . 'rime--return)
-        ("M-h" . 'rime--escape)
-        ("M-j" . 'rime-force-enable))
-  :custom
-  (default-input-method "rime")
-  (rime-posframe-style 'vertical)
-  (rime-show-candidate 'posframe)
-  (rime-user-data-dir zxh-emacs-rime-user-data-dir)
-  (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-  :config
-  (setq rime-disable-predicates
-        ;; 行首输入符号
-        '(rime-predicate-punctuation-line-begin-p
-          ;; 中文字符加空格之后输入符号
-          rime-predicate-punctuation-after-space-cc-p
-          ;; 中文字符加空格之后输入英文
-          rime-predicate-space-after-cc-p
-          ;; 英文使用半角符号
-          rime-predicate-punctuation-after-ascii-p
-          ;; 编程模式，只在注释中输入中文
-          rime-predicate-prog-in-code-p))
-  ;;(when (x/system-is-mac)
-  (when (string-equal system-type "darwin")
-    (setq rime-posframe-properties
-          (list :background-color "#333333"
-                :foreground-color "#dcdccc"
-                ;; :font "PingFang SC"
-                ;; :font "TsangerJinKai05"
-                :font "TsangerJinKai05-18"
-                :internal-border-width 10)))
-  ;;(when (x/system-is-linux)
-  (when (string-equal system-type "gnu/linux")
-    (setq rime-posframe-properties
-          (list :background-color "#333333"
-                :foreground-color "#dcdccc"
-                ;; :font "WenQuanYi Micro Hei Mono-14"
-                :font "TsangerJinKai05-18"
-                :internal-border-width 10)))
-)
+  (use-package rime
+    :bind
+    (:map rime-active-mode-map
+          ("C-;" . 'rime-inline-ascii)
+          :map rime-mode-map
+          ("C-`" . 'rie-send-keybinding)
+          ("M-o" . 'rime--backspace)
+          ("M-m" . 'rime--return)
+          ("M-h" . 'rime--escape)
+          ("M-j" . 'rime-force-enable))
+    :custom
+    (default-input-method "rime")
+    (rime-posframe-style 'vertical)
+    (rime-show-candidate 'posframe)
+    (rime-user-data-dir zxh-emacs-rime-user-data-dir)
+    (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+    :config
+    (setq rime-disable-predicates
+          ;; 行首输入符号
+          '(rime-predicate-punctuation-line-begin-p
+            ;; 中文字符加空格之后输入符号
+            rime-predicate-punctuation-after-space-cc-p
+            ;; 中文字符加空格之后输入英文
+            rime-predicate-space-after-cc-p
+            ;; 英文使用半角符号
+            rime-predicate-punctuation-after-ascii-p
+            ;; 编程模式，只在注释中输入中文
+            rime-predicate-prog-in-code-p))
+    ;;(when (x/system-is-mac)
+    (when (string-equal system-type "darwin")
+      (setq rime-posframe-properties
+            (list :background-color "#333333"
+                  :foreground-color "#dcdccc"
+                  ;; :font "PingFang SC"
+                  ;; :font "TsangerJinKai05"
+                  :font "TsangerJinKai05-18"
+                  :internal-border-width 10)))
+    ;;(when (x/system-is-linux)
+    (when (string-equal system-type "gnu/linux")
+      (setq rime-posframe-properties
+            (list :background-color "#333333"
+                  :foreground-color "#dcdccc"
+                  ;; :font "WenQuanYi Micro Hei Mono-14"
+                  :font "TsangerJinKai05-18"
+                  :internal-border-width 10)))
+    )
 #+END_SRC
 * Platform
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; macos
-(when (x/system-is-mac)
+  ;; macos
+  (when (x/system-is-mac)
 
-  ;; Keyboard 
-  (setq echo-keystrokes 0.1)
-  (setq mac-option-modifier 'super)
-  (setq mac-command-modifier 'meta)
-  ;; (setq mac-command-modifier       'super   ;; s: super(Command/Win)
-  ;;       mac-control-modifier       'control ;; C: Ctrl
-  ;;       mac-option-modifier        'meta    ;; M: Meta (Option/Alt)
-  ;;       )
+    ;; Keyboard
+    (setq mac-option-modifier 'super)
+    (setq mac-command-modifier 'meta)
+    ;; (setq mac-command-modifier       'super   ;; s: super(Command/Win)
+    ;;       mac-control-modifier       'control ;; C: Ctrl
+    ;;       mac-option-modifier        'meta    ;; M: Meta (Option/Alt)
+    ;;       )
 
-  ;; Copy/Paste
-  (defun copy-from-osx ()
-    (shell-command-to-string "pbpaste"))
+    ;; Copy/Paste
+    (defun copy-from-osx ()
+      (shell-command-to-string "pbpaste"))
 
-  (defun paste-to-osx (text &optional push)
-    (let ((process-connection-type nil))
-      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-        (process-send-string proc text)
-        (process-send-eof proc))))
+    (defun paste-to-osx (text &optional push)
+      (let ((process-connection-type nil))
+        (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+          (process-send-string proc text)
+          (process-send-eof proc))))
 
-  (setq interprogram-cut-function 'paste-to-osx)
-  (setq interprogram-paste-function 'copy-from-osx)
+    (setq interprogram-cut-function 'paste-to-osx)
+    (setq interprogram-paste-function 'copy-from-osx)
 
-  ;; Move to Trash
-  (setq delete-by-moving-to-trash t)
-  (setq trash-directory "~/.Trash/emacs")
-  (defun system-move-file-to-trash (file)
-    "Use \"trash\" to move FILE to the system trash.
-        When using Homebrew, install it using \"brew install trash\"."
-    (call-process (executable-find "trash")
-                  nil 0 nil
-                  file))
+    ;; Move to Trash
+    (setq delete-by-moving-to-trash t)
+    (setq trash-directory "~/.Trash/emacs")
+    (defun system-move-file-to-trash (file)
+      "Use \"trash\" to move FILE to the system trash.
+          When using Homebrew, install it using \"brew install trash\"."
+      (call-process (executable-find "trash")
+                    nil 0 nil
+                    file))
 
-  ;; Done
-  (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
+    ;; Done
+    (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
 
 
-;; linux
-(when (x/system-is-linux)
-  (defun yank-to-x-clipboard ()
-    (interactive)
-    (if (region-active-p)
-        (progn
-          (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-          (message "Yanked region to clipboard!")
-          (deactivate-mark))
-      (message "No region active; can't yank to clipboard!"))))
+  ;; linux
+  (when (x/system-is-linux)
+    (defun yank-to-x-clipboard ()
+      (interactive)
+      (if (region-active-p)
+          (progn
+            (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+            (message "Yanked region to clipboard!")
+            (deactivate-mark))
+        (message "No region active; can't yank to clipboard!"))))
 
 #+END_SRC
 
 * LLM
-
+** aidermacs
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; AidermacsPac
-(use-package aidermacs
-  :if (executable-find "aider")
-  :straight (:host github :repo "MatthewZMD/aidermacs" :files ("*.el"))
-  :custom
-  (aidermacs-backend 'comint)
-  (aidermacs-auto-commits nil)
-  :config
-  (add-to-list 'display-buffer-alist
-               `("\\*aidermacs.*\\*"
-                 (display-buffer-pop-up-window)))
-  :bind
-  (("C-z a" . aidermacs-transient-menu)))
-;; -AidermacsPac
+  (use-package aidermacs
+    :straight (:host github :repo "MatthewZMD/aidermacs" :files ("*.el"))
+    :when (executable-find "aider")
+    :config
+    (setq aidermacs-auto-commits nil)
+    (setq aidermacs-use-architect-mode t)
 
+    ;; (setq aidermacs-default-model "anthropic/claude-3-5-sonnet-20241022")
+    ;; (or (getenv "ANTHROPIC_API_KEY")
+    ;;     (when-let ((api-key (getenv "ANTHROPIC_API_KEY")))
+    ;;       (setenv "ANTHROPIC_API_KEY" api-key)))
+
+    ;; 选择合适的 DeepSeek 代码生成模型
+    ;; When Architect mode is enabled, the aidermacs-default-model setting is ignored
+    (setq aidermacs-use-architect-mode t)
+    (setq aidermacs-architect-model "deepseek/deepseek-reasoner")  ;; "deepseek/deepseek-reasoner
+    (setq aidermacs-editor-model "deepseek/deepseek-chat")         ;;  defaults to aidermacs-default-model
+    ;;(setq aidermacs-default-model")
+    (when (getenv "DEEPSEEK_API_KEY")
+      (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY")))
+    (when (getenv "DEEPSEEK_API_KEY")
+      (setenv "AIDERMACS_API_KEY" (getenv "DEEPSEEK_API_KEY")))
+    )
+#+END_SRC
+** aider
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
+    :when (executable-find "aider")
+    :config
+    ;; ;; For claude-3-5-sonnet
+    ;; (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
+    ;; (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+
+    ;;(setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-chat"))
+    (setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-reasoner" "--editor-model" "deepseek/deepseek-chat"))
+    ;; (setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-coder" "--editor-model" "deepseek/deepseek-chat"))
+    (when (getenv "DEEPSEEK_API_KEY")
+      (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY")))
+    )
 #+END_SRC
 
 * Lazycat Plugins
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-(require 'lazy-load)
-(require 'one-key)
-(require 'posframe)
-(require 'lazycat-toolkit)
-;;(require 'watch-other-window)
-;;(require 'markmacro)
+  (require 'lazy-load)
+  (require 'one-key)
+  (require 'posframe)
+  (require 'lazycat-toolkit)
+  ;;(require 'watch-other-window)
+  ;;(require 'markmacro)
 
-;; ----------------------------------------------------------
-;; auto-save
-(require 'auto-save)
-(require 'ws-butler)
-(auto-save-enable)
-(setq auto-save-silent t)
-(ws-butler-global-mode)
+  ;; ----------------------------------------------------------
+  ;; auto-save
+  (require 'auto-save)
+  (require 'ws-butler)
+  (auto-save-enable)
+  (setq auto-save-silent t)
+  (ws-butler-global-mode)
 
-;;---------------------------------------------------------
-;; Line numbers are not displayed when large files are used.
-(setq line-number-display-limit large-file-warning-threshold)
-(setq line-number-display-limit-width 1000)
+  ;;---------------------------------------------------------
+  ;; Line numbers are not displayed when large files are used.
+  (setq line-number-display-limit large-file-warning-threshold)
+  (setq line-number-display-limit-width 1000)
 
-(dolist (hook (list
-               'c-mode-common-hook
-               'c-mode-hook
-               'emacs-lisp-mode-hook
-               'lisp-interaction-mode-hook
-               'lisp-mode-hook
-               'java-mode-hook
-               'asm-mode-hook
-               'haskell-mode-hook
-               'rcirc-mode-hook
-               'erc-mode-hook
-               'sh-mode-hook
-               'makefile-gmake-mode-hook
-               'python-mode-hook
-               'js-mode-hook
-               'html-mode-hook
-               'css-mode-hook
-               'tuareg-mode-hook
-               'go-mode-hook
-               'qml-mode-hook
-               'markdown-mode-hook
-               'slime-repl-mode-hook
-               'package-menu-mode-hook
-               'cmake-mode-hook
-               'php-mode-hook
-               'web-mode-hook
-               'sws-mode-hook
-               'jade-mode-hook
-               'vala-mode-hook
-               'rust-mode-hook
-               'ruby-mode-hook
-               'qmake-mode-hook
-               'lua-mode-hook
-               'swift-mode-hook
-               'llvm-mode-hook
-               'conf-toml-mode-hook
-               'nxml-mode-hook
-               'nim-mode-hook
-               'typescript-mode-hook
-               'elixir-mode-hook
-               'erlang-mode-hook
-               'clojure-mode-hook
-               ))
-  (add-hook hook (lambda () (display-line-numbers-mode))))
+  (dolist (hook (list
+                 'c-mode-common-hook
+                 'c-mode-hook
+                 'emacs-lisp-mode-hook
+                 'lisp-interaction-mode-hook
+                 'lisp-mode-hook
+                 'java-mode-hook
+                 'asm-mode-hook
+                 'haskell-mode-hook
+                 'rcirc-mode-hook
+                 'erc-mode-hook
+                 'sh-mode-hook
+                 'makefile-gmake-mode-hook
+                 'python-mode-hook
+                 'js-mode-hook
+                 'html-mode-hook
+                 'css-mode-hook
+                 'tuareg-mode-hook
+                 'go-mode-hook
+                 'qml-mode-hook
+                 'markdown-mode-hook
+                 'slime-repl-mode-hook
+                 'package-menu-mode-hook
+                 'cmake-mode-hook
+                 'php-mode-hook
+                 'web-mode-hook
+                 'sws-mode-hook
+                 'jade-mode-hook
+                 'vala-mode-hook
+                 'rust-mode-hook
+                 'ruby-mode-hook
+                 'qmake-mode-hook
+                 'lua-mode-hook
+                 'swift-mode-hook
+                 'llvm-mode-hook
+                 'conf-toml-mode-hook
+                 'nxml-mode-hook
+                 'nim-mode-hook
+                 'typescript-mode-hook
+                 'elixir-mode-hook
+                 'erlang-mode-hook
+                 'clojure-mode-hook
+                 ))
+    (add-hook hook (lambda () (display-line-numbers-mode))))
 
-;;----------------------------------------------------------
-;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
-;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
+  ;;----------------------------------------------------------
+  ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
+  ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
 
-;; YASnippetPac
-(use-package yasnippet
-  :diminish yas-minor-mode
-  :init
-  (use-package yasnippet-snippets :after yasnippet)
-  :hook ((prog-mode LaTeX-mode org-mode markdown-mode) . yas-minor-mode)
-  :bind
-  (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
-  (:map yas-keymap
-        (("TAB" . smarter-yas-expand-next-field)
-         ([(tab)] . smarter-yas-expand-next-field)))
-  :config
-  (yas-reload-all)
-  (defun smarter-yas-expand-next-field ()
-    "Try to `yas-expand' then `yas-next-field' at current cursor position."
-    (interactive)
-    (let ((old-point (point))
-          (old-tick (buffer-chars-modified-tick)))
-      (yas-expand)
-      (when (and (eq old-point (point))
-                 (eq old-tick (buffer-chars-modified-tick)))
-        (ignore-errors (yas-next-field))))))
+  ;; YASnippetPac
+  (use-package yasnippet
+    :diminish yas-minor-mode
+    :init
+    (use-package yasnippet-snippets :after yasnippet)
+    :hook ((prog-mode LaTeX-mode org-mode markdown-mode) . yas-minor-mode)
+    :bind
+    (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
+    (:map yas-keymap
+          (("TAB" . smarter-yas-expand-next-field)
+           ([(tab)] . smarter-yas-expand-next-field)))
+    :config
+    (yas-reload-all)
+    (defun smarter-yas-expand-next-field ()
+      "Try to `yas-expand' then `yas-next-field' at current cursor position."
+      (interactive)
+      (let ((old-point (point))
+            (old-tick (buffer-chars-modified-tick)))
+        (yas-expand)
+        (when (and (eq old-point (point))
+                   (eq old-tick (buffer-chars-modified-tick)))
+          (ignore-errors (yas-next-field))))))
 
-;; LSPPac
-(use-package lsp-bridge
-  :straight (lsp-bridge
-             :type git
-             :host github
-             :repo "manateelazycat/lsp-bridge"
-             :files ("*"))
-  :defer 1
-  :commands (global-lsp-bridge-mode lsp-bridge-mode)
-  :custom
-  (acm-enable-codeium nil)
-  (acm-enable-tabnine nil)
-  (acm-enable-yas nil)
-  (acm-enable-quick-access t)
-  (lsp-bridge-enable-hover-diagnostic t)
-  (lsp-bridge-python-lsp-server "pyright")
-  :bind (("M-." . lsp-bridge-find-def)
-         ("M-," . lsp-bridge-find-def-return)
-         ("M-i" . lsp-bridge-popup-documentation)
-         ("C-M-." . lsp-bridge-peek)
-         :map lsp-bridge-ref-mode-map
-         ("n" . lsp-bridge-ref-jump-next-keyword)
-         ("p" . lsp-bridge-ref-jump-prev-keyword)
-         ("M-n" . lsp-bridge-ref-jump-next-file)
-         ("M-p" . lsp-bridge-ref-jump-prev-file)
-         ("C-x C-q" . lsp-bridge-ref-switch-to-edit-mode)
-         :map lsp-bridge-ref-mode-edit-map
-         ("C-x C-q" . lsp-bridge-ref-apply-changed)
-         ("C-x C-s" . lsp-bridge-ref-apply-changed)
-         ("C-c C-k" . lsp-bridge-ref-quit)
-         ("M-n" . lsp-bridge-ref-jump-next-file)
-         ("M-p" . lsp-bridge-ref-jump-prev-file)
-         :map acm-mode-map
-         ([remap next-line] . nil)
-         ([remap previous-line] . nil))
-  :config
-  (global-lsp-bridge-mode))
-;; -LSPPac
+  ;; LSPPac
+  (use-package lsp-bridge
+    :straight (lsp-bridge
+               :type git
+               :host github
+               :repo "manateelazycat/lsp-bridge"
+               :files ("*"))
+    :defer 1
+    :commands (global-lsp-bridge-mode lsp-bridge-mode)
+    :custom
+    (acm-enable-codeium nil)
+    (acm-enable-tabnine nil)
+    (acm-enable-yas nil)
+    (acm-enable-quick-access t)
+    (lsp-bridge-enable-hover-diagnostic t)
+    (lsp-bridge-python-lsp-server "pyright")
+    :bind (("M-." . lsp-bridge-find-def)
+           ("M-," . lsp-bridge-find-def-return)
+           ("M-i" . lsp-bridge-popup-documentation)
+           ("C-M-." . lsp-bridge-peek)
+           :map lsp-bridge-ref-mode-map
+           ("n" . lsp-bridge-ref-jump-next-keyword)
+           ("p" . lsp-bridge-ref-jump-prev-keyword)
+           ("M-n" . lsp-bridge-ref-jump-next-file)
+           ("M-p" . lsp-bridge-ref-jump-prev-file)
+           ("C-x C-q" . lsp-bridge-ref-switch-to-edit-mode)
+           :map lsp-bridge-ref-mode-edit-map
+           ("C-x C-q" . lsp-bridge-ref-apply-changed)
+           ("C-x C-s" . lsp-bridge-ref-apply-changed)
+           ("C-c C-k" . lsp-bridge-ref-quit)
+           ("M-n" . lsp-bridge-ref-jump-next-file)
+           ("M-p" . lsp-bridge-ref-jump-prev-file)
+           :map acm-mode-map
+           ([remap next-line] . nil)
+           ([remap previous-line] . nil))
+    :config
+    (global-lsp-bridge-mode))
+  ;; -LSPPac
 
-;; ;;; Require
-;; (require 'lsp-bridge)
-;; (require 'lsp-bridge-jdtls)
+  ;; ;;; Require
+  ;; (require 'lsp-bridge)
+  ;; (require 'lsp-bridge-jdtls)
 
-;; ;;; Code:
-;; (setq lsp-bridge-enable-completion-in-minibuffer t)
-;; (setq lsp-bridge-signature-show-function 'lsp-bridge-signature-show-with-frame)
-;; (setq lsp-bridge-enable-with-tramp t)
-;; (setq lsp-bridge-enable-org-babel t)
-;; (setq acm-enable-capf t)
-;; (setq acm-enable-quick-access t)
-;; (setq acm-backend-yas-match-by-trigger-keyword t)
-;; (setq acm-enable-tabnine nil)
-;; (setq acm-enable-codeium nil)
-;; (setq acm-enable-lsp-workspace-symbol t)
-;; (setq lsp-bridge-enable-inlay-hint t)
-;; (setq lsp-bridge-semantic-tokens t)
-;; (setq-default lsp-bridge-semantic-tokens-ignore-modifier-limit-types ["variable"])
+  ;; ;;; Code:
+  ;; (setq lsp-bridge-enable-completion-in-minibuffer t)
+  ;; (setq lsp-bridge-signature-show-function 'lsp-bridge-signature-show-with-frame)
+  ;; (setq lsp-bridge-enable-with-tramp t)
+  ;; (setq lsp-bridge-enable-org-babel t)
+  ;; (setq acm-enable-capf t)
+  ;; (setq acm-enable-quick-access t)
+  ;; (setq acm-backend-yas-match-by-trigger-keyword t)
+  ;; (setq acm-enable-tabnine nil)
+  ;; (setq acm-enable-codeium nil)
+  ;; (setq acm-enable-lsp-workspace-symbol t)
+  ;; (setq lsp-bridge-enable-inlay-hint t)
+  ;; (setq lsp-bridge-semantic-tokens t)
+  ;; (setq-default lsp-bridge-semantic-tokens-ignore-modifier-limit-types ["variable"])
 
-;; (global-lsp-bridge-mode)
+  ;; (global-lsp-bridge-mode)
 
-;; (add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("html") . "html_tailwindcss"))
-;; (add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("css") . "css_tailwindcss"))
+  ;; (add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("html") . "html_tailwindcss"))
+  ;; (add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("css") . "css_tailwindcss"))
 
-;; (setq lsp-bridge-csharp-lsp-server "csharp-ls")
-;; (setq lsp-bridge-nix-lsp-server "nil")
+  ;; (setq lsp-bridge-csharp-lsp-server "csharp-ls")
+  ;; (setq lsp-bridge-nix-lsp-server "nil")
 
-;; ;; 打开日志，开发者才需要
-;; ;; (setq lsp-bridge-enable-log t)
+  ;; ;; 打开日志，开发者才需要
+  ;; ;; (setq lsp-bridge-enable-log t)
 
-;; (setq lsp-bridge-get-multi-lang-server-by-project
-;;       (lambda (project-path filepath)
-;;         ;; If typescript file include deno.land url, then use Deno LSP server.
-;;         (save-excursion
-;;           (when (string-equal (file-name-extension filepath) "ts")
-;;             (dolist (buf (buffer-list))
-;;               (when (string-equal (buffer-file-name buf) filepath)
-;;                 (with-current-buffer buf
-;;                   (goto-char (point-min))
-;;                   (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
-;;                     (return "deno")))))))))
+  ;; (setq lsp-bridge-get-multi-lang-server-by-project
+  ;;       (lambda (project-path filepath)
+  ;;         ;; If typescript file include deno.land url, then use Deno LSP server.
+  ;;         (save-excursion
+  ;;           (when (string-equal (file-name-extension filepath) "ts")
+  ;;             (dolist (buf (buffer-list))
+  ;;               (when (string-equal (buffer-file-name buf) filepath)
+  ;;                 (with-current-buffer buf
+  ;;                   (goto-char (point-min))
+  ;;                   (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
+  ;;                     (return "deno")))))))))
 
-;; ;; Support jump to define of EAF root from EAF application directory.
-;; ;; (setq lsp-bridge-get-project-path-by-filepath
-;; ;;       (lambda (filepath)
-;; ;;         (when (string-prefix-p (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/app") filepath)
-;; ;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
+  ;; ;; Support jump to define of EAF root from EAF application directory.
+  ;; ;; (setq lsp-bridge-get-project-path-by-filepath
+  ;; ;;       (lambda (filepath)
+  ;; ;;         (when (string-prefix-p (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/app") filepath)
+  ;; ;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
 
-;; ;; Refer: https://emacs-china.org/t/lsp-bridge/20786/3221
-;; (setq lsp-bridge-get-project-path-by-filepath
-;;       (lambda (filepath)
-;;         (save-match-data
-;;           (and (string-match (concat (getenv "HOME") "/zxh/githubs/gld/\\([^/]*\\)") filepath)
-;;                (match-string 0 filepath)))))
+  ;; ;; Refer: https://emacs-china.org/t/lsp-bridge/20786/3221
+  ;; (setq lsp-bridge-get-project-path-by-filepath
+  ;;       (lambda (filepath)
+  ;;         (save-match-data
+  ;;           (and (string-match (concat (getenv "HOME") "/zxh/githubs/gld/\\([^/]*\\)") filepath)
+  ;;                (match-string 0 filepath)))))
 
 #+END_SRC
 
 * UI
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-(use-package dashboard
-  ;; :ensure t
-  :load-path "~/.emacs.d/vendor/emacs-dashboard"
-  :config
-  ;; Icon in graphic mode
-  (when (display-graphic-p)
+  (use-package dashboard
+    :load-path "~/.emacs.d/vendor/emacs-dashboard"
+    :config
+    ;; Icon in graphic mode
+    (when (display-graphic-p)
+      (setq
+       dashboard-set-heading-icons t
+       dashboard-set-file-icons t))
+
     (setq
-     dashboard-set-heading-icons t
-     dashboard-set-file-icons t))
+     ;;dashboard-center-content t
+     dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
+     dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
+     dashboard-items '((recents . 5)
+                       (bookmarks . 5)
+                       (agenda . 5)
+                       (projects . 5)))
+    (dashboard-setup-startup-hook))
 
-  (setq
-   ;;dashboard-center-content t
-   dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
-   dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
-   dashboard-items '((recents . 5)
-                     (bookmarks . 5)
-                     (agenda . 5)
-                     (projects . 5)))
-  (dashboard-setup-startup-hook))
+  (require 'lazycat-theme)
+  ;;(lazycat-theme-load-with-sunrise)
+  ;; ;(lazycat-theme-load-light)
+  (lazycat-theme-load-dark)
 
-
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/everforest-theme")
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/vendor/tao-theme")
-
-(require 'lazycat-theme)
-;;(lazycat-theme-load-with-sunrise)
-;; ;(lazycat-theme-load-light)
-(lazycat-theme-load-dark)
-
-(require 'awesome-tray)
-(setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-(setq awesome-tray-info-padding-right 1)
-(awesome-tray-mode 1)
-
-;;  ;; DoomThemes
-;; (use-package doom-themes
-;;   :custom-face
-;;   (cursor ((t (:background "Red"))))
-;;   :config
-;;   ;; flashing mode-line on errors
-;;   (doom-themes-visual-bell-config)
-;;   ;; Corrects (and improves) org-mode's native fontification.
-;;   (doom-themes-org-config)
-;;   (load-theme 'doom-one t)
-;;   (defun switch-theme ()
-;;     "An interactive funtion to switch themes."
-;;     (interactive)
-;;     (when custom-enabled-themes
-;;       (disable-theme (intern (car (mapcar #'symbol-name custom-enabled-themes)))))
-;;     (call-interactively #'load-theme)))
-;; ;; -DoomThemes
-
-;; ;; DoomModeline
-;; (use-package doom-modeline
-;;   :custom
-;;   ;; Don't compact font caches during GC. Windows Laggy Issue
-;;   (inhibit-compacting-font-caches t)
-;;   (doom-modeline-minor-modes t)
-;;   (doom-modeline-icon t)
-;;   (doom-modeline-major-mode-color-icon t)
-;;   (doom-modeline-height 15)
-;;   :config
-;;   (doom-modeline-mode))
-;; ;; -DoomModeline
+  (require 'awesome-tray)
+  (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  (setq awesome-tray-info-padding-right 1)
+  (awesome-tray-mode 1)
 
 #+END_SRC
 
 * Eaf
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (require 'eaf)
   (require 'eaf-image-viewer)
-  ;;(require 'eaf-pdf-viewer)
+  (require 'eaf-pdf-viewer)
   (require 'eaf-file-manager)
   (require 'eaf-markmap)
   (require 'eaf-git)
@@ -2341,96 +2096,79 @@ same directory as the org-buffer and insert a link to this file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; #######################################################################
-;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
-;; 使用 lsp-bridge 关闭其他补全插件， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
-;; #######################################################################
+  ;; #######################################################################
+  ;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
+  ;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
 
-;; --- 卸载按键, 全局按键的卸载
-(lazy-load-unset-keys
- '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
-;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
-;;(global-set-key (kbd "C-x k")   'kill-this-buffer)
+  ;; --- 卸载按键, 全局按键的卸载
+  (lazy-load-unset-keys
+   '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
+  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
-(set-control-w-shortcuts)
-(define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
+  (set-control-w-shortcuts)
+  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "M-h") nil)
-  (define-key org-mode-map (kbd "C-,") nil))
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "M-h") nil)
+    (define-key org-mode-map (kbd "C-,") nil))
 
-(defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
-(global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
+  (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
+  (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
 
-(global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
-(global-set-key (kbd "C-,")     'goto-last-change)
-(global-set-key (kbd "C-4")     'insert-changelog-date)
-(global-set-key (kbd "C-5")     'insert-standard-date)
+  (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
+  (global-set-key (kbd "C-,")     'goto-last-change)
+  (global-set-key (kbd "C-4")     'insert-changelog-date)
+  (global-set-key (kbd "C-5")     'insert-standard-date)
 
-(global-set-key (kbd "C-c p f") 'projectile-find-file)
-(global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
-(global-set-key (kbd "C-c p p") 'projectile-switch-project)
+  (global-set-key (kbd "C-c p f") 'projectile-find-file)
+  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
+  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
 
-(global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
-(global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
-(global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
-(global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
-(global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
-(global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
-(global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
+  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
+  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
+  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
+  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
+  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
+  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
+  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
 
-(global-set-key (kbd "C-x C-f") 'ido-find-file)
-(global-set-key (kbd "C-x b")   'ido-switch-buffer)
-(global-set-key (kbd "C-x i")   'ido-insert-buffer)
-(global-set-key (kbd "C-x I")   'ido-insert-file)
+  (global-set-key (kbd "C-x C-f") 'ido-find-file)
+  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
+  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
+  (global-set-key (kbd "C-x I")   'ido-insert-file)
 
-(global-set-key (kbd "M-n")     'hold-line-scroll-down)
-(global-set-key (kbd "M-p")     'hold-line-scroll-up)
-(global-set-key (kbd "M-]")     'watch-other-window-up)
-(global-set-key (kbd "M-[")     'watch-other-window-down)
-(global-set-key (kbd "M->")     'watch-other-window-up-line)
-(global-set-key (kbd "M-<")     'watch-other-window-down-line)
+  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
+  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
+  (global-set-key (kbd "M-]")     'watch-other-window-up)
+  (global-set-key (kbd "M-[")     'watch-other-window-down)
+  (global-set-key (kbd "M->")     'watch-other-window-up-line)
+  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
 
-(global-set-key (kbd "C-x y")   'dash-at-point)
+  (global-set-key (kbd "C-x y")   'dash-at-point)
 
-(global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
-(global-set-key (kbd "M-g f")   'avy-goto-line)
-(global-set-key (kbd "M-g w")   'avy-goto-word-1)
+  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
+  (global-set-key (kbd "M-g f")   'avy-goto-line)
+  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
 
-(global-set-key (kbd "C-M-s")   'color-rg-search-input)
-(global-set-key (kbd "C-M-;")   'magit-status)
-(global-set-key (kbd "C-x G")   'git-messenger:popup-message)
+  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
+  (global-set-key (kbd "C-M-;")   'magit-status)
+  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
 
-(global-set-key (kbd "C-]")     'lsp-bridge-find-def)
-(global-set-key (kbd "C-t")     'lsp-bridge-find-def-return)
-(global-set-key (kbd "M-,")     'lsp-bridge-code-action)
-(global-set-key (kbd "M-.")     'lsp-bridge-find-references)
-(global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
-(global-set-key (kbd "C-0")     'lsp-bridge-rename)
+  (global-set-key (kbd "C-]")     'lsp-bridge-find-def)
+  (global-set-key (kbd "C-t")     'lsp-bridge-find-def-return)
+  (global-set-key (kbd "M-,")     'lsp-bridge-code-action)
+  (global-set-key (kbd "M-.")     'lsp-bridge-find-references)
+  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
+  (global-set-key (kbd "C-0")     'lsp-bridge-rename)
 
-(global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next)            ;显示下一个错误
-(global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误
-(global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-(global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-(global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
+  (global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next)            ;显示下一个错误
+  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误
+  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
+  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
+  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
-;; ;;macro for marked objects
-;; (global-set-key (kbd "s-/")     'markmacro-mark-words)
-;; (global-set-key (kbd "s-?")     'markmacro-mark-lines)
-;; (global-set-key (kbd "s-:")     'markmacro-mark-chars)
-;; (global-set-key (kbd "s-L")     'markmacro-mark-imenus)
-;; (global-set-key (kbd "s-<")     'markmacro-apply-all)
-;; (global-set-key (kbd "s->")     'markmacro-apply-all-except-first)
-;; (global-set-key (kbd "s-M")     'markmacro-rect-set)
-;; (global-set-key (kbd "s-D")     'markmacro-rect-delete)
-;; (global-set-key (kbd "s-F")     'markmacro-rect-replace)
-;; (global-set-key (kbd "s-I")     'markmacro-rect-insert)
-;; (global-set-key (kbd "s-C")     'markmacro-rect-mark-columns)
-;; (global-set-key (kbd "s-S")     'markmacro-rect-mark-symbols)
-
-;; one-key-menu
-(global-set-key (kbd "C-c g")   'one-key-menu-git)
-(global-set-key (kbd "C-c d")   'one-key-menu-directory)
+  ;; one-key-menu
+  (global-set-key (kbd "C-c g")   'one-key-menu-git)
+  (global-set-key (kbd "C-c d")   'one-key-menu-directory)
 
 #+END_SRC
