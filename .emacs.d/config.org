@@ -807,7 +807,6 @@
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package discover-my-major :bind ("C-h C-m" . discover-my-major))
   (use-package protobuf-mode)
   (use-package markdown-mode)
   (use-package dockerfile-mode)
@@ -822,6 +821,8 @@
   (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
   (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
   (use-package all-the-icons :when (display-graphic-p) :commands all-the-icons-install-fonts)
+  (use-package sudo-edit :commands (sudo-edit))
+  (use-package discover-my-major :bind ("C-h C-m" . discover-my-major))
   (use-package exec-path-from-shell
     :if (or sys/mac-x-p sys/linux-x-p)
     :config
@@ -833,20 +834,12 @@
     ;;(setq exec-path-from-shell-arguments '("-l" )) ;remove -i read form .zshenv/.profile
     (exec-path-from-shell-initialize))
 
-  ;; SudoEditPac
-  (use-package sudo-edit
-    :commands (sudo-edit))
-  ;; -SudoEditPac
-
-  ;; HackerNewsPac
   (use-package hackernews
     :commands (hackernews)
     :bind
     (("M-z h" . hackernews)
      ("M-m h" . hackernews))
     )
-  ;; -HackerNewsPac
-
   (use-package which-key
     :hook (after-init . which-key-mode)
     :config
@@ -1835,8 +1828,6 @@
   (require 'one-key)
   (require 'posframe)
   (require 'lazycat-toolkit)
-  ;;(require 'watch-other-window)
-  ;;(require 'markmacro)
 
   ;; ----------------------------------------------------------
   ;; auto-save
