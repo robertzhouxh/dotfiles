@@ -1790,22 +1790,22 @@
     :when (executable-find "aider")
     :config
     (setq aidermacs-auto-commits nil)
-    (setq aidermacs-use-architect-mode t)
-
-    ;; (setq aidermacs-default-model "anthropic/claude-3-5-sonnet-20241022")
-    ;; (or (getenv "ANTHROPIC_API_KEY")
-    ;;     (when-let ((api-key (getenv "ANTHROPIC_API_KEY")))
-    ;;       (setenv "ANTHROPIC_API_KEY" api-key)))
-
-    ;; 选择合适的 DeepSeek 代码生成模型
     ;; When Architect mode is enabled, the aidermacs-default-model setting is ignored
     (setq aidermacs-use-architect-mode t)
-    (setq aidermacs-architect-model "deepseek/deepseek-reasoner")  ;; "deepseek/deepseek-reasoner
-    (setq aidermacs-editor-model "deepseek/deepseek-chat")         ;;  defaults to aidermacs-default-model
-    ;;(setq aidermacs-default-model")
+    (setenv "AIDER_CHAT_LANGUAGE" "Chinese")
+
+    ;; Openrouter
+    (when (getenv "OPENROUTER_API_KEY")
+      ;; (setq aidermacs-default-model "openrouter/anthropic/claude-3.5-sonnet")
+      (setq aidermacs-architect-model "openrouter/anthropic/claude-3.5-sonnet")
+      (setq aidermacs-editor-model "openrouter/anthropic/claude-3.5-sonnet")
+      (setenv "OPENROUTER_API_KEY" (getenv "OPENROUTER_API_KEY")))
+
+    ;; DeepSeek
     (when (getenv "DEEPSEEK_API_KEY")
-      (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY")))
-    (when (getenv "DEEPSEEK_API_KEY")
+      (setq aidermacs-architect-model "deepseek/deepseek-reasoner")
+      (setq aidermacs-editor-model "deepseek/deepseek-chat")
+      (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY"))
       (setenv "AIDERMACS_API_KEY" (getenv "DEEPSEEK_API_KEY")))
     )
 #+END_SRC
