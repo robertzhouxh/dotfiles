@@ -12,7 +12,6 @@
   (setq erlang-lib-tools-version "3.5.2")
   (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
   (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-  (setq epg-gpg-program "gpg2")
 
   (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
   (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
@@ -908,7 +907,6 @@
   (use-package avy)
   (use-package vundo
     :defer t
-    :load-path "~/.emacs.d/vendor/vundo"
     :commands (vundo)
     :config
     ;; Take less on-screen space.
@@ -2013,7 +2011,6 @@
 * UI
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package dashboard
-    :load-path "~/.emacs.d/vendor/emacs-dashboard"
     :config
     ;; Icon in graphic mode
     (when (display-graphic-p)

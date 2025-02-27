@@ -128,117 +128,6 @@ deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restri
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
 ```
 
-## 网络代理最土实践-机场 + v2rayA + SwitchyOmega + proxy-ns/polipo/Proxifier
-### 安装 v2rayA 
-```
-// 添加公钥
-wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/keyrings/v2raya.asc
-
-// 添加源
-echo "deb [signed-by=/etc/apt/keyrings/v2raya.asc] https://apt.v2raya.org/ v2raya main" | sudo tee /etc/apt/sources.list.d/v2raya.list
-sudo apt update
-
-// 安装
-sudo apt install v2raya v2ray
-
-// 启动 v2rayA 
-sudo systemctl start v2raya.service
-
-// 设置 v2rayA 自动启动
-sudo systemctl enable v2raya.service
-
-```
-
-- 订阅机场: 浏览器打开 http://127.0.0.1:2017, 点击导入按钮， 拷贝机场订阅 URL， 点击确定
-- 选择服务器： 选择 S.JISUSUB.CC 标签， 选择一个合适的服务器， 然后选择左上角 启动 按钮
-- 局域网支持： 选择右上角设置按钮， 打开 开启 IP 转发 和 开启端口分享 两个按钮， 让后续的 proxy-ns 可以对接机场
-- 设置端口号： 在设置对话框左下角点击 地址和端口 按钮， 设置 socks5 端口（带分流规则） 为 1080, 并重启 v2raya 服务 sudo systemctl restart v2raya.service
-- 开机自动启动： 在命令行输入 sudo systemctl enable v2raya.service， 让 v2raya 开机自动启动
-
-
-配置浏览器插件 SwitchyOmega
-用 Chrome 开发者模式安装 SwitchyOmega ， 并添加代理配置：
-
-- 代理协议: Socks5
-- 代理服务器: 127.0.0.1
-- 代理端口: 1080
-
-
-### 离线安装 chrome + Proxy-SwitchyOmega
-```
-wget -c https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i google-chrome-stable_current_amd64.deb
-```
-
-离线安装Proxy-SwitchyOmega
-- 下载： https://github.com/FelisCatus/SwitchyOmega/releases/download/v2.5.20/SwitchyOmega_Chromium.crx
-- 将扩展名改为 .zip, 解压缩到某个目录
-- 打开 chrome 扩展程序，打开开发者模式，加载已经解压缩的文件目录就安装好了
-
-### 离线安装 polipo(http->socks5)
-
-```
-wget http://archive.ubuntu.com/ubuntu/pool/universe/p/polipo/polipo_1.1.1-8_amd64.deb
-sudo dpkg -i polipo_1.1.1-8_amd64.deb
-
-vi /etc/polipo/config
-
-# This file only needs to list configuration variables that deviate
-# from the default values.  See /usr/share/doc/polipo/examples/config.sample
-# and "polipo -v" for variables you can tweak and further information.
-
-logSyslog = true
-logFile = /var/log/polipo/polipo.log
-
-proxyAddress = "0.0.0.0"
-
-socksParentProxy = "127.0.0.1:1080"
-socksProxyType = socks5
-
-chunkHighMark = 50331648
-objectHighMark = 16384
-
-serverMaxSlots = 64
-serverSlots = 16
-serverSlots1 = 32
-
-
-# 启动
-sudo /etc/init.d/polipo restart
-
-```
-
-环境变量的配置了 http_proxy,  https_proxy
-关于地址的写法，只写 127.0.0.1:8123 时，遇到过有软件不能识别的情况，改为写完整的地址 http://127.0.0.1:8123/ 就不会有问题了。
-
-
-### 源码安装 Polipo(http->socks5)
-
-```
-	wget https://www.irif.fr/~jch/software/files/polipo/polipo-1.1.1.tar.gz
-	tar zxvf polipo-1.1.1.tar.gz
-	cd polipo-1.1
-	make all
-	nohup ./polipo -c ~/.polipo &
-```
-注意：
-
-+ Docker for Mac 代理不要配成127.0.0.1:8123,
-+ 原因 docker 命令是运行在 docker machine (Mac上的虚拟机)中，127.0.0.1会走其代理
-+ 一定要配置成宿主机 Ip
-+  定义命令别名随时在terminal 切换是否使用 polipo 代理
-
-```
-  alias hproxy='export http_proxy=http://10.1.105.135:8123;export HTTPS_PROXY=$http_proxy;export HTTP_PROXY=$http_proxy;export https_proxy=$http_proxy'
-  alias proxy='export ALL_PROXY=socks5://10.1.105.135:1080'
-
-  alias nohproxy='unset http_proxy;unset HTTPS_PROXY;unset HTTP_PROXY;unset https_proxy'
-  alias noproxy='unset ALL_PROXY'
-
-  apt-get -o Acquire::http::proxy="http://10.1.105.135:8123" update
-
-```
-
 ## 安装字体
 ``` 
 apt-cache search wqy-microhei
@@ -447,7 +336,6 @@ chmod +x /usr/bin/plantuml
 ## 安装 texlive
 如果不嫌安装包大，可以按照官网的方式安装：https://tug.org/texlive/doc/texlive-en/texlive-en.html#x1-160003.1.1
 
-
 ```
 
 apt-cache search texlive
@@ -499,37 +387,6 @@ cp -rf ./physics2/tex/* /usr/share/texlive/texmf-dist/tex/xelatex/phy
 
 sudo mktexlsr 
 
-```
-
-## 安装 docker
-
-参考官方安装方法： https://docs.docker.com/engine/install/ubuntu/
-```
-# Set up the Docker daemon, systemd/cgroupfs
-
-cat <<EOF | sudo tee /etc/docker/daemon.json
-{
-  "registry-mirrors":["https://bycacelf.mirror.aliyuncs.com"],
-  "exec-opts": ["native.cgroupdriver=cgroupfs"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "100m"
-  },
-  "storage-driver": "overlay2"
-}
-EOF
-
-# Create /etc/systemd/system/docker.service.d
-sudo mkdir -p /etc/systemd/system/docker.service.d
-
-# Restart Docker
-sudo systemctl daemon-reload
-sudo systemctl restart docker
-
-# 彻底卸载 docker
-sudo apt-get purge docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
-sudo rm -rf /var/lib/docker
-sudo rm -rf /var/lib/containerd
 ```
 
 ## 其他 
@@ -899,7 +756,7 @@ tweaks -- Keyboard & Mouse -- Additional Layout Options -- CapsLock behavior
   asdf global rebar  3.22.1
   asdf global erlang 24.3.4
 ```
-## erlang on ubuntu
+## Erlang on ubuntu
 
 ```
 asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
@@ -959,44 +816,3 @@ asdf global nodejs 19.6.0
 ```
 
 
-# 其他
-## mac/ubuntu 中的 openssl 版本问题
-### mac
-
-按照提示 export 对应的环境变量
-
-```
-brew install openssl@3
-brew install openssl@1.1
-
-brew --prefix openssl@1.1
-
-vi ~/.exports
- #------------------------------------------------------------
- # openssl 版本问题
- # 使用 openssl@3
- # export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
- # export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
- # export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
- 
- # 使用 openssl@1.1
- export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@1.1/lib"
- export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@1.1/include -I${JDK_PREFIX}/include"
- export PATH="${BREW_PREFIX}/opt/openssl@1.1/bin:$PATH"
-
-brew unlink openssl@3
-brew link openssl@1.1
-
-```
-
-### ubunut
-
-参考 erlang install 部分
-
-## Rustdesk
-### mac 
-
-1) privacy-> Accessbility -> 开启 RustDesk
-2) privacy-> Screen Recording -> 开启 RustDesk
-
-如果重启软件以后还报警告，那么请通过 - 按钮删除 RustDesk 然后重新添加

@@ -6,29 +6,13 @@ url = https://github.com/manateelazycat/lazycat-theme
 path = .emacs.d/vendor/auto-save
 url = https://github.com/manateelazycat/auto-save
 
-[submodule ".emacs.d/vendor/C4-PlantUML"]
-path = .emacs.d/vendor/C4-PlantUML
-url = https://github.com/plantuml-stdlib/C4-PlantUML
-
 [submodule ".emacs.d/vendor/lazy-load"]
 path = .emacs.d/vendor/lazy-load
 url = https://github.com/manateelazycat/lazy-load.git
 
-[submodule ".emacs.d/vendor/goto-line-preview"]
-path = .emacs.d/vendor/goto-line-preview
-url = https://github.com/jcs090218/goto-line-preview.git
-
-[submodule ".emacs.d/vendor/goto-chg"]
-path = .emacs.d/vendor/goto-chg
-url = https://github.com/emacs-evil/goto-chg
-
 [submodule ".emacs.d/vendor/one-key"]
 path = .emacs.d/vendor/one-key
 url = https://github.com/manateelazycat/one-key
-
-[submodule ".emacs.d/vendor/blink-search"]
-path = .emacs.d/vendor/blink-search
-url = https://github.com/manateelazycat/blink-search
 
 [submodule ".emacs.d/vendor/emacs-application-framework"]
 path = .emacs.d/vendor/emacs-application-framework
