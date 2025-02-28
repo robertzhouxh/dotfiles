@@ -201,7 +201,6 @@
   (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
   (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
-  (setq-default comment-style 'indent)    ;设定自动缩进的注释风格
   (setq-default create-lockfiles nil)     ;Do not create lock files
   (setq-default history-length 500)       ;Set history-length longer
   (setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
@@ -263,56 +262,80 @@
 
 * Indent
 #+begin_src emacs-lisp :tangle yes
-  (setq-default indent-tabs-mode nil)
-  (setq-default tab-width 4)
 
-  (defun adjust-languages-indent (n)
-    (setq-local c-basic-offset n)
+;; 全局设置使用空格而非制表符
+(setq-default indent-tabs-mode nil)    ;; 不使用制表符进行缩进
+(setq-default tab-width 4)             ;; Tab显示为4个空格宽度
 
-    (setq-local coffee-tab-width n)
-    (setq-local javascript-indent-level n)
-    (setq-local js-indent-level n)
-    (setq-local js2-basic-offset n)
+;; 通用空格缩进函数
+(defun my/use-spaces-setup ()
+  "设置使用空格进行缩进。"
+  (setq indent-tabs-mode nil)
+  (setq tab-width 4))
 
-    (setq-local web-mode-attr-indent-offset n)
-    (setq-local web-mode-attr-value-indent-offset n)
-    (setq-local web-mode-code-indent-offset n)
-    (setq-local web-mode-css-indent-offset n)
-    (setq-local web-mode-markup-indent-offset n)
-    (setq-local web-mode-sql-indent-offset n)
+;; 为所有编程模式设置空格缩进
+(add-hook 'prog-mode-hook 'my/use-spaces-setup)
 
-    (setq-local css-indent-offset n)
+;; Go语言缩进设置（注意：Go官方标准使用制表符，这里改为空格）
+(add-hook 'go-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)   ;; 使用空格而非制表符
+            (setq tab-width 4)            ;; 缩进宽度为4
+            (when (boundp 'go-tab-width)
+              (setq go-tab-width 4))
+            ;; 警告：这会与gofmt产生冲突，可能需要禁用gofmt或接受它会将空格转回制表符
+            (when (boundp 'gofmt-command)
+              (setq gofmt-args '("-s" "-r"))))) ;; 尝试保留空格，但可能不完全有效
 
-    (setq-local typescript-indent-level n))
+;; Erlang语言缩进设置
+(add-hook 'erlang-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)
+            ;; Erlang模式特有的缩进变量
+            (when (boundp 'erlang-indent-level)
+              (setq erlang-indent-level 4))
+            (when (boundp 'erlang-tab-always-indent)
+              (setq erlang-tab-always-indent t))))
 
-  (dolist (hook (list
-                 'c-mode-hook
-                 'c++-mode-hook
-                 'java-mode-hook
-                 'haskell-mode-hook
-                 'asm-mode-hook
-                 'sh-mode-hook
-                 'haskell-cabal-mode-hook
-                 'ruby-mode-hook
-                 'qml-mode-hook
-                 'scss-mode-hook
-                 'coffee-mode-hook
-                 'rust-mode-hook
-                 ))
-    (add-hook hook #'(lambda ()
-                       (setq indent-tabs-mode nil)
-                       (adjust-languages-indent 4)
-                       )))
+;; Java语言缩进设置
+(add-hook 'java-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)
+            (setq c-basic-offset 4)       ;; Java使用c-mode的缩进机制
+            ;; 设置Java特定的缩进样式
+            (c-set-offset 'arglist-intro '+)     ;; 参数列表第一行多缩进一级
+            (c-set-offset 'arglist-cont 0)       ;; 参数列表后续行与第一行对齐
+            (c-set-offset 'arglist-close 0)      ;; 参数列表结束括号与第一行对齐
+            (c-set-offset 'statement-cont 0)))   ;; 语句延续行与第一行对齐
 
-  (dolist (hook (list
-                 'web-mode-hook
-                 'js-mode-hook
-                 'typescript-mode-hook
-                 ))
-    (add-hook hook #'(lambda ()
-                       (setq indent-tabs-mode nil)
-                       (adjust-languages-indent 2)
-                       )))
+;; 支持tree-sitter模式
+(with-eval-after-load 'treesit
+  ;; Go的tree-sitter模式
+  (add-hook 'go-ts-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)
+              (when (boundp 'go-ts-mode-indent-offset)
+                (setq go-ts-mode-indent-offset 4))))
+
+  ;; Erlang的tree-sitter模式（如果可用）
+  (when (fboundp 'erlang-ts-mode-hook)
+    (add-hook 'erlang-ts-mode-hook
+              (lambda ()
+                (setq indent-tabs-mode nil)
+                (setq tab-width 4)
+                (when (boundp 'erlang-ts-indent-offset)
+                  (setq erlang-ts-indent-offset 4)))))
+
+  ;; Java的tree-sitter模式
+  (add-hook 'java-ts-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)
+              (when (boundp 'java-ts-mode-indent-offset)
+                (setq java-ts-mode-indent-offset 4)))))
 #+end_src
 * UTF8
 #+begin_src emacs-lisp :tangle yes
@@ -806,6 +829,7 @@
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package posframe :defer t)
   (use-package protobuf-mode)
   (use-package markdown-mode)
   (use-package dockerfile-mode)
@@ -826,19 +850,8 @@
     :if (or sys/mac-x-p sys/linux-x-p)
     :config
     (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY"))
-
-    ;;;; 设成nil 则不从 .zshrc 读 只从 .zshenv读（可以加快速度，但是需要你将环境变量相关的都放到 .zshenv 中，而非 .zshrc 中）
-    ;;(setq exec-path-from-shell-check-startup-files nil)
-    ;;环境变量都在 ~/.profile 中设置，并没有必要执行 ~/.bashrc，所以不需要 -i 选项，
-    ;;(setq exec-path-from-shell-arguments '("-l" )) ;remove -i read form .zshenv/.profile
     (exec-path-from-shell-initialize))
 
-  (use-package hackernews
-    :commands (hackernews)
-    :bind
-    (("M-z h" . hackernews)
-     ("M-m h" . hackernews))
-    )
   (use-package which-key
     :hook (after-init . which-key-mode)
     :config
@@ -846,11 +859,8 @@
       (which-key-mode)
       (which-key-setup-side-window-right)))
 #+END_SRC
-
 * Search
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-  ;; IvyPac
   (use-package ivy
     :diminish
     :init
@@ -880,16 +890,12 @@
       "Go to the $HOME of the local machine."
       (interactive)
       (ivy--cd "~/")))
-  ;; -IvyPac
 
-  ;; ColorRGPac
   (use-package color-rg
     :straight (color-rg :type git :host github :repo "manateelazycat/color-rg")
     :if (executable-find "rg")
     :bind ("C-M-s" . color-rg-search-input))
-  ;; -ColorRGPac
 
-  ;; FFIPPac
   (use-package find-file-in-project
     :if (executable-find "find")
     :init
@@ -901,9 +907,7 @@
   ;; -FFIPPac
 #+END_SRC
 * Quick Search And Move
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (use-package avy)
   (use-package vundo
     :defer t
@@ -926,7 +930,6 @@
     (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
     (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
 
-  ;; Hiding structured data
   (use-package hideshow
     :hook (prog-mode . hs-minor-mode)
     :config
@@ -967,7 +970,6 @@
 #+END_SRC
 
 * Magit
-
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package diff-hl
     :ensure t
@@ -1011,11 +1013,9 @@
       (define-key magit-status-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)))
 
 #+END_SRC
-
 * Evil-Mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
   (defun x/config-evil-leader ()
     (evil-leader/set-leader ",")
     (evil-leader/set-key
@@ -1053,6 +1053,7 @@
       "cd" 'delete-trailing-whitespace
       "cl" 'toggle-truncate-lines
       "cm" 'delete-trailing-M
+      "cf" 'format-function-parameters        ;; 参数列转行
 
       ;; dired
       "d" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
@@ -1088,6 +1089,7 @@
       "ma" 'magit-blame-addition  ;;仅显示新增的 commit 影响
       "md" 'magit-blame-delete    ;;仅显示删除的 commit 影响
       "mq" 'magit-blame-quit      ;;仅显示删除的 commit 影响
+      "mj" 'discover-my-major
 
       ;; project
       "pf" 'ffip
@@ -1099,6 +1101,7 @@
       ;; search
       "sI" 'imenu
       "sr" 'counsel-rg
+      "s/" 'counsel-rg
       "si" 'color-rg-search-input
       "ss" 'color-rg-search-symbol-in-project
       "sp" 'color-rg-search-project
@@ -1496,23 +1499,39 @@
 #+END_SRC
 
 * Treesit-Auto
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package treesit-auto
-  :if (version<= "29" emacs-version)
-  :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (when (version<= "30" emacs-version)
-    (error "The treesit-auto package maybe obsolete!"))
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode)
-  (defun treesit-show-parser-used-at-point ()
-    "Shows treesit parser used at point."
-    (interactive)
-    (if (and (fboundp 'treesit-available-p)
-             (treesit-available-p))
-        (message (format "%s" (treesit-language-at (point))))
-      (message "treesit is not available"))))
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; (use-package treesit-auto
+  ;;   :ensure t
+  ;;   :config
+  ;;   (setq treesit-auto-install 'prompt)
+  ;;   (setq treesit-font-lock-level 4)
+  ;;   (global-treesit-auto-mode 1))
+
+  (use-package treesit-auto
+    :ensure t
+    :config
+    ;; 启用全局的 treesit-auto 模式
+    (global-treesit-auto-mode)
+
+    ;; 启用手动安装解析器的提示
+    (setq treesit-auto-install 'prompt)
+
+    ;; 自动安装缺失的语言解析器（使用 treesit-install-language-grammar）
+    ;; treesit-auto 本身没有 `treesit-auto-install-languages` 这个变量
+    (dolist (lang '(go python rust c cpp bash javascript typescript))
+      (when (not (treesit-language-available-p lang))
+        (treesit-install-language-grammar lang)))
+
+    ;; 关联 major-mode 到 Tree-sitter 版本
+    (setq treesit-auto-mode-alist
+          '((python-mode . python-ts-mode)
+            (rust-mode . rust-ts-mode)
+            (go-mode . go-ts-mode)
+            (c-mode . c-ts-mode)
+            (cpp-mode . c++-ts-mode)
+            (bash-mode . bash-ts-mode)
+            (js-mode . js-ts-mode)
+            (typescript-mode . tsx-ts-mode))))
 #+END_SRC
 * Programming
 
@@ -1564,7 +1583,6 @@
     :straight (:type built-in)
     :mode "\\.py\\'"
     :custom
-    (python-indent-offset 4)
     (flycheck-python-pycompile-executable "python3")
     (python-shell-interpreter "python3"))
 
@@ -1663,13 +1681,11 @@
 
 * Rime
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; YoudaoPac
   (use-package youdao-dictionary
     :commands (youdao-dictionary-search
                youdao-dictionary-search-at-point
                youdao-dictionary-search-at-point-posframe)
     :bind ("C-M-y" . youdao-dictionary-search-at-point-posframe))
-  ;; -YoudaoPac
 
   (use-package rime
     :bind
@@ -1795,12 +1811,13 @@
     ;; DeepSeek
     (when (getenv "DEEPSEEK_API_KEY")
       (setq aidermacs-architect-model "deepseek/deepseek-reasoner")
-      (setq aidermacs-editor-model "deepseek/deepseek-chat")
+      ;; (setq aidermacs-editor-model "deepseek/deepseek-chat")
+      (setq aidermacs-editor-model "deepseek/deepseek-coder")
       (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY"))
       (setenv "AIDERMACS_API_KEY" (getenv "DEEPSEEK_API_KEY")))
     )
 #+END_SRC
-** aider
+** aider(暂时使用 aidermacs)
 #+BEGIN_SRC emacs-lisp :tangle no
   (use-package aider
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
@@ -1810,9 +1827,7 @@
     ;; (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
     ;; (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
 
-    ;;(setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-chat"))
-    (setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-reasoner" "--editor-model" "deepseek/deepseek-chat"))
-    ;; (setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-coder" "--editor-model" "deepseek/deepseek-chat"))
+    (setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-reasoner" "--editor-model" "deepseek/deepseek-coder"))
     (when (getenv "DEEPSEEK_API_KEY")
       (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY")))
     )
@@ -1824,7 +1839,6 @@
 
   (require 'lazy-load)
   (require 'one-key)
-  (require 'posframe)
   (require 'lazycat-toolkit)
 
   ;; ----------------------------------------------------------
@@ -1912,7 +1926,6 @@
                    (eq old-tick (buffer-chars-modified-tick)))
           (ignore-errors (yas-next-field))))))
 
-  ;; LSPPac
   (use-package lsp-bridge
     :straight (lsp-bridge
                :type git
@@ -1945,67 +1958,20 @@
            ("M-n" . lsp-bridge-ref-jump-next-file)
            ("M-p" . lsp-bridge-ref-jump-prev-file)
            :map acm-mode-map
+           ;; ([remap next-line] . nil)
+           ;; ([remap previous-line] . nil))
            ([remap next-line] . nil)
-           ([remap previous-line] . nil))
+           ([remap previous-line] . nil)
+           ("C-n" . acm-select-next)
+           ("C-p" . acm-select-prev)
+           ("TAB" . acm-complete)  ;; 使用 TAB 选择下一个候选项
+           ("<tab>" . acm-complete)
+           ;; ("TAB" . acm-select-next)  ;; 使用 TAB 选择下一个候选项
+           ;; ("<tab>" . acm-select-next)
+           ;; ("RET" . acm-complete)
+           )
     :config
     (global-lsp-bridge-mode))
-  ;; -LSPPac
-
-  ;; ;;; Require
-  ;; (require 'lsp-bridge)
-  ;; (require 'lsp-bridge-jdtls)
-
-  ;; ;;; Code:
-  ;; (setq lsp-bridge-enable-completion-in-minibuffer t)
-  ;; (setq lsp-bridge-signature-show-function 'lsp-bridge-signature-show-with-frame)
-  ;; (setq lsp-bridge-enable-with-tramp t)
-  ;; (setq lsp-bridge-enable-org-babel t)
-  ;; (setq acm-enable-capf t)
-  ;; (setq acm-enable-quick-access t)
-  ;; (setq acm-backend-yas-match-by-trigger-keyword t)
-  ;; (setq acm-enable-tabnine nil)
-  ;; (setq acm-enable-codeium nil)
-  ;; (setq acm-enable-lsp-workspace-symbol t)
-  ;; (setq lsp-bridge-enable-inlay-hint t)
-  ;; (setq lsp-bridge-semantic-tokens t)
-  ;; (setq-default lsp-bridge-semantic-tokens-ignore-modifier-limit-types ["variable"])
-
-  ;; (global-lsp-bridge-mode)
-
-  ;; (add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("html") . "html_tailwindcss"))
-  ;; (add-to-list 'lsp-bridge-multi-lang-server-extension-list '(("css") . "css_tailwindcss"))
-
-  ;; (setq lsp-bridge-csharp-lsp-server "csharp-ls")
-  ;; (setq lsp-bridge-nix-lsp-server "nil")
-
-  ;; ;; 打开日志，开发者才需要
-  ;; ;; (setq lsp-bridge-enable-log t)
-
-  ;; (setq lsp-bridge-get-multi-lang-server-by-project
-  ;;       (lambda (project-path filepath)
-  ;;         ;; If typescript file include deno.land url, then use Deno LSP server.
-  ;;         (save-excursion
-  ;;           (when (string-equal (file-name-extension filepath) "ts")
-  ;;             (dolist (buf (buffer-list))
-  ;;               (when (string-equal (buffer-file-name buf) filepath)
-  ;;                 (with-current-buffer buf
-  ;;                   (goto-char (point-min))
-  ;;                   (when (search-forward-regexp (regexp-quote "from \"https://deno.land") nil t)
-  ;;                     (return "deno")))))))))
-
-  ;; ;; Support jump to define of EAF root from EAF application directory.
-  ;; ;; (setq lsp-bridge-get-project-path-by-filepath
-  ;; ;;       (lambda (filepath)
-  ;; ;;         (when (string-prefix-p (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/app") filepath)
-  ;; ;;           (expand-file-name "~/lazycat-emacs/site-lisp/extensions/emacs-application-framework/"))))
-
-  ;; ;; Refer: https://emacs-china.org/t/lsp-bridge/20786/3221
-  ;; (setq lsp-bridge-get-project-path-by-filepath
-  ;;       (lambda (filepath)
-  ;;         (save-match-data
-  ;;           (and (string-match (concat (getenv "HOME") "/zxh/githubs/gld/\\([^/]*\\)") filepath)
-  ;;                (match-string 0 filepath)))))
-
 #+END_SRC
 
 * UI
@@ -2043,40 +2009,66 @@
 * Eaf
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'eaf)
-  (require 'eaf-image-viewer)
-  (require 'eaf-pdf-viewer)
-  (require 'eaf-file-manager)
-  (require 'eaf-markmap)
-  (require 'eaf-git)
-  (require 'eaf-map)
-  (one-key-create-menu
-   "GIT"
-   '(
-     ;; (("s" . "Git status") . eaf-open-git)
-     (("u" . "Git push to remote") . eaf-git-push)
-     (("i" . "Git pull") . eaf-git-pull)
-     (("c" . "Git clone") . eaf-git-clone)
-     (("h" . "Git history") . eaf-git-show-history)
-     )
-   t)
-
-  (one-key-create-menu
-   "DIRECTORY"
-   '(
-     (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
-     (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
-     (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
-     (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
-     (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
-     (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
-     (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
-     (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
-     (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
-     (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
-     (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
-     )
-   t)
+  (use-package eaf
+    :straight (emacs-application-framework
+               :type git
+               :host github
+               :repo "emacs-eaf/emacs-application-framework"
+               :files ("*"))
+    :if (and eaf-env-p
+             (file-directory-p
+              (expand-file-name
+               "straight/build/emacs-application-framework/app/browser"
+               user-emacs-directory)))
+    :custom
+    (eaf-start-python-process-when-require nil)
+    (browse-url-browser-function #'eaf-open-browser) ;; Make EAF Browser my default browser
+    (eaf-start-python-process-when-require t)
+    (eaf-browser-dark-mode nil)
+    (eaf-browser-enable-adblocker t)
+    (eaf-webengine-continue-where-left-off t)
+    (eaf-webengine-default-zoom 1.25)
+    (eaf-webengine-scroll-step 200)
+    (eaf-pdf-dark-mode "ignore")
+    :demand
+    :bind
+    (
+     ;;("M-z r" . eaf-open-rss-reader)
+     ;;("M-m r" . eaf-open-rss-reader)
+     ("M-#" . eaf-open-pyqterminal))
+    :config
+    ;; Require all EAF apps unconditionally, change to apps you're interested in.
+    (when (require 'eaf-browser nil t)
+      (defalias 'browse-web #'eaf-open-browser)
+      (eaf-bind-key nil "M-q" eaf-browser-keybinding)
+      (eaf-bind-key nil "M-z" eaf-browser-keybinding)
+      (eaf-bind-key open_link "C-M-s" eaf-browser-keybinding)
+      (eaf-bind-key open_devtools "M-i" eaf-browser-keybinding)
+      (eaf-bind-key insert_or_recover_prev_close_page "X" eaf-browser-keybinding)
+      (eaf-bind-key delete_cookies "C-M-q" eaf-browser-keybinding)
+      (eaf-bind-key delete_all_cookies "C-M-Q" eaf-browser-keybinding)
+      (eaf-bind-key clear_history "C-M-p" eaf-browser-keybinding))
+    (when (require 'eaf-pdf-viewer nil t)
+      (eaf-bind-key scroll_down_page "DEL" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key scroll_down_page "j" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key scroll_up_page "k" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key scroll_to_end "M->" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key scroll_to_begin "M-<" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key quit-window "q" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key scroll_up "RET" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key zoom_in "C-=" eaf-pdf-viewer-keybinding)
+      (eaf-bind-key zoom_out "C--" eaf-pdf-viewer-keybinding))
+    ;;(require 'eaf-music-player nil t)
+    (require 'eaf-file-manager nil t)
+    (require 'eaf-image-viewer nil t)
+    (require 'eaf-mindmap nil t)
+    (require 'eaf-markmap)
+    (require 'eaf-jupyter nil t)
+    (require 'eaf-pyqterminal nil t)
+    (require 'eaf-file-browser nil t)
+    (require 'eaf-git nil t)
+    (when (display-graphic-p)
+      (require 'eaf-all-the-icons)))
 
 #+END_SRC
 
@@ -2156,6 +2148,33 @@
   (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
 
   ;; one-key-menu
+  (one-key-create-menu
+   "GIT"
+   '(
+     ;; (("s" . "Git status") . eaf-open-git)
+     (("u" . "Git push to remote") . eaf-git-push)
+     (("i" . "Git pull") . eaf-git-pull)
+     (("c" . "Git clone") . eaf-git-clone)
+     (("h" . "Git history") . eaf-git-show-history)
+     )
+   t)
+
+  (one-key-create-menu
+   "DIRECTORY"
+   '(
+     (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
+     (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
+     (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
+     (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
+     (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
+     (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
+     (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
+     (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
+     (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
+     (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
+     (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
+     )
+   t)
   (global-set-key (kbd "C-c g")   'one-key-menu-git)
   (global-set-key (kbd "C-c d")   'one-key-menu-directory)
 
