@@ -829,6 +829,9 @@
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;; (use-package benchmark-init
+  ;;  :init (benchmark-init/activate))
+
   (use-package posframe :defer t)
   (use-package protobuf-mode)
   (use-package markdown-mode)
@@ -897,6 +900,7 @@
     :bind ("C-M-s" . color-rg-search-input))
 
   (use-package find-file-in-project
+    :defer t
     :if (executable-find "find")
     :init
     (when (executable-find "fd")
@@ -1106,6 +1110,9 @@
       "ss" 'color-rg-search-symbol-in-project
       "sp" 'color-rg-search-project
 
+      ;; terminal
+      "t"  'eaf-open-pyqterminal
+
       ;; window && frame
       "ww" 'other-window
       "wf" 'other-frame
@@ -1122,7 +1129,7 @@
 
   (use-package undo-fu :straight t :ensure t)
   (use-package evil
-    :bind (("<escape>" . keyboard-escape-quit))
+    ;; :bind (("<escape>" . keyboard-escape-quit))
     :init
     ;; allows for using cgn
     ;; (setq evil-search-module 'evil-search)
@@ -1932,7 +1939,7 @@
                :host github
                :repo "manateelazycat/lsp-bridge"
                :files ("*"))
-    :defer 1
+    :defer 5
     :commands (global-lsp-bridge-mode lsp-bridge-mode)
     :custom
     (acm-enable-codeium nil)
@@ -2007,7 +2014,6 @@
 #+END_SRC
 
 * Eaf
-
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package eaf
     :straight (emacs-application-framework
@@ -2015,15 +2021,9 @@
                :host github
                :repo "emacs-eaf/emacs-application-framework"
                :files ("*"))
-    :if (and eaf-env-p
-             (file-directory-p
-              (expand-file-name
-               "straight/build/emacs-application-framework/app/browser"
-               user-emacs-directory)))
     :custom
-    (eaf-start-python-process-when-require nil)
-    (browse-url-browser-function #'eaf-open-browser) ;; Make EAF Browser my default browser
     (eaf-start-python-process-when-require t)
+    (browse-url-browser-function #'eaf-open-browser)
     (eaf-browser-dark-mode nil)
     (eaf-browser-enable-adblocker t)
     (eaf-webengine-continue-where-left-off t)
@@ -2031,45 +2031,15 @@
     (eaf-webengine-scroll-step 200)
     (eaf-pdf-dark-mode "ignore")
     :demand
-    :bind
-    (
-     ;;("M-z r" . eaf-open-rss-reader)
-     ;;("M-m r" . eaf-open-rss-reader)
-     ("M-#" . eaf-open-pyqterminal))
     :config
-    ;; Require all EAF apps unconditionally, change to apps you're interested in.
-    (when (require 'eaf-browser nil t)
-      (defalias 'browse-web #'eaf-open-browser)
-      (eaf-bind-key nil "M-q" eaf-browser-keybinding)
-      (eaf-bind-key nil "M-z" eaf-browser-keybinding)
-      (eaf-bind-key open_link "C-M-s" eaf-browser-keybinding)
-      (eaf-bind-key open_devtools "M-i" eaf-browser-keybinding)
-      (eaf-bind-key insert_or_recover_prev_close_page "X" eaf-browser-keybinding)
-      (eaf-bind-key delete_cookies "C-M-q" eaf-browser-keybinding)
-      (eaf-bind-key delete_all_cookies "C-M-Q" eaf-browser-keybinding)
-      (eaf-bind-key clear_history "C-M-p" eaf-browser-keybinding))
-    (when (require 'eaf-pdf-viewer nil t)
-      (eaf-bind-key scroll_down_page "DEL" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key scroll_down_page "j" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key scroll_up_page "k" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key scroll_to_end "M->" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key scroll_to_begin "M-<" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key quit-window "q" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key scroll_up "RET" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key zoom_in "C-=" eaf-pdf-viewer-keybinding)
-      (eaf-bind-key zoom_out "C--" eaf-pdf-viewer-keybinding))
-    ;;(require 'eaf-music-player nil t)
     (require 'eaf-file-manager nil t)
     (require 'eaf-image-viewer nil t)
-    (require 'eaf-mindmap nil t)
-    (require 'eaf-markmap)
-    (require 'eaf-jupyter nil t)
     (require 'eaf-pyqterminal nil t)
-    (require 'eaf-file-browser nil t)
+    (require 'eaf-mind-elixir nil t)
+    (require 'eaf-markmap)
     (require 'eaf-git nil t)
-    (when (display-graphic-p)
-      (require 'eaf-all-the-icons)))
-
+    (require 'eaf-map nil t)
+    (require 'eaf-jupyter nil t))
 #+END_SRC
 
 * Key-Bindings
@@ -2095,7 +2065,7 @@
   (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
   (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
 
-  (global-set-key (kbd "<f5>")    'emacs-session-save) ;退出emacs
+  (global-set-key (kbd "<f5>")    'emacs-session-save)
   (global-set-key (kbd "C-,")     'goto-last-change)
   (global-set-key (kbd "C-4")     'insert-changelog-date)
   (global-set-key (kbd "C-5")     'insert-standard-date)
@@ -2151,7 +2121,7 @@
   (one-key-create-menu
    "GIT"
    '(
-     ;; (("s" . "Git status") . eaf-open-git)
+     (("s" . "Git status") . eaf-open-git)
      (("u" . "Git push to remote") . eaf-git-push)
      (("i" . "Git pull") . eaf-git-pull)
      (("c" . "Git clone") . eaf-git-clone)

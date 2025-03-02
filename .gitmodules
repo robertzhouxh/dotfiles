@@ -14,11 +14,6 @@ url = https://github.com/manateelazycat/lazy-load.git
 path = .emacs.d/vendor/one-key
 url = https://github.com/manateelazycat/one-key
 
-[submodule ".emacs.d/vendor/emacs-application-framework"]
-path = .emacs.d/vendor/emacs-application-framework
-url = https://github.com/emacs-eaf/emacs-application-framework
-branch = master
-
 [submodule ".emacs.d/vendor/awesome-tray"]
 path = .emacs.d/vendor/awesome-tray
 url = https://github.com/manateelazycat/awesome-tray

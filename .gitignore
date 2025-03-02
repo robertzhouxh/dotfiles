@@ -50,6 +50,8 @@ rime
 rime-settings*
 .emacs.d/projects
 .emacs.d/nov*
+.emacs.d/tree-sitter*
+
 
 htop
 .tmux
