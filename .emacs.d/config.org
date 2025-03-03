@@ -164,12 +164,13 @@
   (menu-bar-mode -1)                      ;禁用菜单栏
   (scroll-bar-mode -1)                    ;禁用滚动条
   (tooltip-mode -1)                       ;禁用tooltips
+
+  ;; 其他核心Emacs设置
   (auto-compression-mode 1)               ;打开压缩文件时自动解压缩
   (global-hl-line-mode 1)                 ;高亮当前行
   (show-paren-mode t)                     ;显示括号匹配
   (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
 
-  (setq void-text-area-pointer nil)       ;禁止显示鼠标指针
   (setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
   (setq kill-ring-max 1024)               ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
   (setq mark-ring-max 1024)               ;设置的mark ring容量
@@ -179,11 +180,9 @@
   (setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
   (setq history-delete-duplicates t)      ;删除minibuffer的重复历史
   (setq minibuffer-message-timeout 1)     ;显示消息超时的时间
-  (setq auto-revert-mode 1)               ;自动更新buffer
   (setq show-paren-style 'parentheses)    ;括号匹配显示但不是烦人的跳到另一个括号。
   (setq blink-matching-paren nil)         ;当插入右括号时不显示匹配的左括号
   (setq message-log-max t)                ;设置message记录全部消息, 而不用截去
-  (setq require-final-newline nil)        ;不自动添加换行符到末尾, 有些情况会出现错误
   (setq x-stretch-cursor t)               ;光标在 TAB 字符上会显示为一个大方块
   (setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
   (setq tramp-default-method "ssh")       ;设置传送文件默认的方法
@@ -195,14 +194,16 @@
   (setq use-dialog-box nil)               ;never pop dialog
   (setq inhibit-startup-screen t)         ;inhibit start screen
   (setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
-  (setq ring-bell-function 'ignore)       ;关闭烦人的出错时的提示声
   (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
   (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
   (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
   (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
-  (setq-default create-lockfiles nil)     ;Do not create lock files
-  (setq-default history-length 500)       ;Set history-length longer
+  (setq-default require-final-newline nil)  ;不自动添加换行符到末尾, 有些情况会出现错误
+  (setq-default auto-revert-mode 1)         ;自动更新buffer
+  (setq-default void-text-area-pointer nil) ;禁止显示鼠标指针
+  (setq-default create-lockfiles nil)       ;Do not create lock files
+  (setq-default history-length 500)         ;Set history-length longer
   (setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
 
   (setq byte-compile-warnings
@@ -227,36 +228,54 @@
   (setq-default compilation-ask-about-save nil) ; save all buffers on `compile'
   (setq-default compilation-scroll-output t)
 
-  ;; 处理性能
-  ;; SmoothScroll
-  ;; Vertical Scroll
-  (setq scroll-step 1)
-  (setq scroll-margin 1)
-  (setq scroll-conservatively 101)
-  (setq scroll-up-aggressively 0.01)
-  (setq scroll-down-aggressively 0.01)
-  (setq auto-window-vscroll nil)
-  (setq fast-but-imprecise-scrolling nil)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-  (setq mouse-wheel-progressive-speed nil)
-  ;; Horizontal Scroll
-  (setq hscroll-step 1)
-  (setq hscroll-margin 1)
+  ;; 滚动行为优化
+  (progn
+    ;; 垂直滚动
+    (setq scroll-step 1
+          scroll-margin 3
+          scroll-conservatively 101
+          scroll-up-aggressively 0.01
+          scroll-down-aggressively 0.01
+          mouse-wheel-scroll-amount '(1 ((shift) . 1))
+          mouse-wheel-progressive-speed nil)
+    ;; 水平滚动
+    (setq hscroll-step 1
+          hscroll-margin 1))
 
-  ;; Disable garbage collection when entering commands.
-  (setq gc-cons-threshold (* 50 1000 1000)) ;; 启动时提升 GC 阈值
-  (add-hook 'emacs-startup-hook (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
-  (setq native-comp-deferred-compilation t)   ; Emacs 原生编译 Lisp 代码，提高加载速度。
+  ;; 进一步优化GC触发阈值
+  (setq gc-cons-threshold most-positive-fixnum)
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold (* 10 1000 1000)) ;提高到10MB，平衡性能和内存使用
+              (run-with-idle-timer 2 t #'garbage-collect))) ;减少到2秒的空闲时间
 
-  ;; 增加长行处理性能
-  (when (fboundp 'global-so-long-mode) (global-so-long-mode))
-  (setq-default bidi-display-reordering nil)  ; Improve the performance of rendering long lines.
-  (setq bidi-inhibit-bpa t)
-  (setq-default bidi-paragraph-direction 'left-to-right)
+  ;; 在minibuffer活动时禁用GC
+  (add-hook 'minibuffer-setup-hook (lambda () (setq gc-cons-threshold most-positive-fixnum)))
+  (add-hook 'minibuffer-exit-hook (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
 
-  ;; 增加IO性能
-  (setq process-adaptive-read-buffering nil)
-  (setq read-process-output-max (* 1024 1024))
+  ;; 本地编译优化
+  (when (and (fboundp 'native-comp-available-p)
+             (native-comp-available-p))
+    (setq native-comp-async-report-warnings-errors nil
+          native-comp-deferred-compilation t
+          native-comp-async-jobs-number (max 1 (floor (/ (num-processors) 2)))))
+
+
+  ;; 将长行处理相关的设置组合在一起
+  (progn
+    ;; 长行处理
+    (when (fboundp 'global-so-long-mode) (global-so-long-mode))
+    (setq-default bidi-display-reordering nil
+                  bidi-paragraph-direction 'left-to-right)
+    (setq bidi-inhibit-bpa t))
+
+
+  ;; IO性能优化
+  (progn
+    (setq process-adaptive-read-buffering nil)
+    (setq read-process-output-max (* 2 1024 1024)) ;增加到2MB以提高LSP性能
+    (setq auto-window-vscroll nil)
+    (setq fast-but-imprecise-scrolling nil))
 
 #+end_src
 
@@ -829,23 +848,18 @@
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; (use-package benchmark-init
-  ;;  :init (benchmark-init/activate))
-
   (use-package posframe :defer t)
-  (use-package protobuf-mode)
-  (use-package markdown-mode)
-  (use-package dockerfile-mode)
-  (use-package nginx-mode)
-  (use-package json-mode)
-  (use-package json-reformat)
-  (use-package comment-dwim-2)
+  (use-package protobuf-mode :defer t)
+  (use-package markdown-mode :defer t)
+  (use-package dockerfile-mode :defer t)
+  (use-package nginx-mode :defer t)
+  (use-package json-mode :defer t)
+  (use-package json-reformat :defer t)
+  (use-package comment-dwim-2 :defer t)
   (use-package buffer-flip)
-  (use-package projectile :config (projectile-global-mode))
   (use-package restclient :config (setq restclient-inhibit-cookies t))
   (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
   (use-package highlight-parentheses :init (setq hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
-  (use-package rainbow-delimiters :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
   (use-package all-the-icons :when (display-graphic-p) :commands all-the-icons-install-fonts)
   (use-package sudo-edit :commands (sudo-edit))
   (use-package discover-my-major :bind ("C-h C-m" . discover-my-major))
@@ -854,7 +868,6 @@
     :config
     (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY"))
     (exec-path-from-shell-initialize))
-
   (use-package which-key
     :hook (after-init . which-key-mode)
     :config
@@ -864,6 +877,17 @@
 #+END_SRC
 * Search
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package rainbow-delimiters
+    :config
+    (remove-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+    (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+    (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
+
+  (use-package projectile
+    :init (setq projectile-mode-line-prefix " P") ; 轻量级设置
+    :defer 1  ; 延迟1秒加载
+    :config (projectile-mode))
+
   (use-package ivy
     :diminish
     :init
@@ -1187,7 +1211,8 @@
          (define-key (eval map) "\C-t" nil)
          (define-key (eval map) "\C-w" nil)
          (define-key (eval map) "\M-]" nil)
-         (set-control-w-shortcuts))))
+         (set-control-w-shortcuts))
+       ))
 
   ;; evilmode-map
   (defun smart-q ()
@@ -1205,7 +1230,7 @@
     (define-key evil-motion-state-map (kbd "TAB") nil)
     (define-key evil-normal-state-map (kbd "C-t") nil)
     (define-key evil-normal-state-map (kbd "C-]") nil)
-    ;; (define-key evil-normal-state-map (kbd "/")  'swiper)
+    (define-key evil-normal-state-map (kbd "/")  'swiper)
     (define-key evil-motion-state-map (kbd "C-6") nil))
 
 #+END_SRC
@@ -1226,7 +1251,7 @@
     :config
     (defun my/org-insert-clipboard-image (width)
       "create a time stamped unique-named file from the clipboard in the sub-directory
-     (%filename.assets) as the org-buffer and insert a link to this file."
+       (%filename.assets) as the org-buffer and insert a link to this file."
       (interactive (list
                     (read-string (format "Input image width, default is 800: ")
                                  nil nil "800")))
@@ -1261,6 +1286,12 @@
 
   (use-package plantuml-mode :defer t :custom (org-plantuml-jar-path (expand-file-name plantuml-path)))
   (use-package polymode)
+  (use-package image-slicing
+    :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
+    :custom
+    (image-slicing-line-height-scale 1)
+    (image-slicing-max-width 800)
+    :hook (org-mode . image-slicing-mode))
 #+END_SRC
 
 ** Org 主配置
@@ -1507,38 +1538,48 @@
 
 * Treesit-Auto
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; (use-package treesit-auto
-  ;;   :ensure t
-  ;;   :config
-  ;;   (setq treesit-auto-install 'prompt)
-  ;;   (setq treesit-font-lock-level 4)
-  ;;   (global-treesit-auto-mode 1))
+    ;; (use-package treesit-auto
+    ;;   :ensure t
+    ;;   :config
+    ;;   ;; 启用全局的 treesit-auto 模式
+    ;;   (global-treesit-auto-mode)
+
+    ;;   ;; 启用手动安装解析器的提示
+    ;;   (setq treesit-auto-install 'prompt)
+
+    ;;   ;; 自动安装缺失的语言解析器（使用 treesit-install-language-grammar）
+    ;;   ;; treesit-auto 本身没有 `treesit-auto-install-languages` 这个变量
+    ;;   (dolist (lang '(go python rust c cpp bash javascript typescript))
+    ;;     (when (not (treesit-language-available-p lang))
+    ;;       (treesit-install-language-grammar lang)))
+
+    ;;   ;; 关联 major-mode 到 Tree-sitter 版本
+    ;;   (setq treesit-auto-mode-alist
+    ;;         '((python-mode . python-ts-mode)
+    ;;           (rust-mode . rust-ts-mode)
+    ;;           (go-mode . go-ts-mode)
+    ;;           (c-mode . c-ts-mode)
+    ;;           (cpp-mode . c++-ts-mode)
+    ;;           (bash-mode . bash-ts-mode)
+    ;;           (js-mode . js-ts-mode)
+    ;;           (typescript-mode . tsx-ts-mode))))
 
   (use-package treesit-auto
     :ensure t
     :config
-    ;; 启用全局的 treesit-auto 模式
+    ;; 启用全局模式
     (global-treesit-auto-mode)
 
     ;; 启用手动安装解析器的提示
     (setq treesit-auto-install 'prompt)
 
-    ;; 自动安装缺失的语言解析器（使用 treesit-install-language-grammar）
-    ;; treesit-auto 本身没有 `treesit-auto-install-languages` 这个变量
-    (dolist (lang '(go python rust c cpp bash javascript typescript))
-      (when (not (treesit-language-available-p lang))
-        (treesit-install-language-grammar lang)))
+    ;; 自动安装缺失的解析器
+    (add-hook 'emacs-startup-hook
+              (lambda ()
+                (dolist (lang '(bash c cpp go html java javascript json lua markdown python ruby rust toml tsx typescript yaml))
+                  (unless (treesit-language-available-p lang)
+                    (treesit-install-language-grammar lang))))))
 
-    ;; 关联 major-mode 到 Tree-sitter 版本
-    (setq treesit-auto-mode-alist
-          '((python-mode . python-ts-mode)
-            (rust-mode . rust-ts-mode)
-            (go-mode . go-ts-mode)
-            (c-mode . c-ts-mode)
-            (cpp-mode . c++-ts-mode)
-            (bash-mode . bash-ts-mode)
-            (js-mode . js-ts-mode)
-            (typescript-mode . tsx-ts-mode))))
 #+END_SRC
 * Programming
 
@@ -1843,78 +1884,25 @@
 * Lazycat Plugins
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package lazy-load :straight (lazy-load :type git :host github :repo "manateelazycat/lazy-load"))
+  (use-package one-key :straight (one-key :type git :host github :repo "manateelazycat/one-key"))
+  (use-package auto-save
+    :straight (auto-save :type git :host github :repo "manateelazycat/auto-save")
+    :config
+    (auto-save-enable)
+    (setq auto-save-silent t))
 
-  (require 'lazy-load)
-  (require 'one-key)
-  (require 'lazycat-toolkit)
-
-  ;; ----------------------------------------------------------
-  ;; auto-save
-  (require 'auto-save)
-  (require 'ws-butler)
-  (auto-save-enable)
-  (setq auto-save-silent t)
-  (ws-butler-global-mode)
-
-  ;;---------------------------------------------------------
-  ;; Line numbers are not displayed when large files are used.
-  (setq line-number-display-limit large-file-warning-threshold)
-  (setq line-number-display-limit-width 1000)
-
-  (dolist (hook (list
-                 'c-mode-common-hook
-                 'c-mode-hook
-                 'emacs-lisp-mode-hook
-                 'lisp-interaction-mode-hook
-                 'lisp-mode-hook
-                 'java-mode-hook
-                 'asm-mode-hook
-                 'haskell-mode-hook
-                 'rcirc-mode-hook
-                 'erc-mode-hook
-                 'sh-mode-hook
-                 'makefile-gmake-mode-hook
-                 'python-mode-hook
-                 'js-mode-hook
-                 'html-mode-hook
-                 'css-mode-hook
-                 'tuareg-mode-hook
-                 'go-mode-hook
-                 'qml-mode-hook
-                 'markdown-mode-hook
-                 'slime-repl-mode-hook
-                 'package-menu-mode-hook
-                 'cmake-mode-hook
-                 'php-mode-hook
-                 'web-mode-hook
-                 'sws-mode-hook
-                 'jade-mode-hook
-                 'vala-mode-hook
-                 'rust-mode-hook
-                 'ruby-mode-hook
-                 'qmake-mode-hook
-                 'lua-mode-hook
-                 'swift-mode-hook
-                 'llvm-mode-hook
-                 'conf-toml-mode-hook
-                 'nxml-mode-hook
-                 'nim-mode-hook
-                 'typescript-mode-hook
-                 'elixir-mode-hook
-                 'erlang-mode-hook
-                 'clojure-mode-hook
-                 ))
-    (add-hook hook (lambda () (display-line-numbers-mode))))
+  (use-package ws-butler
+    :straight t
+    :hook (prog-mode . ws-butler-mode)) ;; 仅在编程模式启用
 
   ;;----------------------------------------------------------
   ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
   ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
-
-  ;; YASnippetPac
   (use-package yasnippet
     :diminish yas-minor-mode
     :init
-    (use-package yasnippet-snippets :after yasnippet)
+    (use-package yasnippet-snippets :after yasnippet :defer t)
     :hook ((prog-mode LaTeX-mode org-mode markdown-mode) . yas-minor-mode)
     :bind
     (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
@@ -1979,43 +1967,9 @@
            )
     :config
     (global-lsp-bridge-mode))
-#+END_SRC
 
-* UI
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package dashboard
-    :config
-    ;; Icon in graphic mode
-    (when (display-graphic-p)
-      (setq
-       dashboard-set-heading-icons t
-       dashboard-set-file-icons t))
-
-    (setq
-     ;;dashboard-center-content t
-     dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
-     dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
-     dashboard-items '((recents . 5)
-                       (bookmarks . 5)
-                       (agenda . 5)
-                       (projects . 5)))
-    (dashboard-setup-startup-hook))
-
-  (require 'lazycat-theme)
-  ;;(lazycat-theme-load-with-sunrise)
-  ;; ;(lazycat-theme-load-light)
-  (lazycat-theme-load-dark)
-
-  (require 'awesome-tray)
-  (setq awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-  (setq awesome-tray-info-padding-right 1)
-  (awesome-tray-mode 1)
-
-#+END_SRC
-
-* Eaf
-#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package eaf
+    :defer 2
     :straight (emacs-application-framework
                :type git
                :host github
@@ -2040,6 +1994,95 @@
     (require 'eaf-git nil t)
     (require 'eaf-map nil t)
     (require 'eaf-jupyter nil t))
+
+
+  ;;---------------------------------------------------------
+  ;; Line numbers are not displayed when large files are used.
+  (setq line-number-display-limit large-file-warning-threshold)
+  (setq line-number-display-limit-width 1000)
+
+  (dolist (hook (list
+                 'c-mode-common-hook
+                 'c-mode-hook
+                 'emacs-lisp-mode-hook
+                 'lisp-interaction-mode-hook
+                 'lisp-mode-hook
+                 'java-mode-hook
+                 'asm-mode-hook
+                 'haskell-mode-hook
+                 'rcirc-mode-hook
+                 'erc-mode-hook
+                 'sh-mode-hook
+                 'makefile-gmake-mode-hook
+                 'python-mode-hook
+                 'js-mode-hook
+                 'html-mode-hook
+                 'css-mode-hook
+                 'tuareg-mode-hook
+                 'go-mode-hook
+                 'qml-mode-hook
+                 'markdown-mode-hook
+                 'slime-repl-mode-hook
+                 'package-menu-mode-hook
+                 'cmake-mode-hook
+                 'php-mode-hook
+                 'web-mode-hook
+                 'sws-mode-hook
+                 'jade-mode-hook
+                 'vala-mode-hook
+                 'rust-mode-hook
+                 'ruby-mode-hook
+                 'qmake-mode-hook
+                 'lua-mode-hook
+                 'swift-mode-hook
+                 'llvm-mode-hook
+                 'conf-toml-mode-hook
+                 'nxml-mode-hook
+                 'nim-mode-hook
+                 'typescript-mode-hook
+                 'elixir-mode-hook
+                 'erlang-mode-hook
+                 'clojure-mode-hook
+                 ))
+    (add-hook hook (lambda () (display-line-numbers-mode))))
+
+#+END_SRC
+
+* UI
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package dashboard
+    :config
+    ;; Icon in graphic mode
+    (when (display-graphic-p)
+      (setq
+       dashboard-set-heading-icons t
+       dashboard-set-file-icons t))
+
+    (setq
+     ;;dashboard-center-content t
+     dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
+     dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
+     dashboard-items '((recents . 5)
+                       (bookmarks . 5)
+                       (agenda . 5)
+                       (projects . 5)))
+    (dashboard-setup-startup-hook))
+
+  (use-package lazycat-theme
+    :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+    :config
+    (lazycat-theme-load-dark))  ;; 加载深色主题
+
+  (use-package awesome-tray
+    :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+    :custom
+    (awesome-tray-active-modules '("location" "pdf-view-page" "belong"
+                                   "file-path" "mode-name" "last-command"
+                                   "battery" "date"))  ;; 设置显示模块
+    (awesome-tray-info-padding-right 1)  ;; 右侧间距
+    :config
+    (awesome-tray-mode 1))  ;; 启用 awesome-tray
+
 #+END_SRC
 
 * Key-Bindings
@@ -2149,3 +2192,4 @@
   (global-set-key (kbd "C-c d")   'one-key-menu-directory)
 
 #+END_SRC
+
