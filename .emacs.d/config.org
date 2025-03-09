@@ -277,6 +277,20 @@
     (setq auto-window-vscroll nil)
     (setq fast-but-imprecise-scrolling nil))
 
+  ;; **全局优化行号显示**
+  (setq display-line-numbers-grow-only t) ;; 避免滚动时行号重绘卡顿
+  (setq display-line-numbers-type 'relative) ;; 使用相对行号（可选）
+
+  ;; **所有编程模式启用行号**
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+  ;; **额外启用行号的模式**
+  (add-hook 'text-mode-hook 'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook 'display-line-numbers-mode)
+
+  ;; **不想显示行号的模式**
+  (dolist (hook '(org-mode-hook shell-mode-hook eshell-mode-hook term-mode-hook vterm-mode-hook))
+    (add-hook hook (lambda () (display-line-numbers-mode -1))))
 #+end_src
 
 * Indent
@@ -683,20 +697,6 @@
       (setq toggle-one-window-window-configuration (current-window-configuration))
       (delete-other-windows)))
 
-  (defun set-control-w-shortcuts ()
-    (define-prefix-command 'my-window-map)
-    (global-set-key (kbd "C-w") 'my-window-map)
-    (define-key my-window-map (kbd "h") 'windmove-left)
-    (define-key my-window-map (kbd "j") 'windmove-down)
-    (define-key my-window-map (kbd "k") 'windmove-up)
-    (define-key my-window-map (kbd "l") 'windmove-right)
-    (define-key my-window-map (kbd "v") 'split-window-right)
-    (define-key my-window-map (kbd "b") 'split-window-below)
-    (define-key my-window-map (kbd "d") 'delete-window)
-    (define-key my-window-map (kbd "D") 'delete-other-windows)
-    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
-    (define-key my-window-map (kbd "o") 'toggle-one-window))
-
   ;; ResizeWidthHeight
   ;; Resizes the window width based on the input
   (defun resize-window-dimension (dimension)
@@ -744,16 +744,6 @@
   (defun window-height-decrease ()
     (interactive)
     (resize-window nil -5))
-
-  (global-set-key (kbd "M-W =") #'window-width-increase)
-  (global-set-key (kbd "M-W M-+") #'window-width-increase)
-  (global-set-key (kbd "M-W -") #'window-width-decrease)
-  (global-set-key (kbd "M-W M-_") #'window-width-decrease)
-
-  (global-set-key (kbd "M-Q =") #'window-height-increase)
-  (global-set-key (kbd "M-Q M-+") #'window-height-increase)
-  (global-set-key (kbd "M-Q -") #'window-height-decrease)
-  (global-set-key (kbd "M-Q M-_") #'window-height-decrease)
 
   (defun edit-configs ()
     "Opens the README.org file."
@@ -844,6 +834,34 @@
     "An interactive function showing function `buffer-file-name' or `buffer-name'."
     (interactive)
     (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
+
+  (defun watch-other-window-up ()
+    "在其他窗口向上滚动一页。"
+    (interactive)
+    (other-window 1)
+    (scroll-up-command)
+    (other-window -1))
+
+  (defun watch-other-window-down ()
+    "在其他窗口向下滚动一页。"
+    (interactive)
+    (other-window 1)
+    (scroll-down-command)
+    (other-window -1))
+
+  (defun watch-other-window-up-line ()
+    "在其他窗口向上滚动一行。"
+    (interactive)
+    (other-window 1)
+    (scroll-up-line)
+    (other-window -1))
+
+  (defun watch-other-window-down-line ()
+    "在其他窗口向下滚动一行。"
+    (interactive)
+    (other-window 1)
+    (scroll-down-line)
+    (other-window -1))
 #+END_SRC
 
 * Fundamental Plugins
@@ -1135,7 +1153,9 @@
       "sp" 'color-rg-search-project
 
       ;; terminal
-      "t"  'eaf-open-pyqterminal
+      "tn" 'sort-tab-next
+      "tp" 'sort-tab-previous
+      "T"  'eaf-open-pyqterminal
 
       ;; window && frame
       "ww" 'other-window
@@ -1199,39 +1219,6 @@
                (messages-buffer-mode . normal)
                ))
     (evil-set-initial-state (car p) (cdr p)))
-
-  ;;-----------------------
-  (eval-after-load "evil-maps"
-    '(progn
-       (dolist (map '(evil-motion-state-map
-                      evil-insert-state-map
-                      evil-emacs-state-map
-                      evil-window-map))
-         (define-key (eval map) "\C-]" nil)
-         (define-key (eval map) "\C-t" nil)
-         (define-key (eval map) "\C-w" nil)
-         (define-key (eval map) "\M-]" nil)
-         (set-control-w-shortcuts))
-       ))
-
-  ;; evilmode-map
-  (defun smart-q ()
-    "Delete window in read-only buffers, otherwise record macro."
-    (interactive)
-    (if buffer-read-only
-        (if (= 1 (count-windows))
-            (bury-buffer)
-          (delete-window))
-      (call-interactively 'evil-record-macro)))
-  (with-eval-after-load 'evil
-    (define-key evil-normal-state-map (kbd "q") 'smart-q)
-    (define-key evil-motion-state-map (kbd "SPC") nil)
-    (define-key evil-motion-state-map (kbd "RET") nil)
-    (define-key evil-motion-state-map (kbd "TAB") nil)
-    (define-key evil-normal-state-map (kbd "C-t") nil)
-    (define-key evil-normal-state-map (kbd "C-]") nil)
-    (define-key evil-normal-state-map (kbd "/")  'swiper)
-    (define-key evil-motion-state-map (kbd "C-6") nil))
 
 #+END_SRC
 
@@ -1536,50 +1523,104 @@
   ;; -SaveAllBuffers
 #+END_SRC
 
-* Treesit-Auto
+* Treesit
 #+BEGIN_SRC emacs-lisp :tangle yes
-    ;; (use-package treesit-auto
-    ;;   :ensure t
-    ;;   :config
-    ;;   ;; 启用全局的 treesit-auto 模式
-    ;;   (global-treesit-auto-mode)
-
-    ;;   ;; 启用手动安装解析器的提示
-    ;;   (setq treesit-auto-install 'prompt)
-
-    ;;   ;; 自动安装缺失的语言解析器（使用 treesit-install-language-grammar）
-    ;;   ;; treesit-auto 本身没有 `treesit-auto-install-languages` 这个变量
-    ;;   (dolist (lang '(go python rust c cpp bash javascript typescript))
-    ;;     (when (not (treesit-language-available-p lang))
-    ;;       (treesit-install-language-grammar lang)))
-
-    ;;   ;; 关联 major-mode 到 Tree-sitter 版本
-    ;;   (setq treesit-auto-mode-alist
-    ;;         '((python-mode . python-ts-mode)
-    ;;           (rust-mode . rust-ts-mode)
-    ;;           (go-mode . go-ts-mode)
-    ;;           (c-mode . c-ts-mode)
-    ;;           (cpp-mode . c++-ts-mode)
-    ;;           (bash-mode . bash-ts-mode)
-    ;;           (js-mode . js-ts-mode)
-    ;;           (typescript-mode . tsx-ts-mode))))
-
+  ;; cargo install tree-sitter-cli
+  ;; M-x `treesit-install-language-grammar` to install language grammar.
   (use-package treesit-auto
     :ensure t
     :config
-    ;; 启用全局模式
-    (global-treesit-auto-mode)
+    (setq treesit-language-source-alist
+          '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+            (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+            (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+            (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+            (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
+            (csharp     . ("https://github.com/tree-sitter/tree-sitter-c-sharp.git"))
+            (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))
+            (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
+            (erlang . ("https://github.com/WhatsApp/tree-sitter-erlang"))
+            (elixir "https://github.com/elixir-lang/tree-sitter-elixir" "main" "src" nil nil)
+            (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+            (gomod      . ("https://github.com/camdencheek/tree-sitter-go-mod.git"))
+            (haskell "https://github.com/tree-sitter/tree-sitter-haskell" "master" "src" nil nil)
+            (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+            (java       . ("https://github.com/tree-sitter/tree-sitter-java.git"))
+            (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+            (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+            (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+            (make . ("https://github.com/alemuller/tree-sitter-make"))
+            (markdown . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
+            (markdown-inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
+            (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" nil "ocaml/src"))
+            (org . ("https://github.com/milisims/tree-sitter-org"))
+            (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+            (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+            (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src"))
+            (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src"))
+            (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+            (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+            (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+            (scala "https://github.com/tree-sitter/tree-sitter-scala" "master" "src" nil nil)
+            (toml "https://github.com/tree-sitter/tree-sitter-toml" "master" "src" nil nil)
+            (vue . ("https://github.com/merico-dev/tree-sitter-vue"))
+            (kotlin . ("https://github.com/fwcd/tree-sitter-kotlin"))
+            (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+            (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+            (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
+            (nix . ("https://github.com/nix-community/nix-ts-mode"))
+            (mojo . ("https://github.com/HerringtonDarkholme/tree-sitter-mojo"))))
 
-    ;; 启用手动安装解析器的提示
-    (setq treesit-auto-install 'prompt)
+    (setq major-mode-remap-alist
+          '((c-mode          . c-ts-mode)
+            (c++-mode        . c++-ts-mode)
+            (cmake-mode      . cmake-ts-mode)
+            (conf-toml-mode  . toml-ts-mode)
+            (css-mode        . css-ts-mode)
+            (js-mode         . js-ts-mode)
+            (js-json-mode    . json-ts-mode)
+            (python-mode     . python-ts-mode)
+            (sh-mode         . bash-ts-mode)
+            (typescript-mode . typescript-ts-mode)
+            (rust-mode       . rust-ts-mode)
+            (java-mode       . java-ts-mode)
+            (clojure-mode    . clojure-ts-mode)
+            (markdown-mode   . markdown-ts-mode)
+            ))
 
-    ;; 自动安装缺失的解析器
-    (add-hook 'emacs-startup-hook
-              (lambda ()
-                (dolist (lang '(bash c cpp go html java javascript json lua markdown python ruby rust toml tsx typescript yaml))
-                  (unless (treesit-language-available-p lang)
-                    (treesit-install-language-grammar lang))))))
+    ;;(dolist (lang (mapcar #'car treesit-language-source-alist))
+    ;;  (unless (treesit-language-available-p lang)
+    ;;    (treesit-install-language-grammar lang)))
 
+    (add-hook 'web-mode-hook #'(lambda ()
+                                 (let ((file-name (buffer-file-name)))
+                                   (when file-name
+                                     (treesit-parser-create
+                                      (pcase (file-name-extension file-name)
+                                        ("vue" 'vue)
+                                        ("html" 'html)
+                                        ("php" 'php))))
+                                   )))
+
+    (add-hook 'markdown-ts-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
+    (add-hook 'zig-mode-hook #'(lambda () (treesit-parser-create 'zig)))
+    (add-hook 'mojo-mode-hook #'(lambda () (treesit-parser-create 'mojo)))
+    (add-hook 'emacs-lisp-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
+    (add-hook 'ielm-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
+    (add-hook 'json-mode-hook #'(lambda () (treesit-parser-create 'json)))
+    (add-hook 'go-mode-hook #'(lambda () (treesit-parser-create 'go)))
+    (add-hook 'java-mode-hook #'(lambda () (treesit-parser-create 'java)))
+    (add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
+    (add-hook 'clojure-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
+    (add-hook 'clojure-ts-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
+    (add-hook 'cider-repl-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
+    (add-hook 'php-mode-hook #'(lambda () (treesit-parser-create 'php)))
+    (add-hook 'php-ts-mode-hook #'(lambda () (treesit-parser-create 'php)))
+    (add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
+    (add-hook 'haskell-mode-hook #'(lambda () (treesit-parser-create 'haskell)))
+    (add-hook 'kotlin-mode-hook #'(lambda () (treesit-parser-create 'kotlin)))
+    (add-hook 'ruby-mode-hook #'(lambda () (treesit-parser-create 'ruby)))
+    )
 #+END_SRC
 * Programming
 
@@ -1603,7 +1644,24 @@
   ;; Golang
   (use-package go-mode)
 
-  ;; Erlang
+  (defun go-run-buffer()
+    (interactive)
+    (shell-command (concat "go run " (buffer-name))))
+
+  ;; ;;; ### Golang ###
+  ;; (lazy-load-unset-keys
+  ;;  '("C-k" "M-o")
+  ;;  go-mode-map)
+  ;; (lazy-load-set-keys
+  ;;  '(
+  ;;    ("C-c C-c" . go-run-buffer)
+  ;;    ("C-c C-f" . gofmt)
+  ;;    ("C-c C-d" . godoc)
+  ;;    ("C-c C-a" . go-import-add)
+  ;;    )
+  ;;  go-mode-map)
+
+  ;; ;; Erlang
   (let* ((tools-version erlang-lib-tools-version)
          (path-prefix erlang-path-prefix)
          (tools-path
@@ -1634,7 +1692,7 @@
     (flycheck-python-pycompile-executable "python3")
     (python-shell-interpreter "python3"))
 
-  ;;;---------------------------------------------------------
+    ;;;---------------------------------------------------------
   (use-package rust-mode
     :config
     (setq rust-format-on-save t)
@@ -1899,6 +1957,7 @@
   ;;----------------------------------------------------------
   ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
   ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
+  ;; rustup component add rust-src
   (use-package yasnippet
     :diminish yas-minor-mode
     :init
@@ -1921,52 +1980,53 @@
                    (eq old-tick (buffer-chars-modified-tick)))
           (ignore-errors (yas-next-field))))))
 
+
+  ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
+  ;; 你可以手动检查 tree-sitter 语法是否正确安装：
+  ;; M-x treesit-inspect-node-at-point
   (use-package lsp-bridge
     :straight (lsp-bridge
                :type git
                :host github
                :repo "manateelazycat/lsp-bridge"
                :files ("*"))
-    :defer 5
     :commands (global-lsp-bridge-mode lsp-bridge-mode)
     :custom
     (acm-enable-codeium nil)
     (acm-enable-tabnine nil)
     (acm-enable-yas nil)
     (acm-enable-quick-access t)
-    (lsp-bridge-enable-hover-diagnostic t)
-    (lsp-bridge-python-lsp-server "pyright")
-    :bind (("M-." . lsp-bridge-find-def)
-           ("M-," . lsp-bridge-find-def-return)
-           ("M-i" . lsp-bridge-popup-documentation)
-           ("C-M-." . lsp-bridge-peek)
-           :map lsp-bridge-ref-mode-map
-           ("n" . lsp-bridge-ref-jump-next-keyword)
-           ("p" . lsp-bridge-ref-jump-prev-keyword)
-           ("M-n" . lsp-bridge-ref-jump-next-file)
-           ("M-p" . lsp-bridge-ref-jump-prev-file)
-           ("C-x C-q" . lsp-bridge-ref-switch-to-edit-mode)
-           :map lsp-bridge-ref-mode-edit-map
-           ("C-x C-q" . lsp-bridge-ref-apply-changed)
-           ("C-x C-s" . lsp-bridge-ref-apply-changed)
-           ("C-c C-k" . lsp-bridge-ref-quit)
-           ("M-n" . lsp-bridge-ref-jump-next-file)
-           ("M-p" . lsp-bridge-ref-jump-prev-file)
-           :map acm-mode-map
-           ;; ([remap next-line] . nil)
-           ;; ([remap previous-line] . nil))
-           ([remap next-line] . nil)
-           ([remap previous-line] . nil)
-           ("C-n" . acm-select-next)
-           ("C-p" . acm-select-prev)
-           ("TAB" . acm-complete)  ;; 使用 TAB 选择下一个候选项
-           ("<tab>" . acm-complete)
-           ;; ("TAB" . acm-select-next)  ;; 使用 TAB 选择下一个候选项
-           ;; ("<tab>" . acm-select-next)
-           ;; ("RET" . acm-complete)
-           )
-    :config
-    (global-lsp-bridge-mode))
+    (acm-enable-icon t)                         ;; 显示补全图标
+    (lsp-bridge-enable-inlay-hint t)            ;; 启用类型提示
+    (lsp-bridge-enable-hover-diagnostic t)      ;; 悬停显示错误
+    (lsp-bridge-enable-auto-format-code nil)    ;; 关闭自动格式化
+    (lsp-bridge-python-command "python3")       ;; 指定 Python 解释器
+    (lsp-bridge-python-lsp-server "pyright")    ;; 默认使用 Pyright
+    :bind
+    (("M-." . lsp-bridge-find-def)
+     ("M-," . lsp-bridge-find-def-return)
+     ("M-i" . lsp-bridge-popup-documentation)
+     ("C-M-." . lsp-bridge-peek)
+     :map lsp-bridge-ref-mode-map
+     ("n" . lsp-bridge-ref-jump-next-keyword)
+     ("p" . lsp-bridge-ref-jump-prev-keyword)
+     ("M-n" . lsp-bridge-ref-jump-next-file)
+     ("M-p" . lsp-bridge-ref-jump-prev-file)
+     ("C-x C-q" . lsp-bridge-ref-switch-to-edit-mode)
+     :map lsp-bridge-ref-mode-edit-map
+     ("C-x C-q" . lsp-bridge-ref-apply-changed)
+     ("C-x C-s" . lsp-bridge-ref-apply-changed)
+     ("C-c C-k" . lsp-bridge-ref-quit)
+     ("M-n" . lsp-bridge-ref-jump-next-file)
+     ("M-p" . lsp-bridge-ref-jump-prev-file)
+     :map acm-mode-map
+     ("C-n" . acm-select-next)
+     ("C-p" . acm-select-prev)
+     ("TAB" . acm-complete)
+     ("<tab>" . acm-complete)
+     ("RET" . acm-complete))  ;; 回车键用于补全
+    :hook
+    (prog-mode . global-lsp-bridge-mode))  ;; 仅在编程模式下启用 lsp-bridge
 
   (use-package eaf
     :defer 2
@@ -1978,113 +2038,107 @@
     :custom
     (eaf-start-python-process-when-require t)
     (browse-url-browser-function #'eaf-open-browser)
-    (eaf-browser-dark-mode nil)
     (eaf-browser-enable-adblocker t)
     (eaf-webengine-continue-where-left-off t)
     (eaf-webengine-default-zoom 1.25)
     (eaf-webengine-scroll-step 200)
+    (eaf-pdf-show-progress-on-page nil)
     (eaf-pdf-dark-mode "ignore")
-    :demand
+    :commands (eaf-open-browser eaf-open-pdf)
     :config
-    (require 'eaf-file-manager nil t)
-    (require 'eaf-image-viewer nil t)
-    (require 'eaf-pyqterminal nil t)
-    (require 'eaf-mind-elixir nil t)
-    (require 'eaf-markmap)
-    (require 'eaf-git nil t)
-    (require 'eaf-map nil t)
-    (require 'eaf-jupyter nil t))
+    (dolist (pkg '(eaf-file-manager
+                   eaf-pdf-viewer
+                   eaf-image-viewer
+                   eaf-pyqterminal
+                   eaf-mind-elixir
+                   eaf-markmap
+                   eaf-git
+                   eaf-map
+                   eaf-jupyter))
+      (require pkg nil t)))
+      ;;(with-eval-after-load 'eaf (require pkg nil t))))
 
+  ;; 设置 EAF PDF 为默认阅读器
+  (setq browse-url-browser-function
+        '((".*\\.pdf\\'" . eaf-open-pdf)
+          (".*" . browse-url-default-browser)))
 
-  ;;---------------------------------------------------------
-  ;; Line numbers are not displayed when large files are used.
-  (setq line-number-display-limit large-file-warning-threshold)
-  (setq line-number-display-limit-width 1000)
-
-  (dolist (hook (list
-                 'c-mode-common-hook
-                 'c-mode-hook
-                 'emacs-lisp-mode-hook
-                 'lisp-interaction-mode-hook
-                 'lisp-mode-hook
-                 'java-mode-hook
-                 'asm-mode-hook
-                 'haskell-mode-hook
-                 'rcirc-mode-hook
-                 'erc-mode-hook
-                 'sh-mode-hook
-                 'makefile-gmake-mode-hook
-                 'python-mode-hook
-                 'js-mode-hook
-                 'html-mode-hook
-                 'css-mode-hook
-                 'tuareg-mode-hook
-                 'go-mode-hook
-                 'qml-mode-hook
-                 'markdown-mode-hook
-                 'slime-repl-mode-hook
-                 'package-menu-mode-hook
-                 'cmake-mode-hook
-                 'php-mode-hook
-                 'web-mode-hook
-                 'sws-mode-hook
-                 'jade-mode-hook
-                 'vala-mode-hook
-                 'rust-mode-hook
-                 'ruby-mode-hook
-                 'qmake-mode-hook
-                 'lua-mode-hook
-                 'swift-mode-hook
-                 'llvm-mode-hook
-                 'conf-toml-mode-hook
-                 'nxml-mode-hook
-                 'nim-mode-hook
-                 'typescript-mode-hook
-                 'elixir-mode-hook
-                 'erlang-mode-hook
-                 'clojure-mode-hook
-                 ))
-    (add-hook hook (lambda () (display-line-numbers-mode))))
+  (add-to-list 'auto-mode-alist '("\\.pdf\\'" . eaf-open-pdf))
 
 #+END_SRC
 
 * UI
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package dashboard
-    :config
-    ;; Icon in graphic mode
-    (when (display-graphic-p)
+    (use-package dashboard
+      :config
+      ;; Icon in graphic mode
+      (when (display-graphic-p)
+        (setq
+         dashboard-set-heading-icons t
+         dashboard-set-file-icons t))
+
       (setq
-       dashboard-set-heading-icons t
-       dashboard-set-file-icons t))
+       ;;dashboard-center-content t
+       dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
+       dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
+       dashboard-items '((recents . 5)
+                         (bookmarks . 5)
+                         (agenda . 5)
+                         (projects . 5)))
+      (dashboard-setup-startup-hook))
 
-    (setq
-     ;;dashboard-center-content t
-     dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
-     dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
-     dashboard-items '((recents . 5)
-                       (bookmarks . 5)
-                       (agenda . 5)
-                       (projects . 5)))
-    (dashboard-setup-startup-hook))
+    (use-package sort-tab
+      :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
+      :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
+      :defer t
+      :config (sort-tab-mode 1))
 
-  (use-package lazycat-theme
-    :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-    :config
-    (lazycat-theme-load-dark))  ;; 加载深色主题
+    (use-package holo-layer
+      :if (and (display-graphic-p) (eq system-type 'darwin)) ;; Mac GUI 下启用
+      :straight (holo-layer :type git :host github :repo "manateelazycat/holo-layer")
+      :init
+      ;; 自动检测 Python 解释器路径
+      (setq holo-layer-python-command
+            (or (executable-find "python3")
+                (executable-find "python")
+                (expand-file-name "~/.venv/venv/bin/python")))
 
-  (use-package awesome-tray
-    :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
-    :custom
-    (awesome-tray-active-modules '("location" "pdf-view-page" "belong"
-                                   "file-path" "mode-name" "last-command"
-                                   "battery" "date"))  ;; 设置显示模块
-    (awesome-tray-info-padding-right 1)  ;; 右侧间距
-    :config
-    (awesome-tray-mode 1))  ;; 启用 awesome-tray
+      ;; 优化动画延迟
+      (setq holo-layer-animation-delay 0.05)
+
+      :custom
+      ;; 动态启用动画特效
+      (holo-layer-enable-cursor-animation (and (>= (display-pixel-width) 2560)
+                                               (> (length (frame-list)) 1)))
+      ;;(holo-layer-enable-place-info t)  ; 可选启用
+      (holo-layer-enable-indent-rainbow t)
+      (holo-layer-enable-window-border t)
+      (holo-layer-enable-type-animation (>= (display-pixel-width) 2560))
+      (holo-layer-type-animation-style "flame")
+
+      :config
+      ;; 延迟加载，优化启动性能
+      (with-eval-after-load 'holo-layer
+        (run-with-idle-timer 1 nil #'holo-layer-enable)))
+
+    (use-package lazycat-theme
+      :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+      :config
+      ;; 自动根据系统时间加载主题
+      ;; (lazycat-theme-load-dark)
+      ;; (lazycat-theme-load-light)
+      (lazycat-theme-load-with-sunrise))
+
+    (use-package awesome-tray
+      :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+      :custom
+      (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
+                                     "mode-name" "last-command" "battery" "date"))
+      (awesome-tray-info-padding-right 1)
+      :init
+      (awesome-tray-mode 1))
 
 #+END_SRC
-
 * Key-Bindings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2098,8 +2152,58 @@
    '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
   ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
+
+  (defun set-control-w-shortcuts ()
+    (define-prefix-command 'my-window-map)
+    (global-set-key (kbd "C-w") 'my-window-map)
+    (define-key my-window-map (kbd "=") 'window-width-increase )
+    (define-key my-window-map (kbd "+") 'window-width-decrease)
+    (define-key my-window-map (kbd "h") 'windmove-left)
+    (define-key my-window-map (kbd "j") 'windmove-down)
+    (define-key my-window-map (kbd "k") 'windmove-up)
+    (define-key my-window-map (kbd "l") 'windmove-right)
+    (define-key my-window-map (kbd "v") 'split-window-right)
+    (define-key my-window-map (kbd "b") 'split-window-below)
+    (define-key my-window-map (kbd "d") 'delete-window)
+    (define-key my-window-map (kbd "D") 'delete-other-windows)
+    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
+    (define-key my-window-map (kbd "o") 'toggle-one-window))
+
   (set-control-w-shortcuts)
   (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
+
+  (eval-after-load "evil-maps"
+    '(progn
+       (dolist (map '(evil-motion-state-map
+                      evil-insert-state-map
+                      evil-emacs-state-map
+                      evil-window-map))
+         (define-key (eval map) "\C-]" nil)
+         (define-key (eval map) "\C-t" nil)
+         (define-key (eval map) "\C-w" nil)
+         (define-key (eval map) "\M-]" nil)
+         (set-control-w-shortcuts))
+       ))
+
+  ;; evilmode-map
+  (defun smart-q ()
+    "Delete window in read-only buffers, otherwise record macro."
+    (interactive)
+    (if buffer-read-only
+        (if (= 1 (count-windows))
+            (bury-buffer)
+          (delete-window))
+      (call-interactively 'evil-record-macro)))
+
+  (with-eval-after-load 'evil
+    (define-key evil-normal-state-map (kbd "q") 'smart-q)
+    (define-key evil-motion-state-map (kbd "SPC") nil)
+    (define-key evil-motion-state-map (kbd "RET") nil)
+    (define-key evil-motion-state-map (kbd "TAB") nil)
+    (define-key evil-normal-state-map (kbd "C-t") nil)
+    (define-key evil-normal-state-map (kbd "C-]") nil)
+    (define-key evil-normal-state-map (kbd "/")  'swiper)
+    (define-key evil-motion-state-map (kbd "C-6") nil))
 
   (with-eval-after-load 'org
     (define-key org-mode-map (kbd "M-h") nil)
@@ -2107,6 +2211,19 @@
 
   (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
   (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
+  (global-set-key (kbd "s-1") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-2") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-3") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-4") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-5") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-6") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-7") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-8") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-9") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-0") 'sort-tab-select-visible-tab)
+  (global-set-key (kbd "s-Q") 'sort-tab-close-all-tabs)
+  (global-set-key (kbd "s-q") 'sort-tab-close-mode-tabs)
+  (global-set-key (kbd "C-;") 'sort-tab-close-current-tab)
 
   (global-set-key (kbd "<f5>")    'emacs-session-save)
   (global-set-key (kbd "C-,")     'goto-last-change)
@@ -2132,6 +2249,7 @@
 
   (global-set-key (kbd "M-n")     'hold-line-scroll-down)
   (global-set-key (kbd "M-p")     'hold-line-scroll-up)
+
   (global-set-key (kbd "M-]")     'watch-other-window-up)
   (global-set-key (kbd "M-[")     'watch-other-window-down)
   (global-set-key (kbd "M->")     'watch-other-window-up-line)

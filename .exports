@@ -77,33 +77,50 @@ if [[ "$(uname -s)" == "Linux" && $- == *i* ]]; then
 fi
 
 
-# if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
-#     #export GOPATH="/Users/zxh/githubs/go"
-#     export GOPATH="/home/zxh/githubs/go"
-#     export GOROOT=$(asdf where golang)/go
-#     PATH=$PATH:${GOROOT}/bin
-#     PATH=$PATH:$GOPATH/bin
-#     export GOPROXY=https://goproxy.cn
-# fi
-if command -v asdf &>/dev/null && asdf list golang &>/dev/null; then
-    export GOPATH="$HOME/githubs/go"
-    export GOROOT="$(asdf where golang)/go" || exit 1
+if command -v asdf &>/dev/null; then
+    # Golang 配置
+    if asdf list golang &>/dev/null; then
+        export GOPATH="$HOME/githubs/go"
+        ASDF_GOROOT=$(asdf where golang 2>/dev/null)/go
+        if [[ -d "$ASDF_GOROOT" ]]; then
+            export GOROOT="$ASDF_GOROOT"
+            export PATH+=":$GOROOT/bin:$GOPATH/bin"
+            export GOPROXY="https://goproxy.cn,direct"
+            export GOBIN="$GOPATH/bin"  # 让 go install 默认安装到 GOPATH/bin
+        fi
+    fi
 
-    export PATH+=":$GOROOT/bin:$GOPATH/bin"
-    export GOPROXY="https://goproxy.cn,direct"
-    export GOBIN="$GOPATH/bin"  # 推荐：让 go install 默认安装到这里
-fi
+    # Erlang 配置
+    if asdf list erlang &>/dev/null; then
+        ASDF_ERLANG_BIN=$(asdf where erlang 2>/dev/null)/bin
+        [[ -d "$ASDF_ERLANG_BIN" ]] && export PATH+=":$ASDF_ERLANG_BIN"
+    fi
 
-if command -v asdf &>/dev/null && asdf list erlang &>/dev/null; then
-    export PATH+=":$(asdf where erlang)/bin" || exit 1
-fi
+    # Python 配置
+    if asdf list python &>/dev/null; then
+        echo "Python detected in asdf"
 
-if command -v asdf &>/dev/null && asdf list python &>/dev/null; then
-    USER_BASE_BIN=$(python -m site --user-base 2>/dev/null)/bin
-    ASDF_PYTHON_BIN=$(asdf where python 2>/dev/null)/bin || exit 1
-    export PATH="$USER_BASE_BIN:$ASDF_PYTHON_BIN:$PATH"
-fi
+        # 获取用户 Python 站点包的 bin 目录
+        USER_BASE_BIN=$(python -m site --user-base 2>/dev/null)/bin
+        echo "User Base Bin: $USER_BASE_BIN"
 
-if command -v asdf &>/dev/null && asdf list rust &>/dev/null; then
-    export PATH+=":$(asdf where rust)/bin" || exit 1
+        # 获取 asdf 安装的 Python 路径
+        ASDF_PYTHON_DIR=$(asdf where python 2>/dev/null)
+
+        if [[ -n "$ASDF_PYTHON_DIR" && -d "$ASDF_PYTHON_DIR/bin" ]]; then
+            ASDF_PYTHON_BIN="$ASDF_PYTHON_DIR/bin"
+            echo "ASDF Python Bin: $ASDF_PYTHON_BIN"
+
+            # 更新 PATH
+            export PATH="$USER_BASE_BIN:$ASDF_PYTHON_BIN:$PATH"
+        else
+            echo "⚠️  Error: asdf where python failed or directory does not exist!" >&2
+        fi
+    fi
+
+    # Rust 配置
+    if asdf list rust &>/dev/null; then
+        ASDF_RUST_BIN=$(asdf where rust 2>/dev/null)/bin
+        [[ -d "$ASDF_RUST_BIN" ]] && export PATH+=":$ASDF_RUST_BIN"
+    fi
 fi
