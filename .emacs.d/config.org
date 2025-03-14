@@ -7,44 +7,16 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (setenv "OPENAI_API_KEY" nil)
+  (setq user-full-name "zxh")
+  (setq user-mail-address "robertzhouxh@gmail.com")
   (setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
   (setq erlang-lib-tools-version "3.5.2")
-  (setq http-proxy "127.0.0.1:8123")     ; HTTP/HTTPS proxy
-  (setq socks-proxy "127.0.0.1:1080")    ; SOCKS proxy
-
   (defvar zxh-emacs-root-dir (file-truename "~/.emacs.d"))
   (defvar zxh-emacs-vendor-dir (concat zxh-emacs-root-dir "/vendor"))
 
-  (when (eq system-type 'gnu/linux)
-    (setq plantuml-path "/opt/plantuml/plantuml.jar")
-    (defvar zxh-emacs-module-header-root "/usr/local/include")
-    (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
-
-  (when (eq system-type 'darwin)
-    (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
-    (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
-    (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
-
-  (setenv "EMACS_MODULE_HEADER_ROOT" zxh-emacs-module-header-root)
-
-  ;; UserInfo
-  (setq user-full-name "John Doe")
-  (setq user-mail-address "johndoe@johndoe.net")
-  ;; -UserInfo
-
-  ;; Consts
-  (defconst *sys/win32*
-    (eq system-type 'windows-nt)
-    "Are we running on a WinTel system?")
-
-  (defconst *sys/linux*
-    (eq system-type 'gnu/linux)
-    "Are we running on a GNU/Linux system?")
-
-  (defconst *sys/mac*
-    (eq system-type 'darwin)
-    "Are we running on a Mac system?")
+  (defconst *sys/win32* (eq system-type 'windows-nt) "Are we running on a WinTel system?")
+  (defconst *sys/linux* (eq system-type 'gnu/linux) "Are we running on a GNU/Linux system?")
+  (defconst *sys/mac* (eq system-type 'darwin) "Are we running on a Mac system?")
 
   (defconst python-p
     (or (executable-find "python3")
@@ -63,10 +35,18 @@
         (executable-find "/usr/local/opt/llvm/bin/clangd"))  ;; macOS
     "Do we have clangd?")
 
-  (defconst eaf-env-p
-    (and (display-graphic-p) python-p pip-p)
-    "Do we have EAF environment setup?")
-  ;; -Consts
+
+  (when *sys/linux*
+    (setq plantuml-path "/opt/plantuml/plantuml.jar")
+    (defvar zxh-emacs-module-header-root "/usr/local/include")
+    (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
+
+  (when *sys/mac*
+    (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
+    (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+    (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
+
+  (setenv "EMACS_MODULE_HEADER_ROOT" zxh-emacs-module-header-root)
 
 #+END_SRC
 
@@ -87,7 +67,6 @@
     (load bootstrap-file nil 'nomessage))
   (setq straight-use-package-by-default t)
   (setq package-check-signature nil)
-  ;; -StraightBootstrap
 
   ;; StraightUsePackage
   (straight-use-package 'use-package)
@@ -103,26 +82,6 @@
     (require 'bind-key))
 
   (use-package diminish)
-
-  ;; DefBindings
-  ;; Unbind unneeded keys
-  (global-set-key (kbd "C-z") nil)
-  (global-set-key (kbd "M-z") nil)
-  (global-set-key (kbd "M-m") nil)
-  (global-set-key (kbd "C-x C-z") nil)
-  (global-set-key (kbd "M-/") nil)
-  ;; Truncate lines
-  (global-set-key (kbd "C-x C-l") #'toggle-truncate-lines)
-  ;; Adjust font size like web browsers
-  (global-set-key (kbd "C-=") #'text-scale-increase)
-  (global-set-key (kbd "C-+") #'text-scale-increase)
-  (global-set-key (kbd "C--") #'text-scale-decrease)
-  ;; Move up/down paragraph
-  (global-set-key (kbd "M-n") #'forward-paragraph)
-  (global-set-key (kbd "M-p") #'backward-paragraph)
-  ;; Revert buffer
-  (global-set-key (kbd "<f5>") #'revert-buffer-quick)
-  ;; -DefBindings
 
   (defun add-subdirs-to-load-path (search-dir)
     (interactive)
@@ -160,52 +119,51 @@
 
 * Generic
 #+begin_src emacs-lisp :tangle yes
-  (tool-bar-mode -1)                      ;禁用工具栏
-  (menu-bar-mode -1)                      ;禁用菜单栏
-  (scroll-bar-mode -1)                    ;禁用滚动条
-  (tooltip-mode -1)                       ;禁用tooltips
+  (tool-bar-mode -1)                              ;禁用工具栏
+  (menu-bar-mode -1)                              ;禁用菜单栏
+  (scroll-bar-mode -1)                            ;禁用滚动条
+  (tooltip-mode -1)                               ;禁用tooltips
+  (auto-compression-mode 1)                       ;打开压缩文件时自动解压缩
+  (global-hl-line-mode 1)                         ;高亮当前行
+  (show-paren-mode t)                             ;显示括号匹配
+  (global-subword-mode 1)                         ;Word移动支持 FooBar 的格式
+  (electric-pair-mode -1)                         ;关闭内置补全,使用smartparens
 
-  ;; 其他核心Emacs设置
-  (auto-compression-mode 1)               ;打开压缩文件时自动解压缩
-  (global-hl-line-mode 1)                 ;高亮当前行
-  (show-paren-mode t)                     ;显示括号匹配
-  (global-subword-mode 1)                 ;Word移动支持 FooBar 的格式
+  (setq echo-keystrokes 0.1)                       ;加快快捷键提示的速度
+  (setq kill-ring-max 1024)                        ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
+  (setq mark-ring-max 1024)                        ;设置的mark ring容量
+  (setq eval-expression-print-length nil)          ;设置执行表达式的长度没有限制
+  (setq eval-expression-print-level nil)           ;设置执行表达式的深度没有限制
+  (setq isearch-allow-scroll t)                    ;isearch搜索时是可以滚动屏幕的
+  (setq enable-recursive-minibuffers t)            ;minibuffer 递归调用命令
+  (setq history-delete-duplicates t)               ;删除minibuffer的重复历史
+  (setq minibuffer-message-timeout 1)              ;显示消息超时的时间
+  (setq show-paren-style 'parentheses)             ;括号匹配显示但不是烦人的跳到另一个括号。
+  (setq blink-matching-paren nil)                  ;当插入右括号时不显示匹配的左括号
+  (setq message-log-max t)                         ;设置message记录全部消息, 而不用截去
+  (setq x-stretch-cursor t)                        ;光标在 TAB 字符上会显示为一个大方块
+  (setq print-escape-newlines t)                   ;显示字符窗中的换行符为 \n
+  (setq tramp-default-method "ssh")                ;设置传送文件默认的方法
+  (setq x-alt-keysym 'meta)                        ;Map Alt key to Meta
+  (setq confirm-kill-emacs 'y-or-n-p)              ;Yes-y, No-n
+  (setq confirm-kill-processes nil)                ;Automatically kill all active processes when closing Emacs
+  (setq ad-redefinition-action 'accept)            ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
+  (setq ring-bell-function 'ignore)                ;Do not noise
+  (setq use-dialog-box nil)                        ;never pop dialog
+  (setq inhibit-startup-screen t)                  ;inhibit start screen
+  (setq initial-scratch-message "")                ;关闭启动空白buffer, 这个buffer会干扰session恢复
+  (setq default-major-mode 'text-mode)             ;设置默认地主模式为TEXT模式
+  (setq mouse-yank-at-point t)                     ;粘贴于光标处,而不是鼠标指针处
+  (setq x-select-enable-clipboard t)               ;支持emacs和外部程序的粘贴
+  (setq frame-resize-pixelwise t)                  ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
-  (setq echo-keystrokes 0.1)              ;加快快捷键提示的速度
-  (setq kill-ring-max 1024)               ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
-  (setq mark-ring-max 1024)               ;设置的mark ring容量
-  (setq eval-expression-print-length nil) ;设置执行表达式的长度没有限制
-  (setq eval-expression-print-level nil)  ;设置执行表达式的深度没有限制
-  (setq isearch-allow-scroll t)           ;isearch搜索时是可以滚动屏幕的
-  (setq enable-recursive-minibuffers t)   ;minibuffer 递归调用命令
-  (setq history-delete-duplicates t)      ;删除minibuffer的重复历史
-  (setq minibuffer-message-timeout 1)     ;显示消息超时的时间
-  (setq show-paren-style 'parentheses)    ;括号匹配显示但不是烦人的跳到另一个括号。
-  (setq blink-matching-paren nil)         ;当插入右括号时不显示匹配的左括号
-  (setq message-log-max t)                ;设置message记录全部消息, 而不用截去
-  (setq x-stretch-cursor t)               ;光标在 TAB 字符上会显示为一个大方块
-  (setq print-escape-newlines t)          ;显示字符窗中的换行符为 \n
-  (setq tramp-default-method "ssh")       ;设置传送文件默认的方法
-  (setq x-alt-keysym 'meta)               ;Map Alt key to Meta
-  (setq confirm-kill-emacs 'y-or-n-p)     ;Yes-y, No-n
-  (setq confirm-kill-processes nil)       ;Automatically kill all active processes when closing Emacs
-  (setq ad-redefinition-action 'accept)   ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
-  (setq ring-bell-function 'ignore)       ;Do not noise
-  (setq use-dialog-box nil)               ;never pop dialog
-  (setq inhibit-startup-screen t)         ;inhibit start screen
-  (setq initial-scratch-message "")       ;关闭启动空白buffer, 这个buffer会干扰session恢复
-  (setq default-major-mode 'text-mode)    ;设置默认地主模式为TEXT模式
-  (setq mouse-yank-at-point t)            ;粘贴于光标处,而不是鼠标指针处
-  (setq x-select-enable-clipboard t)      ;支持emacs和外部程序的粘贴
-  (setq frame-resize-pixelwise t)         ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
-
-  (setq-default require-final-newline nil)  ;不自动添加换行符到末尾, 有些情况会出现错误
-  (setq-default auto-revert-mode 1)         ;自动更新buffer
-  (setq-default void-text-area-pointer nil) ;禁止显示鼠标指针
-  (setq-default create-lockfiles nil)       ;Do not create lock files
-  (setq-default history-length 500)         ;Set history-length longer
+  (setq-default comment-style 'indent)             ;设定自动缩进的注释风格
+  (setq-default require-final-newline nil)         ;不自动添加换行符到末尾, 有些情况会出现错误
+  (setq-default auto-revert-mode 1)                ;自动更新buffer
+  (setq-default void-text-area-pointer nil)        ;禁止显示鼠标指针
+  (setq-default create-lockfiles nil)              ;Do not create lock files
+  (setq-default history-length 500)                ;Set history-length longer
   (setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
-
   (setq byte-compile-warnings
         (quote (
                 ;; 显示的警告
@@ -279,7 +237,7 @@
 
   ;; **全局优化行号显示**
   (setq display-line-numbers-grow-only t) ;; 避免滚动时行号重绘卡顿
-  (setq display-line-numbers-type 'relative) ;; 使用相对行号（可选）
+  ;; (setq display-line-numbers-type 'relative) ;; 使用相对行号（可选）
 
   ;; **所有编程模式启用行号**
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
@@ -295,84 +253,77 @@
 
 * Indent
 #+begin_src emacs-lisp :tangle yes
+  ;; 全局设置使用空格而非制表符
+  ;;(setq-default indent-tabs-mode nil)    ;; 不使用制表符进行缩进
+  ;;(setq-default tab-width 4)             ;; 默认 Tab 显示为 4 个空格宽度
 
-;; 全局设置使用空格而非制表符
-(setq-default indent-tabs-mode nil)    ;; 不使用制表符进行缩进
-(setq-default tab-width 4)             ;; Tab显示为4个空格宽度
+  ;; 通用空格缩进函数
+  (defun my/use-spaces-setup ()
+    "设置使用空格进行缩进。"
+    (setq indent-tabs-mode nil)
+    (setq tab-width 4))
 
-;; 通用空格缩进函数
-(defun my/use-spaces-setup ()
-  "设置使用空格进行缩进。"
-  (setq indent-tabs-mode nil)
-  (setq tab-width 4))
+  ;; 为所有编程模式设置空格缩进
+  (add-hook 'prog-mode-hook 'my/use-spaces-setup)
 
-;; 为所有编程模式设置空格缩进
-(add-hook 'prog-mode-hook 'my/use-spaces-setup)
+  ;; 设置 org-mode 的 tab-width 为 8
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (setq-local tab-width 8)
+              (setq-local indent-tabs-mode t)))  ; 使用制表符
 
-;; Go语言缩进设置（注意：Go官方标准使用制表符，这里改为空格）
-(add-hook 'go-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode nil)   ;; 使用空格而非制表符
-            (setq tab-width 4)            ;; 缩进宽度为4
-            (when (boundp 'go-tab-width)
-              (setq go-tab-width 4))
-            ;; 警告：这会与gofmt产生冲突，可能需要禁用gofmt或接受它会将空格转回制表符
-            (when (boundp 'gofmt-command)
-              (setq gofmt-args '("-s" "-r"))))) ;; 尝试保留空格，但可能不完全有效
-
-;; Erlang语言缩进设置
-(add-hook 'erlang-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode nil)
-            (setq tab-width 4)
-            ;; Erlang模式特有的缩进变量
-            (when (boundp 'erlang-indent-level)
-              (setq erlang-indent-level 4))
-            (when (boundp 'erlang-tab-always-indent)
-              (setq erlang-tab-always-indent t))))
-
-;; Java语言缩进设置
-(add-hook 'java-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode nil)
-            (setq tab-width 4)
-            (setq c-basic-offset 4)       ;; Java使用c-mode的缩进机制
-            ;; 设置Java特定的缩进样式
-            (c-set-offset 'arglist-intro '+)     ;; 参数列表第一行多缩进一级
-            (c-set-offset 'arglist-cont 0)       ;; 参数列表后续行与第一行对齐
-            (c-set-offset 'arglist-close 0)      ;; 参数列表结束括号与第一行对齐
-            (c-set-offset 'statement-cont 0)))   ;; 语句延续行与第一行对齐
-
-;; 支持tree-sitter模式
-(with-eval-after-load 'treesit
-  ;; Go的tree-sitter模式
-  (add-hook 'go-ts-mode-hook
+  ;; Go 语言缩进设置
+  (add-hook 'go-mode-hook
             (lambda ()
               (setq indent-tabs-mode nil)
               (setq tab-width 4)
-              (when (boundp 'go-ts-mode-indent-offset)
-                (setq go-ts-mode-indent-offset 4))))
+              (when (boundp 'go-tab-width)
+                (setq go-tab-width 4))))
 
-  ;; Erlang的tree-sitter模式（如果可用）
-  (when (fboundp 'erlang-ts-mode-hook)
-    (add-hook 'erlang-ts-mode-hook
-              (lambda ()
-                (setq indent-tabs-mode nil)
-                (setq tab-width 4)
-                (when (boundp 'erlang-ts-indent-offset)
-                  (setq erlang-ts-indent-offset 4)))))
-
-  ;; Java的tree-sitter模式
-  (add-hook 'java-ts-mode-hook
+  ;; Erlang 语言缩进设置
+  (add-hook 'erlang-mode-hook
             (lambda ()
               (setq indent-tabs-mode nil)
               (setq tab-width 4)
-              (when (boundp 'java-ts-mode-indent-offset)
-                (setq java-ts-mode-indent-offset 4)))))
+              (when (boundp 'erlang-indent-level)
+                (setq erlang-indent-level 4))
+              (when (boundp 'erlang-tab-always-indent)
+                (setq erlang-tab-always-indent t))))
+
+  ;; Java 语言缩进设置
+  (add-hook 'java-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)
+              (setq c-basic-offset 4)
+              (c-set-offset 'arglist-intro '+)
+              (c-set-offset 'arglist-cont 0)
+              (c-set-offset 'arglist-close 0)
+              (c-set-offset 'statement-cont 0)))
+
+  ;; Rust 语言缩进设置
+  (add-hook 'rust-mode-hook
+	    (lambda ()
+	      (setq-local indent-tabs-mode nil
+			  tab-width 4
+			  rust-indent-offset 4)))
+
+  ;; 支持 tree-sitter 模式
+  (with-eval-after-load 'treesit
+    (dolist (mode-hook '((go-ts-mode-hook . go-ts-mode-indent-offset)
+                         (erlang-ts-mode-hook . erlang-ts-indent-offset)
+                         (java-ts-mode-hook . java-ts-mode-indent-offset)
+                         (rust-ts-mode-hook . rust-ts-mode-indent-offset)))
+      (let ((hook (car mode-hook))
+            (offset-var (cdr mode-hook)))
+        (add-hook hook
+                  (lambda ()
+                    (setq-local  indent-tabs-mode nil)
+                    (setq-local  tab-width 4))))))
+
 #+end_src
 * UTF8
 #+begin_src emacs-lisp :tangle yes
-  ;; UTF8Coding
   (unless *sys/win32*
     (set-selection-coding-system 'utf-8)
     (prefer-coding-system 'utf-8)
@@ -384,36 +335,11 @@
   ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
   (when (display-graphic-p)
     (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-  ;; -UTF8Coding
 #+end_src
 * Functions
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-  (defconst sys/win32p (eq system-type 'windows-nt) "Are we running on a WinTel system?")
-  (defconst sys/linuxp (eq system-type 'gnu/linux) "Are we running on a GNU/Linux?")
-  (defconst sys/linux-x-p (and (display-graphic-p) sys/linuxp) "X on GNU/Linux?")
-  (defconst sys/macp (eq system-type 'darwin) "running on a Mac system?")
-  (defconst sys/mac-x-p (and (display-graphic-p) sys/macp) "X on a Mac system?")
-  (defconst sys/mac-cocoa-p (featurep 'cocoa) "with Cocoa on a Mac system?")
-  (defconst sys/mac-port-p (eq window-system 'mac) "macport build on a Mac system?")
-  (defconst sys/cygwinp (eq system-type 'cygwin) "Are we running on a Cygwin system?")
-  (defconst sys/rootp (string-equal "root" (getenv "USER")) "Are you using ROOT user?")
-  (defconst emacs/>=27p
-    (>= emacs-major-version 27)
-    "Emacs is 27 or above.")
-
-  (defconst emacs/>=28p
-    (>= emacs-major-version 28)
-    "Emacs is 28 or above.")
-
-  (defconst emacs/>=29p
-    (>= emacs-major-version 29)
-    "Emacs is 29 or above.")
-
-  (defvar socks-noproxy)
-  (defvar socks-server)
-  (defcustom http-proxy "127.0.0.1:8123" "Set network proxy." :group 'centaur :type 'string)
+  (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
 
   ;; from lazycat emacs config
   (defun org-export-docx ()
@@ -429,13 +355,6 @@
                              ))
       (message "Convert finish: %s" docx-file)))
 
-
-  ;; --------------------------------------------
-  ;; 辅助函数
-  ;; --------------------------------------------
-  (defun x/system-is-mac () (interactive) (string-equal system-type "darwin"))
-
-  (defun x/system-is-linux () (interactive) (string-equal system-type "gnu/linux"))
 
   (defun format-function-parameters ()
     "Turn the list of function parameters into multiline."
@@ -473,82 +392,6 @@
     (if (file-exists-p filename)
         (insert (concat "[[file:" filename "]]"))))
 
-
-  ;; --------------------------------------------
-  ;; proxy 操作辅助函数
-  ;; --------------------------------------------
-  (defun proxy-http-show ()
-    "Show HTTP/HTTPS proxy."
-    (interactive)
-    (if url-proxy-services
-        (message "Current HTTP proxy is `%s'" http-proxy)
-      (message "No HTTP proxy")))
-
-  (defun proxy-http-enable ()
-    "Enable HTTP/HTTPS proxy."
-    (interactive)
-    (setq url-proxy-services
-          `(("http" . ,http-proxy)
-            ("https" . ,http-proxy)
-            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-    (proxy-http-show))
-
-  (defun proxy-http-disable ()
-    "Disable HTTP/HTTPS proxy."
-    (interactive)
-    (setq url-proxy-services nil)
-    (proxy-http-show))
-
-  (defun proxy-http-toggle ()
-    "Toggle HTTP/HTTPS proxy."
-    (interactive)
-    (if (bound-and-true-p url-proxy-services)
-        (proxy-http-disable)
-      (proxy-http-enable)))
-
-  (defun proxy-socks-show ()
-    "Show SOCKS proxy."
-    (interactive)
-    (when (fboundp 'cadddr)                ; defined 25.2+
-      (if (bound-and-true-p socks-noproxy)
-          (message "Current SOCKS%d proxy is %s:%s"
-                   (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-        (message "No SOCKS proxy"))))
-
-  (defun proxy-socks-enable ()
-    "Enable SOCKS proxy."
-    (interactive)
-    (require 'socks)
-    (setq url-gateway-method 'socks
-          socks-noproxy '("localhost"))
-    (let* ((proxy (split-string socks-proxy ":"))
-           (host (car proxy))
-           (port (cadr  proxy)))
-      (setq socks-server `("Default server" ,host ,port 5)))
-    (setenv "all_proxy" (concat "socks5://" socks-proxy))
-    (proxy-socks-show))
-
-  (defun proxy-socks-disable ()
-    "Disable SOCKS proxy."
-    (interactive)
-    (setq url-gateway-method 'native
-          socks-noproxy nil
-          socks-server nil)
-    (setenv "all_proxy" "")
-    (proxy-socks-show))
-
-  (defun proxy-socks-toggle ()
-    "Toggle SOCKS proxy."
-    (interactive)
-    (if (bound-and-true-p socks-noproxy)
-        (proxy-socks-disable)
-      (proxy-socks-enable)))
-
-  (defun x/save-all ()
-    "Save all file-visiting buffers without prompting."
-    (interactive)
-    (save-some-buffers t))
-
   (defun x/open-init-file ()
     (interactive)
     (find-file user-init-file))
@@ -559,13 +402,6 @@
     (load user-init-file)
     (message "Reloaded init.el OK."))
 
-  (defun sudo ()
-    "Use TRAMP to `sudo' the current buffer"
-    (interactive)
-    (when buffer-file-name
-      (find-alternate-file
-       (concat "/sudo:root@localhost:"
-               buffer-file-name))))
   (defun dos2unix ()
     "Convert the current buffer to UNIX file format."
     (interactive)
@@ -576,7 +412,7 @@
     (interactive)
     (set-buffer-file-coding-system 'undecided-dos nil))
 
-  (defun delete-trailing-M()
+  (defun delete-trailing-M ()
     "Delete `^M' characters in the buffer.
                 Same as `replace-string C-q C-m RET RET'."
     (interactive)
@@ -718,10 +554,6 @@
   (defalias 'resize-window-height (resize-window-dimension 'height)
     "Resizes the window height based on percentage input.")
 
-  ;; Setup shorcuts for window resize width and height
-  ;;(global-set-key (kbd "C-z w") #'resize-window-width)
-  ;;(global-set-key (kbd "C-z h") #'resize-window-height)
-
   (defun resize-window (width delta)
     "Resize the current window's size.  If WIDTH is non-nil, resize width by some DELTA."
     (if (> (count-windows) 1)
@@ -748,9 +580,7 @@
   (defun edit-configs ()
     "Opens the README.org file."
     (interactive)
-    (find-file "~/.emacs.d/init.org"))
-
-  ;; (global-set-key (kbd "C-z e") #'edit-configs)
+    (find-file "~/.emacs.d/config.org"))
 
   ;; OrgIncludeAuto
   (defun save-and-update-includes ()
@@ -866,14 +696,18 @@
 
 * Fundamental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package posframe :defer t)
-  (use-package protobuf-mode :defer t)
-  (use-package markdown-mode :defer t)
-  (use-package dockerfile-mode :defer t)
-  (use-package nginx-mode :defer t)
-  (use-package json-mode :defer t)
-  (use-package json-reformat :defer t)
-  (use-package comment-dwim-2 :defer t)
+  (use-package posframe         :defer t)
+  (use-package protobuf-mode    :defer t)
+  (use-package markdown-mode    :defer t)
+  (use-package dockerfile-mode  :defer t)
+  (use-package nginx-mode       :defer t)
+  (use-package json-mode        :defer t)
+  (use-package json-reformat    :defer t)
+  (use-package comment-dwim-2   :defer t)
+  (use-package sh-script        :defer t)
+  (use-package lua-mode         :defer t)
+  (use-package yaml-mode        :defer t)
+
   (use-package buffer-flip)
   (use-package restclient :config (setq restclient-inhibit-cookies t))
   (use-package autorevert :ensure nil :hook (after-init . global-auto-revert-mode))
@@ -882,9 +716,8 @@
   (use-package sudo-edit :commands (sudo-edit))
   (use-package discover-my-major :bind ("C-h C-m" . discover-my-major))
   (use-package exec-path-from-shell
-    :if (or sys/mac-x-p sys/linux-x-p)
     :config
-    (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY"))
+    (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
     (exec-path-from-shell-initialize))
   (use-package which-key
     :hook (after-init . which-key-mode)
@@ -894,66 +727,78 @@
       (which-key-setup-side-window-right)))
 #+END_SRC
 * Search
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package rainbow-delimiters
-    :config
-    (remove-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-    (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
-    (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
+  #+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package rainbow-delimiters
+      :config
+      (remove-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+      (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+      (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
 
-  (use-package projectile
-    :init (setq projectile-mode-line-prefix " P") ; 轻量级设置
-    :defer 1  ; 延迟1秒加载
-    :config (projectile-mode))
+    (use-package projectile
+      :ensure t  ; 确保 projectile 已安装
+      :defer 1   ; 延迟 1 秒加载
+      :init
+      (setq projectile-mode-line-prefix " P")  ; 轻量级设置，模式行前缀
+      :config
+      (projectile-mode 1)  ; 启用 projectile 模式
+      (setq projectile-enable-caching t)  ; 启用缓存以提高性能
+      (setq projectile-completion-system 'default))  ; 使用默认的补全系统
 
-  (use-package ivy
-    :diminish
-    :init
-    (use-package amx :defer t)
-    (use-package counsel :diminish :config (counsel-mode 1))
-    (use-package swiper :defer t)
-    (ivy-mode 1)
-    :bind
-    (("C-s" . swiper-isearch)
-     ;;("C-z s" . counsel-rg)
-     ;;("C-z b" . counsel-buffer-or-recentf)
-                                          ;("C-z C-b" . counsel-ibuffer)
-     ("M-y" . counsel-yank-pop)
-     (:map ivy-minibuffer-map
-           ("M-RET" . ivy-immediate-done))
-     (:map counsel-find-file-map
-           ("C-~" . counsel-goto-local-home)))
-    :custom
-    (ivy-use-virtual-buffers t)
-    (ivy-height 10)
-    (ivy-on-del-error-function nil)
-    (ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
-    (ivy-count-format "【%d/%d】")
-    (ivy-wrap t)
-    :config
-    (defun counsel-goto-local-home ()
-      "Go to the $HOME of the local machine."
-      (interactive)
-      (ivy--cd "~/")))
+    (use-package ivy
+      :diminish
+      :init
+      (use-package amx :defer t)
+      (use-package counsel :diminish :config (counsel-mode 1))
+      (use-package swiper :defer t)
+      (ivy-mode 1)
+      :bind
+      (("C-s" . swiper-isearch)
+       ("M-y" . counsel-yank-pop)
+       (:map ivy-minibuffer-map
+             ("M-RET" . ivy-immediate-done))
+       (:map counsel-find-file-map
+             ("C-~" . counsel-goto-local-home)))
+      :custom
+      (ivy-use-virtual-buffers t)
+      (ivy-height 10)
+      (ivy-on-del-error-function nil)
+      (ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
+      (ivy-count-format "【%d/%d】")
+      (ivy-wrap t)
+      :config
+      (defun counsel-goto-local-home ()
+        "Go to the $HOME of the local machine."
+        (interactive)
+        (ivy--cd "~/")))
 
-  (use-package color-rg
-    :straight (color-rg :type git :host github :repo "manateelazycat/color-rg")
-    :if (executable-find "rg")
-    :bind ("C-M-s" . color-rg-search-input))
+    (use-package color-rg
+      :straight (color-rg :type git :host github :repo "manateelazycat/color-rg")
+      :if (executable-find "rg")
+      :bind ("C-M-s" . color-rg-search-input))
 
-  (use-package find-file-in-project
-    :defer t
-    :if (executable-find "find")
-    :init
-    (when (executable-find "fd")
-      (setq ffip-use-rust-fd t))
-    ;;:bind (("C-z o" . ffap)
-    ;;      ("C-z p" . ffip))
-    )
-  ;; -FFIPPac
-#+END_SRC
+    (use-package find-file-in-project
+      :defer t
+      :if (executable-find "find")
+      :init
+      (when (executable-find "fd")
+        (setq ffip-use-rust-fd t)))
+  #+END_SRC
 * Quick Search And Move
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package smartparens
+    :ensure t
+    :config
+    (require 'smartparens-config)
+    (smartparens-global-mode 1)
+    (setq sp-autodelete-closing-pair 'always) ; 删除左符号时删除右符号
+    (with-eval-after-load 'smartparens
+      (define-key smartparens-mode-map (kbd "DEL") 'sp-backward-delete-char)
+      (define-key smartparens-mode-map (kbd "<backspace>") 'sp-backward-delete-char)))
+  (use-package evil-smartparens
+    :ensure t
+    :after (evil smartparens)
+    :hook (smartparens-mode . evil-smartparens-mode))
+
   (use-package avy)
   (use-package vundo
     :defer t
@@ -975,43 +820,6 @@
     (define-key vundo-mode-map (kbd "q") #'vundo-quit)
     (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
     (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
-
-  (use-package hideshow
-    :hook (prog-mode . hs-minor-mode)
-    :config
-    (defconst hideshow-folded-face '((t (:inherit 'font-lock-comment-face :box t))))
-
-    (defface hideshow-border-face
-      '((((background light))
-         :background "rosy brown" :extend t)
-        (t
-         :background "sandy brown" :extend t))
-      "Face used for hideshow fringe."
-      :group 'hideshow)
-
-    (define-fringe-bitmap 'hideshow-folded-fringe
-      (vector #b00000000
-              #b00000000
-              #b00000000
-              #b11000011
-              #b11100111
-              #b01111110
-              #b00111100
-              #b00011000))
-
-    (defun hideshow-folded-overlay-fn (ov)
-      "Display a folded region indicator with the number of folded lines."
-      (when (eq 'code (overlay-get ov 'hs))
-        (let* ((nlines (count-lines (overlay-start ov) (overlay-end ov)))
-               (info (format " (%d)..." nlines)))
-          ;; fringe indicator
-          (overlay-put ov 'before-string (propertize " "
-                                                     'display '(left-fringe hideshow-folded-fringe
-                                                                            hideshow-border-face)))
-          ;; folding indicator
-          (overlay-put ov 'display (propertize info 'face hideshow-folded-face)))))
-    :custom
-    (hs-set-up-overlay #'hideshow-folded-overlay-fn))
 
 #+END_SRC
 
@@ -1065,7 +873,8 @@
   (defun x/config-evil-leader ()
     (evil-leader/set-leader ",")
     (evil-leader/set-key
-      ","  'avy-goto-char-2
+      ","  'avy-goto-line
+      "."  'avy-goto-char-2
       ":"  'eval-expression
 
       "ai" 'aider-transient-menu
@@ -1081,18 +890,6 @@
       "bZ" 'unbury-buffer         ;反隐藏当前buffer
 
       "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
-
-      ;; --------------
-      "bm" 'bookmark-set
-      "bM" 'bookmark-set-no-overwrite
-      "bi" 'bookmark-insert
-      "br" 'bookmark-rename
-      "bd" 'bookmark-delete
-      "bw" 'bookmark-write
-      "bj" 'bookmark-jump
-      "bJ" 'bookmark-jump-other-window
-      "bl" 'bookmark-bmenu-list
-      "bs" 'bookmark-save
 
       ;; code
       "cc" 'comment-dwim
@@ -1119,7 +916,6 @@
       "fn" '+copy-current-filename
       "fr" '+rename-current-file
       "fR" 'recentf-open-files
-      "fa" 'x/save-all
 
       ;; magit
       "gs" 'magit-status
@@ -1147,7 +943,8 @@
       ;; search
       "sI" 'imenu
       "sr" 'counsel-rg
-      "s/" 'counsel-rg
+      "sy" 'counsel-yank-pop
+      "sb" 'counsel-ibuffer
       "si" 'color-rg-search-input
       "ss" 'color-rg-search-symbol-in-project
       "sp" 'color-rg-search-project
@@ -1162,13 +959,12 @@
       "wf" 'other-frame
 
       ;; fold
-      "zA" 'evil-close-folds
-      "za" 'evil-open-folds
-      "zo" 'evil-open-fold
-      "zO" 'evil-open-fold-rec
-      "zc" 'evil-close-fold
-      "zC" 'evil-close-fold-rec
-      "zt" 'evil-toggle-fold
+      "zz" 'treesit-fold-open
+      "zZ" 'treesit-fold-open-recursively
+      "zc" 'treesit-fold-close
+      "zC" 'treesit-fold-close-all
+      "za" 'treesit-fold-open-all
+      "zt" 'treesit-fold-toggle
       ))
 
   (use-package undo-fu :straight t :ensure t)
@@ -1224,61 +1020,32 @@
 
 * Org-Mode
 ** Org 辅助配置
-
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package f :ensure t)
   (use-package valign :defer t :custom (valign-fancy-bar 1) :hook ((org-mode . valign-mode)))
   (use-package org-auto-tangle :hook (org-mode . org-auto-tangle-mode) :config (setq org-auto-tangle-default t))
   (use-package toc-org :ensure t :hook (org-mode . toc-org-mode))
-  (use-package f :ensure t)
-  (use-package emacs
-    :ensure nil
-    :after org
-    :bind (:map org-mode-map
-                ("s-V" . my/org-insert-clipboard-image))
-    :config
-    (defun my/org-insert-clipboard-image (width)
-      "create a time stamped unique-named file from the clipboard in the sub-directory
-       (%filename.assets) as the org-buffer and insert a link to this file."
-      (interactive (list
-                    (read-string (format "Input image width, default is 800: ")
-                                 nil nil "800")))
-      ;; 设置图片存放的文件夹位置为 `当前Org文件同名.assets'
-      (setq foldername (concat (file-name-base (buffer-file-name)) ".assets/"))
-      (if (not (file-exists-p foldername))
-          (mkdir foldername))
-      ;; 设置图片的文件名，格式为 `img_年月日_时分秒.png'
-      (setq imgName (concat "img_" (format-time-string "%Y%m%d_%H%M%S") ".png"))
-      ;; 图片文件的相对路径
-      (setq relativeFilename (concat (file-name-base (buffer-name)) ".assets/" imgName))
-      ;; 根据不同的操作系统设置不同的命令行工具
-      (cond ((string-equal system-type "gnu/linux")
-             (shell-command (concat "xclip -selection clipboard -t image/png -o > " relativeFilename)))
-            ((string-equal system-type "darwin")
-             (shell-command (concat "pngpaste " relativeFilename))))
-      ;; 给粘贴好的图片链接加上宽度属性，方便导出
-      (insert (concat "\n#+DOWNLOADED: screenshot @ "
-                      (format-time-string "%Y-%m-%d %a %H:%M:%S" (current-time))
-                      "\n#+CAPTION: \n#+ATTR_ORG: :width "
-                      width
-                      "\n#+ATTR_LATEX: :width "
-                      (if (>= (/ (string-to-number width) 800.0) 1.0)
-                          "1.0"
-                        (number-to-string (/ (string-to-number width) 800.0)))
-                      "\\linewidth :float nil\n"
-                      "#+ATTR_HTML: :width "
-                      width
-                      "\n[[file:" relativeFilename "]]\n"))
-      ;; 重新显示一下图片
-      (org-redisplay-inline-images)))
-
   (use-package plantuml-mode :defer t :custom (org-plantuml-jar-path (expand-file-name plantuml-path)))
   (use-package polymode)
+  (use-package org-download
+    :config
+    ;; 保存路径包含 /static/ 时, ox-hugo 在导出时保留后面的目录层次。
+    (setq-default org-download-image-dir "./static/images/")
+    (setq org-download-method 'directory
+          org-download-display-inline-images 'posframe
+          ;;org-download-image-attr-list '("#+ATTR_HTML: :width 800 :align left"))
+          org-download-image-attr-list '("#+ATTR_HTML: :width 800:align left"))
+    (add-hook 'dired-mode-hook 'org-download-enable)
+    (org-download-enable)
+    (global-set-key (kbd "<f6>") #'org-download-screenshot)
+    ;; 不添加 #+DOWNLOADED: 注释。
+    (setq org-download-annotate-function (lambda (link) (previous-line 1) "")))
   (use-package image-slicing
     :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
+    :hook (org-mode . image-slicing-mode)
     :custom
-    (image-slicing-line-height-scale 1)
-    (image-slicing-max-width 800)
-    :hook (org-mode . image-slicing-mode))
+    (image-slicing-line-height-scale 2)
+    (image-slicing-max-width 800))
 #+END_SRC
 
 ** Org 主配置
@@ -1298,7 +1065,9 @@
     (org-export-backends (quote (ascii html icalendar latex md odt)))
     (org-use-speed-commands t)
     (org-confirm-babel-evaluate 'nil)
-    (org-image-actual-width '(1270))
+    (org-image-align 'left)
+    (org-image-actual-width '(768))
+    (org-image-max-width 'fill-column)
     (org-startup-folded 'content)
     ;; (org-latex-listings-options '(("breaklines" "true")))
     ;; (org-latex-listings t)
@@ -1329,12 +1098,11 @@
     ;;   (setq-local org-latex-listings 'minted)
     ;;   (add-to-list 'org-latex-packages-alist '("newfloat" "minted")))
 
-    (defun org-table-insert-vertical-hline ()
-      "Insert a #+attr_latex to the current buffer, default the align to |c|c|c|, adjust if necessary."
+    (defun org-table-insert-attr ()
+      "tabularx 的特殊 align 参数 X 用来对指定列内容自动换行，表格前需要加如下属性："
       (interactive)
-      (insert "#+attr_latex: :align |c|c|c|"))
+       (insert "#+ATTR_LATEX: :environment tabularx :booktabs t :width \linewidth :align l|X"))
     )
-
 #+END_SRC
 
 * Org-Latex
@@ -1518,14 +1286,24 @@
     "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
     (interactive)
     (save-some-buffers t))
-  (global-set-key (kbd "C-x C-s") nil)
-  (global-set-key (kbd "C-x C-s") #'save-all-buffers)
-  ;; -SaveAllBuffers
+
 #+END_SRC
 
 * Treesit
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+  (use-package treesit-fold :straight (treesit-fol :type git :host github :repo "emacs-tree-sitter/treesit-fold") :config)
+
   ;; cargo install tree-sitter-cli
+  ;; M-x 执行 M-x treesit-auto-install-all 来安装所有的 treesit modules。
+  ;; 如果要重新安装(升级) grammer, 需要先删除 dylib 文件或 tree-sitter 目录, 重启 emacs 后再执行 M-x treesit-auto-install-all. 
+  ;; (use-package treesit-auto
+  ;;   :demand t
+  ;;   :config
+  ;;   (setq treesit-auto-install 'prompt)
+  ;;   (global-treesit-auto-mode))
+
+
   ;; M-x `treesit-install-language-grammar` to install language grammar.
   (use-package treesit-auto
     :ensure t
@@ -1536,7 +1314,7 @@
             (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
             (css . ("https://github.com/tree-sitter/tree-sitter-css"))
             (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
-            (csharp     . ("https://github.com/tree-sitter/tree-sitter-c-sharp.git"))
+            ;;(csharp     . ("https://github.com/tree-sitter/tree-sitter-c-sharp.git"))
             (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))
             (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
             (erlang . ("https://github.com/WhatsApp/tree-sitter-erlang"))
@@ -1552,10 +1330,10 @@
             (make . ("https://github.com/alemuller/tree-sitter-make"))
             (markdown . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
             (markdown-inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
-            (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" nil "ocaml/src"))
+            ;;(ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" nil "ocaml/src"))
             (org . ("https://github.com/milisims/tree-sitter-org"))
             (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-            (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+            ;;(php . ("https://github.com/tree-sitter/tree-sitter-php"))
             (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src"))
             (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src"))
             (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
@@ -1568,7 +1346,7 @@
             (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
             (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
             (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
-            (nix . ("https://github.com/nix-community/nix-ts-mode"))
+            ;;(nix . ("https://github.com/nix-community/nix-ts-mode"))
             (mojo . ("https://github.com/HerringtonDarkholme/tree-sitter-mojo"))))
 
     (setq major-mode-remap-alist
@@ -1588,9 +1366,9 @@
             (markdown-mode   . markdown-ts-mode)
             ))
 
-    ;;(dolist (lang (mapcar #'car treesit-language-source-alist))
-    ;;  (unless (treesit-language-available-p lang)
-    ;;    (treesit-install-language-grammar lang)))
+    (dolist (lang (mapcar #'car treesit-language-source-alist))
+      (unless (treesit-language-available-p lang)
+        (treesit-install-language-grammar lang)))
 
     (add-hook 'web-mode-hook #'(lambda ()
                                  (let ((file-name (buffer-file-name)))
@@ -1641,27 +1419,13 @@
     (ediff-split-window-function #'split-window-horizontally)
     (ediff-window-setup-function #'ediff-setup-windows-plain))
 
-  ;; Golang
+  ;; golang
   (use-package go-mode)
-
   (defun go-run-buffer()
     (interactive)
     (shell-command (concat "go run " (buffer-name))))
 
-  ;; ;;; ### Golang ###
-  ;; (lazy-load-unset-keys
-  ;;  '("C-k" "M-o")
-  ;;  go-mode-map)
-  ;; (lazy-load-set-keys
-  ;;  '(
-  ;;    ("C-c C-c" . go-run-buffer)
-  ;;    ("C-c C-f" . gofmt)
-  ;;    ("C-c C-d" . godoc)
-  ;;    ("C-c C-a" . go-import-add)
-  ;;    )
-  ;;  go-mode-map)
-
-  ;; ;; Erlang
+  ;;  Erlang
   (let* ((tools-version erlang-lib-tools-version)
          (path-prefix erlang-path-prefix)
          (tools-path
@@ -1673,18 +1437,17 @@
       (require 'erlang-start)
       (defvar inferior-erlang-prompt-timeout t)))
 
-  ;;---------------------------------------------------------
+  ;; Cpp
   (use-package cc-mode
     :ensure nil
     :bind (:map c-mode-base-map
                 ("C-c c" . compile))
     :hook (c-mode-common . (lambda () (c-set-style "stroustrup")))
-    :init (setq-default c-basic-offset 4)
     :config
     (use-package modern-cpp-font-lock
       :init (modern-c++-font-lock-global-mode t)))
 
-  ;;---------------------------------------------------------
+  ;; Python
   (use-package python-mode
     :straight (:type built-in)
     :mode "\\.py\\'"
@@ -1692,20 +1455,13 @@
     (flycheck-python-pycompile-executable "python3")
     (python-shell-interpreter "python3"))
 
-    ;;;---------------------------------------------------------
+  ;; Rust
   (use-package rust-mode
     :config
     (setq rust-format-on-save t)
     (defun my/rust-lsp ()
       (setq-local lsp-completion-enable nil
                   compile-command "cargo build")))
-
-  ;;---------------------------------------------------------
-  ;; Other languages
-  ;;---------------------------------------------------------
-  (use-package sh-script :defer t :config (setq sh-basic-offset 4))
-  (use-package lua-mode)
-  (use-package yaml-mode)
 
   (use-package ein
     :if (executable-find "jupyter")
@@ -1845,15 +1601,17 @@
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   ;; macos
-  (when (x/system-is-mac)
+  (when *sys/mac*
 
-    ;; Keyboard
-    (setq mac-option-modifier 'super)
+    ;; s- 表示 Super，S- 表示 Shift, H- 表示 Hyper:
+    ;; command 作为 Meta 键。
     (setq mac-command-modifier 'meta)
-    ;; (setq mac-command-modifier       'super   ;; s: super(Command/Win)
-    ;;       mac-control-modifier       'control ;; C: Ctrl
-    ;;       mac-option-modifier        'meta    ;; M: Meta (Option/Alt)
-    ;;       )
+
+    ;; option 作为 Super 键。
+    (setq mac-option-modifier 'super)
+
+    ;; fn 作为 Hyper 键。
+    (setq ns-function-modifier 'hyper)
 
     ;; Copy/Paste
     (defun copy-from-osx ()
@@ -1873,7 +1631,7 @@
     (setq trash-directory "~/.Trash/emacs")
     (defun system-move-file-to-trash (file)
       "Use \"trash\" to move FILE to the system trash.
-          When using Homebrew, install it using \"brew install trash\"."
+            When using Homebrew, install it using \"brew install trash\"."
       (call-process (executable-find "trash")
                     nil 0 nil
                     file))
@@ -1883,7 +1641,7 @@
 
 
   ;; linux
-  (when (x/system-is-linux)
+  (when *sys/linux*
     (defun yank-to-x-clipboard ()
       (interactive)
       (if (region-active-p)
@@ -2003,8 +1761,9 @@
     (lsp-bridge-python-command "python3")       ;; 指定 Python 解释器
     (lsp-bridge-python-lsp-server "pyright")    ;; 默认使用 Pyright
     :bind
-    (("M-." . lsp-bridge-find-def)
-     ("M-," . lsp-bridge-find-def-return)
+    (("C-]" . lsp-bridge-find-def)
+     ("C-t" . lsp-bridge-find-def-return)
+     ("M-]" . lsp-bridge-find-impl)
      ("M-i" . lsp-bridge-popup-documentation)
      ("C-M-." . lsp-bridge-peek)
      :map lsp-bridge-ref-mode-map
@@ -2047,6 +1806,7 @@
     :commands (eaf-open-browser eaf-open-pdf)
     :config
     (dolist (pkg '(eaf-file-manager
+                   eaf-browser
                    eaf-pdf-viewer
                    eaf-image-viewer
                    eaf-pyqterminal
@@ -2069,245 +1829,276 @@
 
 * UI
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package dashboard
-      :config
-      ;; Icon in graphic mode
-      (when (display-graphic-p)
-        (setq
-         dashboard-set-heading-icons t
-         dashboard-set-file-icons t))
-
+  (use-package dashboard
+    :config
+    ;; Icon in graphic mode
+    (when (display-graphic-p)
       (setq
-       ;;dashboard-center-content t
-       dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
-       dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
-       dashboard-items '((recents . 5)
-                         (bookmarks . 5)
-                         (agenda . 5)
-                         (projects . 5)))
-      (dashboard-setup-startup-hook))
+       dashboard-set-heading-icons t
+       dashboard-set-file-icons t))
 
-    (use-package sort-tab
-      :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
-      :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
-      :defer t
-      :config (sort-tab-mode 1))
+    (setq
+     ;;dashboard-center-content t
+     dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
+     dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
+     dashboard-items '((recents . 5)
+                       (bookmarks . 5)
+                       (agenda . 5)
+                       (projects . 5)))
+    (dashboard-setup-startup-hook))
 
-    (use-package holo-layer
-      :if (and (display-graphic-p) (eq system-type 'darwin)) ;; Mac GUI 下启用
-      :straight (holo-layer :type git :host github :repo "manateelazycat/holo-layer")
-      :init
-      ;; 自动检测 Python 解释器路径
-      (setq holo-layer-python-command
-            (or (executable-find "python3")
-                (executable-find "python")
-                (expand-file-name "~/.venv/venv/bin/python")))
+  (use-package sort-tab
+    :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
+    :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
+    :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
+    :init
+    ;; 延迟启用，避免阻塞启动
+    (run-with-idle-timer 1 nil #'sort-tab-mode)
+    :config
+    ;; 其他自定义配置
+    (setq sort-tab-name-max-length 20      ; 标签最大长度
+          sort-tab-hide-tab-function nil   ; 不隐藏标签
+          sort-tab-cycle-navigation t))    ; 启用循环导航
 
-      ;; 优化动画延迟
-      (setq holo-layer-animation-delay 0.05)
+  (use-package holo-layer
+    :if (and (display-graphic-p) (eq system-type 'darwin)) ;; Mac GUI 下启用
+    :straight (holo-layer :type git :host github :repo "manateelazycat/holo-layer")
+    :init
+    ;; 自动检测 Python 解释器路径
+    (setq holo-layer-python-command
+          (or (executable-find "python3")
+              (executable-find "python")
+              (expand-file-name "~/.venv/venv/bin/python")))
+    ;; 优化动画延迟
+    (setq holo-layer-animation-delay 0.05)
+    :custom
+    ;; 动态启用动画特效
+    (holo-layer-enable-cursor-animation (and (>= (display-pixel-width) 2560)
+                                             (> (length (frame-list)) 1)))
+    ;;(holo-layer-enable-place-info t)  ; 可选启用
+    (holo-layer-enable-indent-rainbow t)
+    (holo-layer-enable-window-border t)
+    (holo-layer-enable-type-animation (>= (display-pixel-width) 2560))
+    (holo-layer-type-animation-style "flame")
 
-      :custom
-      ;; 动态启用动画特效
-      (holo-layer-enable-cursor-animation (and (>= (display-pixel-width) 2560)
-                                               (> (length (frame-list)) 1)))
-      ;;(holo-layer-enable-place-info t)  ; 可选启用
-      (holo-layer-enable-indent-rainbow t)
-      (holo-layer-enable-window-border t)
-      (holo-layer-enable-type-animation (>= (display-pixel-width) 2560))
-      (holo-layer-type-animation-style "flame")
+    :config
+    ;; 延迟加载，优化启动性能
+    (with-eval-after-load 'holo-layer
+      (run-with-idle-timer 1 nil #'holo-layer-enable)))
 
-      :config
-      ;; 延迟加载，优化启动性能
-      (with-eval-after-load 'holo-layer
-        (run-with-idle-timer 1 nil #'holo-layer-enable)))
+  (use-package lazycat-theme
+    :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+    :config
+    (lazycat-theme-load-dark))
 
-    (use-package lazycat-theme
-      :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-      :config
-      ;; 自动根据系统时间加载主题
-      ;; (lazycat-theme-load-dark)
-      ;; (lazycat-theme-load-light)
-      (lazycat-theme-load-with-sunrise))
-
-    (use-package awesome-tray
-      :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
-      :custom
-      (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
-                                     "mode-name" "last-command" "battery" "date"))
-      (awesome-tray-info-padding-right 1)
-      :init
-      (awesome-tray-mode 1))
+  (use-package awesome-tray
+    :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+    :custom
+    (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
+                                   "mode-name" "last-command" "battery" "date"))
+    (awesome-tray-info-padding-right 1)
+    :init
+    (awesome-tray-mode 1))
 
 #+END_SRC
 * Key-Bindings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; #######################################################################
-  ;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-  ;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
+    ;; #######################################################################
+    ;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
+    ;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
 
-  ;; --- 卸载按键, 全局按键的卸载
+    ;; ;;; ### Golang ###
+    ;; (lazy-load-unset-keys
+    ;;  '("C-k" "M-o")
+    ;;  go-mode-map)
+    ;; (lazy-load-set-keys
+    ;;  '(
+    ;;    ("C-c C-c" . go-run-buffer)
+    ;;    ("C-c C-f" . gofmt)
+    ;;    ("C-c C-d" . godoc)
+    ;;    ("C-c C-a" . go-import-add)
+    ;;  go-mode-map)
+
+    ;; (lazy-load-unset-keys
+    ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
+    ;; #######################################################################
+    ;; 关闭容易误操作的按键。
+    ;; (let ((keys '(
+    ;;               "s-w"
+    ;;               "C-z"
+    ;;               "<mouse-2>"
+    ;;               "s-k"
+    ;;               "s-,"
+    ;;               "s-."
+    ;;               "s--"
+    ;;               "s-+"
+    ;;               "C-<wheel-down>"
+    ;;               "C-<wheel-up>"
+    ;;               "C-M-<wheel-down>"
+    ;;               "C-M-<wheel-up>"
+    ;;               ;;"<down-mouse-1>"
+    ;;               ;;"<drag-mouse-1>"
+    ;;               )))
+    ;;   (dolist (key keys)
+    ;;     (global-unset-key (kbd key))))
+
+  ;; 卸载全局快捷键
   (lazy-load-unset-keys
    '("C-x C-f" "C-q" "s-T" "s-W" "s-z" "M-h" "s-c" "s-x" "s-v" "C-6" "M-." "M-," "M-]"))
-  ;; '("C-x C-f" "C-z" "C-q" "s-T" "s-W" "s-z" "M-h" "C-x C-c" "C-\\" "s-c" "s-x" "s-v" "C-6" "M-." "M-,"))
 
-
+  ;; 定义窗口管理快捷键
   (defun set-control-w-shortcuts ()
+    "设置以 C-w 为前缀的窗口管理快捷键。"
     (define-prefix-command 'my-window-map)
     (global-set-key (kbd "C-w") 'my-window-map)
-    (define-key my-window-map (kbd "=") 'window-width-increase )
-    (define-key my-window-map (kbd "+") 'window-width-decrease)
-    (define-key my-window-map (kbd "h") 'windmove-left)
-    (define-key my-window-map (kbd "j") 'windmove-down)
-    (define-key my-window-map (kbd "k") 'windmove-up)
-    (define-key my-window-map (kbd "l") 'windmove-right)
-    (define-key my-window-map (kbd "v") 'split-window-right)
-    (define-key my-window-map (kbd "b") 'split-window-below)
-    (define-key my-window-map (kbd "d") 'delete-window)
-    (define-key my-window-map (kbd "D") 'delete-other-windows)
-    (define-key my-window-map (kbd "B") 'kill-buffer-and-window)
-    (define-key my-window-map (kbd "o") 'toggle-one-window))
+    ;; 窗口大小调整
+    (define-key my-window-map (kbd "=")  'window-width-increase)  ; 增加窗口宽度
+    (define-key my-window-map (kbd "-")  'window-width-decrease)  ; 减少窗口宽度
+    (define-key my-window-map (kbd "9")  'window-height-increase)  ; 增加窗口高度
+    (define-key my-window-map (kbd "0")  'window-height-decrease)  ; 减少窗口高度
+    ;; 窗口导航
+    (define-key my-window-map (kbd "h")  'windmove-left)          ; 左移窗口
+    (define-key my-window-map (kbd "j")  'windmove-down)          ; 下移窗口
+    (define-key my-window-map (kbd "k")  'windmove-up)            ; 上移窗口
+    (define-key my-window-map (kbd "l")  'windmove-right)         ; 右移窗口
+    ;; 窗口分割与关闭
+    (define-key my-window-map (kbd "v")  'split-window-right)     ; 垂直分割
+    (define-key my-window-map (kbd "b")  'split-window-below)     ; 水平分割
+    (define-key my-window-map (kbd "d")  'delete-window)          ; 关闭当前窗口
+    (define-key my-window-map (kbd "D")  'delete-other-windows)   ; 关闭其他窗口
+    (define-key my-window-map (kbd "B")  'kill-buffer-and-window) ; 关闭窗口并杀死缓冲区
+    (define-key my-window-map (kbd "o")  'delete-other-windows))  ; 切换到单一窗口
 
+  ;; 应用窗口管理快捷键
   (set-control-w-shortcuts)
-  (define-key dired-mode-map     (kbd "e")   'wdired-change-to-wdired-mode)
 
-  (eval-after-load "evil-maps"
-    '(progn
-       (dolist (map '(evil-motion-state-map
-                      evil-insert-state-map
-                      evil-emacs-state-map
-                      evil-window-map))
-         (define-key (eval map) "\C-]" nil)
-         (define-key (eval map) "\C-t" nil)
-         (define-key (eval map) "\C-w" nil)
-         (define-key (eval map) "\M-]" nil)
-         (set-control-w-shortcuts))
-       ))
+  ;; 在 dired 模式中绑定快捷键
+  (define-key dired-mode-map (kbd "e") 'wdired-change-to-wdired-mode)
 
-  ;; evilmode-map
-  (defun smart-q ()
-    "Delete window in read-only buffers, otherwise record macro."
-    (interactive)
-    (if buffer-read-only
-        (if (= 1 (count-windows))
-            (bury-buffer)
-          (delete-window))
-      (call-interactively 'evil-record-macro)))
-
+  ;; 在 evil 模式下卸载和绑定快捷键
   (with-eval-after-load 'evil
+    ;; 卸载 evil 模式的快捷键
+    (dolist (map '(evil-motion-state-map
+                   evil-insert-state-map
+                   evil-emacs-state-map
+                   evil-window-map))
+      (define-key (eval map) "\C-]" nil)
+      (define-key (eval map) "\C-t" nil)
+      (define-key (eval map) "\C-w" nil)
+      (define-key (eval map) "\M-]" nil))
+    ;; 重新绑定窗口管理快捷键
+    (set-control-w-shortcuts)
+
+    ;; 定义智能 q 键行为
+    (defun smart-q ()
+      "在只读缓冲区中关闭窗口，否则录制宏。"
+      (interactive)
+      (if buffer-read-only
+          (if (= 1 (count-windows))
+              (bury-buffer)
+            (delete-window))
+        (call-interactively 'evil-record-macro)))
+
+    ;; 绑定 smart-q 到 q 键
     (define-key evil-normal-state-map (kbd "q") 'smart-q)
+    ;; 卸载其他快捷键
     (define-key evil-motion-state-map (kbd "SPC") nil)
     (define-key evil-motion-state-map (kbd "RET") nil)
     (define-key evil-motion-state-map (kbd "TAB") nil)
     (define-key evil-normal-state-map (kbd "C-t") nil)
     (define-key evil-normal-state-map (kbd "C-]") nil)
+    ;; 绑定 swiper 到 / 键
     (define-key evil-normal-state-map (kbd "/")  'swiper)
     (define-key evil-motion-state-map (kbd "C-6") nil))
 
+  ;; 在 org 模式下卸载快捷键
   (with-eval-after-load 'org
     (define-key org-mode-map (kbd "M-h") nil)
     (define-key org-mode-map (kbd "C-,") nil))
 
-  (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
-  (global-set-key (kbd "C-x k")   'bjm/kill-this-buffer)
-  (global-set-key (kbd "s-1") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-2") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-3") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-4") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-5") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-6") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-7") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-8") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-9") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-0") 'sort-tab-select-visible-tab)
-  (global-set-key (kbd "s-Q") 'sort-tab-close-all-tabs)
-  (global-set-key (kbd "s-q") 'sort-tab-close-mode-tabs)
-  (global-set-key (kbd "C-;") 'sort-tab-close-current-tab)
+  ;; 全局快捷键绑定
+  (global-set-key (kbd "C-x k")   'sort-tab-close-current-tab)  ; 关闭当前缓冲区
+  (global-set-key (kbd "<f5>")    'emacs-session-save)          ; 保存 Emacs 会话
+  (global-set-key (kbd "C-,")     'goto-last-change)            ; 跳转到最后修改的位置
+  (global-set-key (kbd "C-4")     'insert-changelog-date)       ; 插入变更日志日期
+  (global-set-key (kbd "C-5")     'insert-standard-date)        ; 插入标准日期
 
-  (global-set-key (kbd "<f5>")    'emacs-session-save)
-  (global-set-key (kbd "C-,")     'goto-last-change)
-  (global-set-key (kbd "C-4")     'insert-changelog-date)
-  (global-set-key (kbd "C-5")     'insert-standard-date)
+  ;; Projectile 快捷键
+  (global-set-key (kbd "C-c p f") 'projectile-find-file)        ; 查找文件
+  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer) ; 切换缓冲区
+  (global-set-key (kbd "C-c p p") 'projectile-switch-project)   ; 切换项目
 
-  (global-set-key (kbd "C-c p f") 'projectile-find-file)
-  (global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer)
-  (global-set-key (kbd "C-c p p") 'projectile-switch-project)
+  ;; Sort-tab 快捷键
+  (global-set-key (kbd "M-j")     'sort-tab-select-prev-tab)    ; 选择上一个标签页
+  (global-set-key (kbd "M-k")     'sort-tab-select-next-tab)    ; 选择下一个标签页
+  (global-set-key (kbd "M-7")     'sort-tab-select-first-tab)   ; 选择第一个标签页
+  (global-set-key (kbd "M-8")     'sort-tab-select-last-tab)    ; 选择最后一个标签页
+  (global-set-key (kbd "M-m")     'sort-tab-close-current-tab)  ; 关闭当前标签页
+  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)    ; 关闭当前模式的标签页
+  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)     ; 关闭所有标签页
 
-  (global-set-key (kbd "M-7")     'sort-tab-select-prev-tab)
-  (global-set-key (kbd "M-8 ")    'sort-tab-select-next-tab)
-  (global-set-key (kbd "M-s-7")   'sort-tab-select-first-tab)
-  (global-set-key (kbd "M-s-8")   'sort-tab-select-last-tab)
-  (global-set-key (kbd "C-;")     'sort-tab-close-current-tab)
-  (global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)
-  (global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)
+  ;; Ido 快捷键
+  (global-set-key (kbd "C-x C-f") 'ido-find-file)               ; 查找文件
+  (global-set-key (kbd "C-x b")   'ido-switch-buffer)           ; 切换缓冲区
+  (global-set-key (kbd "C-x i")   'ido-insert-buffer)           ; 插入缓冲区
+  (global-set-key (kbd "C-x I")   'ido-insert-file)             ; 插入文件
 
-  (global-set-key (kbd "C-x C-f") 'ido-find-file)
-  (global-set-key (kbd "C-x b")   'ido-switch-buffer)
-  (global-set-key (kbd "C-x i")   'ido-insert-buffer)
-  (global-set-key (kbd "C-x I")   'ido-insert-file)
+  ;; 滚动快捷键
+  (global-set-key (kbd "M-n")     'hold-line-scroll-down)       ; 向下滚动
+  (global-set-key (kbd "M-p")     'hold-line-scroll-up)         ; 向上滚动
 
-  (global-set-key (kbd "M-n")     'hold-line-scroll-down)
-  (global-set-key (kbd "M-p")     'hold-line-scroll-up)
+  ;; 窗口导航快捷键
+  (global-set-key (kbd "M-]")     'watch-other-window-up)       ; 向上查看其他窗口
+  (global-set-key (kbd "M-[")     'watch-other-window-down)     ; 向下查看其他窗口
+  (global-set-key (kbd "M->")     'watch-other-window-up-line)  ; 向上查看其他窗口（行）
+  (global-set-key (kbd "M-<")     'watch-other-window-down-line); 向下查看其他窗口（行）
 
-  (global-set-key (kbd "M-]")     'watch-other-window-up)
-  (global-set-key (kbd "M-[")     'watch-other-window-down)
-  (global-set-key (kbd "M->")     'watch-other-window-up-line)
-  (global-set-key (kbd "M-<")     'watch-other-window-down-line)
+  ;; 搜索和 Git 快捷键
+  (global-set-key (kbd "C-M-s")   'color-rg-search-input)       ; 彩色搜索
+  (global-set-key (kbd "C-M-;")   'magit-status)                ; 打开 Magit 状态
+  (global-set-key (kbd "C-x G")   'git-messenger:popup-message) ; 显示 Git 提交信息
 
-  (global-set-key (kbd "C-x y")   'dash-at-point)
+  ;; LSP Bridge 快捷键
+  (global-set-key (kbd "C-]")     'lsp-bridge-find-def)         ; 查找定义
+  (global-set-key (kbd "C-t")     'lsp-bridge-find-def-return)  ; 返回到定义
+  (global-set-key (kbd "M-]")     'lsp-bridge-find-impl)        ; 查找实现
+  (global-set-key (kbd "M-.")     'lsp-bridge-find-references)  ; 查找引用
+  (global-set-key (kbd "M-,")     'lsp-bridge-code-action)      ; 代码操作
+  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation) ; 弹出文档
+  (global-set-key (kbd "C-0")     'lsp-bridge-rename)           ; 重命名
 
-  (global-set-key (kbd "C-c SPC") 'avy-goto-char-2)
-  (global-set-key (kbd "M-g f")   'avy-goto-line)
-  (global-set-key (kbd "M-g w")   'avy-goto-word-1)
+  ;; LSP Bridge 诊断快捷键
+  (global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next) ; 跳转到下一个错误
+  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev) ; 跳转到上一个错误
+  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)    ; 忽略当前错误
+  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)  ; 向下滚动文档
+  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down); 向上滚动文档
 
-  (global-set-key (kbd "C-M-s")   'color-rg-search-input)
-  (global-set-key (kbd "C-M-;")   'magit-status)
-  (global-set-key (kbd "C-x G")   'git-messenger:popup-message)
-
-  (global-set-key (kbd "C-]")     'lsp-bridge-find-def)
-  (global-set-key (kbd "C-t")     'lsp-bridge-find-def-return)
-  (global-set-key (kbd "M-,")     'lsp-bridge-code-action)
-  (global-set-key (kbd "M-.")     'lsp-bridge-find-references)
-  (global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation)
-  (global-set-key (kbd "C-0")     'lsp-bridge-rename)
-
-  (global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next)            ;显示下一个错误
-  (global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev)            ;显示上一个错误
-  (global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)               ;忽略当前的错误
-  (global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)   ;向下滚动文档
-  (global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down) ;向上滚动文档
-
-  ;; one-key-menu
+  ;; One-key 菜单
   (one-key-create-menu
    "GIT"
    '(
-     (("s" . "Git status") . eaf-open-git)
+     (("s" . "Git status")         . eaf-open-git)
      (("u" . "Git push to remote") . eaf-git-push)
-     (("i" . "Git pull") . eaf-git-pull)
-     (("c" . "Git clone") . eaf-git-clone)
-     (("h" . "Git history") . eaf-git-show-history)
-     )
+     (("i" . "Git pull")           . eaf-git-pull)
+     (("c" . "Git clone")          . eaf-git-clone)
+     (("h" . "Git history")        . eaf-git-show-history))
    t)
 
   (one-key-create-menu
    "DIRECTORY"
    '(
-     (("h" . "Home") . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
+     (("h" . "Home")      . (lambda () (interactive) (eaf-open-in-file-manager "~/")))
      (("d" . "Documents") . (lambda () (interactive) (eaf-open-in-file-manager "~/Documents")))
      (("l" . "Downloads") . (lambda () (interactive) (eaf-open-in-file-manager "~/Downloads")))
-     (("p" . "Picture") . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
-     (("m" . "Music") . (lambda () (interactive) (eaf-open-in-file-manager "~/Music")))
-     (("c" . "Config") . (lambda () (interactive) (eaf-open-in-file-manager zxh-emacs-root-dir)))
-     (("n" . "NRSL") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/nrsl")))
-     (("z" . "ZGRH") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/zgrh")))
-     (("j" . "JTCX") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/jt")))
-     (("s" . "SD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
-     (("g" . "GLD") . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld")))
-     )
+     (("p" . "Picture")   . (lambda () (interactive) (eaf-open-in-file-manager "~/Pictures")))
+     (("s" . "SD")        . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/sd")))
+     (("g" . "GLD")       . (lambda () (interactive) (eaf-open-in-file-manager "~/githubs/gld"))))
    t)
-  (global-set-key (kbd "C-c g")   'one-key-menu-git)
-  (global-set-key (kbd "C-c d")   'one-key-menu-directory)
+
+  (global-set-key (kbd "C-c g")   'one-key-menu-git)            ; Git 菜单
+  (global-set-key (kbd "C-c d")   'one-key-menu-directory)      ; 目录菜单
 
 #+END_SRC
-
