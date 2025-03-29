@@ -37,14 +37,12 @@
 
 
 (when *sys/linux*
-  (setq plantuml-jar-path "/opt/plantuml/plantuml.jar")
-  (setq plantuml-exec-mode 'jar)
+  (setq plantuml-path "/opt/plantuml/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/usr/local/include")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
 (when *sys/mac*
-  (setq plantuml-jar-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
-  (setq plantuml-exec-mode 'jar)
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
@@ -671,10 +669,10 @@
 * Fundermental Plugins
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; (use-package benchmark-init
-;;   :config
-;;   (benchmark-init/activate)
-;;   (add-hook 'after-init-hook 'benchmark-init/deactivate))
+(use-package benchmark-init
+  :config
+  (benchmark-init/activate)
+  (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
 (use-package exec-path-from-shell
   :config
@@ -707,6 +705,7 @@
   :hook (after-init . yaml-mode))
 
 (use-package plantuml-mode
+  :custom (org-plantuml-jar-path (expand-file-name plantuml-path))
   :hook (after-init . plantuml-mode))
 
 (use-package toml-mode
@@ -715,7 +714,8 @@
 (use-package restclient
   :hook (after-init . restclient-mode))
 
-(use-package discover-my-major)
+(use-package discover-my-major
+  :hook (after-init . discover-my-major-mode))
 
 ;; `global-auto-revert-mode' is provided by autorevert.el (builtin)
 (use-package autorevert
@@ -1205,9 +1205,9 @@
           (sequence "WAITING(w@/!)" "NEXT(n!/!)" "SOMEDAY(S)" "|" "CANCELLED(c@/!)")))
 
   ;; 代码块增强
-  (setq org-plantuml-jar-path plantuml-jar-path)
   (setq org-src-fontify-natively t  ;; 代码高亮
         org-src-tab-acts-natively t)  ;; 在 src block 内使用原生 tab 缩进
+
   ;; 启用 Babel 代码块执行支持的语言
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -1703,56 +1703,61 @@ fc-cache -fv
 + fc-list | grep "LxgwWenKai\|Iosevka"
   
 ** Old
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
+#+BEGIN_SRC emacs-lisp :tangle no
+;; adjust the fonts
 (defun available-font (font-list)
   "Get the first available font from FONT-LIST."
   (catch 'font
     (dolist (font font-list)
       (if (member font (font-family-list))
-          (throw 'font font)))))
+		  (throw 'font font)))))
 
-(setq my/ef (available-font '("JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code")))
-(setq my/cf (available-font '("LXGW WenKai Mono" "Sarasa Mono SC" "Microsoft YaHei Mono")))
+(defun my/setup-font ()
+  "Font setup."
 
-(defun load-font-setup()
-  (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
-        (t
-         (let ((emacs-font-size 14)
-               (chinese-font-name  my/cf)
-               english-font-name)
-           (cond
-            ((featurep 'cocoa)
-             (setq english-font-name my/ef))
-            ((string-equal system-type "gnu/linux")
-             (setq english-font-name my/ef)))
+  (interactive)
 
-           (set-face-attribute 'default nil :height 140 :family (eval english-font-name))
-           (set-face-attribute 'default nil :height 140 :family (eval chinese-font-name))
+  (set-fontset-font t 'emoji
+                    (cond (*sys/mac* (font-spec :family "Apple Color Emoji"))
+                          (*sys/linux* (font-spec :family "Noto Color Emoji"))))
 
-           (when (display-grayscale-p)
-             (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
-             (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
+  (set-fontset-font t 'symbol
+                    (cond (*sys/mac* (font-spec :family "Apple Symbols"))
+                          (*sys/linux* (font-spec :family "Symbola"))))
 
-             (dolist (charset '(kana han symbol cjk-misc bopomofo))
-               (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family (eval chinese-font-name))))
-             )))))
 
-(add-hook 'after-init-hook 'load-font-setup)
-(add-hook 'org-mode-hook #'valign-mode)
+  (let* ((efl '("JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code" "Fira Code"))
+         (cfl '("LXGW WenKai Mono" "LXGW WenKai" "Sarasa Mono SC" "Microsoft YaHei Mono"))
+		 (cf (available-font cfl))
+		 (ef (available-font efl)))
+    (message "Emacs 选择的中文字体是：%s" cf)
+    (message "Emacs 选择的英文字体是：%s" ef)
+    (when ef
+      (dolist (face '(default fixed-pitch fixed-pitch-serif variable-pitch))
+		(set-face-attribute face nil :family ef)))
+    (when cf
+      (dolist (charset '(kana han hangul cjk-misc bopomofo))
+		(set-fontset-font t charset cf))
+      (setq face-font-rescale-alist
+		    (mapcar (lambda (item) (cons item 1.2)) cfl)))))
+
+(setq text-scale-mode-step 1.172)
+;; org-table 只使用中英文严格等宽的 LXGW WenKai Mono Screen 字体, 避免中英文不对齐。
+(custom-theme-set-faces 'user '(org-table ((t (:family "LXGW WenKai Mono Screen")))))
+
+(add-hook 'after-init-hook 'my/setup-font)
+
 #+END_SRC
 
 ** New
 
 在 Emacs 中，设置字体大小时，:height 参数的单位是 1/10 pt，而不是以 pt 为单位
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
 (defvar my/font-base-size 16
   "基础字体大小 (单位: pt)，英文字体直接使用该值，中文字体按缩放系数调整")
 
-(defvar my/cjk-font-scale 1.1
+(defvar my/cjk-font-scale 1.2
   "中文字体相对于基准字体的缩放系数，建议范围 1.1~1.3")
 
 (defun available-font (font-list)
@@ -1819,21 +1824,21 @@ fc-cache -fv
   "动态调整字体大小"
   (interactive)
   (let ((new-size (read-number "New base font size (pt): " my/font-base-size)))
-    (setq my/en-size (* new-size 10))
-    (setq my/cn-size (* new-size my/cjk-font-scale 10))
+    (setq my/font-base-size new-size)
     (my/setup-font)))
 #+END_SRC
 * Rime
 #+BEGIN_SRC emacs-lisp :tangle yes
 (use-package rime
+  :defer t
   :custom
   (default-input-method "rime")
   (rime-posframe-style 'vertical)
   (rime-show-candidate 'posframe)
   (rime-user-data-dir zxh-emacs-rime-user-data-dir)
   (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-  :hook
-  (emacs-startup . (lambda () (setq default-input-method "rime")))
+  ;;:hook
+  ;;(emacs-startup . (lambda () (setq default-input-method "rime")))
   :bind
   (
    :map rime-active-mode-map
@@ -1871,8 +1876,7 @@ fc-cache -fv
           ;; 英文使用半角符号
           rime-predicate-punctuation-after-ascii-p
           ;; 编程模式，只在注释中输入中文
-          ;;rime-predicate-prog-in-code-p
-          ))
+          rime-predicate-prog-in-code-p))
 
   (setq rime-posframe-properties
         (list :background-color "#333333"
@@ -2126,7 +2130,7 @@ fc-cache -fv
         sort-tab-cycle-navigation t))    ; 启用循环导航
 
 (use-package holo-layer
-  :if (and (display-graphic-p) *sys/mac*)
+  :if (and (display-graphic-p) (eq system-type 'darwin)) ;; Mac GUI 下启用
   :straight (holo-layer :type git :host github :repo "manateelazycat/holo-layer")
   :init
   ;; 自动检测 Python 解释器路径
@@ -2186,6 +2190,15 @@ fc-cache -fv
   ;; 确保不会有其他主题干扰
   (mapc #'disable-theme custom-enabled-themes))
 
+(defun my/get-linux-appearance ()
+  "获取 Linux 桌面环境的主题模式（light/dark）。"
+  (when (eq system-type 'gnu/linux)
+    (let ((theme (shell-command-to-string "gsettings get org.gnome.desktop.interface color-scheme")))
+      (cond
+       ((string-match "dark" theme) 'dark)
+       ((string-match "light" theme) 'light)
+       (t 'dark))))) ;; 默认使用 dark 主题
+
 (defun my/load-theme (appearance)
   "根据 APPEARANCE (light/dark) 选择合适的主题。"
   (interactive)
@@ -2193,9 +2206,23 @@ fc-cache -fv
     ('light (load-theme 'ef-light t))
     ('dark (load-theme 'ef-elea-dark t))))
 
-(add-hook 'after-init-hook (lambda () (my/load-theme 'dark)))
+(cond
+ ;; macOS 支持
+ ((boundp 'ns-system-appearance)
 
- #+END_SRC
+  ;; Emacs 启动后加载正确的主题
+  (add-hook 'after-init-hook (lambda () (my/load-theme ns-system-appearance)))
+
+  ;; 监听 macOS 主题变化，自动切换
+  (add-hook 'ns-system-appearance-change-functions #'my/load-theme))
+
+ ;; Linux 支持
+ (*sys/linux*
+  (add-hook 'after-init-hook
+            (lambda ()
+              (my/load-theme (my/get-linux-appearance))))))
+
+#+END_SRC
 
 * Platform
 
