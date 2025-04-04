@@ -112,6 +112,10 @@ brew install protobuf
 ## 替换 htop
 brew install glances
 
+## Ghostty is a fast, feature-rich, and cross-platform terminal emulator
+## rhttps://github.com/ghostty-org/ghostty
+brew install --cask ghostty
+
 # for Erlang, Elixir
 brew install autoconf
 brew install fop
@@ -120,7 +124,9 @@ brew install wxwidgets
 # youtube downloader
 brew install yt-dlp
 
-# Starship 是一个快速、可定制的跨 Shell 终端提示符
+brew install autojump
+
+# Starship 是一个定制的跨 Shell 终端提示符
 brew install starship
 
 ## exa: A modern replacement for ‘ls’.
@@ -158,7 +164,4 @@ done
 
 cecho "Cleaning ..." $yellow
 brew cleanup
-
-cecho "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" $yellow
 cecho "Done!!!" $yellow
-cecho "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" $yellow
