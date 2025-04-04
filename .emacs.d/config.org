@@ -130,7 +130,27 @@
 (show-paren-mode t)                              ;显示括号匹配
 (global-subword-mode 1)                          ;Word移动支持 FooBar 的格式
 (electric-pair-mode -1)                          ;关闭内置补全,使用smartparens
-
+(setq pixel-scroll-precision-mode t)
+(setq window-resize-pixelwise nil)
+(setq history-length 300)
+(setq kill-do-not-save-duplicates t)
+(setq create-lockfiles nil)                      ; No backup files
+(setq make-backup-files nil)                     ; No backup files
+(setq backup-inhibited t)                        ; No backup files
+(setq pixel-scroll-precision-mode t)
+(setq pixel-scroll-precision-use-momentum nil)
+(setq ring-bell-function 'ignore)
+(setq read-answer-short t)
+(setq recentf-max-saved-items 300) ; default is 20
+(setq recentf-max-menu-items 15)
+(setq recentf-auto-cleanup (if (daemonp) 300 'never))
+(setq remote-file-name-inhibit-delete-by-moving-to-trash t)
+(setq remote-file-name-inhibit-auto-save t)
+(setq resize-mini-windows 'grow-only)
+(setq ring-bell-function #'ignore)
+(setq scroll-conservatively 8)
+(setq scroll-margin 5)
+(setq savehist-save-minibuffer-history t)
 (setq echo-keystrokes 0.1)                       ;加快快捷键提示的速度
 (setq kill-ring-max 1024)                        ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
 (setq mark-ring-max 1024)                        ;设置的mark ring容量
@@ -152,6 +172,7 @@
 (setq ad-redefinition-action 'accept)            ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
 (setq ring-bell-function 'ignore)                ;Do not noise
 (setq use-dialog-box nil)                        ;never pop dialog
+(setq use-file-dialog nil)
 (setq inhibit-startup-screen t)                  ;inhibit start screen
 (setq initial-scratch-message "")                ;关闭启动空白buffer, 这个buffer会干扰session恢复
 (setq default-major-mode 'text-mode)             ;设置默认地主模式为TEXT模式
@@ -160,30 +181,13 @@
 (setq frame-resize-pixelwise t)                  ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
 (setq-default cursor-type 'bar)                  ;设置光标样式。
-(setq x-stretch-cursor t)                        ;光标和字符宽度一致（如 TAB)
+(setq-default x-stretch-cursor t)                ;光标和字符宽度一致（如 TAB)
 (setq-default comment-style 'indent)             ;设定自动缩进的注释风格
 (setq-default require-final-newline nil)         ;不自动添加换行符到末尾, 有些情况会出现错误
 (setq-default auto-revert-mode 1)                ;自动更新buffer
 (setq-default void-text-area-pointer nil)        ;禁止显示鼠标指针
 (setq-default create-lockfiles nil)              ;Do not create lock files
 (setq-default history-length 500)                ;Set history-length longer
-(setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
-(setq byte-compile-warnings
-      (quote (
-              ;; 显示的警告
-              free-vars                 ;不在当前范围的引用变量
-              unresolved                ;不知道的函数
-              callargs                  ;函数调用的参数和定义的不匹配
-              obsolete                  ;荒废的变量和函数
-              noruntime                 ;函数没有定义在运行时期
-              interactive-only          ;正常不被调用的命令
-              make-local ;调用 `make-variable-buffer-local' 可能会不正确的
-              mapcar     ;`mapcar' 调用
-              ;;
-              ;; 抑制的警告
-              (not redefine)        ;重新定义的函数 (比如参数数量改变)
-              (not cl-functions)    ;`CL' 包中的运行时调用的函数
-              )))
 
 ;; Better Compilation
 (setq-default compilation-always-kill t)      ; kill compilation process before starting another
@@ -253,6 +257,37 @@
 ;; **不想显示行号的模式**
 (dolist (hook '(org-mode-hook shell-mode-hook eshell-mode-hook term-mode-hook vterm-mode-hook))
   (add-hook hook (lambda () (display-line-numbers-mode -1))))
+
+
+;;; AUTH-SOURCE
+;; (use-package auth-source
+;;   :ensure nil
+;;   :defer t
+;;   :config
+;;   (setq auth-sources
+;;         (list (expand-file-name ".authinfo.gpg" user-emacs-directory)))
+;;   (setq user-full-name "Rahul Martim Juliato"
+;;         user-mail-address "rahul.juliato@gmail.com")
+
+;;   ;; Use `pass` as an auth-source
+;;   (when (file-exists-p "~/.password-store")
+;;     (auth-source-pass-enable)))
+
+;; (with-current-buffer (get-buffer-create "*scratch*")
+;;   (insert (format ";;
+;; ;; ███████╗███╗   ███╗ █████╗  ██████╗███████╗    ███████╗ ██████╗ ██╗      ██████╗
+;; ;; ██╔════╝████╗ ████║██╔══██╗██╔════╝██╔════╝    ██╔════╝██╔═══██╗██║     ██╔═══██╗
+;; ;; █████╗  ██╔████╔██║███████║██║     ███████╗    ███████╗██║   ██║██║     ██║   ██║
+;; ;; ██╔══╝  ██║╚██╔╝██║██╔══██║██║     ╚════██║    ╚════██║██║   ██║██║     ██║   ██║
+;; ;; ███████╗██║ ╚═╝ ██║██║  ██║╚██████╗███████║    ███████║╚██████╔╝███████╗╚██████╔╝
+;; ;; ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝    ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝
+;; ;;
+;; ;;   Loading time : %s
+;; ;;   Packages     : %s
+;; ;;
+;; "
+;;                   (emacs-init-time)
+;;                   (number-to-string (length package-activated-list)))))
 #+end_src
 
 * Indent
@@ -676,20 +711,90 @@
 ;;   (benchmark-init/activate)
 ;;   (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
-(use-package exec-path-from-shell
-  :config
-  (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
-  (exec-path-from-shell-initialize))
+;; (use-package exec-path-from-shell
+;;   :config
+;;   (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
+;;   (exec-path-from-shell-initialize))
+
+;;; EMACS-SOLO-EXEC-PATH-FROM-SHELL
+;;
+;;  Loads users default shell PATH settings into Emacs. Usefull
+;;  when calling Emacs directly from GUI systems.
+;;
+(use-package emacs-solo-exec-path-from-shell
+  :straight nil
+  ;; :ensure nil
+  ;; :no-require t
+  :defer t
+  :init
+  (defun emacs-solo/set-exec-path-from-shell-PATH ()
+    "Set up Emacs' `exec-path' and PATH environment the same as user Shell."
+    (interactive)
+    (let ((path-from-shell
+           (replace-regexp-in-string
+            "[ \t\n]*$" "" (shell-command-to-string
+                            "$SHELL --login -c 'echo $PATH'"))))
+      (setenv "PATH" path-from-shell)
+      (message "set path >>> %s" path-from-shell)
+      (setq exec-path (split-string path-from-shell path-separator))
+      (message ">>> emacs-solo: PATH loaded")))
+
+  (defun emacs-solo/fix-asdf-path ()
+    "Ensure asdf shims and active Node.js version's bin directory are first in PATH."
+    (interactive)
+    (let* ((asdf-shims (expand-file-name "~/.asdf/shims"))
+           (node-bin (string-trim (shell-command-to-string "asdf where nodejs 2>/dev/null")))
+           (new-paths (list asdf-shims)))
+
+      ;; If Node.js is installed, add its bin path
+      (when (file-directory-p node-bin)
+        (push (concat node-bin "/bin") new-paths))
+
+      ;; Remove old asdf-related paths from PATH and exec-path
+      (setq exec-path (seq-remove (lambda (p) (string-match-p "/\\.asdf/" p)) exec-path))
+      (setenv "PATH" (string-join (seq-remove (lambda (p) (string-match-p "/\\.asdf/" p))
+                                              (split-string (getenv "PATH") ":"))
+                                  ":"))
+
+      ;; Add the new paths to exec-path and PATH
+      (dolist (p (reverse new-paths))
+        (unless (member p exec-path) (push p exec-path))
+        (unless (member p (split-string (getenv "PATH") ":"))
+          (setenv "PATH" (concat p ":" (getenv "PATH"))))))
+    (message ">>> emacs-solo: ASDF PATH fixed"))
+
+  (defun emacs-solo/fix-cargo-path ()
+    "Ensure Cargo bin directory (~/.cargo/bin) is first in PATH and exec-path."
+    (interactive)
+    (let* ((cargo-bin (expand-file-name "~/.cargo/bin"))  ;; 解析 Cargo bin 目录
+           (new-paths (list cargo-bin)))
+
+      ;; 清理 exec-path 和 PATH，去掉旧的 Cargo 相关路径
+      (setq exec-path (seq-remove (lambda (p) (string-match-p "/\\.cargo/bin" p)) exec-path))
+      (setenv "PATH" (string-join (seq-remove (lambda (p) (string-match-p "/\\.cargo/bin" p))
+                                              (split-string (getenv "PATH") ":"))
+                                  ":"))
+
+      ;; 将 ~/.cargo/bin 目录加入 exec-path 和 PATH
+      (dolist (p (reverse new-paths))  ;; 反转顺序，保证优先级
+        (unless (member p exec-path) (push p exec-path))  ;; 更新 exec-path
+        (unless (member p (split-string (getenv "PATH") ":"))
+          (setenv "PATH" (concat p ":" (getenv "PATH"))))))
+
+    (message ">>> emacs-solo: Cargo PATH fixed"))
+
+  (add-hook 'find-file-hook #'emacs-solo/fix-asdf-path)
+  (add-hook 'eshell-mode-hook #'emacs-solo/fix-asdf-path)
+  (add-hook 'eshell-pre-command-hook #'emacs-solo/fix-asdf-path)
+  (add-hook 'eshell-directory-change-hook #'emacs-solo/fix-asdf-path)
+
+  (add-hook 'after-init-hook #'emacs-solo/set-exec-path-from-shell-PATH)
+  (add-hook 'after-init-hook #'emacs-solo/fix-cargo-path)
+  (add-hook 'after-init-hook #'emacs-solo/fix-asdf-path))
+
 
 (use-package protobuf-mode
   :hook (after-init . protobuf-mode))
-
-(use-package markdown-mode
-  :defer 15  ; 延迟 15 秒或按需加载
-  :hook (after-init . markdown-mode))
-
-(use-package dockerfile-mode
-  :hook (after-init . dockerfile-mode))
 
 (use-package nginx-mode
   :hook (after-init . nginx-mode))
@@ -731,20 +836,75 @@
     (which-key-mode)
     (which-key-setup-side-window-right)))
 
+(use-package markdown-mode
+  :commands markdown-mode)
+
+(use-package dockerfile-mode
+  :commands dockerfile-mode)
+
+(use-package yaml-mode
+  :commands yaml-mode)
 
 ;;; 首次调用 commands 命令加载 
 ;;(use-package posframe)
 (use-package posframe
   :commands (posframe-show posframe-hide posframe-delete-all))
 
-(use-package sudo-edit
-  :commands (sudo-edit))
+;; (use-package sudo-edit
+;;   :commands (sudo-edit))
+(use-package emacs-solo-sudo-edit
+  :straight nil
+  ;; :ensure nil
+  ;; :no-require t
+  :defer t
+  :init
+  (defun emacs-solo/sudo-edit (&optional arg)
+    "Edit currently visited file as root.
+With a prefix ARG prompt for a file to visit.
+Will also prompt for a file to visit if current
+buffer is not visiting a file."
+    (interactive "P")
+    (if (or arg (not buffer-file-name))
+        (find-file (concat "/sudo:root@localhost:"
+                           (completing-read "Find file(as root): ")))
+      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
+
+(use-package emacs-solo-0x0
+  :straight nil
+  ;; :ensure nil
+  ;; :no-require t
+  :defer t
+  :init
+  (defun emacs-solo/0x0-upload-text ()
+    (interactive)
+    (let* ((contents (if (use-region-p)
+                         (buffer-substring-no-properties (region-beginning) (region-end))
+                       (buffer-string)))
+           (temp-file (make-temp-file "0x0" nil ".txt" contents)))
+      (message "Sending %s to 0x0.st..." temp-file)
+      (let ((url (string-trim-right
+                  (shell-command-to-string
+                   (format "curl -s -F'file=@%s' https://0x0.st" temp-file)))))
+        (message "The URL is %s" url)
+        (kill-new url)
+        (delete-file temp-file))))
+
+  (defun emacs-solo/0x0-upload-file (file-path)
+    (interactive "fSelect a file to upload: ")
+    (message "Sending %s to 0x0.st..." file-path)
+    (let ((url (string-trim-right
+                (shell-command-to-string
+                 (format "curl -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
+      (message "The URL is %s" url)
+      (kill-new url))))
+
 
 (use-package comment-dwim-2
   :commands (comment-dwim-2))
 
 (use-package ediff
-  :commands (ediff-buffers ediff-files ediff-regions-wordwise ediff-directories)
+  ;;:commands ediff
+  :commands (ediff ediff-buffers ediff-files ediff-regions-wordwise ediff-directories)
   :config
   (setq ediff-keep-variants nil)
   (setq ediff-split-window-function 'split-window-horizontally)
@@ -754,10 +914,17 @@
 #+END_SRC
 * Project
 #+BEGIN_SRC emacs-lisp :tangle yes
-
+;; 项目列表选择工具
 (use-package projectile
   :diminish 
-  :init (add-hook 'after-init-hook 'projectile-mode))
+  :commands (projectile-switch-project projectile-discover-projects-in-search-path)
+  :config
+  (projectile-mode +1)
+  (setq projectile-project-search-path '("~/githubs/")
+        projectile-require-project-root nil
+        projectile-completion-system 'ivy
+        projectile-mode-line-function '(lambda () " Projectile")))
+  
 
 (use-package ivy
   :diminish
@@ -839,35 +1006,50 @@
   (unless (display-graphic-p)
     (diff-hl-margin-mode)))
 
-                ;;;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
-                ;;;; (setq auto-revert-check-vc-info t)
-(use-package magit
-  :bind (("C-x g" . magit-status))
-  :custom
-  ;; 在当前窗口显示 `magit-status`，commit diff（magit-diff & magit-revision）在右侧半屏
-  (magit-diff-long-lines-threshold nil)
-  (magit-show-long-lines-warning nil)
-  (magit-display-buffer-function #'my-magit-display-buffer)
-  :config
-  (defun my-magit-display-buffer (buffer)
-    "自定义 Magit buffer 显示策略：
-  - `magit-status` 和 `magit-log` 在当前窗口打开；
-  - `magit-diff` 和 `magit-revision` 在右侧半屏打开。"
-    (let ((mode (buffer-local-value 'major-mode buffer)))
-      (if (memq mode '(magit-diff-mode magit-revision-mode))
-          (display-buffer
-           buffer
-           '((display-buffer-in-side-window)
-             (side . right)
-             (slot . 0)
-             (window-width . 0.5)))  ;; 右侧窗口宽度为当前窗口的 50%
-        (display-buffer
-         buffer
-         '((display-buffer-same-window))))))
-  ;; 绑定 M-RET 让 Diff 直接在其他窗口打开
-  (with-eval-after-load 'magit
-    (define-key magit-status-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)))
+;; 在文件左侧显示 Git 状态
+(use-package git-gutter
+  :commands git-gutter-mode)
 
+;; 当前文件的修改历史展示
+(use-package git-timemachine
+  :commands git-timemachine)
+
+;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
+;; (setq auto-revert-check-vc-info t)
+;; (use-package magit
+;;   :bind (("C-x g" . magit-status))
+;;   :custom
+;;   ;; 在当前窗口显示 `magit-status`，commit diff（magit-diff & magit-revision）在右侧半屏
+;;   (magit-diff-long-lines-threshold nil)
+;;   (magit-show-long-lines-warning nil)
+;;   (magit-display-buffer-function #'my-magit-display-buffer)
+;;   :config
+;;   (defun my-magit-display-buffer (buffer)
+;;     "自定义 Magit buffer 显示策略：
+;;   - `magit-status` 和 `magit-log` 在当前窗口打开；
+;;   - `magit-diff` 和 `magit-revision` 在右侧半屏打开。"
+;;     (let ((mode (buffer-local-value 'major-mode buffer)))
+;;       (if (memq mode '(magit-diff-mode magit-revision-mode))
+;;           (display-buffer
+;;            buffer
+;;            '((display-buffer-in-side-window)
+;;              (side . right)
+;;              (slot . 0)
+;;              (window-width . 0.5)))  ;; 右侧窗口宽度为当前窗口的 50%
+;;         (display-buffer
+;;          buffer
+;;          '((display-buffer-same-window))))))
+;;   ;; 绑定 M-RET 让 Diff 直接在其他窗口打开
+;;   (with-eval-after-load 'magit
+;;     (define-key magit-status-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)))
+
+;; 设置 Git 管理快捷键
+(use-package magit
+  :commands magit-status
+  :bind ("C-x g" . magit-status)
+  :config
+  (setq magit-diff-refine-hunk (quote all))
+  :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 #+END_SRC
 * Evil-Mode
 
@@ -1107,6 +1289,33 @@
   ;; 不添加 #+DOWNLOADED: 注释
   (setq org-download-annotate-function (lambda (link) (previous-line 1) "")))
 
+;;; -*- lexical-binding: t; coding:utf-8 -*-
+;; 插动图片到org 文件时， 自动将文件放到org下的static/下，并插入[[file:...static/image.jpg]]
+;;;###autoload
+(defun vmacs-org-insert-image (event)
+  (interactive "e")
+  (x-focus-frame nil)
+  (let* ((payload (car (last event)))
+         (type (car payload))
+         (fromname (nth 2 payload))
+         (img-regexp "\\(gif\\|png\\|jp[e]?g\\)\\>")
+         (destname fromname)
+         img-dir
+         )
+    (when (file-exists-p "../img/")
+      (setq img-dir "../img/"))
+    (when (file-exists-p "./img/")
+      (setq img-dir "./img/"))
+    (when (and  (eq 'drag-n-drop (car event))
+                (eq 'file type)
+                (string-match img-regexp fromname)
+                img-dir)
+      (let ((filebasename (file-name-base (buffer-file-name)) ))
+        (setq destname (concat img-dir filebasename "-" (format-time-string "%Y-%m-%d-%H-%M-%S") "." (file-name-extension fromname)))
+        (rename-file fromname destname t))
+      (goto-char (nth 1 (event-start event)))
+      (insert (format "[[file:%s]]" (file-relative-name destname (file-name-directory (buffer-file-name))))))))
+
 #+END_SRC
 
 ** Org 主配置
@@ -1127,8 +1336,11 @@
   ;; 'showeverything 不折叠，显示所有内容
   (setq org-startup-folded 'overview)
 
-  ;; 外观设置
-  (setq org-ellipsis "..."  ;; 折叠内容的省略号
+ ;; Ellipsis styling
+  (setq org-ellipsis " ▼ ")
+  (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
+
+  (setq 
         org-pretty-entities t  ;; 允许使用 UTF-8 显示 LaTeX 或特殊字符
         org-highlight-latex-and-related '(latex)  ;; 高亮 LaTeX 代码
         org-export-with-latex 'verbatim  ;; 导出时保留 LaTeX 代码，不解析
@@ -1142,6 +1354,8 @@
         org-mouse-1-follows-link nil  ;; 关闭鼠标点击自动跟随链接
 
         ;; 隐藏 Org 语法的标记，使文档更清爽
+        ;; Org styling, hide markup etc.
+        org-pretty-entities t
         org-hide-emphasis-markers t
         org-hide-block-startup t
         org-hidden-keywords '(title)
@@ -1187,7 +1401,12 @@
         org-auto-align-tags nil
 
         ;; 防止意外修改隐藏内容
+        ;; Edit settings
+        org-auto-align-tags nil
+        org-tags-column 0
         org-catch-invisible-edits 'show-and-error
+        org-special-ctrl-a/e t
+        org-insert-heading-respect-content t
         org-fold-catch-invisible-edits t
 
         ;; 使用 ID 作为内部链接（而不是 CUSTOM_ID）
@@ -1273,6 +1492,21 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 
+;; Org Latex Preview
+(setq org-latex-packages-alist '(("" "mhchem" t)
+				 ("" "ctex" t)))
+(add-to-list 'org-preview-latex-process-alist
+	     '(xelatex-ch
+	       :programs ("xelatex" "dvisvgm")
+	       :description "xdv > svg"
+	       :message "You need to install xelatex & dvisvgm"
+	       :image-input-type "xdv"
+	       :image-output-type "svg"
+	       :image-size-adjust (1.3 . 1.2)
+	       :latex-compiler
+	       ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+	       :image-converter
+	       ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O")))
 #+END_SRC
 
 * Templates 
@@ -1451,7 +1685,10 @@
 ;;   :demand t
 ;;   :config
 ;;   (setq treesit-auto-install 'prompt)
-;;   (global-treesit-auto-mode))
+;;   (global-treesit-auto-mode)
+;;   :init
+;;   ;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
+;;   (setq treesit-font-lock-level 4))
 
 
 ;; M-x `treesit-install-language-grammar` to install language grammar.
@@ -1553,6 +1790,69 @@
 * Programming
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+;;; EMACS-SOLO-HIGHLIGHT-KEYWORDS-MODE
+;;
+;;  Highlights a list of words like TODO, FIXME...
+;;  Code borrowed from `alternateved'
+;;
+(use-package emacs-solo-highlight-keywords-mode
+  :straight nil  ;; 表示不通过 straight 管理
+  :when *sys/linux*
+  ;; :ensure nil
+  ;; :no-require t
+  :defer t
+  :init
+  (defcustom +highlight-keywords-faces
+    '(("TODO" . error)
+      ("FIXME" . error)
+      ("HACK" . warning)
+      ("NOTE" . warning)
+      ("HERE" . compilation-info))
+    "Alist of keywords to highlight and their face."
+    :group '+highlight-keywords
+    :type '(alist :key-type (string :tag "Keyword")
+                  :value-type (symbol :tag "Face"))
+    :set (lambda (sym val)
+           (dolist (face (mapcar #'cdr val))
+             (unless (facep face)
+               (error "Invalid face: %s" face)))
+           (set-default sym val)))
+
+  (defvar +highlight-keywords--keywords
+    (when +highlight-keywords-faces
+      (let ((keywords (mapcar #'car +highlight-keywords-faces)))
+        `((,(regexp-opt keywords 'words)
+           (0 (when (nth 8 (syntax-ppss))
+                (cdr (assoc (match-string 0) +highlight-keywords-faces)))
+              prepend)))))
+    "Keywords and corresponding faces for `emacs-solo/highlight-keywords-mode'.")
+
+  (defun emacs-solo/highlight-keywords-mode-on ()
+    (font-lock-add-keywords nil +highlight-keywords--keywords t)
+    (font-lock-flush))
+
+  (defun emacs-solo/highlight-keywords-mode-off ()
+    (font-lock-remove-keywords nil +highlight-keywords--keywords)
+    (font-lock-flush))
+
+  (define-minor-mode emacs-solo/highlight-keywords-mode
+    "Highlight TODO and similar keywords in comments and strings."
+    :lighter " +HL"
+    :group '+highlight-keywords
+    (if emacs-solo/highlight-keywords-mode
+        (emacs-solo/highlight-keywords-mode-on)
+      (emacs-solo/highlight-keywords-mode-off)))
+
+  :hook
+  (prog-mode . (lambda () (run-at-time "1 sec" nil #'emacs-solo/highlight-keywords-mode-on))))
+
+;; 指定符号高亮
+(use-package symbol-overlay
+  :commands symbol-overlay-put
+  :bind
+  (("C-c i" . symbol-overlay-put)
+   ("C-c q" . symbol-overlay-remove-all)))
 
 ;; 自动保存
 (use-package auto-save
@@ -1667,6 +1967,10 @@
     (setq reftex-plug-into-AUCTeX t))
   )
 
+(use-package eldoc
+  :ensure nil
+  :init
+  (global-eldoc-mode))
 #+END_SRC
 
 * Font
@@ -1685,14 +1989,14 @@ fc-cache -fv
 fc-list | grep "WenKai"  
     #+end_src
 ** 英文：JetBrains Mono,iosevka-comfy
-  + macos: brew install --cask font-iosevka-comfy
-  + linux:  sudo apt search fonts- | grep iosevka
-    #+begin_src bash
++ macos: brew install --cask font-iosevka-comfy
++ linux:  sudo apt search fonts- | grep iosevka
+  #+begin_src bash
 git clone --depth 1 https://github.com/protesilaos/iosevka-comfy
 git clone --depth 1 https://gitlab.com/protesilaos/iosevka-comfy
 sudo cp *.ttf /usr/share/fonts/
 fc-cache -fv
-    #+end_src
+  #+end_src
 
 ** 常用字体命令:
 + 字体：英文 Iosevka/Sarasa 和中文 LxgwWenKai，按照 1:1 缩放，在偶数字号的情况下可以实现中英文等宽等高。
@@ -1718,9 +2022,9 @@ fc-cache -fv
 
 (defun load-font-setup()
   (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 140 :family "WenQuanYi Micro Hei Mono"))
+         (set-face-attribute 'default nil :height 180 :family "WenQuanYi Micro Hei Mono"))
         (t
-         (let ((emacs-font-size 14)
+         (let ((emacs-font-size 18)
                (chinese-font-name  my/cf)
                english-font-name)
            (cond
@@ -1729,8 +2033,8 @@ fc-cache -fv
             ((string-equal system-type "gnu/linux")
              (setq english-font-name my/ef)))
 
-           (set-face-attribute 'default nil :height 140 :family (eval english-font-name))
-           (set-face-attribute 'default nil :height 140 :family (eval chinese-font-name))
+           (set-face-attribute 'default nil :height 180 :family (eval english-font-name))
+           (set-face-attribute 'default nil :height 180 :family (eval chinese-font-name))
 
            (when (display-grayscale-p)
              (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
@@ -1939,27 +2243,31 @@ fc-cache -fv
 ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
 ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
 ;; rustup component add rust-src
+;; 代码片断自动补全工具
+;; (use-package yasnippet
+;;   :diminish yas-minor-mode
+;;   :commands yas-minor-mode
+;;   :bind
+;;   (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
+;;   (:map yas-keymap
+;;         (("TAB" . smarter-yas-expand-next-field)
+;;          ([(tab)] . smarter-yas-expand-next-field)))
+;;   :config
+;;   (yas-reload-all)
+;;   (defun smarter-yas-expand-next-field ()
+;;     "Try to `yas-expand' then `yas-next-field' at current cursor position."
+;;     (interactive)
+;;     (let ((old-point (point))
+;;           (old-tick (buffer-chars-modified-tick)))
+;;       (yas-expand)
+;;       (when (and (eq old-point (point))
+;;                  (eq old-tick (buffer-chars-modified-tick)))
+;;         (ignore-errors (yas-next-field))))))
 (use-package yasnippet
-  :diminish yas-minor-mode
-  :init
-  (use-package yasnippet-snippets :after yasnippet :defer t)
-  :hook ((prog-mode LaTeX-mode org-mode markdown-mode) . yas-minor-mode)
-  :bind
-  (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
-  (:map yas-keymap
-        (("TAB" . smarter-yas-expand-next-field)
-         ([(tab)] . smarter-yas-expand-next-field)))
+  :commands yas-minor-mode
   :config
-  (yas-reload-all)
-  (defun smarter-yas-expand-next-field ()
-    "Try to `yas-expand' then `yas-next-field' at current cursor position."
-    (interactive)
-    (let ((old-point (point))
-          (old-tick (buffer-chars-modified-tick)))
-      (yas-expand)
-      (when (and (eq old-point (point))
-                 (eq old-tick (buffer-chars-modified-tick)))
-        (ignore-errors (yas-next-field))))))
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  (yas-reload-all))
 
 
 ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
@@ -2095,6 +2403,7 @@ fc-cache -fv
   :commands all-the-icons-install-fonts)
 
 (use-package dashboard
+  :hook (after-init . dashboard-mode)
   :config
   ;; Icon in graphic mode
   (when (display-graphic-p)
@@ -2125,45 +2434,19 @@ fc-cache -fv
         sort-tab-hide-tab-function nil   ; 不隐藏标签
         sort-tab-cycle-navigation t))    ; 启用循环导航
 
-(use-package holo-layer
-  :if (and (display-graphic-p) *sys/mac*)
-  :straight (holo-layer :type git :host github :repo "manateelazycat/holo-layer")
-  :init
-  ;; 自动检测 Python 解释器路径
-  (setq holo-layer-python-command
-        (or (executable-find "python3")
-            (executable-find "python")
-            (expand-file-name "~/.venv/venv/bin/python")))
-  ;; 优化动画延迟
-  (setq holo-layer-animation-delay 0.05)
+(use-package lazycat-theme
+  :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+  ;;(lazycat-theme-load-dark)
+  )
+(use-package awesome-tray
+  :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+  :hook (after-init . awesome-tray-mode)
   :custom
-  ;; 动态启用动画特效
-  (holo-layer-enable-cursor-animation (and (>= (display-pixel-width) 2560)
-                                           (> (length (frame-list)) 1)))
-  ;;(holo-layer-enable-place-info t)  ; 可选启用
-  (holo-layer-enable-indent-rainbow t)
-  (holo-layer-enable-window-border t)
-  (holo-layer-enable-type-animation (>= (display-pixel-width) 2560))
-  (holo-layer-type-animation-style "flame")
-
+  (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
+                                 "mode-name" "last-command" "battery" "date"))
+  (awesome-tray-info-padding-right 1)
   :config
-  ;; 延迟加载，优化启动性能
-  (with-eval-after-load 'holo-layer
-    (run-with-idle-timer 1 nil #'holo-layer-enable)))
-
-;; (use-package lazycat-theme
-;;   :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-;;   ;;(lazycat-theme-load-dark)
-;;   )
-;; (use-package awesome-tray
-;;   :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
-;;   :hook (after-init . awesome-tray-mode)
-;;   :custom
-;;   (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
-;;                                  "mode-name" "last-command" "battery" "date"))
-;;   (awesome-tray-info-padding-right 1)
-;;   :config
-;;   (awesome-tray-mode 1))
+  (awesome-tray-mode 1))
 
 (use-package ef-themes
   :commands (load-theme)
@@ -2187,15 +2470,17 @@ fc-cache -fv
   (mapc #'disable-theme custom-enabled-themes))
 
 (defun my/load-theme (appearance)
-  "根据 APPEARANCE (light/dark) 选择合适的主题。"
+  "根据 APPEARANCE (light/dark/lazycat) 选择合适的主题s"
   (interactive)
   (pcase appearance
-    ('light (load-theme 'ef-light t))
-    ('dark (load-theme 'ef-elea-dark t))))
+    ('lazycat (lazycat-theme-load-dark))
+    ('light   (load-theme 'ef-light t))
+    ('dark    (load-theme 'ef-elea-dark t))))
 
-(add-hook 'after-init-hook (lambda () (my/load-theme 'dark)))
+;;(add-hook 'after-init-hook (lambda () (load-theme 'ef-elea-dark t)))
+(add-hook 'after-init-hook (lambda () (lazycat-theme-load-dark)))
 
- #+END_SRC
+#+END_SRC
 
 * Platform
 

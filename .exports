@@ -36,91 +36,68 @@ export GPG_TTY=$(tty);
 # Hide the “default interactive shell is now zsh” warning on macOS.
 export BASH_SILENCE_DEPRECATION_WARNING=1;
 
-export DEEPSEEK_API_KEY="YourKey"
-export OPENROUTER_API_KEY="YourKey"
+
 
 # ########################### custom your exports here ###################################
-if [[ "$(uname -s)" == "Darwin" ]]; then
+if [[ `uname -s` == "Darwin" ]]; then
+
     export HOMEBREW_NO_AUTO_UPDATE=1
     BREW_PREFIX=$(brew --prefix)
+
+    #if which brew &> /dev/null && brew list --formula | grep coreutils > /dev/null; then
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    #fi
+
+    #if which brew &> /dev/null && brew list --formula | grep make > /dev/null; then
+    PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
+    #fi
+
+    #if which brew &> /dev/null && brew list --formula | grep gnu-sed > /dev/null; then
+    PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH"
+    #fi
+
+    #if which brew &> /dev/null && brew list --formula | grep openjdk > /dev/null; then
     JDK_PREFIX=$(brew --prefix openjdk)
+    PATH="${JDK_PREFIX}/bin:$PATH"
+    #fi
 
-    # 确保 `brew` 安装了相关工具后再修改 PATH
-    for formula in coreutils make gnu-sed; do
-        if brew list --formula | grep -q "^$formula$"; then
-            PATH="$(brew --prefix $formula)/libexec/gnubin:$PATH"
-        fi
-    done
+    # for emacs eaf depens bins
+    PATH=$PATH:"/Users/zxh/Library/Python/3.9/lib/python/site-packages"
 
-    # 解析 JAVA_HOME，避免 `realpath` 失败
-    if [[ -d "$JDK_PREFIX" ]]; then
-        export JAVA_HOME="$JDK_PREFIX"
-        export PATH="$JAVA_HOME/bin:$PATH"
-    fi
-
-    # 设置 OpenSSL 相关路径
+    #------------------------------------------------------------
+    # latex
+    # PATH="$PATH:/Library/TeX/texbin"
+    #If you need to have openssl@3 first For compilers to find openssl@3 you may need to set
     export LDFLAGS="-L${BREW_PREFIX}/opt/openssl@3/lib"
     export CPPFLAGS="-I${BREW_PREFIX}/opt/openssl@3/include -I${JDK_PREFIX}/include"
     export PATH="${BREW_PREFIX}/opt/openssl@3/bin:$PATH"
 
-    # 加载其他环境配置
-    . "${BREW_PREFIX}/share/liquidprompt"
-    . "${BREW_PREFIX}/etc/profile.d/z.sh"
-    . "$(brew --prefix asdf)/libexec/asdf.sh"
-fi
-
-if [[ "$(uname -s)" == "Linux" && $- == *i* ]]; then
-    # 只在交互式 shell 中执行
-    source ~/.liquidprompt/liquidprompt
-    . ~/z/z.sh
-    . "$HOME/.asdf/asdf.sh"
+    . ${BREW_PREFIX}/share/liquidprompt && . ${BREW_PREFIX}/etc/profile.d/z.sh && .  $(brew --prefix asdf)/libexec/asdf.sh
 fi
 
 
-if command -v asdf &>/dev/null; then
-    # Golang 配置
-    if asdf list golang &>/dev/null; then
-        export GOPATH="$HOME/githubs/go"
-        ASDF_GOROOT=$(asdf where golang 2>/dev/null)/go
-        if [[ -d "$ASDF_GOROOT" ]]; then
-            export GOROOT="$ASDF_GOROOT"
-            export PATH+=":$GOROOT/bin:$GOPATH/bin"
-            export GOPROXY="https://goproxy.cn,direct"
-            export GOBIN="$GOPATH/bin"  # 让 go install 默认安装到 GOPATH/bin
-        fi
-    fi
-
-    # Erlang 配置
-    if asdf list erlang &>/dev/null; then
-        ASDF_ERLANG_BIN=$(asdf where erlang 2>/dev/null)/bin
-        [[ -d "$ASDF_ERLANG_BIN" ]] && export PATH+=":$ASDF_ERLANG_BIN"
-    fi
-
-    # Python 配置
-    if asdf list python &>/dev/null; then
-        echo "Python detected in asdf"
-
-        # 获取用户 Python 站点包的 bin 目录
-        USER_BASE_BIN=$(python -m site --user-base 2>/dev/null)/bin
-        echo "User Base Bin: $USER_BASE_BIN"
-
-        # 获取 asdf 安装的 Python 路径
-        ASDF_PYTHON_DIR=$(asdf where python 2>/dev/null)
-
-        if [[ -n "$ASDF_PYTHON_DIR" && -d "$ASDF_PYTHON_DIR/bin" ]]; then
-            ASDF_PYTHON_BIN="$ASDF_PYTHON_DIR/bin"
-            echo "ASDF Python Bin: $ASDF_PYTHON_BIN"
-
-            # 更新 PATH
-            export PATH="$USER_BASE_BIN:$ASDF_PYTHON_BIN:$PATH"
-        else
-            echo "⚠️  Error: asdf where python failed or directory does not exist!" >&2
-        fi
-    fi
-
-    # Rust 配置
-    if asdf list rust &>/dev/null; then
-        ASDF_RUST_BIN=$(asdf where rust 2>/dev/null)/bin
-        [[ -d "$ASDF_RUST_BIN" ]] && export PATH+=":$ASDF_RUST_BIN"
-    fi
+if [[ `uname -s` == "Linux" ]]; then
+    [[ $- = *i* ]] && source ~/.liquidprompt/liquidprompt && . ~/z/z.sh && . $HOME/.asdf/asdf.sh
 fi
+
+if which asdf &> /dev/null && asdf list | grep rust > /dev/null; then
+    PATH=$PATH:$(asdf where rust)/bin 
+fi
+
+if which asdf &> /dev/null && asdf list | grep golang > /dev/null; then
+    #export GOPATH="/Users/zxh/githubs/go"
+    export GOPATH="/home/zxh/githubs/go"
+    export GOROOT=$(asdf where golang)/go
+    PATH=$PATH:${GOROOT}/bin 
+    PATH=$PATH:$GOPATH/bin
+    export GOPROXY=https://goproxy.cn
+    # go env -w GOPRIVATE=gitlab.shudieds.com
+    # go env -w GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,direct
+fi
+
+if which asdf &> /dev/null && asdf list | grep erlang > /dev/null; then
+    PATH=$PATH:$(asdf where erlang)/bin 
+fi
+
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+export PATH=$PATH:$JAVA_HOME/bin
