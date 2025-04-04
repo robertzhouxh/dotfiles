@@ -1,0 +1,18 @@
+## ~/.config/starship.toml
+
+# A minimal left prompt
+format = """$character"""
+
+# move the rest of the prompt to the right
+right_format = """$all"""
+
+
+[memory_usage]
+disabled = false
+threshold = -1
+symbol = ""
+style = "bright-black"
+
+[hostname]
+ssh_only = true
+disabled = false

@@ -81,72 +81,25 @@ brew install wget
 brew install vim 
 brew install grep
 brew install openssh
-#brew install screen
-#brew install gmp
-
-# Install font tools.
-#brew tap bramstein/webfonttools
-#brew install sfnt2woff
-#brew install sfnt2woff-zopfli
-#brew install woff2
 
 brew tap homebrew/cask-fonts
-# brew tap laishulu/cask-fonts
-brew install --cask font-source-code-pro
-brew install --cask font-hack
+brew install --cask font-jetbrains-mono-nerd-font
+# fc-cache -f -v
 
-# Install some CTF tools; see https://github.com/ctfs/write-ups.
-#brew install aircrack-ng
-#brew install bfg
-#brew install binutils
-#brew install binwalk
-#brew install cifer
-#brew install dex2jar
-#brew install dns2tcp
-#brew install fcrackzip
-#brew install foremost
-#brew install hashpump
-#brew install hydra
-#brew install john
-#brew install knock
-#brew install netpbm
-#brew install nmap
-#brew install pngcheck
-#brew install socat
-#brew install sqlmap
-#brew install tcpflow
-#brew install tcpreplay
-#brew install tcptrace
-#brew install xpdf
-#brew install xz
 
 # Install other useful binaries.
-#brew install ack
-#brew install exiv2
 brew install git
 brew install less
 brew install git-delta
 brew install git-lfs
-#brew install gs
-#brew install imagemagick --with-webp
-brew install imagemagick 
+brew install imagemagick
 brew install lua
-#brew install lynx
-#brew install p7zip
-#brew install pigz
-#brew install pv
-#brew install rename
-#brew install rlwrap
 brew install ssh-copy-id
 brew install tree
-#brew install vbindiff
-#brew install zopfli
-
 
 # ----------------------custom----------------------
 brew install graphicsmagick
 brew install trash
-#brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
 brew install pcre
 brew install liquidprompt
 brew install graphviz
@@ -162,14 +115,18 @@ brew install glances
 # for Erlang, Elixir
 brew install autoconf
 brew install fop
-#brew install --build-from-source wxmac
-brew install wxwidgets 
-
-# A Terminal Client for MySQL with AutoCompletion and Syntax Highlighting.
-brew install mycli
+brew install wxwidgets
 
 # youtube downloader
 brew install yt-dlp
+
+# Starship 是一个快速、可定制的跨 Shell 终端提示符
+brew install starship
+
+## exa: A modern replacement for ‘ls’.
+brew install ghq fzf exa
+git config --global ghq.root '~/src'
+exa -l -g --icons
 
 apps=(
     caffeine

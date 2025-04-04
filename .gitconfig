@@ -178,21 +178,19 @@
 
   insteadOf = "gist:"
 
-
-#[url "git@gitlab.shudieds.com/"]
-#
-#  insteadOf = "https://gitlab.shudieds.com/"
-
 [init]
 
   defaultBranch = main
 
 
 [user]
-  name = robertzhouxh
+  name = zhouxh-e
   email = robertzhouxh@gmail.com
+  #email = zhouxh-e@glodon.com
 
 #[http "https://github.com"]
 #  proxy = socks5://127.0.0.1:1080
 #  postBuffer = 524288000
 #  sslVerify = false
+[ghq]
+  root = ~/src
