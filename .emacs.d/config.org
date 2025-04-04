@@ -43,7 +43,7 @@
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
 (when *sys/mac*
-  (setq plantuml-jar-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
+  (setq plantuml-jar-path "/opt/homebrew/Cellar/plantuml/1.2025.2/libexec/plantuml.jar")
   (setq plantuml-exec-mode 'jar)
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
@@ -1982,23 +1982,18 @@ buffer is not visiting a file."
   + Windows: scoop bucket add nerd-fonts && scoop install LXGWWenKaiMono 
   + Linux:
 
-    #+begin_src bash
+#+begin_src bash
 wget -P ~/Downloads https://github.com/lxgw/LxgwWenKai/releases/latest/download/LXGWWenKai-Regular.ttf
 cp ~/Downloads/LXGWWenKai-Regular.ttf ~/.local/share/fonts/
 fc-cache -fv
 fc-list | grep "WenKai"  
-    #+end_src
+#+end_src
 ** 英文：JetBrains Mono,iosevka-comfy
+
 + macos: brew install --cask font-iosevka-comfy
-+ linux:  sudo apt search fonts- | grep iosevka
-  #+begin_src bash
-git clone --depth 1 https://github.com/protesilaos/iosevka-comfy
-git clone --depth 1 https://gitlab.com/protesilaos/iosevka-comfy
-sudo cp *.ttf /usr/share/fonts/
-fc-cache -fv
-  #+end_src
 
 ** 常用字体命令:
+
 + 字体：英文 Iosevka/Sarasa 和中文 LxgwWenKai，按照 1:1 缩放，在偶数字号的情况下可以实现中英文等宽等高。
 + 查看 Emacs 支持的字体名称： (print (font-family-list))
 + 查看光标处字体： M-x describe-char

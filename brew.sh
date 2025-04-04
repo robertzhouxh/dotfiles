@@ -83,7 +83,11 @@ brew install grep
 brew install openssh
 
 brew tap homebrew/cask-fonts
+
+# 试试新字体
 brew install --cask font-jetbrains-mono-nerd-font
+brew install --cask font-jetbrains-mono
+brew install --cask font-lxgw-wenkai
 # fc-cache -f -v
 
 
