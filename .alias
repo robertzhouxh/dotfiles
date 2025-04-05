@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+
+# `ls` 增强
+if command -v exa &>/dev/null; then
+    alias e="exa --icons --git"
+    alias ea="exa -a --icons --git"
+    alias ee="exa -aahl --icons --git"
+    alias et='exa -T -L 3 -a -I "node_modules|.git|.cache" --icons'
+    alias eta='exa -T -a -I "node_modules|.git|.cache" --color=always --icons | less -r'
+
+    alias l=e
+
+    alias ls=e
+    alias la=ea
+
+    alias ll=ee
+    alias lt=et
+    alias lta=eta
+fi
+
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+
+alias dl="cd ~/Downloads"
+alias books="cd ~/Books/books"
+alias src="cd ~/src"
+
+# 网络工具
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias localip="ipconfig getifaddr en0"
+alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
+alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
+
+# 系统命令
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+
+
+### ~/.macos-aliases
+
+# 🔒 锁屏（等同 Control + Command + Q）
+alias afk='osascript -e "tell application \"System Events\" to keystroke \"q\" using {control down, command down}"'
+
+# 🌙 浅/深色模式切换
+alias darkmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
+
+# 🌐 Wi-Fi 开关（可能需要改接口名 en0 -> en1）
+alias wifi-on='networksetup -setairportpower en0 on'
+alias wifi-off='networksetup -setairportpower en0 off'
+
+# 🔍 显示/隐藏隐藏文件（立即生效）
+alias show-hidden='defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder'
+alias hide-hidden='defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder'
+
+# 🧹 刷新 DNS 缓存
+alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+
+# 🔁 重启 Dock / Finder / Touch Bar
+alias restart-dock='killall Dock'
+alias restart-finder='killall Finder'
+alias restart-touchbar='sudo pkill TouchBarServer && sudo pkill ControlStrip'
+
+# ⚙️ 快速打开系统偏好设置面板
+alias open-wifi='open /System/Library/PreferencePanes/Network.prefPane'
+alias open-bluetooth='open /System/Library/PreferencePanes/Bluetooth.prefPane'
+alias open-display='open /System/Library/PreferencePanes/Displays.prefPane'
+alias open-battery='open /System/Library/PreferencePanes/EnergySaver.prefPane'
+
+# 🛠️ 查看当前 macOS 版本和硬件型号
+alias macinfo='system_profiler SPSoftwareDataType SPHardwareDataType'
+
+# 工具函数
+# For example, to list all directories that contain a certain file:
+# find . -name .gitattributes | map dirname
+alias map="xargs -n1"
+alias path='echo -e ${PATH//:/\\n}'
+
+# Normalize `open` across Linux, macOS, and Windows.
+if [ ! $(uname -s) = 'Darwin' ]; then
+	if grep -q Microsoft /proc/version; then
+		# Ubuntu on Windows using the Linux subsystem
+		alias open='explorer.exe';
+	else
+		alias open='xdg-open';
+	fi
+fi
+
+# `o` with no arguments opens the current directory, otherwise opens the given location
+function o() {
+	if [ $# -eq 0 ]; then
+		open .;
+	else
+		open "$@";
+	fi;
+}
+
+# Run `dig` and display the most useful info
+function digga() {
+	dig +nocmd "$1" any +multiline +noall +answer;
+}
+
+# 每日站会
+function git-standup() {
+    AUTHOR=${AUTHOR:="`git config user.name`"}
+
+    since=yesterday
+    if [[ $(date +%u) == 1 ]] ; then
+        since="2 days ago"
+    fi
+
+    git log --all --since "$since" --oneline --author="$AUTHOR"
+}
+
+# Show all the names (CNs and SANs) listed in the SSL certificate for a given domain
+function getcertnames() {
+	if [ -z "${1}" ]; then
+		echo "ERROR: No domain specified.";
+		return 1;
+	fi;
+
+	local domain="${1}";
+	echo "Testing ${domain}…";
+	echo ""; # newline
+
+	local tmp=$(echo -e "GET / HTTP/1.0\nEOT" \
+		| openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1);
+
+	if [[ "${tmp}" = *"-----BEGIN CERTIFICATE-----"* ]]; then
+		local certText=$(echo "${tmp}" \
+			| openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
+			no_serial, no_sigdump, no_signame, no_validity, no_version");
+		echo "Common Name:";
+		echo ""; # newline
+		echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//";
+		echo ""; # newline
+		echo "Subject Alternative Name(s):";
+		echo ""; # newline
+		echo "${certText}" | grep -A 1 "Subject Alternative Name:" \
+			| sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2;
+		return 0;
+	else
+		echo "ERROR: Certificate not found.";
+		return 1;
+	fi;
+}
