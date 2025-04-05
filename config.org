@@ -1726,7 +1726,7 @@ fc-cache -fv
                           (*sys/linux* (font-spec :family "Symbola"))))
 
 
-  (let* ((efl '("JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code" "Fira Code"))
+  (let* ((efl '("JetBrains Mono Nerd Font" "JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code" "Fira Code"))
          (cfl '("LXGW WenKai Mono" "LXGW WenKai" "Sarasa Mono SC" "Microsoft YaHei Mono"))
 		 (cf (available-font cfl))
 		 (ef (available-font efl)))

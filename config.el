@@ -1,12 +1,3 @@
-:PROPERTIES: header-args:emacs-lisp :tangle
-:END:
-#+title: 我的 Emacs 配置
- #+auto_tangle: t
-
-* Custom Vars and Const
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
 (setq user-full-name "zxh")
 (setq user-mail-address "robertzhouxh@gmail.com")
 (setq erlang-path-prefix (file-truename "~/.asdf/installs/erlang/24.3.4"))
@@ -37,23 +28,17 @@
 
 
 (when *sys/linux*
-  (setq plantuml-jar-path "/opt/plantuml/plantuml.jar")
-  (setq plantuml-exec-mode 'jar)
+  (setq plantuml-path "/opt/plantuml/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/usr/local/include")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/.config/fcitx/rime/")))
 
 (when *sys/mac*
-  (setq plantuml-jar-path "/opt/homebrew/Cellar/plantuml/1.2025.2/libexec/plantuml.jar")
-  (setq plantuml-exec-mode 'jar)
+  (setq plantuml-path "/opt/homebrew/Cellar/plantuml/1.2024.3/libexec/plantuml.jar")
   (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
 (setenv "EMACS_MODULE_HEADER_ROOT" zxh-emacs-module-header-root)
 
-#+END_SRC
-
-* Bootstrap use-package
-#+BEGIN_SRC emacs-lisp :tangle yes
 ;; StraightBootstrap
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -117,10 +102,6 @@
 
 (add-subdirs-to-load-path zxh-emacs-vendor-dir)
 
-#+END_SRC
-
-* Generic
-#+begin_src emacs-lisp :tangle yes
 (tool-bar-mode -1)                               ;禁用工具栏
 (menu-bar-mode -1)                               ;禁用菜单栏
 (scroll-bar-mode -1)                             ;禁用滚动条
@@ -130,27 +111,7 @@
 (show-paren-mode t)                              ;显示括号匹配
 (global-subword-mode 1)                          ;Word移动支持 FooBar 的格式
 (electric-pair-mode -1)                          ;关闭内置补全,使用smartparens
-(setq pixel-scroll-precision-mode t)
-(setq window-resize-pixelwise nil)
-(setq history-length 300)
-(setq kill-do-not-save-duplicates t)
-(setq create-lockfiles nil)                      ; No backup files
-(setq make-backup-files nil)                     ; No backup files
-(setq backup-inhibited t)                        ; No backup files
-(setq pixel-scroll-precision-mode t)
-(setq pixel-scroll-precision-use-momentum nil)
-(setq ring-bell-function 'ignore)
-(setq read-answer-short t)
-(setq recentf-max-saved-items 300) ; default is 20
-(setq recentf-max-menu-items 15)
-(setq recentf-auto-cleanup (if (daemonp) 300 'never))
-(setq remote-file-name-inhibit-delete-by-moving-to-trash t)
-(setq remote-file-name-inhibit-auto-save t)
-(setq resize-mini-windows 'grow-only)
-(setq ring-bell-function #'ignore)
-(setq scroll-conservatively 8)
-(setq scroll-margin 5)
-(setq savehist-save-minibuffer-history t)
+
 (setq echo-keystrokes 0.1)                       ;加快快捷键提示的速度
 (setq kill-ring-max 1024)                        ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
 (setq mark-ring-max 1024)                        ;设置的mark ring容量
@@ -172,7 +133,6 @@
 (setq ad-redefinition-action 'accept)            ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
 (setq ring-bell-function 'ignore)                ;Do not noise
 (setq use-dialog-box nil)                        ;never pop dialog
-(setq use-file-dialog nil)
 (setq inhibit-startup-screen t)                  ;inhibit start screen
 (setq initial-scratch-message "")                ;关闭启动空白buffer, 这个buffer会干扰session恢复
 (setq default-major-mode 'text-mode)             ;设置默认地主模式为TEXT模式
@@ -181,13 +141,30 @@
 (setq frame-resize-pixelwise t)                  ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
 
 (setq-default cursor-type 'bar)                  ;设置光标样式。
-(setq-default x-stretch-cursor t)                ;光标和字符宽度一致（如 TAB)
+(setq x-stretch-cursor t)                        ;光标和字符宽度一致（如 TAB)
 (setq-default comment-style 'indent)             ;设定自动缩进的注释风格
 (setq-default require-final-newline nil)         ;不自动添加换行符到末尾, 有些情况会出现错误
 (setq-default auto-revert-mode 1)                ;自动更新buffer
 (setq-default void-text-area-pointer nil)        ;禁止显示鼠标指针
 (setq-default create-lockfiles nil)              ;Do not create lock files
 (setq-default history-length 500)                ;Set history-length longer
+(setq ediff-window-setup-function (quote ediff-setup-windows-plain)) ;比较窗口设置在同一个frame里
+(setq byte-compile-warnings
+      (quote (
+              ;; 显示的警告
+              free-vars                 ;不在当前范围的引用变量
+              unresolved                ;不知道的函数
+              callargs                  ;函数调用的参数和定义的不匹配
+              obsolete                  ;荒废的变量和函数
+              noruntime                 ;函数没有定义在运行时期
+              interactive-only          ;正常不被调用的命令
+              make-local ;调用 `make-variable-buffer-local' 可能会不正确的
+              mapcar     ;`mapcar' 调用
+              ;;
+              ;; 抑制的警告
+              (not redefine)        ;重新定义的函数 (比如参数数量改变)
+              (not cl-functions)    ;`CL' 包中的运行时调用的函数
+              )))
 
 ;; Better Compilation
 (setq-default compilation-always-kill t)      ; kill compilation process before starting another
@@ -258,49 +235,74 @@
 (dolist (hook '(org-mode-hook shell-mode-hook eshell-mode-hook term-mode-hook vterm-mode-hook))
   (add-hook hook (lambda () (display-line-numbers-mode -1))))
 
+;; 全局设置使用空格而非制表符
+;;(setq-default indent-tabs-mode nil)    ;; 不使用制表符进行缩进
+;;(setq-default tab-width 4)             ;; 默认 Tab 显示为 4 个空格宽度
 
-;;; AUTH-SOURCE
-;; (use-package auth-source
-;;   :ensure nil
-;;   :defer t
-;;   :config
-;;   (setq auth-sources
-;;         (list (expand-file-name ".authinfo.gpg" user-emacs-directory)))
-;;   (setq user-full-name "Rahul Martim Juliato"
-;;         user-mail-address "rahul.juliato@gmail.com")
-
-;;   ;; Use `pass` as an auth-source
-;;   (when (file-exists-p "~/.password-store")
-;;     (auth-source-pass-enable)))
-
-;; (with-current-buffer (get-buffer-create "*scratch*")
-;;   (insert (format ";;
-;; ;; ███████╗███╗   ███╗ █████╗  ██████╗███████╗    ███████╗ ██████╗ ██╗      ██████╗
-;; ;; ██╔════╝████╗ ████║██╔══██╗██╔════╝██╔════╝    ██╔════╝██╔═══██╗██║     ██╔═══██╗
-;; ;; █████╗  ██╔████╔██║███████║██║     ███████╗    ███████╗██║   ██║██║     ██║   ██║
-;; ;; ██╔══╝  ██║╚██╔╝██║██╔══██║██║     ╚════██║    ╚════██║██║   ██║██║     ██║   ██║
-;; ;; ███████╗██║ ╚═╝ ██║██║  ██║╚██████╗███████║    ███████║╚██████╔╝███████╗╚██████╔╝
-;; ;; ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝    ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝
-;; ;;
-;; ;;   Loading time : %s
-;; ;;   Packages     : %s
-;; ;;
-;; "
-;;                   (emacs-init-time)
-;;                   (number-to-string (length package-activated-list)))))
-#+end_src
-
-* Indent
-#+begin_src emacs-lisp :tangle yes
+;; 通用空格缩进函数
 (defun my/use-spaces-setup ()
   "设置使用空格进行缩进。"
   (setq indent-tabs-mode nil)
   (setq tab-width 4))
+
+;; 为所有编程模式设置空格缩进
 (add-hook 'prog-mode-hook 'my/use-spaces-setup)
 
-#+end_src
-* UTF8
-#+begin_src emacs-lisp :tangle yes
+;; 设置 org-mode 的 tab-width 为 8
+(add-hook 'org-mode-hook
+          (lambda ()
+            (setq-local tab-width 8)
+            (setq-local indent-tabs-mode t)))  ; 使用制表符
+
+;; Go 语言缩进设置
+(add-hook 'go-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)
+            (when (boundp 'go-tab-width)
+              (setq go-tab-width 4))))
+
+;; Erlang 语言缩进设置
+(add-hook 'erlang-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)
+            (when (boundp 'erlang-indent-level)
+              (setq erlang-indent-level 4))
+            (when (boundp 'erlang-tab-always-indent)
+              (setq erlang-tab-always-indent t))))
+
+;; Java 语言缩进设置
+(add-hook 'java-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)
+            (setq c-basic-offset 4)
+            (c-set-offset 'arglist-intro '+)
+            (c-set-offset 'arglist-cont 0)
+            (c-set-offset 'arglist-close 0)
+            (c-set-offset 'statement-cont 0)))
+
+;; Rust 语言缩进设置
+(add-hook 'rust-mode-hook
+	      (lambda ()
+	        (setq-local indent-tabs-mode nil
+			            tab-width 4
+			            rust-indent-offset 4)))
+
+;; 支持 tree-sitter 模式
+(with-eval-after-load 'treesit
+  (dolist (mode-hook '((go-ts-mode-hook . go-ts-mode-indent-offset)
+                       (erlang-ts-mode-hook . erlang-ts-indent-offset)
+                       (java-ts-mode-hook . java-ts-mode-indent-offset)
+                       (rust-ts-mode-hook . rust-ts-mode-indent-offset)))
+    (let ((hook (car mode-hook))
+          (offset-var (cdr mode-hook)))
+      (add-hook hook
+                (lambda ()
+                  (setq-local  indent-tabs-mode nil)
+                  (setq-local  tab-width 4))))))
+
 (unless *sys/win32*
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
@@ -312,24 +314,6 @@
 ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-#+end_src
-* Functions
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; 查看当前所有字体
-(defun lemacs/all-available-fonts ()
-  "Create and visit a buffer containing a sorted list of available fonts."
-  (interactive)
-  (let ((font-list (sort (x-list-fonts "*") #'string<))
-        (font-buffer (generate-new-buffer "*Font List*")))
-    (with-current-buffer font-buffer
-      (dolist (font font-list)
-        (let* ((font-family (nth 2 (split-string font "-"))))
-          (insert (format "%s\n" (propertize font 'face `(:family ,font-family :height 110))))))
-      (goto-char (point-min))
-      (setq buffer-read-only t))
-    (pop-to-buffer font-buffer)))
-
 
 (defun bjm/kill-this-buffer () (interactive) (kill-buffer (current-buffer)))
 
@@ -654,31 +638,26 @@
   (other-window 1)
   (scroll-down-line)
   (other-window -1))
-#+END_SRC
 
-* Fundermental Plugins
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-;; (use-package benchmark-init
-;;   :config
-;;   (benchmark-init/activate)
-;;   (add-hook 'after-init-hook 'benchmark-init/deactivate))
+(use-package benchmark-init
+  :config
+  (benchmark-init/activate)
+  (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
 (use-package exec-path-from-shell
   :config
-  (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
+  (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "PYTHONPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
   (exec-path-from-shell-initialize))
-
-;;; EMACS-SOLO-EXEC-PATH-FROM-SHELL
-;;
-;;  Loads users default shell PATH settings into Emacs. Usefull
-;;  when calling Emacs directly from GUI systems.
-;;
-;;  在 Emacs 中执行 M-! which asdf 或 M-! which python3，确保输出正确的路径。如果不正确，说明 Emacs 没有正确继承 shell 环境，
-;;  注意：对于 macOS，GUI 应用（比如通过Dock启动的 Emacs）通常不会读取 ~/.zshrc，而是读取 ~/.zprofile 或 ~/.bash_profile。
 
 (use-package protobuf-mode
   :hook (after-init . protobuf-mode))
+
+(use-package markdown-mode
+  :defer 15  ; 延迟 15 秒或按需加载
+  :hook (after-init . markdown-mode))
+
+(use-package dockerfile-mode
+  :hook (after-init . dockerfile-mode))
 
 (use-package nginx-mode
   :hook (after-init . nginx-mode))
@@ -696,6 +675,7 @@
   :hook (after-init . yaml-mode))
 
 (use-package plantuml-mode
+  :custom (org-plantuml-jar-path (expand-file-name plantuml-path))
   :hook (after-init . plantuml-mode))
 
 (use-package toml-mode
@@ -704,7 +684,8 @@
 (use-package restclient
   :hook (after-init . restclient-mode))
 
-(use-package discover-my-major)
+(use-package discover-my-major
+  :hook (after-init . discover-my-major-mode))
 
 ;; `global-auto-revert-mode' is provided by autorevert.el (builtin)
 (use-package autorevert
@@ -720,96 +701,29 @@
     (which-key-mode)
     (which-key-setup-side-window-right)))
 
-(use-package markdown-mode
-  :mode ("\\.md\\'" . markdown-mode)
-  :commands markdown-mode)
-
-(use-package dockerfile-mode
-  :commands dockerfile-mode)
-
-(use-package yaml-mode
-  :commands yaml-mode)
 
 ;;; 首次调用 commands 命令加载 
 ;;(use-package posframe)
 (use-package posframe
   :commands (posframe-show posframe-hide posframe-delete-all))
 
-;; (use-package sudo-edit
-;;   :commands (sudo-edit))
-(use-package emacs-solo-sudo-edit
-  :straight nil
-  ;; :ensure nil
-  ;; :no-require t
-  :defer t
-  :init
-  (defun emacs-solo/sudo-edit (&optional arg)
-    "Edit currently visited file as root.
-With a prefix ARG prompt for a file to visit.
-Will also prompt for a file to visit if current
-buffer is not visiting a file."
-    (interactive "P")
-    (if (or arg (not buffer-file-name))
-        (find-file (concat "/sudo:root@localhost:"
-                           (completing-read "Find file(as root): ")))
-      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
-
-(use-package emacs-solo-0x0
-  :straight nil
-  ;; :ensure nil
-  ;; :no-require t
-  :defer t
-  :init
-  (defun emacs-solo/0x0-upload-text ()
-    (interactive)
-    (let* ((contents (if (use-region-p)
-                         (buffer-substring-no-properties (region-beginning) (region-end))
-                       (buffer-string)))
-           (temp-file (make-temp-file "0x0" nil ".txt" contents)))
-      (message "Sending %s to 0x0.st..." temp-file)
-      (let ((url (string-trim-right
-                  (shell-command-to-string
-                   (format "curl -s -F'file=@%s' https://0x0.st" temp-file)))))
-        (message "The URL is %s" url)
-        (kill-new url)
-        (delete-file temp-file))))
-
-  (defun emacs-solo/0x0-upload-file (file-path)
-    (interactive "fSelect a file to upload: ")
-    (message "Sending %s to 0x0.st..." file-path)
-    (let ((url (string-trim-right
-                (shell-command-to-string
-                 (format "curl -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
-      (message "The URL is %s" url)
-      (kill-new url))))
-
+(use-package sudo-edit
+  :commands (sudo-edit))
 
 (use-package comment-dwim-2
   :commands (comment-dwim-2))
 
 (use-package ediff
-  ;;:commands ediff
-  :commands (ediff ediff-buffers ediff-files ediff-regions-wordwise ediff-directories)
+  :commands (ediff-buffers ediff-files ediff-regions-wordwise ediff-directories)
   :config
   (setq ediff-keep-variants nil)
   (setq ediff-split-window-function 'split-window-horizontally)
   ;; 不创建新的 frame 来显示 Control-Panel。
   (setq ediff-window-setup-function #'ediff-setup-windows-plain))
 
-#+END_SRC
-* Project
-#+BEGIN_SRC emacs-lisp :tangle yes
-;; 项目列表选择工具
 (use-package projectile
   :diminish 
-  :commands (projectile-switch-project projectile-discover-projects-in-search-path)
-  :config
-  (projectile-mode +1)
-  (setq projectile-project-search-path '("~/src/" "~githubs")
-        projectile-require-project-root nil
-        projectile-completion-system 'ivy
-        projectile-mode-line-function '(lambda () " Projectile")))
-  
+  :init (add-hook 'after-init-hook 'projectile-mode))
 
 (use-package ivy
   :diminish
@@ -849,10 +763,6 @@ buffer is not visiting a file."
   (when (executable-find "fd")
     (setq ffip-use-rust-fd t)))
 
-#+END_SRC
-* Quick Search And Move
-#+BEGIN_SRC emacs-lisp :tangle yes
-
 (use-package avy)
 
 (use-package vundo
@@ -875,10 +785,6 @@ buffer is not visiting a file."
   (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
   (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
 
-#+END_SRC
-
-* Magit
-#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package diff-hl
   :ensure t
   :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
@@ -891,54 +797,35 @@ buffer is not visiting a file."
   (unless (display-graphic-p)
     (diff-hl-margin-mode)))
 
-;; 在文件左侧显示 Git 状态
-(use-package git-gutter
-  :commands git-gutter-mode)
-
-;; 当前文件的修改历史展示
-(use-package git-timemachine
-  :commands git-timemachine)
-
-;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
-;; (setq auto-revert-check-vc-info t)
-;; (use-package magit
-;;   :bind (("C-x g" . magit-status))
-;;   :custom
-;;   ;; 在当前窗口显示 `magit-status`，commit diff（magit-diff & magit-revision）在右侧半屏
-;;   (magit-diff-long-lines-threshold nil)
-;;   (magit-show-long-lines-warning nil)
-;;   (magit-display-buffer-function #'my-magit-display-buffer)
-;;   :config
-;;   (defun my-magit-display-buffer (buffer)
-;;     "自定义 Magit buffer 显示策略：
-;;   - `magit-status` 和 `magit-log` 在当前窗口打开；
-;;   - `magit-diff` 和 `magit-revision` 在右侧半屏打开。"
-;;     (let ((mode (buffer-local-value 'major-mode buffer)))
-;;       (if (memq mode '(magit-diff-mode magit-revision-mode))
-;;           (display-buffer
-;;            buffer
-;;            '((display-buffer-in-side-window)
-;;              (side . right)
-;;              (slot . 0)
-;;              (window-width . 0.5)))  ;; 右侧窗口宽度为当前窗口的 50%
-;;         (display-buffer
-;;          buffer
-;;          '((display-buffer-same-window))))))
-;;   ;; 绑定 M-RET 让 Diff 直接在其他窗口打开
-;;   (with-eval-after-load 'magit
-;;     (define-key magit-status-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)))
-
-;; 设置 Git 管理快捷键
+                ;;;; 自动 revert buffer，确保 modeline 上的分支名正确，但是 CPU Profile 显示 比较影响性能，故暂不开启。
+                ;;;; (setq auto-revert-check-vc-info t)
 (use-package magit
-  :commands magit-status
-  :bind ("C-x g" . magit-status)
+  :bind (("C-x g" . magit-status))
+  :custom
+  ;; 在当前窗口显示 `magit-status`，commit diff（magit-diff & magit-revision）在右侧半屏
+  (magit-diff-long-lines-threshold nil)
+  (magit-show-long-lines-warning nil)
+  (magit-display-buffer-function #'my-magit-display-buffer)
   :config
-  (setq magit-diff-refine-hunk (quote all))
-  :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
-#+END_SRC
-* Evil-Mode
+  (defun my-magit-display-buffer (buffer)
+    "自定义 Magit buffer 显示策略：
+  - `magit-status` 和 `magit-log` 在当前窗口打开；
+  - `magit-diff` 和 `magit-revision` 在右侧半屏打开。"
+    (let ((mode (buffer-local-value 'major-mode buffer)))
+      (if (memq mode '(magit-diff-mode magit-revision-mode))
+          (display-buffer
+           buffer
+           '((display-buffer-in-side-window)
+             (side . right)
+             (slot . 0)
+             (window-width . 0.5)))  ;; 右侧窗口宽度为当前窗口的 50%
+        (display-buffer
+         buffer
+         '((display-buffer-same-window))))))
+  ;; 绑定 M-RET 让 Diff 直接在其他窗口打开
+  (with-eval-after-load 'magit
+    (define-key magit-status-mode-map (kbd "M-RET") #'magit-diff-visit-file-other-window)))
 
-#+BEGIN_SRC emacs-lisp :tangle yes
 (defun x/config-evil-leader ()
   (evil-leader/set-leader ",")
   (evil-leader/set-key
@@ -975,8 +862,7 @@ buffer is not visiting a file."
     "eo" 'org-export-docx
 
     ;; file
-    "fs" '(lambda () (interactive) (eaf-open-in-file-manager "~/src"))
-    "fh" '(lambda () (interactive) (eaf-open-in-file-manager "~/githubs"))
+    "fh" '(lambda () (interactive) (eaf-open-in-file-manager "~/"))
     "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
     "fi" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
     "ff" 'find-file
@@ -1087,11 +973,6 @@ buffer is not visiting a file."
              ))
   (evil-set-initial-state (car p) (cdr p)))
 
-#+END_SRC
-
-* Org-Mode
-** Org 辅助配置
-#+BEGIN_SRC emacs-lisp :tangle yes
 ;; 文件操作库
 (use-package f :defer t)
 
@@ -1175,37 +1056,6 @@ buffer is not visiting a file."
   ;; 不添加 #+DOWNLOADED: 注释
   (setq org-download-annotate-function (lambda (link) (previous-line 1) "")))
 
-;;; -*- lexical-binding: t; coding:utf-8 -*-
-;; 插动图片到org 文件时， 自动将文件放到org下的static/下，并插入[[file:...static/image.jpg]]
-;;;###autoload
-(defun vmacs-org-insert-image (event)
-  (interactive "e")
-  (x-focus-frame nil)
-  (let* ((payload (car (last event)))
-         (type (car payload))
-         (fromname (nth 2 payload))
-         (img-regexp "\\(gif\\|png\\|jp[e]?g\\)\\>")
-         (destname fromname)
-         img-dir
-         )
-    (when (file-exists-p "../img/")
-      (setq img-dir "../img/"))
-    (when (file-exists-p "./img/")
-      (setq img-dir "./img/"))
-    (when (and  (eq 'drag-n-drop (car event))
-                (eq 'file type)
-                (string-match img-regexp fromname)
-                img-dir)
-      (let ((filebasename (file-name-base (buffer-file-name)) ))
-        (setq destname (concat img-dir filebasename "-" (format-time-string "%Y-%m-%d-%H-%M-%S") "." (file-name-extension fromname)))
-        (rename-file fromname destname t))
-      (goto-char (nth 1 (event-start event)))
-      (insert (format "[[file:%s]]" (file-relative-name destname (file-name-directory (buffer-file-name))))))))
-
-#+END_SRC
-
-** Org 主配置
-#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ob-go)
 (use-package ob-rust)
 (use-package org
@@ -1222,11 +1072,8 @@ buffer is not visiting a file."
   ;; 'showeverything 不折叠，显示所有内容
   (setq org-startup-folded 'overview)
 
- ;; Ellipsis styling
-  (setq org-ellipsis " ▼ ")
-  (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
-
-  (setq 
+  ;; 外观设置
+  (setq org-ellipsis "..."  ;; 折叠内容的省略号
         org-pretty-entities t  ;; 允许使用 UTF-8 显示 LaTeX 或特殊字符
         org-highlight-latex-and-related '(latex)  ;; 高亮 LaTeX 代码
         org-export-with-latex 'verbatim  ;; 导出时保留 LaTeX 代码，不解析
@@ -1240,8 +1087,6 @@ buffer is not visiting a file."
         org-mouse-1-follows-link nil  ;; 关闭鼠标点击自动跟随链接
 
         ;; 隐藏 Org 语法的标记，使文档更清爽
-        ;; Org styling, hide markup etc.
-        org-pretty-entities t
         org-hide-emphasis-markers t
         org-hide-block-startup t
         org-hidden-keywords '(title)
@@ -1274,7 +1119,7 @@ buffer is not visiting a file."
         org-startup-indented t  ;; 启用缩进模式
 
         ;; 默认图片显示大小
-        org-image-actual-width '(600)
+        org-image-actual-width '(300)
 
         ;; 计时器到期时播放声音
         org-clock-sound t
@@ -1287,20 +1132,17 @@ buffer is not visiting a file."
         org-auto-align-tags nil
 
         ;; 防止意外修改隐藏内容
-        ;; Edit settings
-        org-auto-align-tags nil
-        org-tags-column 0
         org-catch-invisible-edits 'show-and-error
-        org-special-ctrl-a/e t
-        org-insert-heading-respect-content t
         org-fold-catch-invisible-edits t
 
         ;; 使用 ID 作为内部链接（而不是 CUSTOM_ID）
         org-id-link-to-org-use-id t
 
         ;; 关闭 C-c C-c 触发代码执行的功能，避免误执行
-        ;; org-babel-no-eval-on-ctrl-c-ctrl-c t
-        org-confirm-babel-evaluate nil
+        ;; (setq org-babel-no-eval-on-ctrl-c-ctrl-c t)
+
+        ;; 代码执行前确认
+        ;; (setq org-confirm-babel-evaluate t)
 
         ;; 任务管理状态
         org-todo-keywords
@@ -1308,9 +1150,9 @@ buffer is not visiting a file."
           (sequence "WAITING(w@/!)" "NEXT(n!/!)" "SOMEDAY(S)" "|" "CANCELLED(c@/!)")))
 
   ;; 代码块增强
-  (setq org-plantuml-jar-path plantuml-jar-path)
   (setq org-src-fontify-natively t  ;; 代码高亮
         org-src-tab-acts-natively t)  ;; 在 src block 内使用原生 tab 缩进
+
   ;; 启用 Babel 代码块执行支持的语言
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -1327,9 +1169,6 @@ buffer is not visiting a file."
      (awk . t) 
      (css . t))))
 
-#+END_SRC
-* Org-Latex
-#+BEGIN_SRC emacs-lisp :tangle yes
 ;; engrave-faces 比 minted 渲染速度更快。
 (use-package engrave-faces
   :after ox-latex
@@ -1375,75 +1214,6 @@ buffer is not visiting a file."
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
-
-;; Org Latex Preview
-(setq org-latex-packages-alist '(("" "mhchem" t)
-				 ("" "ctex" t)))
-(add-to-list 'org-preview-latex-process-alist
-	     '(xelatex-ch
-	       :programs ("xelatex" "dvisvgm")
-	       :description "xdv > svg"
-	       :message "You need to install xelatex & dvisvgm"
-	       :image-input-type "xdv"
-	       :image-output-type "svg"
-	       :image-size-adjust (1.3 . 1.2)
-	       :latex-compiler
-	       ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
-	       :image-converter
-	       ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O")))
-
-(defun my/org-insert-tabularx-attr ()
-  "在 org-mode 表格前插入 LaTeX tabularx 属性行，以启用自动换行的 X 对齐列。"
-  (interactive)
-  (save-excursion
-    ;; 向上查找表格的开始
-    (beginning-of-line)
-    (while (and (not (bobp)) (not (looking-at-p "|")))
-      (forward-line -1))
-    ;; 插入属性行
-    (insert "#+ATTR_LATEX: :environment tabularx :booktabs t :width \\linewidth :align l|X\n")))
-
-(defun my/org-insert-latex-template ()
-  "插入一个自定义 LaTeX Org 文件头模板，支持交互输入 TITLE、SUBTITLE、AUTHOR 和 DATE。"
-  (interactive)
-  (let* ((title (read-string "标题（#+TITLE）: "))
-         (subtitle (read-string "副标题（#+SUBTITLE）: "))
-         (author (read-string "作者（#+AUTHOR）: "))
-         (date (read-string "日期（#+DATE）: " (format-time-string "%Y-%m-%d %a"))))
-    (save-excursion
-      (goto-char (point-min))
-      (insert (format "\
-#+TITLE: %s
-#+DATE: %s
-#+SUBTITLE: %s
-#+AUTHOR: %s
-#+LANGUAGE: zh-CN
-#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
-#+LATEX_COMPILER: xelatex
-#+LATEX_CLASS: ctexart
-#+LATEX_HEADER: \\usepackage{/Users/zxh/.emacs.d/mystyle}
-
-#+begin_export latex
-\\maketitle
-\\thispagestyle{empty}
-\\clearpage
-
-\\begin{abstract}
-在此处填写摘要内容。
-\\end{abstract}
-
-\\tableofcontents
-\\clearpage
-#+end_export
-
-" title date subtitle author)))))
-
-
-#+END_SRC
-
-* Templates 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
 (defun my-latex-template (author title subtitle latex-header-path)
   "生成定制化的 LaTeX 文档模板
   参数说明：
@@ -1482,50 +1252,6 @@ buffer is not visiting a file."
   (interactive)
   (insert "#+ATTR_LATEX: :environment tabularx :booktabs t :width \linewidth :align l|X"))
 
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(my-latex "#+DATE: " (format-time-string "%Y-%m-%d %a") n
-	      "#+SUBTITLE: 内部资料，注意保密!
-,#+AUTHOR: zxh
-# 中文语言环境（目录等用中文显示）。
-,#+LANGUAGE: zh-CN
-# 不自动输出 titile 和 toc，后续 latext mystyle 中定制输出。
-# 但是需要明确通过 num 控制输出的目录级别。
-,#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
-,#+LATEX_COMPILER: xelatex
-,#+LATEX_CLASS: ctexart
-,#+LATEX_HEADER: \\usepackage{/Users/zxh/.emacs.d/mystyle}
-
-# 定制 PDF 封面和目录。
-,#+begin_export latex
-% 封面页
-\\begin{titlepage}
-% 插入标题
-\\maketitle
-% 插入封面图
-%\\ThisCenterWallPaper{0.4}{/path/to/image.png}
-% 封面页不编号
-\\noindent\\fboxsep=0pt
-\\setcounter{page}{0}
-\\thispagestyle{empty}
-\\end{titlepage}
-
-% 摘要页
-\\begin{abstract}
-这是一个摘要。
-\\end{abstract}
-
-% 目录页
-\\newpage
-\\tableofcontents
-\\newpage
-,#+end_export
-")
-#+END_SRC
-* PDF-Tools
-#+BEGIN_SRC emacs-lisp :tangle yes
 ;; (use-package pdf-tools
 ;;   :straight t
 ;;   :ensure t
@@ -1553,184 +1279,114 @@ buffer is not visiting a file."
  ;; (t
  ;;  (setq TeX-view-program-selection '((output-pdf "Evince"))))
  )
-#+END_SRC
-* Dired
-#+BEGIN_SRC emacs-lisp :tangle no
-
-;; DiredPackage
-(use-package dired
-  :straight (:type built-in)
-  :bind
-  (("C-x C-j" . dired-jump))
-  :custom
-  ;; Always delete and copy recursively
-  (dired-listing-switches "-lah")
-  (dired-recursive-deletes 'always)
-  (dired-recursive-copies 'always)
-  ;; Auto refresh Dired, but be quiet about it
-  (global-auto-revert-non-file-buffers t)
-  (auto-revert-verbose nil)
-  ;; Quickly copy/move file in Dired
-  (dired-dwim-target t)
-  ;; Move files to trash when deleting
-  (delete-by-moving-to-trash t)
-  ;; Load the newest version of a file
-  (load-prefer-newer t)
-  ;; Detect external file changes and auto refresh file
-  (auto-revert-use-notify nil)
-  (auto-revert-interval 3) ; Auto revert every 3 sec
-  :config
-  ;; Enable global auto-revert
-  (global-auto-revert-mode t)
-  ;; Reuse same dired buffer, to prevent numerous buffers while navigating in dired
-  (put 'dired-find-alternate-file 'disabled nil)
-  :hook
-  (dired-mode . (lambda ()
-                  (local-set-key (kbd "<mouse-2>") #'dired-find-alternate-file)
-                  (local-set-key (kbd "RET") #'dired-find-alternate-file)
-                  (local-set-key (kbd "^")
-                                 (lambda () (interactive) (find-alternate-file ".."))))))
-;; -DiredPackage
-
-;; DiskUsage
-(use-package disk-usage
-  :commands (disk-usage))
-;; -DiskUsage
-
-;; SaveAllBuffers
-(defun save-all-buffers ()
-  "Instead of `save-buffer', save all opened buffers by calling `save-some-buffers' with ARG t."
-  (interactive)
-  (save-some-buffers t))
-
-#+END_SRC
-
-* Treesit
-#+BEGIN_SRC emacs-lisp :tangle yes
 
 (use-package treesit-fold :straight (treesit-fol :type git :host github :repo "emacs-tree-sitter/treesit-fold") :config)
 
 ;; cargo install tree-sitter-cli
 ;; M-x 执行 M-x treesit-auto-install-all 来安装所有的 treesit modules。
 ;; 如果要重新安装(升级) grammer, 需要先删除 dylib 文件或 tree-sitter 目录, 重启 emacs 后再执行 M-x treesit-auto-install-all. 
+;; (use-package treesit-auto
+;;   :demand t
+;;   :config
+;;   (setq treesit-auto-install 'prompt)
+;;   (global-treesit-auto-mode))
+
+
+;; M-x `treesit-install-language-grammar` to install language grammar.
 (use-package treesit-auto
-  :demand t
+  :ensure t
   :config
-  (setq treesit-auto-install 'prompt)
-  (global-treesit-auto-mode)
-  :init
-  ;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
-  (setq treesit-font-lock-level 4))
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
+          ;;(csharp     . ("https://github.com/tree-sitter/tree-sitter-c-sharp.git"))
+          (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))
+          (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
+          (erlang . ("https://github.com/WhatsApp/tree-sitter-erlang"))
+          (elixir "https://github.com/elixir-lang/tree-sitter-elixir" "main" "src" nil nil)
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (gomod      . ("https://github.com/camdencheek/tree-sitter-go-mod.git"))
+          (haskell "https://github.com/tree-sitter/tree-sitter-haskell" "master" "src" nil nil)
+          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (java       . ("https://github.com/tree-sitter/tree-sitter-java.git"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (make . ("https://github.com/alemuller/tree-sitter-make"))
+          (markdown . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
+          (markdown-inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
+          ;;(ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" nil "ocaml/src"))
+          (org . ("https://github.com/milisims/tree-sitter-org"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          ;;(php . ("https://github.com/tree-sitter/tree-sitter-php"))
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src"))
+          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src"))
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+          (scala "https://github.com/tree-sitter/tree-sitter-scala" "master" "src" nil nil)
+          (toml "https://github.com/tree-sitter/tree-sitter-toml" "master" "src" nil nil)
+          (vue . ("https://github.com/merico-dev/tree-sitter-vue"))
+          (kotlin . ("https://github.com/fwcd/tree-sitter-kotlin"))
+          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+          (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
+          ;;(nix . ("https://github.com/nix-community/nix-ts-mode"))
+          (mojo . ("https://github.com/HerringtonDarkholme/tree-sitter-mojo"))))
 
-(defun treesit-show-parser-used-at-point ()
-  "Shows treesit parser used at point."
-  (interactive)
-  (if (and (fboundp 'treesit-available-p)
-	       (treesit-available-p))
-      (message (format "%s" (treesit-language-at (point))))
-    (message "treesit is not available")))
+  (setq major-mode-remap-alist
+        '((c-mode          . c-ts-mode)
+          (c++-mode        . c++-ts-mode)
+          (cmake-mode      . cmake-ts-mode)
+          (conf-toml-mode  . toml-ts-mode)
+          (css-mode        . css-ts-mode)
+          (js-mode         . js-ts-mode)
+          (js-json-mode    . json-ts-mode)
+          (python-mode     . python-ts-mode)
+          (sh-mode         . bash-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (rust-mode       . rust-ts-mode)
+          (java-mode       . java-ts-mode)
+          (clojure-mode    . clojure-ts-mode)
+          (markdown-mode   . markdown-ts-mode)
+          ))
 
-(setq major-mode-remap-alist
-      '((c-mode          . c-ts-mode)
-        (c++-mode        . c++-ts-mode)
-        (cmake-mode      . cmake-ts-mode)
-        (conf-toml-mode  . toml-ts-mode)
-        (css-mode        . css-ts-mode)
-        (js-mode         . js-ts-mode)
-        (js-json-mode    . json-ts-mode)
-        (python-mode     . python-ts-mode)
-        (sh-mode         . bash-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (rust-mode       . rust-ts-mode)
-        (java-mode       . java-ts-mode)
-        (clojure-mode    . clojure-ts-mode)
-        ;; (markdown-mode   . markdown-ts-mode)
-        ))
+  (dolist (lang (mapcar #'car treesit-language-source-alist))
+    (unless (treesit-language-available-p lang)
+      (treesit-install-language-grammar lang)))
 
-;; (add-hook 'markdown-ts-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
-(add-hook 'markdown-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
-(add-hook 'zig-mode-hook #'(lambda () (treesit-parser-create 'zig)))
-(add-hook 'emacs-lisp-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
-(add-hook 'json-mode-hook #'(lambda () (treesit-parser-create 'json)))
-(add-hook 'go-mode-hook #'(lambda () (treesit-parser-create 'go)))
-(add-hook 'java-mode-hook #'(lambda () (treesit-parser-create 'java)))
-(add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
-(add-hook 'clojure-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
-(add-hook 'clojure-ts-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
-(add-hook 'php-mode-hook #'(lambda () (treesit-parser-create 'php)))
-(add-hook 'php-ts-mode-hook #'(lambda () (treesit-parser-create 'php)))
-(add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
-(add-hook 'haskell-mode-hook #'(lambda () (treesit-parser-create 'haskell)))
-(add-hook 'kotlin-mode-hook #'(lambda () (treesit-parser-create 'kotlin)))
-(add-hook 'ruby-mode-hook #'(lambda () (treesit-parser-create 'ruby)))
+  (add-hook 'web-mode-hook #'(lambda ()
+                               (let ((file-name (buffer-file-name)))
+                                 (when file-name
+                                   (treesit-parser-create
+                                    (pcase (file-name-extension file-name)
+                                      ("vue" 'vue)
+                                      ("html" 'html)
+                                      ("php" 'php))))
+                                 )))
 
-#+END_SRC
-* Programming
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-;;; EMACS-SOLO-HIGHLIGHT-KEYWORDS-MODE
-;;
-;;  Highlights a list of words like TODO, FIXME...
-;;  Code borrowed from `alternateved'
-;;
-(use-package emacs-solo-highlight-keywords-mode
-  :straight nil  ;; 表示不通过 straight 管理
-  :when *sys/linux*
-  ;; :ensure nil
-  ;; :no-require t
-  :defer t
-  :init
-  (defcustom +highlight-keywords-faces
-    '(("TODO" . error)
-      ("FIXME" . error)
-      ("HACK" . warning)
-      ("NOTE" . warning)
-      ("HERE" . compilation-info))
-    "Alist of keywords to highlight and their face."
-    :group '+highlight-keywords
-    :type '(alist :key-type (string :tag "Keyword")
-                  :value-type (symbol :tag "Face"))
-    :set (lambda (sym val)
-           (dolist (face (mapcar #'cdr val))
-             (unless (facep face)
-               (error "Invalid face: %s" face)))
-           (set-default sym val)))
-
-  (defvar +highlight-keywords--keywords
-    (when +highlight-keywords-faces
-      (let ((keywords (mapcar #'car +highlight-keywords-faces)))
-        `((,(regexp-opt keywords 'words)
-           (0 (when (nth 8 (syntax-ppss))
-                (cdr (assoc (match-string 0) +highlight-keywords-faces)))
-              prepend)))))
-    "Keywords and corresponding faces for `emacs-solo/highlight-keywords-mode'.")
-
-  (defun emacs-solo/highlight-keywords-mode-on ()
-    (font-lock-add-keywords nil +highlight-keywords--keywords t)
-    (font-lock-flush))
-
-  (defun emacs-solo/highlight-keywords-mode-off ()
-    (font-lock-remove-keywords nil +highlight-keywords--keywords)
-    (font-lock-flush))
-
-  (define-minor-mode emacs-solo/highlight-keywords-mode
-    "Highlight TODO and similar keywords in comments and strings."
-    :lighter " +HL"
-    :group '+highlight-keywords
-    (if emacs-solo/highlight-keywords-mode
-        (emacs-solo/highlight-keywords-mode-on)
-      (emacs-solo/highlight-keywords-mode-off)))
-
-  :hook
-  (prog-mode . (lambda () (run-at-time "1 sec" nil #'emacs-solo/highlight-keywords-mode-on))))
-
-;; 指定符号高亮
-(use-package symbol-overlay
-  :commands symbol-overlay-put
-  :bind
-  (("C-c i" . symbol-overlay-put)
-   ("C-c q" . symbol-overlay-remove-all)))
+  (add-hook 'markdown-ts-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
+  (add-hook 'zig-mode-hook #'(lambda () (treesit-parser-create 'zig)))
+  (add-hook 'mojo-mode-hook #'(lambda () (treesit-parser-create 'mojo)))
+  (add-hook 'emacs-lisp-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
+  (add-hook 'ielm-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
+  (add-hook 'json-mode-hook #'(lambda () (treesit-parser-create 'json)))
+  (add-hook 'go-mode-hook #'(lambda () (treesit-parser-create 'go)))
+  (add-hook 'java-mode-hook #'(lambda () (treesit-parser-create 'java)))
+  (add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
+  (add-hook 'clojure-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
+  (add-hook 'clojure-ts-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
+  (add-hook 'cider-repl-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
+  (add-hook 'php-mode-hook #'(lambda () (treesit-parser-create 'php)))
+  (add-hook 'php-ts-mode-hook #'(lambda () (treesit-parser-create 'php)))
+  (add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
+  (add-hook 'haskell-mode-hook #'(lambda () (treesit-parser-create 'haskell)))
+  (add-hook 'kotlin-mode-hook #'(lambda () (treesit-parser-create 'kotlin)))
+  (add-hook 'ruby-mode-hook #'(lambda () (treesit-parser-create 'ruby)))
+  )
 
 ;; 自动保存
 (use-package auto-save
@@ -1845,91 +1501,10 @@ buffer is not visiting a file."
     (setq reftex-plug-into-AUCTeX t))
   )
 
-(use-package eldoc
-  :ensure nil
-  :init
-  (global-eldoc-mode))
-#+END_SRC
-
-* Font
-** 中文: 霞鹜文楷
-+ CJK 是 "Chinese, Japanese, and Korean"缩写，用来指代这三种语言及其相关的字符集和编码。
-+ kana 是日文假名字符集，han 是汉字字符集，hangul 是韩文字符集，cjk-misc 是杂项 CJK 字符集， bopomofo 是注音符号字符集。
-+ 中文：霞鹜文楷屏幕阅读版 [[LxgwWenKai-Screen][LxgwWenKai-Screen]]，对字体做了加粗，便于屏幕阅读;
-  + MacOS: brew install font-lxgw-wenkai 
-  + Windows: scoop bucket add nerd-fonts && scoop install LXGWWenKaiMono 
-  + Linux:
-
-#+begin_src bash
-wget -P ~/Downloads https://github.com/lxgw/LxgwWenKai/releases/latest/download/LXGWWenKai-Regular.ttf
-cp ~/Downloads/LXGWWenKai-Regular.ttf ~/.local/share/fonts/
-fc-cache -fv
-fc-list | grep "WenKai"  
-#+end_src
-** 英文：JetBrains Mono,iosevka-comfy
-
-+ macos: brew install --cask font-iosevka-comfy
-
-** 常用字体命令:
-
-+ 字体：英文 Iosevka/Sarasa 和中文 LxgwWenKai，按照 1:1 缩放，在偶数字号的情况下可以实现中英文等宽等高。
-+ 查看 Emacs 支持的字体名称： (print (font-family-list))
-+ 查看光标处字体： M-x describe-char
-+ 查看 Emacs 支持的字体名称： (print (font-family-list))
-+ 默认字号, 需要是偶数才能实现中英文等宽等高,eg: height 180
-+ fc-list | grep "LxgwWenKai\|Iosevka"
-  
-** Old
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-(defun available-font (font-list)
-  "Get the first available font from FONT-LIST."
-  (catch 'font
-    (dolist (font font-list)
-      (if (member font (font-family-list))
-          (throw 'font font)))))
-
-(setq my/ef (available-font '("JetBrains Mono Nerd Font" "JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code")))
-(setq my/cf (available-font '("LXGW WenKai Mono" "Sarasa Mono SC" "Microsoft YaHei Mono")))
-
-(defun load-font-setup()
-  (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 150 :family "WenQuanYi Micro Hei Mono"))
-        (t
-         (let ((emacs-font-size 15)
-               (chinese-font-name  my/cf)
-               english-font-name)
-           (cond
-            ((featurep 'cocoa)
-             (setq english-font-name my/ef))
-            ((string-equal system-type "gnu/linux")
-             (setq english-font-name my/ef)))
-
-           (set-face-attribute 'default nil :height 150 :family (eval english-font-name))
-           (set-face-attribute 'default nil :height 150 :family (eval chinese-font-name))
-
-           (when (display-grayscale-p)
-             (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
-             (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
-
-             (dolist (charset '(kana han symbol cjk-misc bopomofo))
-               (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family (eval chinese-font-name))))
-             )))))
-
-(add-hook 'after-init-hook 'load-font-setup)
-(add-hook 'org-mode-hook #'valign-mode)
-#+END_SRC
-
-** New
-
-在 Emacs 中，设置字体大小时，:height 参数的单位是 1/10 pt，而不是以 pt 为单位
-
-#+BEGIN_SRC emacs-lisp :tangle no
 (defvar my/font-base-size 16
   "基础字体大小 (单位: pt)，英文字体直接使用该值，中文字体按缩放系数调整")
 
-(defvar my/cjk-font-scale 1.1
+(defvar my/cjk-font-scale 1.2
   "中文字体相对于基准字体的缩放系数，建议范围 1.1~1.3")
 
 (defun available-font (font-list)
@@ -1996,21 +1571,19 @@ fc-list | grep "WenKai"
   "动态调整字体大小"
   (interactive)
   (let ((new-size (read-number "New base font size (pt): " my/font-base-size)))
-    (setq my/en-size (* new-size 10))
-    (setq my/cn-size (* new-size my/cjk-font-scale 10))
+    (setq my/font-base-size new-size)
     (my/setup-font)))
-#+END_SRC
-* Rime
-#+BEGIN_SRC emacs-lisp :tangle yes
+
 (use-package rime
+  :defer t
   :custom
   (default-input-method "rime")
   (rime-posframe-style 'vertical)
   (rime-show-candidate 'posframe)
   (rime-user-data-dir zxh-emacs-rime-user-data-dir)
   (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
-  :hook
-  (emacs-startup . (lambda () (setq default-input-method "rime")))
+  ;;:hook
+  ;;(emacs-startup . (lambda () (setq default-input-method "rime")))
   :bind
   (
    :map rime-active-mode-map
@@ -2048,19 +1621,12 @@ fc-list | grep "WenKai"
           ;; 英文使用半角符号
           rime-predicate-punctuation-after-ascii-p
           ;; 编程模式，只在注释中输入中文
-          ;;rime-predicate-prog-in-code-p
-          ))
+          rime-predicate-prog-in-code-p))
 
   (setq rime-posframe-properties
         (list :background-color "#333333"
               :foreground-color "#dcdccc"
               :internal-border-width 2)))
-
-#+END_SRC
-
-* LLM
-** aidermacs
-#+BEGIN_SRC emacs-lisp :tangle yes
 
 (use-package aidermacs
   :defer 2  ; 基础延迟2秒（Emacs空闲时加载）
@@ -2091,56 +1657,32 @@ fc-list | grep "WenKai"
     (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY"))
     (setenv "AIDERMACS_API_KEY" (getenv "DEEPSEEK_API_KEY")))
   )
-#+END_SRC
-** aider(暂时使用 aidermacs)
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package aider
-  :defer 2  ; 基础延迟2秒（Emacs空闲时加载）
-  :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
-  :when (executable-find "aider")
-  :config
-  ;; ;; For claude-3-5-sonnet
-  ;; (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
-  ;; (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
 
-  (setq aider-args '("--no-auto-commits" "--model" "deepseek/deepseek-reasoner" "--editor-model" "deepseek/deepseek-coder"))
-  (when (getenv "DEEPSEEK_API_KEY")
-    (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY")))
-  )
-#+END_SRC
-
-* Lsp-Bridge
-
-#+BEGIN_SRC emacs-lisp :tangle yes
 ;;----------------------------------------------------------
 ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
 ;; 比如 lsp-mode, eglot, company, corfu 等等， lsp-bridge 提供从补全后端、 补全前端到多后端融合的全套解决方案。
 ;; rustup component add rust-src
-;; 代码片断自动补全工具
-;; (use-package yasnippet
-;;   :diminish yas-minor-mode
-;;   :commands yas-minor-mode
-;;   :bind
-;;   (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
-;;   (:map yas-keymap
-;;         (("TAB" . smarter-yas-expand-next-field)
-;;          ([(tab)] . smarter-yas-expand-next-field)))
-;;   :config
-;;   (yas-reload-all)
-;;   (defun smarter-yas-expand-next-field ()
-;;     "Try to `yas-expand' then `yas-next-field' at current cursor position."
-;;     (interactive)
-;;     (let ((old-point (point))
-;;           (old-tick (buffer-chars-modified-tick)))
-;;       (yas-expand)
-;;       (when (and (eq old-point (point))
-;;                  (eq old-tick (buffer-chars-modified-tick)))
-;;         (ignore-errors (yas-next-field))))))
 (use-package yasnippet
-  :commands yas-minor-mode
+  :diminish yas-minor-mode
+  :init
+  (use-package yasnippet-snippets :after yasnippet :defer t)
+  :hook ((prog-mode LaTeX-mode org-mode markdown-mode) . yas-minor-mode)
+  :bind
+  (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
+  (:map yas-keymap
+        (("TAB" . smarter-yas-expand-next-field)
+         ([(tab)] . smarter-yas-expand-next-field)))
   :config
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-  (yas-reload-all))
+  (yas-reload-all)
+  (defun smarter-yas-expand-next-field ()
+    "Try to `yas-expand' then `yas-next-field' at current cursor position."
+    (interactive)
+    (let ((old-point (point))
+          (old-tick (buffer-chars-modified-tick)))
+      (yas-expand)
+      (when (and (eq old-point (point))
+                 (eq old-tick (buffer-chars-modified-tick)))
+        (ignore-errors (yas-next-field))))))
 
 
 ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
@@ -2230,13 +1772,6 @@ fc-list | grep "WenKai"
 
 (add-to-list 'auto-mode-alist '("\\.pdf\\'" . eaf-open-pdf))
 
-#+END_SRC
-
-* UI
-
-+ 主题列表： https://emacsthemes.com/popular/index.html
-
-#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package highlight-parentheses
   :diminish
   :hook ((prog-mode . highlight-parentheses-mode)
@@ -2276,7 +1811,6 @@ fc-list | grep "WenKai"
   :commands all-the-icons-install-fonts)
 
 (use-package dashboard
-  :hook (after-init . dashboard-mode)
   :config
   ;; Icon in graphic mode
   (when (display-graphic-p)
@@ -2294,18 +1828,44 @@ fc-list | grep "WenKai"
                      (projects . 5)))
   (dashboard-setup-startup-hook))
 
-;; (use-package sort-tab
-;;   :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
-;;   :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
-;;   :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
-;;   :init
-;;   ;; 延迟启用，避免阻塞启动
-;;   (run-with-idle-timer 1 nil #'sort-tab-mode)
-;;   :config
-;;   ;; 其他自定义配置
-;;   (setq sort-tab-name-max-length 20      ; 标签最大长度
-;;         sort-tab-hide-tab-function nil   ; 不隐藏标签
-;;         sort-tab-cycle-navigation t))    ; 启用循环导航
+(use-package sort-tab
+  :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
+  :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
+  :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
+  :init
+  ;; 延迟启用，避免阻塞启动
+  (run-with-idle-timer 1 nil #'sort-tab-mode)
+  :config
+  ;; 其他自定义配置
+  (setq sort-tab-name-max-length 20      ; 标签最大长度
+        sort-tab-hide-tab-function nil   ; 不隐藏标签
+        sort-tab-cycle-navigation t))    ; 启用循环导航
+
+(use-package holo-layer
+  :if (and (display-graphic-p) (eq system-type 'darwin)) ;; Mac GUI 下启用
+  :straight (holo-layer :type git :host github :repo "manateelazycat/holo-layer")
+  :init
+  ;; 自动检测 Python 解释器路径
+  (setq holo-layer-python-command
+        (or (executable-find "python3")
+            (executable-find "python")
+            (expand-file-name "~/.venv/venv/bin/python")))
+  ;; 优化动画延迟
+  (setq holo-layer-animation-delay 0.05)
+  :custom
+  ;; 动态启用动画特效
+  (holo-layer-enable-cursor-animation (and (>= (display-pixel-width) 2560)
+                                           (> (length (frame-list)) 1)))
+  ;;(holo-layer-enable-place-info t)  ; 可选启用
+  (holo-layer-enable-indent-rainbow t)
+  (holo-layer-enable-window-border t)
+  (holo-layer-enable-type-animation (>= (display-pixel-width) 2560))
+  (holo-layer-type-animation-style "flame")
+
+  :config
+  ;; 延迟加载，优化启动性能
+  (with-eval-after-load 'holo-layer
+    (run-with-idle-timer 1 nil #'holo-layer-enable)))
 
 ;; (use-package lazycat-theme
 ;;   :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
@@ -2321,62 +1881,59 @@ fc-list | grep "WenKai"
 ;;   :config
 ;;   (awesome-tray-mode 1))
 
-;; (use-package ef-themes
-;;   :commands (load-theme)
-;;   :init
-;;   (setq ef-themes-variable-pitch-ui t)
-;;   (setq ef-themes-mixed-fonts t)
-;;   (setq ef-themes-headings
-;;         '((0 . (variable-pitch light 1.9))
-;;           (1 . (variable-pitch light 1.8))
-;;           (2 . (variable-pitch regular 1.7))
-;;           (3 . (variable-pitch regular 1.6))
-;;           (4 . (variable-pitch regular 1.5))
-;;           (5 . (variable-pitch 1.4))
-;;           (6 . (variable-pitch 1.3))
-;;           (7 . (variable-pitch 1.2))
-;;           (8 . (variable-pitch 1.1))
-;;           (t . (variable-pitch 1.1))))
-;;   (setq ef-themes-region '(intense no-extend neutral))
-;;   :config
-;;   ;; 确保不会有其他主题干扰
-;;   (mapc #'disable-theme custom-enabled-themes))
-
-;; (defun my/load-theme (appearance)
-;;   "根据 APPEARANCE (light/dark/lazycat) 选择合适的主题s"
-;;   (interactive)
-;;   (pcase appearance
-;;     ('lazycat (lazycat-theme-load-dark))
-;;     ('light   (load-theme 'ef-light t))
-;;     ('dark    (load-theme 'ef-elea-dark t))))
-
-;; (add-hook 'after-init-hook (lambda () (load-theme 'ef-elea-dark t)))
-;; (add-hook 'after-init-hook (lambda () (lazycat-theme-load-dark)))
-
-
-(use-package auto-dark
+(use-package ef-themes
+  :commands (load-theme)
+  :init
+  (setq ef-themes-variable-pitch-ui t)
+  (setq ef-themes-mixed-fonts t)
+  (setq ef-themes-headings
+        '((0 . (variable-pitch light 1.9))
+          (1 . (variable-pitch light 1.8))
+          (2 . (variable-pitch regular 1.7))
+          (3 . (variable-pitch regular 1.6))
+          (4 . (variable-pitch regular 1.5))
+          (5 . (variable-pitch 1.4))
+          (6 . (variable-pitch 1.3))
+          (7 . (variable-pitch 1.2))
+          (8 . (variable-pitch 1.1))
+          (t . (variable-pitch 1.1))))
+  (setq ef-themes-region '(intense no-extend neutral))
   :config
-  (add-hook 'after-init-hook (lambda ()
-                               (ignore-errors
-                                 (setq auto-dark-themes '((catppuccin) (catppuccin)))
+  ;; 确保不会有其他主题干扰
+  (mapc #'disable-theme custom-enabled-themes))
 
-                                 (add-hook 'auto-dark-dark-mode-hook
-                                           (lambda ()
-                                             (setq catppuccin-flavor 'mocha)
-                                             (catppuccin-reload)))
+(defun my/get-linux-appearance ()
+  "获取 Linux 桌面环境的主题模式（light/dark）。"
+  (when (eq system-type 'gnu/linux)
+    (let ((theme (shell-command-to-string "gsettings get org.gnome.desktop.interface color-scheme")))
+      (cond
+       ((string-match "dark" theme) 'dark)
+       ((string-match "light" theme) 'light)
+       (t 'dark))))) ;; 默认使用 dark 主题
 
-                                 (add-hook 'auto-dark-light-mode-hook
-                                           (lambda ()
-                                             (setq catppuccin-flavor 'frappe)
-                                             (catppuccin-reload)))
-                                 (auto-dark-mode 1))
-                               )))
+(defun my/load-theme (appearance)
+  "根据 APPEARANCE (light/dark) 选择合适的主题。"
+  (interactive)
+  (pcase appearance
+    ('light (load-theme 'ef-light t))
+    ('dark (load-theme 'ef-elea-dark t))))
 
-#+END_SRC
+(cond
+ ;; macOS 支持
+ ((boundp 'ns-system-appearance)
 
-* Platform
+  ;; Emacs 启动后加载正确的主题
+  (add-hook 'after-init-hook (lambda () (my/load-theme ns-system-appearance)))
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; 监听 macOS 主题变化，自动切换
+  (add-hook 'ns-system-appearance-change-functions #'my/load-theme))
+
+ ;; Linux 支持
+ (*sys/linux*
+  (add-hook 'after-init-hook
+            (lambda ()
+              (my/load-theme (my/get-linux-appearance))))))
+
 ;; 在 Finder 中打开当前文件。
 (use-package reveal-in-osx-finder
   :when *sys/mac*
@@ -2432,12 +1989,6 @@ fc-list | grep "WenKai"
           (message "Yanked region to clipboard!")
           (deactivate-mark))
       (message "No region active; can't yank to clipboard!"))))
-
-#+END_SRC
-
-* Key-Bindings
-
-#+BEGIN_SRC emacs-lisp :tangle yes
 
 ;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
 ;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
@@ -2609,8 +2160,3 @@ fc-list | grep "WenKai"
 
 ;; (global-set-key (kbd "C-c g")   'one-key-menu-git)            ; Git 菜单
 ;; (global-set-key (kbd "C-c d")   'one-key-menu-directory)      ; 目录菜单
-
-#+END_SRC
-
-* Refer
-+ https://github.com/opsnull/emacs/blob/master/dotemacs.org

@@ -90,6 +90,9 @@ brew install --cask font-jetbrains-mono
 brew install --cask font-lxgw-wenkai
 # fc-cache -f -v
 
+# 酷酷的终端插件
+brew install fastfetch
+brew install zsh-autosuggestions zsh-syntax-highlighting zsh-completions
 
 # Install other useful binaries.
 brew install git
