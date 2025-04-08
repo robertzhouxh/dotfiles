@@ -317,7 +317,7 @@
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; 查看当前所有字体
-(defun lemacs/all-available-fonts ()
+(defun my/all-available-fonts ()
   "Create and visit a buffer containing a sorted list of available fonts."
   (interactive)
   (let ((font-list (sort (x-list-fonts "*") #'string<))
@@ -325,7 +325,7 @@
     (with-current-buffer font-buffer
       (dolist (font font-list)
         (let* ((font-family (nth 2 (split-string font "-"))))
-          (insert (format "%s\n" (propertize font 'face `(:family ,font-family :height 110))))))
+          (insert (format "%s\n" (propertize font 'face `(:family ,font-family :height 140))))))
       (goto-char (point-min))
       (setq buffer-read-only t))
     (pop-to-buffer font-buffer)))
@@ -986,6 +986,7 @@ buffer is not visiting a file."
     "fn" '+copy-current-filename
     "fr" '+rename-current-file
     "fR" 'recentf-open-files
+    "F"  'my/all-available-fonts
 
     ;; magit
     "gs" 'magit-status
@@ -1866,10 +1867,6 @@ cp ~/Downloads/LXGWWenKai-Regular.ttf ~/.local/share/fonts/
 fc-cache -fv
 fc-list | grep "WenKai"  
 #+end_src
-** 英文：JetBrains Mono,iosevka-comfy
-
-+ macos: brew install --cask font-iosevka-comfy
-
 ** 常用字体命令:
 
 + 字体：英文 Iosevka/Sarasa 和中文 LxgwWenKai，按照 1:1 缩放，在偶数字号的情况下可以实现中英文等宽等高。
@@ -1890,14 +1887,14 @@ fc-list | grep "WenKai"
       (if (member font (font-family-list))
           (throw 'font font)))))
 
-(setq my/ef (available-font '("JetBrains Mono Nerd Font" "JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code")))
+(setq my/ef (available-font '("JetBrainsMono Nerd Font" "JetBrainsMono" "Monaco" "Iosevka Comfy" "Cascadia Code")))
 (setq my/cf (available-font '("LXGW WenKai Mono" "Sarasa Mono SC" "Microsoft YaHei Mono")))
 
 (defun load-font-setup()
   (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 150 :family "WenQuanYi Micro Hei Mono"))
+         (set-face-attribute 'default nil :height 160 :family "WenQuanYi Micro Hei Mono"))
         (t
-         (let ((emacs-font-size 15)
+         (let ((emacs-font-size 16)
                (chinese-font-name  my/cf)
                english-font-name)
            (cond
@@ -1906,8 +1903,8 @@ fc-list | grep "WenKai"
             ((string-equal system-type "gnu/linux")
              (setq english-font-name my/ef)))
 
-           (set-face-attribute 'default nil :height 150 :family (eval english-font-name))
-           (set-face-attribute 'default nil :height 150 :family (eval chinese-font-name))
+           (set-face-attribute 'default nil :height 160 :family (eval english-font-name))
+           (set-face-attribute 'default nil :height 160 :family (eval chinese-font-name))
 
            (when (display-grayscale-p)
              (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
@@ -2062,6 +2059,17 @@ fc-list | grep "WenKai"
 ** aidermacs
 #+BEGIN_SRC emacs-lisp :tangle yes
 
+(use-package emigo
+  :defer 2  ; 基础延迟2秒（Emacs空闲时加载）
+  :straight (:host github :repo "MatthewZMD/emigo")
+  :config
+  (emigo-enable) ;; Starts the background process automatically
+  :custom
+  ;; Encourage using OpenRouter with Deepseek
+  (emigo-model "openrouter/deepseek/deepseek-chat-v3-0324")
+  (emigo-base-url "https://openrouter.ai/api/v1")
+  (emigo-api-key (getenv "OPENROUTER_API_KEY")))
+
 (use-package aidermacs
   :defer 2  ; 基础延迟2秒（Emacs空闲时加载）
   :straight (:host github :repo "MatthewZMD/aidermacs" :files ("*.el"))
@@ -2091,6 +2099,7 @@ fc-list | grep "WenKai"
     (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY"))
     (setenv "AIDERMACS_API_KEY" (getenv "DEEPSEEK_API_KEY")))
   )
+
 #+END_SRC
 ** aider(暂时使用 aidermacs)
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -2294,32 +2303,32 @@ fc-list | grep "WenKai"
                      (projects . 5)))
   (dashboard-setup-startup-hook))
 
-;; (use-package sort-tab
-;;   :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
-;;   :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
-;;   :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
-;;   :init
-;;   ;; 延迟启用，避免阻塞启动
-;;   (run-with-idle-timer 1 nil #'sort-tab-mode)
-;;   :config
-;;   ;; 其他自定义配置
-;;   (setq sort-tab-name-max-length 20      ; 标签最大长度
-;;         sort-tab-hide-tab-function nil   ; 不隐藏标签
-;;         sort-tab-cycle-navigation t))    ; 启用循环导航
+(use-package sort-tab
+  :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
+  :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
+  :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
+  :init
+  ;; 延迟启用，避免阻塞启动
+  (run-with-idle-timer 1 nil #'sort-tab-mode)
+  :config
+  ;; 其他自定义配置
+  (setq sort-tab-name-max-length 20      ; 标签最大长度
+        sort-tab-hide-tab-function nil   ; 不隐藏标签
+        sort-tab-cycle-navigation t))    ; 启用循环导航
 
-;; (use-package lazycat-theme
-;;   :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-;;   ;;(lazycat-theme-load-dark)
-;;   )
-;; (use-package awesome-tray
-;;   :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
-;;   :hook (after-init . awesome-tray-mode)
-;;   :custom
-;;   (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
-;;                                  "mode-name" "last-command" "battery" "date"))
-;;   (awesome-tray-info-padding-right 1)
-;;   :config
-;;   (awesome-tray-mode 1))
+(use-package lazycat-theme
+  :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+  ;;(lazycat-theme-load-dark)
+  )
+(use-package awesome-tray
+  :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+  :hook (after-init . awesome-tray-mode)
+  :custom
+  (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path"
+                                 "mode-name" "last-command" "battery" "date"))
+  (awesome-tray-info-padding-right 1)
+  :config
+  (awesome-tray-mode 1))
 
 ;; (use-package ef-themes
 ;;   :commands (load-theme)
@@ -2351,26 +2360,27 @@ fc-list | grep "WenKai"
 ;;     ('dark    (load-theme 'ef-elea-dark t))))
 
 ;; (add-hook 'after-init-hook (lambda () (load-theme 'ef-elea-dark t)))
-;; (add-hook 'after-init-hook (lambda () (lazycat-theme-load-dark)))
+(add-hook 'after-init-hook (lambda () (lazycat-theme-load-dark)))
 
 
-(use-package auto-dark
-  :config
-  (add-hook 'after-init-hook (lambda ()
-                               (ignore-errors
-                                 (setq auto-dark-themes '((catppuccin) (catppuccin)))
-
-                                 (add-hook 'auto-dark-dark-mode-hook
-                                           (lambda ()
-                                             (setq catppuccin-flavor 'mocha)
-                                             (catppuccin-reload)))
-
-                                 (add-hook 'auto-dark-light-mode-hook
-                                           (lambda ()
-                                             (setq catppuccin-flavor 'frappe)
-                                             (catppuccin-reload)))
-                                 (auto-dark-mode 1))
-                               )))
+;; (use-package auto-dark
+;;   :ensure t
+;;   :custom
+;;   (auto-dark-themes '((wombat) (leuven)))
+;;   (auto-dark-polling-interval-seconds 5)
+;;   (auto-dark-allow-osascript nil)
+;;   (auto-dark-allow-powershell nil)
+;;   ;; (auto-dark-detection-method nil) ;; dangerous to be set manually
+;;   :hook
+;;   (auto-dark-dark-mode
+;;    . (lambda ()
+;;         ;; something to execute when dark mode is detected
+;;         ))
+;;   (auto-dark-light-mode
+;;    . (lambda ()
+;;         ;; something to execute when light mode is detected
+;;         ))
+;;   :init (auto-dark-mode))
 
 #+END_SRC
 
