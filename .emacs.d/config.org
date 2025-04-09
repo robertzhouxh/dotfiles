@@ -45,7 +45,7 @@
 (when *sys/mac*
   (setq plantuml-jar-path "/opt/homebrew/Cellar/plantuml/1.2025.2/libexec/plantuml.jar")
   (setq plantuml-exec-mode 'jar)
-  (defvar zxh-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include/")
+  (defvar zxh-emacs-module-header-root "/opt/homebrew/include/")
   (defvar zxh-emacs-rime-user-data-dir (concat (getenv "HOME") "/Library/Rime")))
 
 (setenv "EMACS_MODULE_HEADER_ROOT" zxh-emacs-module-header-root)
@@ -347,6 +347,13 @@
                            ))
     (message "Convert finish: %s" docx-file)))
 
+(defun my/delete-extra-blank-lines ()
+  "Delete excess blank lines, keeping at most one."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "\n\\{3,\\}" nil t)
+      (replace-match "\n\n"))))
 
 (defun format-function-parameters ()
   "Turn the list of function parameters into multiline."
@@ -940,7 +947,8 @@ buffer is not visiting a file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun x/config-evil-leader ()
-  (evil-leader/set-leader ",")
+ ;;(evil-leader/set-leader ",")
+  (evil-leader/set-leader "<SPC>")
   (evil-leader/set-key
     ","  'avy-goto-line
     "."  'avy-goto-char-2
@@ -955,7 +963,7 @@ buffer is not visiting a file."
     "bo" 'switch-to-buffer-other-window
     "bn" '+copy-current-buffer-name
     "bv" 'revert-buffer
-    "bz" 'bury-buffer         ;隐藏当前buffer
+    "bz" 'bury-buffer           ;隐藏当前buffer
     "bZ" 'unbury-buffer         ;反隐藏当前buffer
 
     "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
@@ -975,6 +983,7 @@ buffer is not visiting a file."
     "eo" 'org-export-docx
 
     ;; file
+    "F"  'recentf-open-files
     "fs" '(lambda () (interactive) (eaf-open-in-file-manager "~/src"))
     "fh" '(lambda () (interactive) (eaf-open-in-file-manager "~/githubs"))
     "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
@@ -985,8 +994,7 @@ buffer is not visiting a file."
     "fd" '+delete-current-file
     "fn" '+copy-current-filename
     "fr" '+rename-current-file
-    "fR" 'recentf-open-files
-    "F"  'my/all-available-fonts
+    "fa" 'my/all-available-fonts
 
     ;; magit
     "gs" 'magit-status
@@ -1157,15 +1165,18 @@ buffer is not visiting a file."
   (with-eval-after-load 'dslide
     (define-key dslide-mode-map (kbd "<f9>") #'dslide-deck-stop)))
 
-(use-package image-slicing
-  :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
-  :hook (org-mode . image-slicing-mode)
-  :custom
-  (image-slicing-line-height-scale 2)
-  (image-slicing-max-width 800))
+;; (use-package org-sliced-images
+;;   :hook (org-mode . org-sliced-images-mode))
+
+;; (use-package image-slicing
+;;   :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
+;;   :hook (org-mode . image-slicing-mode)
+;;   :custom
+;;   (image-slicing-line-height-scale 2)
+;;   (image-slicing-max-width 800))
 
 (use-package org-download
-  :commands (org-download-enable org-download-screenshot)
+  :commands (org-download-enable org-download-screenshot org-download-clipboard)
   :hook (dired-mode . org-download-enable)
   :init
   ;; 设置默认的图片保存目录
@@ -1217,6 +1228,7 @@ buffer is not visiting a file."
                (("C-c C-p" . eaf-org-export-to-pdf-and-open) ;; EAF 方式导出 PDF 并打开
                 ("C-c ;" . nil))))  ;; 取消 C-c ; 绑定，避免冲突
   :config
+  (require 'org-tempo)
   ;; 默认折叠状态：
   ;; 'overview 仅显示最高级标题（最折叠）
   ;; 'content 显示所有标题（折叠正文）
@@ -1327,7 +1339,180 @@ buffer is not visiting a file."
      (java . t)
      (awk . t) 
      (css . t))))
+ 
+#+END_SRC
+** dslide 模板
 
+案例: https://github.com/positron-solutions/dslide/blob/master/test/demo.org
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun my/insert-dslide-action-template ()
+  "插入一个 org-dslide 动作模板，用户可选择动作并查看描述"
+  (interactive)
+  (let* ((actions
+          '((1 . "dslide-action-item-reveal")      ; 逐项揭示列表
+            (2 . "dslide-action-highlight")        ; 高亮显示
+            (3 . "dslide-action-image")            ; 显示图片
+            (4 . "dslide-action-fade-in")          ; 渐显效果
+            (5 . "dslide-action-scale-up")         ; 放大效果
+            (6 . "dslide-action-slide-in")         ; 滑动入场
+            (7 . "dslide-action-child")            ; 逐步显示子元素
+            (8 . "dslide-action-flash")            ; 闪烁效果
+            (9 . "dslide-action-circle")           ; 圆形展开
+            (10 . "dslide-action-zoom")            ; 缩放效果
+            (11 . "dslide-action-blink")           ; 闪烁
+            (12 . "dslide-action-rotate")          ; 旋转效果
+            (13 . "dslide-action-zoom-in")         ; 缩放进入
+            (14 . "dslide-action-expand")))        ; 展开效果
+
+         (descriptions
+          '("逐项揭示列表项，逐个显示列表内容"
+            "将文本或内容高亮显示"
+            "在幻灯片中显示图片"
+            "将内容逐步显示，渐变效果"
+            "逐渐放大显示内容"
+            "让内容从幻灯片边缘滑入"
+            "逐步显示子元素（如列表项）"
+            "使内容闪烁，吸引注意"
+            "内容按圆形展开或旋转"
+            "让内容逐渐缩放显示"
+            "让内容快速闪烁"
+            "让内容进行旋转显示"
+            "元素逐渐放大进入幻灯片"
+            "使折叠内容逐步展开"))
+
+         ;; 格式化选项和描述
+         (options-with-descriptions
+          (mapcar (lambda (pair)
+                    (format "%d. %s: %s"
+                            (car pair)
+                            (cdr pair)
+                            (nth (- (car pair) 1) descriptions)))
+                  actions))
+
+         (action (completing-read "选择一个 dslide 动作: "
+                                  options-with-descriptions
+                                  nil t))
+
+         ;; 获取选择的动作名称
+         (selected-action (cdr (assoc (string-to-number (substring action 0 1))
+                                      actions)))
+
+         (template
+          (cond
+           ((string= selected-action "dslide-action-item-reveal")
+            "* 幻灯片标题\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-item-reveal\n  :END:\n\n- 第一项\n- 第二项\n- 第三项")
+           ((string= selected-action "dslide-action-highlight")
+            "* 高亮显示\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-highlight\n  :END:\n\n这是一个重要的内容，应该被高亮显示。")
+           ((string= selected-action "dslide-action-image")
+            "* 显示图片\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-image :standalone-display t\n  :END:\n\n[[file:example-image.png]]")
+           ((string= selected-action "dslide-action-fade-in")
+            "* 渐显效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-fade-in\n  :END:\n\n这是一个将逐渐显现的文本。")
+           ((string= selected-action "dslide-action-scale-up")
+            "* 放大效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-scale-up\n  :END:\n\n这个段落的内容将逐渐放大显示。")
+           ((string= selected-action "dslide-action-slide-in")
+            "* 滑动入场\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-slide-in\n  :END:\n\n这里的文本将从幻灯片边缘滑入。")
+           ((string= selected-action "dslide-action-child")
+            "* 逐步显示子元素\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-child\n  :END:\n\n- 第一项\n- 第二项\n- 第三项")
+           ((string= selected-action "dslide-action-flash")
+            "* 闪烁效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-flash\n  :END:\n\n这段内容将会闪烁，吸引注意力。")
+           ((string= selected-action "dslide-action-circle")
+            "* 圆形展开\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-circle\n  :END:\n\n此段内容将按圆形展开。")
+           ((string= selected-action "dslide-action-zoom")
+            "* 缩放效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-zoom\n  :END:\n\n内容将逐渐缩放至合适的大小。")
+           ((string= selected-action "dslide-action-blink")
+            "* 闪烁效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-blink\n  :END:\n\n该内容将快速闪烁。")
+           ((string= selected-action "dslide-action-rotate")
+            "* 旋转效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-rotate\n  :END:\n\n内容将在幻灯片中旋转。")
+           ((string= selected-action "dslide-action-zoom-in")
+            "* 缩放进入\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-zoom-in\n  :END:\n\n该元素将以缩放的方式逐渐放大。")
+           ((string= selected-action "dslide-action-expand")
+            "* 展开效果\n  :PROPERTIES:\n  :DSLIDE_ACTIONS: dslide-action-expand\n  :END:\n\n这段内容将从折叠状态展开。"))))
+    (insert template)))
+
+(defun my/insert-dslide-slide-action-template ()
+  "插入一个 org-dslide 幻灯片动作模板，用户可选择不同的幻灯片动画效果"
+  (interactive)
+  (let* ((actions
+          '((1 . "dslide-action-item-reveal")      ; 逐项揭示列表
+            (2 . "dslide-action-highlight")        ; 高亮显示
+            (3 . "dslide-action-image")            ; 显示图片
+            (4 . "dslide-action-fade-in")          ; 渐显效果
+            (5 . "dslide-action-scale-up")         ; 放大效果
+            (6 . "dslide-action-slide-in")         ; 滑动入场
+            (7 . "dslide-action-child")            ; 逐步显示子元素
+            (8 . "dslide-action-flash")            ; 闪烁效果
+            (9 . "dslide-action-circle")           ; 圆形展开
+            (10 . "dslide-action-zoom")            ; 缩放效果
+            (11 . "dslide-action-blink")           ; 闪烁
+            (12 . "dslide-action-rotate")          ; 旋转效果
+            (13 . "dslide-action-zoom-in")         ; 缩放进入
+            (14 . "dslide-action-expand")))        ; 展开效果
+
+         (descriptions
+          '("逐项揭示列表项，逐个显示列表内容"
+            "将文本或内容高亮显示"
+            "在幻灯片中显示图片"
+            "将内容逐步显示，渐变效果"
+            "逐渐放大显示内容"
+            "让内容从幻灯片边缘滑入"
+            "逐步显示子元素（如列表项）"
+            "使内容闪烁，吸引注意"
+            "内容按圆形展开或旋转"
+            "让内容逐渐缩放显示"
+            "让内容快速闪烁"
+            "让内容进行旋转显示"
+            "元素逐渐放大进入幻灯片"
+            "使折叠内容逐步展开"))
+
+         ;; 格式化选项和描述
+         (options-with-descriptions
+          (mapcar (lambda (pair)
+                    (format "%d. %s: %s"
+                            (car pair)
+                            (cdr pair)
+                            (nth (- (car pair) 1) descriptions)))
+                  actions))
+
+         (action (completing-read "选择一个幻灯片动作: "
+                                  options-with-descriptions
+                                  nil t))
+
+         ;; 获取选择的动作名称
+         (selected-action (cdr (assoc (string-to-number (substring action 0 1))
+                                      actions)))
+
+         (template
+          (cond
+           ((string= selected-action "dslide-action-item-reveal")
+            "* 幻灯片标题\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-item-reveal\n  :END:\n\n- 第一项\n- 第二项\n- 第三项")
+           ((string= selected-action "dslide-action-highlight")
+            "* 高亮显示\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-highlight\n  :END:\n\n这是一个重要的内容，应该被高亮显示。")
+           ((string= selected-action "dslide-action-image")
+            "* 显示图片\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-image :standalone-display t\n  :END:\n\n[[file:example-image.png]]")
+           ((string= selected-action "dslide-action-fade-in")
+            "* 渐显效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-fade-in\n  :END:\n\n这是一个将逐渐显现的文本。")
+           ((string= selected-action "dslide-action-scale-up")
+            "* 放大效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-scale-up\n  :END:\n\n这个段落的内容将逐渐放大显示。")
+           ((string= selected-action "dslide-action-slide-in")
+            "* 滑动入场\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-slide-in\n  :END:\n\n这里的文本将从幻灯片边缘滑入。")
+           ((string= selected-action "dslide-action-child")
+            "* 逐步显示子元素\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-child\n  :END:\n\n- 第一项\n- 第二项\n- 第三项")
+           ((string= selected-action "dslide-action-flash")
+            "* 闪烁效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-flash\n  :END:\n\n这段内容将会闪烁，吸引注意力。")
+           ((string= selected-action "dslide-action-circle")
+            "* 圆形展开\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-circle\n  :END:\n\n此段内容将按圆形展开。")
+           ((string= selected-action "dslide-action-zoom")
+            "* 缩放效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-zoom\n  :END:\n\n内容将逐渐缩放至合适的大小。")
+           ((string= selected-action "dslide-action-blink")
+            "* 闪烁效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-blink\n  :END:\n\n该内容将快速闪烁。")
+           ((string= selected-action "dslide-action-rotate")
+            "* 旋转效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-rotate\n  :END:\n\n内容将在幻灯片中旋转。")
+           ((string= selected-action "dslide-action-zoom-in")
+            "* 缩放进入\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-zoom-in\n  :END:\n\n该元素将以缩放的方式逐渐放大。")
+           ((string= selected-action "dslide-action-expand")
+            "* 展开效果\n  :PROPERTIES:\n  :DSLIDE_SLIDE_ACTION: dslide-action-expand\n  :END:\n\n这段内容将从折叠状态展开。"))))
+    (insert template)))
 #+END_SRC
 * Org-Latex
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1340,7 +1525,7 @@ buffer is not visiting a file."
   ;; 代码块左侧添加行号。
   (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
   ;; 代码块主题。
-  (setq org-latex-engraved-theme 'ef-light))
+  (setq org-latex-engraved-theme 'lazycat-dark))
 
 (defun my/export-pdf (backend)
   (progn
@@ -1433,8 +1618,9 @@ buffer is not visiting a file."
 在此处填写摘要内容。
 \\end{abstract}
 
-\\tableofcontents
-\\clearpage
+\clearpage
+\tableofcontents
+\clearpage
 #+end_export
 
 " title date subtitle author)))))
@@ -1853,20 +2039,13 @@ buffer is not visiting a file."
 #+END_SRC
 
 * Font
-** 中文: 霞鹜文楷
+** 中英文字体安装
+
 + CJK 是 "Chinese, Japanese, and Korean"缩写，用来指代这三种语言及其相关的字符集和编码。
 + kana 是日文假名字符集，han 是汉字字符集，hangul 是韩文字符集，cjk-misc 是杂项 CJK 字符集， bopomofo 是注音符号字符集。
-+ 中文：霞鹜文楷屏幕阅读版 [[LxgwWenKai-Screen][LxgwWenKai-Screen]]，对字体做了加粗，便于屏幕阅读;
-  + MacOS: brew install font-lxgw-wenkai 
-  + Windows: scoop bucket add nerd-fonts && scoop install LXGWWenKaiMono 
-  + Linux:
++ 中文：霞鹜文楷屏幕阅读版 [[LxgwWenKai-Screen][LxgwWenKai-Screen]]，对字体做了加粗，便于屏幕阅读; brew install font-lxgw-wenkai 
++ 英文： https://www.rahuljuliato.com/posts/nerd-fonts
 
-#+begin_src bash
-wget -P ~/Downloads https://github.com/lxgw/LxgwWenKai/releases/latest/download/LXGWWenKai-Regular.ttf
-cp ~/Downloads/LXGWWenKai-Regular.ttf ~/.local/share/fonts/
-fc-cache -fv
-fc-list | grep "WenKai"  
-#+end_src
 ** 常用字体命令:
 
 + 字体：英文 Iosevka/Sarasa 和中文 LxgwWenKai，按照 1:1 缩放，在偶数字号的情况下可以实现中英文等宽等高。
@@ -1892,9 +2071,9 @@ fc-list | grep "WenKai"
 
 (defun load-font-setup()
   (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 160 :family "WenQuanYi Micro Hei Mono"))
+         (set-face-attribute 'default nil :height 180 :family "WenQuanYi Micro Hei Mono"))
         (t
-         (let ((emacs-font-size 16)
+         (let ((emacs-font-size 18)
                (chinese-font-name  my/cf)
                english-font-name)
            (cond
@@ -1903,8 +2082,8 @@ fc-list | grep "WenKai"
             ((string-equal system-type "gnu/linux")
              (setq english-font-name my/ef)))
 
-           (set-face-attribute 'default nil :height 160 :family (eval english-font-name))
-           (set-face-attribute 'default nil :height 160 :family (eval chinese-font-name))
+           (set-face-attribute 'default nil :height 180 :family (eval english-font-name))
+           (set-face-attribute 'default nil :height 180 :family (eval chinese-font-name))
 
            (when (display-grayscale-p)
              (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))

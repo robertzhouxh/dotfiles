@@ -1,3 +1,5 @@
+
+
 \usepackage{wallpaper} % 显示封面图片或页面图片。
 
 \usepackage{color}
@@ -34,33 +36,6 @@
 \setCJKmainfont[BoldFont=Noto Serif SC]{Noto Serif SC}
 \setCJKsansfont{Noto Sans SC}
 \setCJKmonofont{Noto Sans Mono CJK SC}
-
-% refer: https://yangyq.net/2022/05/set-font-in-latex.html
-%设置英文字体 鸿蒙字体
-% \setmainfont[
-%     BoldFont=HarmonyOS_Sans_Bold,
-%     ItalicFont=HarmonyOS_Sans_Regular_Italic,
-%     BoldItalicFont=HarmonyOS_Sans_Bold_Italic
-% ]{HarmonyOS_Sans_Regular}
-% \setsansfont[
-%     BoldFont=HarmonyOS_Sans_Bold,
-%     ItalicFont=HarmonyOS_Sans_Regular_Italic,
-%     BoldItalicFont=HarmonyOS_Sans_Bold_Italic
-% ]{HarmonyOS_Sans_Regular}
-% \setmonofont{HarmonyOS_Sans_Regular}
- 
-% %设置中文字体 鸿蒙字体
-% \setCJKmainfont[
-%     BoldFont=HarmonyOS_Sans_SC_Bold, 
-%     ItalicFont=HarmonyOS_Sans_SC_Regular, 
-%     BoldItalicFont=HarmonyOS_Sans_SC_Bold
-% ]{HarmonyOS_Sans_SC_Regular}
-% \setCJKsansfont[
-%     BoldFont=HarmonyOS_Sans_SC_Bold, 
-%     ItalicFont=HarmonyOS_Sans_SC_Regular, 
-%     BoldItalicFont=HarmonyOS_Sans_SC_Bold
-% ]{HarmonyOS_Sans_SC_Regular}
-% \setCJKmonofont{HarmonyOS_Sans_SC_Regular}
 
 \XeTeXlinebreaklocale "zh"
 \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
@@ -118,3 +93,11 @@
 \setlist[itemize]{label=$\bullet$}
 % 或者：
 %\renewcommand\labelitemi{\ensuremath{\bullet}}
+
+\renewenvironment{abstract}{
+  \begin{center}
+    \zihao{-4}\bfseries 摘要
+  \end{center}
+  \vspace{1em}
+  \normalfont\zihao{-4}\noindent
+}{}
