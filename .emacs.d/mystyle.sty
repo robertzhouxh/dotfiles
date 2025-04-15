@@ -1,5 +1,3 @@
-
-
 \usepackage{wallpaper} % 显示封面图片或页面图片。
 
 \usepackage{color}
@@ -101,3 +99,8 @@
   \vspace{1em}
   \normalfont\zihao{-4}\noindent
 }{}
+
+% 每个 section 前强制分页
+\titleformat{\section}
+  {\normalfont\Large\bfseries}
+  {\thesection}{1em}{\clearpage\centering}  % 这里插入分页
