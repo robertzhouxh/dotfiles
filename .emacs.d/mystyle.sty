@@ -92,6 +92,7 @@
 % 或者：
 %\renewcommand\labelitemi{\ensuremath{\bullet}}
 
+% 摘要的字体大小调整
 \renewenvironment{abstract}{
   \begin{center}
     \zihao{-4}\bfseries 摘要
@@ -100,7 +101,14 @@
   \normalfont\zihao{-4}\noindent
 }{}
 
-% 每个 section 前强制分页
-\titleformat{\section}
-  {\normalfont\Large\bfseries}
-  {\thesection}{1em}{\clearpage\centering}  % 这里插入分页
+
+% 摘要你们分段
+\renewenvironment{abstract}{%
+  \small
+  \begin{center}%
+    \bfseries \abstractname\vspace{-.5em}\vspace{\z@}%
+  \end{center}%
+  \quotation
+}{\endquotation}
+
+

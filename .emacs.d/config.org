@@ -2095,6 +2095,7 @@ buffer is not visiting a file."
 
 (add-hook 'after-init-hook 'load-font-setup)
 (add-hook 'org-mode-hook #'valign-mode)
+
 #+END_SRC
 
 ** New
