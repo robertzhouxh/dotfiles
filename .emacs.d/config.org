@@ -1578,60 +1578,12 @@ buffer is not visiting a file."
 	       :image-converter
 	       ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O")))
 
-(defun my/org-insert-tabularx-attr ()
-  "在 org-mode 表格前插入 LaTeX tabularx 属性行，以启用自动换行的 X 对齐列。"
-  (interactive)
-  (save-excursion
-    ;; 向上查找表格的开始
-    (beginning-of-line)
-    (while (and (not (bobp)) (not (looking-at-p "|")))
-      (forward-line -1))
-    ;; 插入属性行
-    (insert "#+ATTR_LATEX: :environment tabularx :booktabs t :width \\linewidth :align l|X\n")))
-
-(defun my/org-insert-latex-template ()
-  "插入一个自定义 LaTeX Org 文件头模板，支持交互输入 TITLE、SUBTITLE、AUTHOR 和 DATE。"
-  (interactive)
-  (let* ((title (read-string "标题（#+TITLE）: "))
-         (subtitle (read-string "副标题（#+SUBTITLE）: "))
-         (author (read-string "作者（#+AUTHOR）: "))
-         (date (read-string "日期（#+DATE）: " (format-time-string "%Y-%m-%d %a"))))
-    (save-excursion
-      (goto-char (point-min))
-      (insert (format "\
-#+TITLE: %s
-#+DATE: %s
-#+SUBTITLE: %s
-#+AUTHOR: %s
-#+LANGUAGE: zh-CN
-#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
-#+LATEX_COMPILER: xelatex
-#+LATEX_CLASS: ctexart
-#+LATEX_HEADER: \\usepackage{/Users/zxh/.emacs.d/mystyle}
-
-#+begin_export latex
-\\maketitle
-\\thispagestyle{empty}
-\\clearpage
-
-\\begin{abstract}
-在此处填写摘要内容。
-\\end{abstract}
-
-\clearpage
-\tableofcontents
-\clearpage
-#+end_export
-
-" title date subtitle author)))))
-
-
 #+END_SRC
 
 * Templates 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun my-latex-template (author title subtitle latex-header-path)
+(defun my/org-latex-header (author title subtitle latex-header-path)
   "生成定制化的 LaTeX 文档模板
   参数说明：
   - AUTHOR: 作者姓名
@@ -1643,28 +1595,39 @@ buffer is not visiting a file."
   (let ((date (format-time-string "%Y-%m-%d %a"))
 	    (template (concat
 		           "#+TITLE: %s\n"
-		           "#+DATE: %s\n"          ; 修复2：修正为全大写
+		           "#+DATE: %s\n"
 		           "#+SUBTITLE: %s\n"
 		           "#+AUTHOR: %s\n"
 		           "#+LANGUAGE: zh-CN\n"
+                   "# 不自动输出 titile 和 toc，后续 latext mystyle 中定制输出。\n"
+                   "# 但是需要明确通过 num 控制输出的目录级别。\n"
 		           "#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil\n"
 		           "#+LATEX_COMPILER: xelatex\n"
 		           "#+LATEX_CLASS: ctexart\n"
-		           "#+LATEX_HEADER: \\usepackage{%s}\n\n"  ; 修复3：使用动态路径
+		           "#+LATEX_HEADER: \\usepackage{%s}\n\n"
+
+                   "# 定制 PDF 封面和目录。\n"
 		           "#+begin_export latex\n"
+
+                   "% 封面页\n"
+                   "\\begin{titlepage}\n"
+
+                   "% 插入标题\n"
 		           "\\maketitle\n"
-		           "\\thispagestyle{empty}\n"
-		           "\\clearpage\n\n"
+
 		           "\\begin{abstract}\n"
-		           "在此处填写摘要内容。\n"
+		           "摘要内容...\n"
 		           "\\end{abstract}\n\n"
-		           "\\tableofcontents\n"
+
+                   "% 目录页\n"
+                   "\\clearpage\n"
+  		     "\\tableofcontents\n"
 		           "\\clearpage\n"
 		           "#+end_export")))
     ;; 插入格式化后的模板内容
     (insert (format template title date subtitle author latex-header-path)))) ; 修复4：添加第五个参数
 
-(defun my-org-table-attr ()
+(defun my/org-table-attr ()
   "tabularx 的特殊 align 参数 X 用来对指定列内容自动换行，表格前需要加如下属性："
   (interactive)
   (insert "#+ATTR_LATEX: :environment tabularx :booktabs t :width \linewidth :align l|X"))
@@ -1689,10 +1652,13 @@ buffer is not visiting a file."
 ,#+begin_export latex
 % 封面页
 \\begin{titlepage}
+
 % 插入标题
 \\maketitle
+
 % 插入封面图
 %\\ThisCenterWallPaper{0.4}{/path/to/image.png}
+
 % 封面页不编号
 \\noindent\\fboxsep=0pt
 \\setcounter{page}{0}
