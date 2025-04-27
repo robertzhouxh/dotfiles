@@ -10,6 +10,8 @@
 
 % 提示 title
 \usepackage[explicit]{titlesec}
+% 每个 chapter 另起一页
+\newcommand{\sectionbreak}{\clearpage}
 \usepackage{titling}
 \setlength{\droptitle}{-6em}
 
@@ -26,6 +28,7 @@
   citecolor={winered},
   linktoc=all}
 
+% 安装 noto-cjk 中文字体: git clone https://github.com/googlefonts/noto-cjk.git
 \usepackage{fontspec}
 \usepackage[utf8x]{inputenc}
 \setmainfont{Noto Serif SC}
@@ -44,7 +47,8 @@
 % sidewaytable 依赖 rotfloat
 \usepackage {rotfloat}
 
-% tabularx 的特殊 align 参数 X 用来对指定列内容自动换行，表格前需要加如下属性：
+% tabularx 的特殊 align 参数 X 用来对指定列内容自动换行，否则该列内容有可能被截断，
+% 解决办法是：在 org-mode 表格前需要加如下属性：
 % #+ATTR_LATEX: :environment tabularx :booktabs t :width \linewidth :align l|X
 \usepackage{tabularx}
 % 美化表格显示效果
@@ -53,7 +57,7 @@
 \rowcolors{1}{lightgrey}{}
 
 \usepackage{parskip}
-\setlength{\parskip}{0.5em}
+\setlength{\parskip}{1em}
 \setlength{\parindent}{0pt}
 
 \usepackage{etoolbox}
@@ -86,29 +90,8 @@
 % 列表
 \usepackage[shortlabels,inline]{enumitem}
 \setlist{nolistsep}
-% xeCJK 默认会把黑点用汉字显示，而 Noto 没有这个字体，所以显示效果为一个小点。
-% 解决办法是将它设置为 \bullet, 这样显示为实心黑点。Windows 带的楷体、仿宋没有这个问题。
+% xeCJK 默认会把黑点用汉字显示，而 Noto 没有这个字体，所以显示效果为一个小点。解决办法是将它设置为
+% \bullet, 这样显示为实心黑点。Windows 带的楷体、仿宋没有这个问题。
 \setlist[itemize]{label=$\bullet$}
 % 或者：
 %\renewcommand\labelitemi{\ensuremath{\bullet}}
-
-% 摘要的字体大小调整
-\renewenvironment{abstract}{
-  \begin{center}
-    \zihao{-4}\bfseries 摘要
-  \end{center}
-  \vspace{1em}
-  \normalfont\zihao{-4}\noindent
-}{}
-
-
-% 摘要你们分段
-\renewenvironment{abstract}{%
-  \small
-  \begin{center}%
-    \bfseries \abstractname\vspace{-.5em}\vspace{\z@}%
-  \end{center}%
-  \quotation
-}{\endquotation}
-
-

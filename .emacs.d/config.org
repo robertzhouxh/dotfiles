@@ -1166,7 +1166,7 @@ buffer is not visiting a file."
     (define-key dslide-mode-map (kbd "<f9>") #'dslide-deck-stop)))
 
 ;; (use-package org-sliced-images
-;;   :hook (org-mode . org-sliced-images-mode))
+;;  :hook (org-mode . org-sliced-images-mode))
 
 ;; (use-package image-slicing
 ;;   :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
@@ -1264,8 +1264,8 @@ buffer is not visiting a file."
         org-cycle-separator-lines 2  ;; 标题间隔 2 行
         org-cycle-level-faces t  ;; 使用不同颜色区分标题层级
         org-n-level-faces 4  ;; 限制层级颜色数
-        org-indent-indentation-per-level 2  ;; 每层级缩进 2 个空格
-        org-adapt-indentation t  ;; 让正文内容对齐标题
+        ;; org-indent-indentation-per-level 2  ;; 每层级缩进 2 个空格
+        ;; org-adapt-indentation t  ;; 让正文内容对齐标题
 
         ;; 列表项缩进
         org-list-indent-offset 2
@@ -1584,48 +1584,72 @@ buffer is not visiting a file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 (defun my/org-latex-header (author title subtitle latex-header-path)
-  "生成定制化的 LaTeX 文档模板
-  参数说明：
-  - AUTHOR: 作者姓名
-  - TITLE: 文档标题
-  - SUBTITLE: 文档副标题
-  - LATEX-HEADER-PATH: LaTeX 头文件路径（例如：~/mystyle.sty）"
-  (interactive 
-   "s作者: \ns标题: \ns副标题: \nFLaTeX头文件路径: ")  ; 修复1：增加第四个参数输入
-  (let ((date (format-time-string "%Y-%m-%d %a"))
-	    (template (concat
-		           "#+TITLE: %s\n"
-		           "#+DATE: %s\n"
-		           "#+SUBTITLE: %s\n"
-		           "#+AUTHOR: %s\n"
-		           "#+LANGUAGE: zh-CN\n"
-                   "# 不自动输出 titile 和 toc，后续 latext mystyle 中定制输出。\n"
-                   "# 但是需要明确通过 num 控制输出的目录级别。\n"
-		           "#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil\n"
-		           "#+LATEX_COMPILER: xelatex\n"
-		           "#+LATEX_CLASS: ctexart\n"
-		           "#+LATEX_HEADER: \\usepackage{%s}\n\n"
+  "生成定制化的 LaTeX 文档模板并插入到 Org 文件顶部。
+参数说明：
+- AUTHOR: 作者姓名
+- TITLE: 文档标题
+- SUBTITLE: 文档副标题
+- LATEX-HEADER-PATH: 自定义 LaTeX 样式文件路径"
+  (interactive
+   (list
+    (read-string "作者: ")
+    (read-string "标题: ")
+    (read-string "副标题: ")
+    (read-file-name "选择自定义 LaTeX 样式文件: " "~/.emacs.d/")))
+  (save-excursion
+    (goto-char (point-min))
+    (let ((date (format-time-string "%Y-%m-%d %a"))
+          (template (concat
 
-                   "# 定制 PDF 封面和目录。\n"
-		           "#+begin_export latex\n"
+                     "#+TITLE: %s\n"
+                     "#+DATE: %s\n"
+                     "#+SUBTITLE: %s\n"
+                     "#+AUTHOR: %s\n"
+                     "#+LANGUAGE: zh-CN\n\n"
 
-                   "% 封面页\n"
-                   "\\begin{titlepage}\n"
+                     "# 不自动输出 title 和 toc，后续 latex mystyle 中定制输出。\n"
+                     "# 但是需要明确通过 num 控制输出的目录级别。\n"
+                     "#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil\n\n"
 
-                   "% 插入标题\n"
-		           "\\maketitle\n"
+                     "#+LATEX_COMPILER: xelatex\n"
+                     "#+LATEX_CLASS: ctexart\n"
+                     "#+LATEX_HEADER: \\usepackage{%s}\n\n"
 
-		           "\\begin{abstract}\n"
-		           "摘要内容...\n"
-		           "\\end{abstract}\n\n"
+                     "# 定制 PDF 封面和目录。\n"
+                     "#+begin_export latex\n"
 
-                   "% 目录页\n"
-                   "\\clearpage\n"
-  		     "\\tableofcontents\n"
-		           "\\clearpage\n"
-		           "#+end_export")))
-    ;; 插入格式化后的模板内容
-    (insert (format template title date subtitle author latex-header-path)))) ; 修复4：添加第五个参数
+                     "%% 封面页\n"
+                     "\\begin{titlepage}\n\n"
+
+                     "%% 插入标题\n"
+                     "\\maketitle\n"
+
+                     "%% 插入封面图\n"
+                     "\\ThisCenterWallPaper{0.4}{~/.emacs.d/icon.png}\n"
+                     "%% 封面页不编号\n"
+                     "\\noindent\\fboxsep=0pt\n"
+                     "\\setcounter{page}{0}\n"
+                     "\\thispagestyle{empty}\n"
+                     "\\end{titlepage}\n\n"
+
+                     "%% 摘要页\n"
+                     "\\begin{abstract}\n"
+                     "摘要内容...\n"
+                     "\\end{abstract}\n\n"
+
+                     "%% 目录页\n"
+                     "\\clearpage\n"
+                     "\\tableofcontents\n"
+                     "\\clearpage\n"
+
+                     "#+end_export")))
+
+      (insert (format template title date subtitle author (file-name-sans-extension latex-header-path)))))
+  ;; 定位到正文开始
+  (goto-char (point-min))
+  (when (re-search-forward "#\\+end_export" nil t)
+    (forward-line 2)))
+
 
 (defun my/org-table-attr ()
   "tabularx 的特殊 align 参数 X 用来对指定列内容自动换行，表格前需要加如下属性："
@@ -1634,49 +1658,6 @@ buffer is not visiting a file."
 
 #+END_SRC
 
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(my-latex "#+DATE: " (format-time-string "%Y-%m-%d %a") n
-	      "#+SUBTITLE: 内部资料，注意保密!
-,#+AUTHOR: zxh
-# 中文语言环境（目录等用中文显示）。
-,#+LANGUAGE: zh-CN
-# 不自动输出 titile 和 toc，后续 latext mystyle 中定制输出。
-# 但是需要明确通过 num 控制输出的目录级别。
-,#+OPTIONS: prop:t title:nil num:2 toc:nil ^:nil
-,#+LATEX_COMPILER: xelatex
-,#+LATEX_CLASS: ctexart
-,#+LATEX_HEADER: \\usepackage{/Users/zxh/.emacs.d/mystyle}
-
-# 定制 PDF 封面和目录。
-,#+begin_export latex
-% 封面页
-\\begin{titlepage}
-
-% 插入标题
-\\maketitle
-
-% 插入封面图
-%\\ThisCenterWallPaper{0.4}{/path/to/image.png}
-
-% 封面页不编号
-\\noindent\\fboxsep=0pt
-\\setcounter{page}{0}
-\\thispagestyle{empty}
-\\end{titlepage}
-
-% 摘要页
-\\begin{abstract}
-这是一个摘要。
-\\end{abstract}
-
-% 目录页
-\\newpage
-\\tableofcontents
-\\newpage
-,#+end_export
-")
-#+END_SRC
 * PDF-Tools
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; (use-package pdf-tools
@@ -1956,26 +1937,20 @@ buffer is not visiting a file."
     :hook (c++-mode . modern-c++-font-lock-mode))) ;; 只在 C++ 模式下启用高亮
 
 ;; Python
-(use-package python
-  :defer t
-  :mode ("\\.py\\'")
-  :custom
-  (flycheck-python-pycompile-executable "python3")
-  (python-shell-interpreter "python3"))
-
-;; Jupyter Notebook Support
-(use-package ein
-  :if (executable-find "jupyter")
-  :defer t
-  :init
-  (message "EIN loaded only when needed")
-  :bind
-  (("C-c e" . ein:worksheet-execute-cell)
-   ("C-c C-e" . ein:worksheet-execute-all-cells))
-  :custom-face
-  (ein:basecell-input-area-face ((t (:extend t :background "#303640"))))
-  :custom
-  (ein:worksheet-enable-undo t))
+(require 'python)
+;; ;; Jupyter Notebook Support
+;; (use-package ein
+;;   :if (executable-find "jupyter")
+;;   :defer t
+;;   :init
+;;   (message "EIN loaded only when needed")
+;;   :bind
+;;   (("C-c e" . ein:worksheet-execute-cell)
+;;    ("C-c C-e" . ein:worksheet-execute-all-cells))
+;;   :custom-face
+;;   (ein:basecell-input-area-face ((t (:extend t :background "#303640"))))
+;;   :custom
+;;   (ein:worksheet-enable-undo t))
 
 ;; Latex 
 (use-package auctex
@@ -2266,6 +2241,29 @@ buffer is not visiting a file."
 
 * Lsp-Bridge
 
++ EAF Browser 的沉浸式翻译功能
+  + 遇到英文网页， 按 Alt + i 调用 immersive_translation 命令自动把整个网页翻译成一段英文一段中文的形式。
+  + 沉静式翻译相对于其他翻译插件的优势是可以最快速度知道一个英文网页在说什么
++ insert-translated-name 每次需要定义函数或变量名时， 直接键入中文， insert-translated-name 会自动翻译中文并按照当前文件对应的语言风格自动命名
++ eaf-py-proxy-mark_file_by_extension: 按 * 键， 根据扩展名选中文件， 再按 f 批量打开， 或者按 x 批量删除， 或者按 t 反选其他文件
++ eaf-py-proxy-search_file: 按 C-s, 可以在当前目录下快速搜索文件， 支持模糊、 首字母和拼音搜索
++ eaf-py-proxy-find_files: 按 G 键， 自动在目录下递归搜索文件， 因为是基于 fd[60] 实现的， 基本上是秒搜
++ eaf-py-proxy-batch_rename: 按 e 键， 自动把当前目录转换成文本， 编辑文本内容后， C-c C-c 批量更改文件名
++ eaf-git-get-permalink 可以直接生成当前 Git 项目中代码行的引用， 非常快速的分享代码给朋友， 不用去 github 打开文件后再点击 permalink 菜单
++ 基于 OpenStreetMap 开发的旅游地图， 按 a 键自动添加地址， 按 d 键删除地址， 按 x 键自动对已经添加的地址做动态路径规划， 按 s 键还可以以文本的方式保存名称和坐标
++ eaf-git-show-history 有时候我们想查找一下历史补丁的详情， 但是又记不得补丁的提交信息（比如谁写的， 或者什么时间写的），反向解析出修改当前代码的所有提交历史
++ eaf-pdf 是用 mupdf 这个库来实现,包括 DarkMode、 Vimium Jump、 Annotation、 LaTeX Sync Jump、 ISearch、 OrgMode Link 等等超级方便高级功能。
+  + eaf-ocr-buffer, 这个命令会调用 EasyOCR[62] 自动识别 PDF 截图中的文字并自动粘贴到 Emacs 粘贴板中，
++ eaf-browser 主要的快捷操作是：
+  + 按 f 键， 进入链接快速跳转， 输入两个字符打开任意一个链接。
+  + 按 e 键， 底部弹出输入框， 由 Emacs 来编辑输入框的内容， 要比浏览器的编辑效率高很多。
+  + 按 C-M-c 键， 根据提示， 自动拷贝代码块， 不需要用鼠标在代码块中滑动全选
+  + 按 , 键： 利用 Mozilla 的 Readability.js 库， 把网页中间部分阅读内容提取出来进行清爽阅读 (如下图二所示)
+  + 按 n 键： 利用 Mozilla 的 Readability.js 库， 把网页中间部分阅读内容转换成 Emacs Text Buffer, 方便批量操作
+
++ pip3 install pyright
++ pip3 install jupyter && asdf reshim python 3.11.6  确保 jupyter 的路径 reshim 到 ~/.asdf/shims/
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;;----------------------------------------------------------
 ;; 使用 lsp-bridge 时， 请先关闭其他补全插件，
@@ -2297,6 +2295,14 @@ buffer is not visiting a file."
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
+(use-package insert-translated-name
+  :straight (insert-translated-name
+             :type git
+             :host github
+             :repo "manateelazycat/insert-translated-name"
+             :files ("*"))
+  :commands (insert-translated-name-insert insert-translated-name-replace)
+  :config (setq insert-translated-name-program "ollama"))
 
 ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
 ;; 你可以手动检查 tree-sitter 语法是否正确安装：
@@ -2362,6 +2368,8 @@ buffer is not visiting a file."
   (eaf-webengine-default-zoom 1.25)
   (eaf-webengine-scroll-step 200)
   (eaf-pdf-show-progress-on-page nil)
+  (eaf-jupyter-font-family "JetBrainsMono Nerd Font")
+  (eaf-jupyter-font-size 20)
   (eaf-pdf-dark-mode "ignore")
   :commands (eaf-open-browser eaf-open-pdf)
   :config
