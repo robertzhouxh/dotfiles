@@ -1,7 +1,7 @@
 :PROPERTIES: header-args:emacs-lisp :tangle
 :END:
 #+title: 我的 Emacs 配置
- #+auto_tangle: t
+#+auto_tangle: t
 
 * Custom Vars and Const
 
@@ -1952,6 +1952,34 @@ buffer is not visiting a file."
 ;;   :custom
 ;;   (ein:worksheet-enable-undo t))
 
+;; for web & js & ts
+(use-package web-mode
+  :custom-face
+  (css-selector ((t (:inherit default :foreground "#66CCFF"))))
+  (font-lock-comment-face ((t (:foreground "#828282"))))
+  :mode
+  ("\\.phtml\\'" "\\.tpl\\.php\\'" "\\.[agj]sp\\'" "\\.as[cp]x\\'"
+   "\\.erb\\'" "\\.mustache\\'" "\\.djhtml\\'" "\\.[t]?html?\\'"))
+
+(use-package js2-mode
+  :mode "\\.js\\'"
+  :interpreter "node"
+  :bind (:map js-mode-map ("M-." . nil)))
+;; -Js2Pac
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :commands (typescript-mode))
+;; -TypeScriptPac
+
+(use-package vue-mode
+  :mode "\\.vue\\'"
+  :commands (vue-mode))
+
+(use-package emmet-mode
+  :hook ((web-mode . emmet-mode)
+         (css-mode . emmet-mode)))
+
 ;; Latex 
 (use-package auctex
   :defer t
@@ -2778,3 +2806,4 @@ buffer is not visiting a file."
 
 * Refer
 + https://github.com/opsnull/emacs/blob/master/dotemacs.org
++ https://www.hugchange.life/posts/org_imagine.html
