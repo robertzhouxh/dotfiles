@@ -2215,7 +2215,9 @@ buffer is not visiting a file."
   (emigo-enable) ;; Starts the background process automatically
   :custom
   ;; Encourage using OpenRouter with Deepseek
-  (emigo-model "openrouter/deepseek/deepseek-chat-v3-0324")
+  ;; (emigo-model "openrouter/anthropic/claude-3.7-sonnet")
+  ;;(emigo-model "openrouter/deepseek/deepseek-chat-v3-0324")
+  (emigo-model "openrouter/google/gemini-2.5-pro-exp-03-25:free")
   (emigo-base-url "https://openrouter.ai/api/v1")
   (emigo-api-key (getenv "OPENROUTER_API_KEY")))
 

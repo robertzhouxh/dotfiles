@@ -53,69 +53,6 @@ tar jxvf rime-a608767-macOS.tar.bz2 -C ~/.emacs.d/librime
 ```
 
 # UbuntuOS
-## disable-while-typing
-```
-gsettings set org.gnome.desktop.peripherals.touchpad disable-while-typing true
-```
-## 换清华源
-```
-cp /etc/apt/sources.list /etc/apt/sources.bak
-vi /etc/apt/sources.list
-
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
-deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
-
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
-deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
-
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
-deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
-
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
-deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
-
-## Not recommended
-# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
-```
-
-## 安装字体
-``` 
-apt-cache search wqy-microhei
-apt install fonts-wqy-microhei
-
-// 查看已经安装的字体
-$ sudo fc-list :lang=zh
-
-apt-cache search fonts | grep noto
-
-// 看看是否安装
-dpkg -l *fonts-noto*
-
-// 如果没有安装则
-sudo apt-get install fonts-noto-cjk
-sudo apt-get install fonts-noto-mono
-sudo apt-get install fonts-noto-color-emoji
-
-// 下载苍耳今楷字体： http://tsanger.cn/product/47 
-// 注意：用字体管理界面看一下字体名称，再配置到 emacs 配置文件中
-wget http://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BB%8A%E6%A5%B705-W03.ttf
-mv 仓耳今楷05-W03.ttf ~/.fonts/TsangerJinKai05.ttf
-
-// 下载 Noto_Sans/Serif_SC 字体： https://fonts.google.com/
-// 下载鸿蒙字体： https://developer.harmonyos.com/cn/docs/design/des-guides/font-0000001157868583
-
-unzip fontsxxx.zip
-mkdir ~/.fonts
-cp -rf HarmonyOS_ ~/.fonts
-cp -rf Noto_* ~/.fonts
-
-fc-cache -f
-
-// 管理字体
-sudo apt install font-manager
-
-```
 ## 中文输入法
 
 检查系统中文环境
@@ -323,34 +260,9 @@ sudo mktexlsr
 
 1. 截图软件： sudo apt install flameshot
 2. 恢复到原始桌面配置： $dconf reset -f /org/gnome/
-3. 护眼： 打开夜灯模式（settings->display->nightlight）
 3. Ctrl 与 Caps 键位交换: Gnome Tweaks -> Choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
 4. 按键全局使用 Emacs 模式： Gnome Tweaks -> Keyboard&Mouse -> Emacs Input 打开
 5. debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
-
-Nvidia 官方驱动是基于X11环境的，而 debian/ubuntu 的 Gnome 桌面 在 x11 环境下不支持触摸板手势
-需要安装以下插件，让其支持触摸板手势
-
-🌀步骤1：安装Touchegg: https://github.com/JoseExposito/touchegg
-
-Ubuntu 系统建议使用ppa进行安装
-```
-sudo add-apt-repository ppa:touchegg/stable
-sudo apt update
-sudo apt install touchegg
-```
-如系统无法以ppa安装，则请下载合适的安装档进行安装
-① https://github.com/JoseExposito/touchegg/releases
-② sudo apt install ./touchegg_*.deb 进行安装
-
-🌀步骤2： 安装 X11 Gestures: https://extensions.gnome.org/extension/4033/x11-gestures/
-
-如果触摸板手势用着不舒服或者需要很长路径才能触发，按照文档配置以下参数即可
-https://github.com/JoseExposito/touchegg#daemon-configuration
-
-- 也可以参考全局配置选项： https://github.com/JoseExposito/touchegg#global-settings
-- 注意：删除 ~/.config/touchegg/.touchegg:1.lock
-- 可参考仓库中的 touchegg.conf 文件， 注意，这里的<action type="SEND_KEYS">的手势，是基于你的自定义快捷键（settings->keyboard）
 
 ## 坑爹的 NVIDIA 显卡驱动
 ### 驱动安装
@@ -458,4 +370,4 @@ sudo systemctl restart docker
 ```
 
 # 多语言支持
-## 用好 asdf
+用好 asdf
