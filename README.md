@@ -1,62 +1,25 @@
-
-# 文件说明
-
-- .aliases: 命令別名
-- .exports: 环境变量
-- .aliases: cmd别名
-- .config: ssh 配置文件
-- jumper.expect 一个跳板机相关脚本
-- apt.sh: ubuntu 工具安裝腳本
-- brew.sh: macos 工具安裝腳本
-- .macos:   a config script for macos refer: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
-
 # 初始化
 
-同步 .files 到 home 目录, 安装常用库，工具,软件(自动适配 linux，macos)
-
+同步 .files 到 home 目录
 ```
-git clone https://github.com/robertzhouxh/dotfiles 
-cd dotfiles
-# -------------------------------------------------------------------------------
-# 更新到最新 commit 可以使用  # git submodule update --init --remote
-# 修改 .gitmodules 后 可以执行 # git submodule sync 
-# 更新到 .gitmodules 中的 commit
-# -------------------------------------------------------------------------------
-git submodule update --init
-set -- -f; source bootsrap.sh
-
-# --------------------------------------------------------
-# 安装 eaf 相关内容
-# --------------------------------------------------------
-cd .emacs.d/vendor/emacs-application-framework
- ./install-eaf.py 
+rsync -av --include='.*' --exclude='.git' --exclude='.DS_Store' --exclude='*' ./ ~/
 ```
+
 # MacOS 
+## 工具软件
+```
+./brew.sh
+```
+## 付费软件
+
+```
+brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
+brew install CleanShot （截图软件，桃宝宝买licence）
+```
+
 ## 安裝 emacs
-```
-# 这里选择选择国内的同步镜像
-# git clone --depth 1 git://git.savannah.gnu.org/emacs.git
-
-git clone --depth 1 https://mirrors.ustc.edu.cn/emacs.git
-brew install autoconf automake texinfo gnutls pkg-config libxml2 --debug --verbose
-
-If you need to have libxml2 first in your PATH, run:
-  echo 'export PATH="/opt/homebrew/opt/libxml2/bin:$PATH"' >> /Users/zxh/.bash_profile
-
-  export LDFLAGS="-L/opt/homebrew/opt/libxml2/lib"
-  export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
-  export PKG_CONFIG_PATH="/opt/homebrew/opt/libxml2/lib/pkgconfig"
-
-cd ./emacs && ./autogen.sh
-./configure && make && make install
-
-open -R nextstep/Emacs.app
-# dragging Emacs to the Applications folder.
-
-cp  nextstep/Emacs.app/Contents/MacOS/bin/emacsclient /usr/local/bin/
-cp  nextstep/Emacs.app/Contents/MacOS/emacs /usr/local/bin/
-```
-
+- 参考: https://github.com/d12frosted/homebrew-emacs-plus
+- 参考: https://github.com/jimeh/build-emacs-for-macos
 ## vim/emacs 部署
 
 ```
@@ -65,12 +28,6 @@ rm -rf ~/.emacs*
 ./emacs.sh
 ```
 启动 Emacs
-
-## 安装苍耳今楷字体
-
-```
-wget http://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BB%8A%E6%A5%B705-W03.ttf
-```
 
 ## 安装鼠须管输入法+雾凇词库
 
@@ -95,12 +52,6 @@ tar jxvf rime-a608767-macOS.tar.bz2 -C ~/.emacs.d/librime
 
 ```
 
-## Mac 付费软件推荐
-
-```
-brew install Proxifier （记得 DNS 选择 Resolve hostname through proxy)
-brew install CleanShot （截图软件，桃宝宝买licence）
-```
 # UbuntuOS
 ## disable-while-typing
 ```
@@ -285,27 +236,6 @@ git clone https://github.com/rime/librime.git ~/.emacs.d/librime
 cd ~/.emacs.d/librime
 make
 sudo make install
-```
-
-## 安装 pyqt6
-```
-sudo apt install python3-pip
-pip3 install pyqt6
-```
-## 安装 openjdk 
-
-```
-
-apt-cache search openjdk 
-sudo apt-get install openjdk-17-jdk
-sudo apt-get install openjdk-17-jre
-sudo apt install plantuml
-
-or: 手动安装
-wget https://github.com/plantuml/plantuml/releases/download/v1.2023.11/plantuml-mit-1.2023.11.jar
-sudo tar -xvzf plantuml-mit-1.2023.11.jar -C /usr/local/share/plantuml
-sudo ln -s /usr/local/share/plantuml/ /usr/local/bin/plantuml
-
 ```
 
 ## 安装 plantuml
@@ -527,292 +457,5 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-## 命令行操作蓝牙
-
-
-```
-
-## 安装驱动并reboot
-sudo apt-get install --reinstall bluez
-
-## 如果还不行，那么更新最新的内核版本， 新的内核版本可能包含对蓝牙设备的更好支持。
-sudo add-apt-repository ppa:canonical-kernel-team/ppa
-sudo apt-get update
-sudo apt-get install linux-generic
-
-## Op
-sudo systemctl status bluetooth
-bluetoothctl scan on
-bluetoothctl discoverable on
-bluetoothctl pair ？？？？？？
-bluetoothctl paired-devices
-bluetoothctl connect ？？？？？？
-bluetoothctl trust ？？？？？？
-```
-
-# EndeavourOS
-建议先通过图形化界面更新系统
-ref: https://manateelazycat.github.io/2023/09/10/endeavour-os/
-## 添加 ArchLinuxCn 的源
-
-```
-sudo vi /etc/pacman.conf
-# 文件末尾添加以下两行
-
-[archlinuxcn]
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
-
-# 之后通过一下命令安装 archlinuxcn-keyring 包导入 GPG key。
-
-sudo pacman -Sy archlinuxcn-keyring
-
-```
-
-## 安装 v2raya 
-
-```
-yay -S v2raya
-sudo systemctl status v2raya.service
-sudo systemctl start v2raya.service
-sudo systemctl ensure v2raya.service
-
-```
-
-图形界面找到应用程序，click v2raya 图片-> 127.0.0.1:27017
-
-## 拼音
-```
-sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime librime
-
-## 然后将下面的内容粘贴到 ~/.pam_environment
-
-GTK_IM_MODULE=fcitx5
-XMODIFIERS=@im=fcitx5
-QT_IM_MODULE=fcitx5
-```
-
-### 安装 Fcitx5 输入法皮肤
-
-```
-yay -S fcitx5-skin-adwaita-dark
-
-然后修改配置文件 ~/.config/fcitx5/conf/classicui.conf
-# 横向候选列表
-Vertical Candidate List=False
-
-# 禁止字体随着 DPI 缩放， 避免界面太大
-PerScreenDPI=False
-
-# 字体和大小， 可以用 fc-list 命令来查看使用
-Font="Noto Sans Mono 13"
-
-# Gnome3 风格的主题
-Theme=adwaita-dark
-```
-
-### 安装雾凇拼音
-```
-git clone https://github.com/iDvel/rime-ice --depth=1
-cp -r ./rime-ice/* ~/.config/fcitx/rime/
-cp -r ./rime-ice/* ~/.local/share/fcitx5/rime
-```
-
-## 蓝牙
-```
-## If you are using pipewire (default since Atlantis release):
-sudo pacman -S --needed bluez bluez-utils
-
-## If you are using pulseaudio (older installs or manual switching to pulseaudio):
-sudo pacman -S --needed bluez bluez-utils pulseaudio-bluetooth
-
-sudo pacman -S blueberry
-sudo systemctl enable bluetooth
-    
-
-## 命令行手动连接蓝牙设备
-bluetoothctl ----> scan on ------> trust {MacAddr}----> pair {MacAddr} ---> connect {MacAddr}
-
-```
-
-## 安装声音+打印管理程序
-```
-pacman -S alsa-utils pulseaudio pulseaudio-bluetooth
-pacman -S cups
-```
-## 安装 chrome
-
-yay 不要加 sudo
-
-```
-yay -S google-chrome
-```
-
-## Gnome 桌面
-
-当离线安装os时，需要手动联网安装 gnome
-```
-# update cache
-sudo pacman -Sy
-
-# gnome
-sudo pacman -S gnome
-
-# gnome-tweak-tool
-sudo pacman -S gnome-tweaks
-
-# 然后安装GDM窗口管理器（ welcome 界面-> Display-manager 改为 gdm ）
-sudo pacman -S gdm
-
-#设置开机启动GDM服务，这样我们开机时就会自动载入桌面
-sudo systemctl enable gdm.service
-
-# 可以在gui选择启动桌面管理器为 gdm 然后重
-# 官网安装浏览器插件
-sudo yay -S gnome-browser-connector
-
-# 访问官网安装插件即可（先在 Chrome 商店安装 Gnome Shell 扩展）
-https://extensions.gnome.org/
-
-```
-## 安装字体
-安装完成后可以在gnome-tweak-tool里启用。
-```
-### sudo pacman -S wqy-microhei
-sudo pacman -S noto-fonts-cjk wqy-microhei wqy-microhei-lite wqy-bitmapfont
-yay -S ttf-consolas-with-yahei
-```
-## 安装 wps+wechat 
-```
-yay -S wps-office-cn wps-office-mui-zh-cn ttf-wps-fonts
-
-sudo pacman -S automake
-
-### 先更新
-sudo pacman -Syu
-
-yay -S deepin-wine-wechat
-
-vim /etc/environment， 添加： DEEPIN_WINE_SCALE=1.25
-
-解决无法切换中文输入法的问题
-> sudo vim /opt/apps/com.qq.im.deepin/files/run.sh 
-
-env locale=zh_CN
-export XIM="fcitx"
-export XMODIFIERS="@im=fcitx"
-export GTK_IM_MODULE="fcitx"
-export QT_IM_MODULE="fcitx"
-```
-## 安装闭源 Nvidia 显卡驱动
-
-ref: https://manateelazycat.github.io/2023/06/03/nvidia-driver/
-
-## 安装 emacs
-### git version:
-
-```
-sudo pacman -S emacs-git
-```
-### compile from source code:
-
-```
-git clone --depth 1 git://git.savannah.gnu.org/emacs.git
-
-cd emacs
-
-./configure ; make -j32; sudo make install
-
-```
-## 键盘映射
-
-tweaks -- Keyboard & Mouse -- Additional Layout Options -- CapsLock behavior
-
 # 多语言支持
-## Erlang/Elixir on macos
-
-```
-  asdf plugin add erlang 
-  asdf plugin-add rebar 
-
-  export KERL_BUILD_DOCS=yes 
-  export KERL_INSTALL_MANPAGES=yes 
-  export EGREP=egrep 
-  export CC=clang 
-  export CPP="clang -E" 
-  export CFLAGS="-O2 -g -fno-stack-check -Wno-error=implicit-function-declaration"
-
-  # export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl) --without-wx"
-
-  export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac --without-odbc --without-jinterface --with-ssl=$(brew --prefix openssl@1.1) --without-wx"
-
-  asdf plugin-update --all
-
-  asdf list all erlang
-  asdf list all rebar
-
- asdf install erlang 24.3.4
-  asdf install rebar 3.22.1
-
-  asdf global rebar  3.22.1
-  asdf global erlang 24.3.4
-```
-## Erlang on ubuntu
-
-```
-asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
-    
-## 不安裝 11-jdk
-## sudo apt-get -y install build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk
-
-sudo apt-get -y install build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev
-
-
-## 建议以下方式安装
-cd /usr/local/src/
-sudo wget https://www.openssl.org/source/openssl-1.1.1m.tar.gz
-
-sudo tar -xf openssl-1.1.1m.tar.gz
-
-cd openssl-1.1.1m
-sudo ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
-
-sudo make
-sudo make test
-sudo make install
-
-# install erlang now
-export KERL_CONFIGURE_OPTIONS="-with-ssl=/usr/local/ssl"
-asdf install erlang 24.3.4
-
-```
-
-## Golang
-
-```
-    asdf plugin-add golang
-    asdf list all golang
-    asdf install golang 1.19.5
-    asdf global golang 1.19.5
-```
-## Rust
-
-```
-    asdf plugin-add rust
-    asdf list all rust
-    asdf install rust 1.67.0
-    asdf global rust 1.67.0
-
-```
-
-## node
-```
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf list all nodejs
-asdf install nodejs latest:16
-asdf install nodejs 19.6.0
-
-# eaf-file-manager 需要高版本的node
-asdf global nodejs 19.6.0
-```
-
-
+## 用好 asdf
