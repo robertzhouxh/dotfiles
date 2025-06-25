@@ -117,7 +117,7 @@ brew install z
 brew install protobuf
 
 ## 替换 htop
-brew install glances
+brew install btop
 
 ## Ghostty is a fast, feature-rich, and cross-platform terminal emulator
 ## rhttps://github.com/ghostty-org/ghostty
