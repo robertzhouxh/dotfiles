@@ -26,6 +26,7 @@ alias .....="cd ../../../.."
 alias dl="cd ~/Downloads"
 alias books="cd ~/Books/books"
 alias src="cd ~/src"
+alias ros="source /Users/zxh/ros2_jazzy/activate_ros"
 
 # 网络工具
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"

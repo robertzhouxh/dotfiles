@@ -1165,15 +1165,15 @@ buffer is not visiting a file."
   (with-eval-after-load 'dslide
     (define-key dslide-mode-map (kbd "<f9>") #'dslide-deck-stop)))
 
-;; (use-package org-sliced-images
-;;  :hook (org-mode . org-sliced-images-mode))
+;;(use-package org-sliced-images
+;; :hook (org-mode . org-sliced-images-mode))
 
-;; (use-package image-slicing
-;;   :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
-;;   :hook (org-mode . image-slicing-mode)
-;;   :custom
-;;   (image-slicing-line-height-scale 2)
-;;   (image-slicing-max-width 800))
+;;(use-package image-slicing
+;;  :straight (image-slicing :type git :host github :repo "ginqi7/image-slicing")
+;;  :hook (org-mode . image-slicing-mode)
+;;  :custom
+;;  (image-slicing-line-height-scale 2)
+;;  (image-slicing-max-width 800))
 
 (use-package org-download
   :commands (org-download-enable org-download-screenshot org-download-clipboard)
@@ -2267,6 +2267,17 @@ buffer is not visiting a file."
   (when (getenv "DEEPSEEK_API_KEY")
     (setenv "DEEPSEEK_API_KEY" (getenv "DEEPSEEK_API_KEY")))
   )
+#+END_SRC
+
+** gemini-cli
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package gemini-cli
+  :straight (:type git :host github :repo "linchen2chris/gemini-cli.el" :branch "main" :files ("*.el" (:exclude "demo.gif")))
+  :bind-keymap
+  ("C-c g" . gemini-cli-command-map)
+  :config
+  (gemini-cli-mode))
 #+END_SRC
 
 * Lsp-Bridge
