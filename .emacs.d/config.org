@@ -123,7 +123,7 @@
 #+begin_src emacs-lisp :tangle yes
 (tool-bar-mode -1)                               ;禁用工具栏
 (menu-bar-mode -1)                               ;禁用菜单栏
-(scroll-bar-mode -1)                             ;禁用滚动条
+(when (display-graphic-p) ((scroll-bar-mode -1)));禁用滚动条
 (tooltip-mode -1)                                ;禁用tooltips
 (auto-compression-mode 1)                        ;打开压缩文件时自动解压缩
 (global-hl-line-mode 1)                          ;高亮当前行
