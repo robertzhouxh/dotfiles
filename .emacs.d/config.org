@@ -650,31 +650,69 @@ buffer is not visiting a file."
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  (use-package diff-hl
-    :ensure t
-    :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
-           (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-           (magit-post-refresh . diff-hl-magit-post-refresh))
-    :init
-    (global-diff-hl-mode t)
-    :config
-    ;; When Emacs runs in terminal, show the indicators in margin instead.
-    (unless (display-graphic-p)
-      (diff-hl-margin-mode)))
+;; (use-package diff-hl
+;;   :ensure t
+;;   :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
+;;          (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+;;          (magit-post-refresh . diff-hl-magit-post-refresh))
+;;   :init
+;;   (global-diff-hl-mode t)
+;;   :config
+;;   ;; When Emacs runs in terminal, show the indicators in margin instead.
+;;   (unless (display-graphic-p)
+;;     (diff-hl-margin-mode)))
 
-  ;; 在文件左侧显示 Git 状态
-  (use-package git-gutter :commands git-gutter-mode)
+;; ;; 在文件左侧显示 Git 状态
+;; (use-package git-gutter :commands git-gutter-mode)
 
-  ;; 当前文件的修改历史展示
-  (use-package git-timemachine :commands git-timemachine)
+;; ;; 当前文件的修改历史展示
+;; (use-package git-timemachine :commands git-timemachine)
 
-  ;; 设置 Git 管理快捷键
-  (use-package magit
-    :commands magit-status
-    :bind ("C-x g" . magit-status)
-    :config
-    (setq magit-diff-refine-hunk (quote all))
-    :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
+;; ;; 设置 Git 管理快捷键
+;; (use-package magit
+;;   :commands magit-status
+;;   :bind ("C-x g" . magit-status)
+;;   :config
+;;   (setq magit-diff-refine-hunk (quote all))
+;;   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
+
+;; https://emacs-china.org/t/vc-mode-magit/29277/3
+(use-package vc :defer t
+  :config
+  (defun vc-dir-next-and-diff ()
+    "移动到下一行并显示当前文件的 diff，同时保持光标在列表。"
+    (interactive)
+    (vc-dir-next-line 1)
+    (save-selected-window
+      (vc-diff)))
+  (defun vc-dir-prev-and-diff ()
+    "移动到前一行并显示当前文件的 diff，同时保持光标在列表。"
+    (interactive)
+    (vc-dir-previous-line 1)
+    (save-selected-window
+      (vc-diff)))
+  (defun vc-dir-quick-commit-all ()
+    "标记所有已跟踪且修改过的文件并进入提交界面"
+    (interactive)
+    (vc-dir-unmark-all-files 1)
+    (dolist (state '(edited added removed))
+      (vc-dir-mark-state-files state))
+    (let ((files (vc-dir-marked-files)))
+      (if files
+          (vc-next-action nil)
+        (message "No files to commit"))))
+
+  (with-eval-after-load 'vc-dir
+    (define-key vc-dir-mode-map "e" 'vc-ediff)
+    (define-key vc-dir-mode-map "d" 'vc-diff)
+    (define-key vc-dir-mode-map "k" 'vc-revert)
+    (define-key vc-dir-mode-map "c" 'vc-dir-quick-commit-all)
+    (define-key vc-dir-mode-map (kbd "<tab>") 'vc-dir-next-and-diff)
+    (define-key vc-dir-mode-map (kbd "<backtab>") 'vc-dir-prev-and-diff)
+    (define-key vc-dir-mode-map "F" 'vc-pull)))
+
+
+(use-package consult-vc-modified-files :ensure t :defer t)
 
 #+END_SRC
 
