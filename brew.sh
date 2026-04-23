@@ -120,7 +120,13 @@ brew install protobuf
 brew install btop
 
 ## 很酷的网络监控应用
-kkbrew install  sniffnet
+brew install  sniffnet
+
+##  端口killer
+brew install --cask productdevbook/tap/portkiller
+
+## 牛逼的命令行下载工具
+brew install surge-downloader/tap/surge
 
 ## Ghostty is a fast, feature-rich, and cross-platform terminal emulator
 ## rhttps://github.com/ghostty-org/ghostty
