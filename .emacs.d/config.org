@@ -743,6 +743,7 @@ buffer is not visiting a file."
     "cs" 'my-org-screenshot
 
     ;; dired
+    "d" '(lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
     ;;"dc" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
     ;;"ds" '(lambda () (interactive) (eaf-open-in-file-manager "~/src"))
 
@@ -877,6 +878,7 @@ buffer is not visiting a file."
 
   (use-package org
     :straight (:type built-in)
+    :defer 0.2
     :bind (("C-c l" . org-store-link)  ;; 快速存储链接
            ("C-c c" . org-capture)     ;; 进入 Org Capture
            (:map org-mode-map ("C-c ;" . nil)))    ;; 取消 C-c ; 绑定，避免冲突

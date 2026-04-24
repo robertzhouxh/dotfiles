@@ -1,7 +1,5 @@
 #!/usr/bin/env zsh
 
-## git config --global ghq.root '~/src'
-
 # 初始化 starship prompt
 eval "$(starship init zsh)"
 
@@ -18,7 +16,7 @@ if command -v exa >/dev/null 2>&1; then
   exa --icons --git
 fi
 
-# 加载 autojump（Homebrew 安装路径）
+# 加载 autojump
 autojump_file="$(brew --prefix 2>/dev/null)/etc/profile.d/autojump.sh"
 if [[ -s "$autojump_file" ]]; then
   source "$autojump_file"
