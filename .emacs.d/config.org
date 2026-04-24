@@ -669,12 +669,12 @@ buffer is not visiting a file."
   (add-to-list 'display-buffer-alist
                '("\\*vc-change-log\\*\\|\\*VC-log\\*"
                  (display-buffer-same-window)))
-  ;; 其他 vc 相关 buffer 显示在右侧分窗(70%)
+  ;; 其他 vc 相关 buffer 显示在右侧分窗(50%)
   (add-to-list 'display-buffer-alist
                '("\\*vc-\\|\\*VC-\\|\\*cvs\\|COMMIT_EDITMSG"
                  (display-buffer-in-side-window)
                  (side . right)
-                 (window-width . 0.7)
+                 (window-width . 0.5)
                  (slot . 0)))
 
   (defun vc-dir-next-and-diff ()
