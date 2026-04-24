@@ -493,6 +493,8 @@
   (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
   (exec-path-from-shell-initialize))
 
+(use-package f :defer t)
+(use-package polymode :defer t)
 (use-package comment-dwim-2 :commands (comment-dwim-2))
 (use-package posframe :commands (posframe-show posframe-hide posframe-delete-all))
 (use-package markdown-mode :mode ("\\.md\\'" . markdown-mode) :commands markdown-mode)
@@ -503,6 +505,13 @@
 ;;(use-package plantuml-mode :hook (after-init . plantuml-mode))
 (use-package dockerfile-mode :commands dockerfile-mode)
 (use-package discover-my-major)
+(use-package which-key
+  :diminish
+  :hook (after-init . which-key-mode)
+  :config
+  (progn
+    (which-key-mode)
+    (which-key-setup-side-window-right)))
 
 ;; `global-auto-revert-mode' is provided by autorevert.el (builtin)
 (use-package autorevert
@@ -646,35 +655,9 @@ buffer is not visiting a file."
 
 #+END_SRC
 
-* Magit
+* Version Control
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
-;; (use-package diff-hl
-;;   :ensure t
-;;   :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
-;;          (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-;;          (magit-post-refresh . diff-hl-magit-post-refresh))
-;;   :init
-;;   (global-diff-hl-mode t)
-;;   :config
-;;   ;; When Emacs runs in terminal, show the indicators in margin instead.
-;;   (unless (display-graphic-p)
-;;     (diff-hl-margin-mode)))
-
-;; ;; 在文件左侧显示 Git 状态
-;; (use-package git-gutter :commands git-gutter-mode)
-
-;; ;; 当前文件的修改历史展示
-;; (use-package git-timemachine :commands git-timemachine)
-
-;; ;; 设置 Git 管理快捷键
-;; (use-package magit
-;;   :commands magit-status
-;;   :bind ("C-x g" . magit-status)
-;;   :config
-;;   (setq magit-diff-refine-hunk (quote all))
-;;   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 
 ;; https://emacs-china.org/t/vc-mode-magit/29277/3
 (use-package vc :defer t
@@ -721,45 +704,39 @@ buffer is not visiting a file."
 #+BEGIN_SRC emacs-lisp :tangle yes
 
 (defun x/config-evil-leader ()
- ;;(evil-leader/set-leader ",")
   (evil-leader/set-leader "<SPC>")
   (evil-leader/set-key
+
+    ;; Quick Move
     ","  'avy-goto-line
     "."  'avy-goto-char-2
-    ":"  'eval-expression
 
-    "ai" 'aider-transient-menu
-    "ao" 'aidermacs-transient-menu
-    "aa" 'align-regexp
+    ;; AI
 
-    ;; buffer & bookmark
+    ;; buffer
     "bb" 'switch-to-buffer
     "bo" 'switch-to-buffer-other-window
     "bn" '+copy-current-buffer-name
     "bv" 'revert-buffer
-    "bz" 'bury-buffer           ;隐藏当前buffer
-    "bZ" 'unbury-buffer         ;反隐藏当前buffer
-
-    "bK" 'kill-other-window-buffer ;;;关闭其他窗口的buffer
+    "bz" 'bury-buffer                         ;;; 隐藏当前buffer
+    "bZ" 'unbury-buffer                       ;;; 反隐藏当前buffer
+    "bK" 'kill-other-window-buffer            ;;; 关闭其他窗口的buffer
 
     ;; code
+    "cf" 'format-function-parameters          ;;; 参数列转行
     "cc" 'comment-dwim
+    "ca" 'align-regexp
     "cd" 'delete-trailing-whitespace
     "cl" 'toggle-truncate-lines
     "cm" 'delete-trailing-M
-    "cf" 'format-function-parameters        ;; 参数列转行
+    "c:" 'eval-expression
+    "cs" 'my-org-screenshot
 
     ;; dired
     ;;"dc" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
     ;;"ds" '(lambda () (interactive) (eaf-open-in-file-manager "~/src"))
 
-
-    ;; external Apps
-    "es" 'my-org-screenshot
-    "eo" 'org-export-docx
-
     ;; file
-    "F"  'recentf-open-files
     "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
     "fi" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
     "ff" 'find-file
@@ -768,26 +745,15 @@ buffer is not visiting a file."
     "fd" '+delete-current-file
     "fn" '+copy-current-filename
     "fr" '+rename-current-file
-    "fa" 'my/all-available-fonts
+    ;;"F" 'recentf-open-files
+    "F"  'my/all-available-fonts
 
-    ;; magit
-    "gs" 'magit-status
-    "gb" 'magit-branch-checkout
-    "gp" 'magit-pull
-    "gt" 'magit-blame-toggle
-    "gm" 'one-key-menu-git
-
-    ;; magit-blame
-    ;; 可以在 magit-status (C-x g) 里进入 l（log）菜单后，选择 b（blame）来查看文件的 blame 记录
-    "mb" 'magit-blame           ;;默认完整模式
-    "ma" 'magit-blame-addition  ;;仅显示新增的 commit 影响
-    "md" 'magit-blame-delete    ;;仅显示删除的 commit 影响
-    "mq" 'magit-blame-quit      ;;仅显示删除的 commit 影响
-    "mj" 'discover-my-major
+    ;; version control
+    "g"  'vc-dir
 
     ;; project
-    "pf" 'ffip
     ;;"pf" 'projectile-find-file
+    "pf" 'ffip
     "pb" 'projectile-switch-to-buffer
     "pp" 'projectile-switch-project
     "pk" 'projectile-kill-buffers
@@ -801,7 +767,7 @@ buffer is not visiting a file."
     "ss" 'color-rg-search-symbol-in-project
     "sp" 'color-rg-search-project
 
-    ;; terminal
+    ;; Tab
     "tn" 'sort-tab-next
     "tp" 'sort-tab-previous
 
@@ -843,11 +809,10 @@ buffer is not visiting a file."
 ;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
 ;; You may delete this setup to use Evil NORMAL state always.
 (dolist (p '((minibuffer-inactive-mode . emacs)
-             (magit-log-edit-mode . emacs)
-             (magit-status-mode . emacs)
-             (magit-revision . normal)
              (color-rg-mode . emacs)
              (comint-mode . emacs)
+             (vc-dir-git-mode . normal)
+             (vc-dir-mode . normal)
              (dired-mode . normal)
              (fundamental-mode . normal)
              (grep-mode . emacs)
@@ -862,40 +827,31 @@ buffer is not visiting a file."
              (speedbar-mode . emacs)
              (ivy-occur-mode . emacs)
              (ivy-occur-grep-mode . normal)
-             (messages-buffer-mode . normal)
-             ))
+             (messages-buffer-mode . normal)))
   (evil-set-initial-state (car p) (cdr p)))
 
 #+END_SRC
 
 * Org-Mode
-** Org 辅助配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; 文件操作库
-  (use-package f :defer t)
-
-  ;; 多模式编辑支持
-  (use-package polymode :defer t)
-
   ;; Org 表格对齐增强
-  (use-package valign
-    :diminish
-    :custom
-    (valign-fancy-bar t)
-    :hook (org-mode . valign-mode))
+  ;; (use-package valign
+  ;;   :diminish
+  ;;   :custom
+  ;;   (valign-fancy-bar t)
+  ;;   :hook (org-mode . valign-mode))
+  ;; (add-hook 'org-mode-hook #'valign-mode)
 
   ;; Org 文档目录自动生成
-  (use-package toc-org
-    :defer t
-    :hook (org-mode . toc-org-mode))
+  ;; (use-package toc-org :defer t :hook (org-mode . toc-org-mode))
 
   ;; Org Babel 代码块自动 Tangle
-  (use-package org-auto-tangle
-    :diminish
-    :hook (org-mode . org-auto-tangle-mode)
-    :custom (org-auto-tangle-default t))
+  ;; (use-package org-auto-tangle
+  ;;   :diminish
+  ;;   :hook (org-mode . org-auto-tangle-mode)
+  ;;   :custom (org-auto-tangle-default t))
 
   (use-package org-download
     :commands (org-download-enable org-download-screenshot org-download-clipboard)
@@ -908,12 +864,6 @@ buffer is not visiting a file."
           org-download-image-attr-list '("#+ATTR_HTML: :width 800 :align left"))
     ;; 不添加 #+DOWNLOADED: 注释
     (setq org-download-annotate-function (lambda (link) (previous-line 1) "")))
-
-#+END_SRC
-
-** Org 主配置
-
-#+BEGIN_SRC emacs-lisp :tangle yes
 
   (use-package org
     :straight (:type built-in)
@@ -928,7 +878,7 @@ buffer is not visiting a file."
     ;; 'showeverything 不折叠，显示所有内容
     (setq org-startup-folded 'overview)
 
-   ;; Ellipsis styling
+    ;; Ellipsis styling
     (setq org-ellipsis " ▼ ")
     (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 
@@ -1015,21 +965,15 @@ buffer is not visiting a file."
 
     ;; 代码块增强
     (setq org-plantuml-jar-path plantuml-jar-path)
-    (setq org-src-fontify-natively t  ;; 代码高亮
+    (setq org-src-fontify-natively t    ;; 代码高亮
           org-src-tab-acts-natively t)  ;; 在 src block 内使用原生 tab 缩进
-    ;; 启用 Babel 代码块执行支持的语言
     (org-babel-do-load-languages
      'org-babel-load-languages
      '((shell . t)
-       (js . t)
        (plantuml . t)
        (makefile . t)
-       (emacs-lisp . t) 
        (python . t)
-       (C . t) 
-       (java . t)
-       (awk . t) 
-       (css . t))))
+       (C . t))))
    
 #+END_SRC
 * Org-Latex
@@ -1171,10 +1115,6 @@ buffer is not visiting a file."
   (add-hook 'prog-mode-hook 'my/use-spaces-setup)
 
   ;;; EMACS-SOLO-HIGHLIGHT-KEYWORDS-MODE
-  ;;
-  ;;  Highlights a list of words like TODO, FIXME...
-  ;;  Code borrowed from `alternateved'
-  ;;
   (use-package emacs-solo-highlight-keywords-mode
     :straight nil  ;; 表示不通过 straight 管理
     :when *sys/linux*
@@ -1245,13 +1185,13 @@ buffer is not visiting a file."
        )))
 
   ;; 自动清理行尾空格，仅限于修改过的行
-  ;;(use-package ws-butler
-  ;;  :diminish
-  ;;  :straight t
-  ;;  :hook (prog-mode . ws-butler-mode)
-  ;;  :init
-  ;;  (setq ws-butler-keep-whitespace-before-point t)) 
-  ;;
+  (use-package ws-butler
+    :diminish
+    :straight t
+    :hook (prog-mode . ws-butler-mode)
+    :init
+    (setq ws-butler-keep-whitespace-before-point t)) 
+  
   (use-package go-mode
     :hook ((go-mode . (lambda ()
                         (setq tab-width 4) ;; Go 代码缩进
@@ -1343,7 +1283,7 @@ buffer is not visiting a file."
 + 中文：霞鹜文楷屏幕阅读版 [[LxgwWenKai-Screen][LxgwWenKai-Screen]]，对字体做了加粗，便于屏幕阅读; brew install font-lxgw-wenkai 
 + 英文： https://www.rahuljuliato.com/posts/nerd-fonts
 
-** 常用字体命令:
+** 常用字体命令
 
 + 字体：英文 Iosevka/Sarasa 和中文 LxgwWenKai，按照 1:1 缩放，在偶数字号的情况下可以实现中英文等宽等高。
 + 查看 Emacs 支持的字体名称： (print (font-family-list))
@@ -1352,7 +1292,7 @@ buffer is not visiting a file."
 + 默认字号, 需要是偶数才能实现中英文等宽等高,eg: height 180
 + fc-list | grep "LxgwWenKai\|Iosevka"
   
-** Old
+** 字体配置
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 
@@ -1391,90 +1331,11 @@ buffer is not visiting a file."
              )))))
 
 (add-hook 'after-init-hook 'load-font-setup)
-(add-hook 'org-mode-hook #'valign-mode)
 
 #+END_SRC
 
-** New
-
-在 Emacs 中，设置字体大小时，:height 参数的单位是 1/10 pt，而不是以 pt 为单位
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(defvar my/font-base-size 16
-  "基础字体大小 (单位: pt)，英文字体直接使用该值，中文字体按缩放系数调整")
-
-(defvar my/cjk-font-scale 1.1
-  "中文字体相对于基准字体的缩放系数，建议范围 1.1~1.3")
-
-(defun available-font (font-list)
-  "Get the first available font from FONT-LIST."
-  (catch 'font
-    (dolist (font font-list)
-      (if (member font (font-family-list))
-          (throw 'font font)))))
-
-(setq my/ef (available-font '("JetBrains Mono" "Monaco" "Iosevka Comfy" "Cascadia Code")))
-(setq my/cf (available-font '("LXGW WenKai Mono" "Sarasa Mono SC" "Microsoft YaHei Mono")))
-(setq my/en-size (* my/font-base-size 10))  ; 转换为Emacs的height单位
-(setq my/zh-size (* my/font-base-size my/cjk-font-scale 10)) ; 中文字体高度
-
-(message "英文字体: %s (%.1fpt)" my/ef (/ my/en-size 10.0))
-(message "中文字体: %s (等效%.1fpt)" my/cf (/ my/zh-size 10.0))
-
-(defun my/org-title-font-setup (zh-font en-font)
-  "修复 Org 标题中英文字号差异"
-  (let* ((base-size my/font-base-size)
-         (title-scale '(2.0 1.8 1.6 1.4 1.2 1.1 1.0 0.9)))  ; 确保有 8 级标题的缩放比例
-    ;; 设置标题字体
-    (dolist (level (number-sequence 1 8))
-      (let* ((face (intern (format "org-level-%d" level)))  ; 正确结束变量绑定
-             (scale-factor (nth (1- level) title-scale)))   ; 取出对应标题级别的缩放因子
-
-        ;; 中文字体设置
-        (set-face-attribute face nil
-                            :family zh-font
-                            :height (round (* scale-factor base-size 10))  ; 修正高度计算
-                            :weight 'semi-bold)
-
-        ;; 确保西文字体存在后再覆盖
-        (when (member en-font (font-family-list))
-          (set-fontset-font t 'latin (font-spec :family en-font) nil 'prepend))))))
-
-
-(defun my/setup-font ()
-  "智能字体配置，支持动态大小调整"
-  (interactive)
-  (when my/ef
-    (dolist (face '(default fixed-pitch fixed-pitch-serif variable-pitch))
-      (set-face-attribute face nil :family my/ef :height my/en-size)))
-  (when my/cf
-    ;; 设置字符集字体
-    (dolist (charset '(kana han hangul cjk-misc bopomofo))
-      (set-fontset-font t charset (font-spec :family my/cf :height my/zh-size)))
-
-    ;; 非等宽字体缩放处理
-    (unless (string-match-p "Mono" my/cf)
-      (setq face-font-rescale-alist `((,my/cf . ,my/cjk-font-scale))))
-
-    ;; 设置Org标题字体
-    (when (and my/cf my/ef)
-      (my/org-title-font-setup my/cf my/ef))))
-
-;; 初始化加载字体配置
-(add-hook 'after-init-hook 'my/setup-font)
-(add-hook 'org-mode-hook (lambda () (my/org-title-font-setup my/cf my/ef)))
-(add-hook 'org-mode-hook #'valign-mode)
-
-;; 动态调整字体大小
-(defun my/reset-font-size ()
-  "动态调整字体大小"
-  (interactive)
-  (let ((new-size (read-number "New base font size (pt): " my/font-base-size)))
-    (setq my/en-size (* new-size 10))
-    (setq my/cn-size (* new-size my/cjk-font-scale 10))
-    (my/setup-font)))
-#+END_SRC
 * Rime
+
 #+BEGIN_SRC emacs-lisp :tangle yes
 
   (use-package rime
@@ -1536,6 +1397,7 @@ buffer is not visiting a file."
 * Lsp-Bridge
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
 (use-package yasnippet
   :commands yas-minor-mode
   :config
@@ -1896,8 +1758,7 @@ buffer is not visiting a file."
 
 ;; 搜索和 Git 快捷键
 (global-set-key (kbd "C-M-s")   'color-rg-search-input)       ; 彩色搜索
-(global-set-key (kbd "C-M-;")   'magit-status)                ; 打开 Magit 状态
-(global-set-key (kbd "C-x G")   'git-messenger:popup-message) ; 显示 Git 提交信息
+(global-set-key (kbd "C-M-;")   'vc-dir)                      ; 打开 VC 状态
 
 ;; LSP Bridge 快捷键
 (global-set-key (kbd "C-]")     'lsp-bridge-find-def)         ; 查找定义
