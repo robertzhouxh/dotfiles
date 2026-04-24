@@ -658,10 +658,25 @@ buffer is not visiting a file."
 * Version Control
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
 ;; https://emacs-china.org/t/vc-mode-magit/29277/3
 (use-package vc :defer t
   :config
+  ;; 让所有 vc 相关 buffer 始终显示在右侧分窗
+  ;; *vc-diff*、*vc-change-log* 等常见 vc buffer
+  ;; *VC-log*（提交日志）
+  ;; COMMIT_EDITMSG（提交信息编辑窗口）
+  ;; 提交历史显示在当前窗口
+  (add-to-list 'display-buffer-alist
+               '("\\*vc-change-log\\*\\|\\*VC-log\\*"
+                 (display-buffer-same-window)))
+  ;; 其他 vc 相关 buffer 显示在右侧分窗(70%)
+  (add-to-list 'display-buffer-alist
+               '("\\*vc-\\|\\*VC-\\|\\*cvs\\|COMMIT_EDITMSG"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (window-width . 0.7)
+                 (slot . 0)))
+
   (defun vc-dir-next-and-diff ()
     "移动到下一行并显示当前文件的 diff，同时保持光标在列表。"
     (interactive)
@@ -684,7 +699,6 @@ buffer is not visiting a file."
       (if files
           (vc-next-action nil)
         (message "No files to commit"))))
-
   (with-eval-after-load 'vc-dir
     (define-key vc-dir-mode-map "e" 'vc-ediff)
     (define-key vc-dir-mode-map "d" 'vc-diff)
@@ -693,12 +707,8 @@ buffer is not visiting a file."
     (define-key vc-dir-mode-map (kbd "<tab>") 'vc-dir-next-and-diff)
     (define-key vc-dir-mode-map (kbd "<backtab>") 'vc-dir-prev-and-diff)
     (define-key vc-dir-mode-map "F" 'vc-pull)))
-
-
 (use-package consult-vc-modified-files :ensure t :defer t)
-
 #+END_SRC
-
 * Evil-Mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1453,6 +1463,39 @@ buffer is not visiting a file."
   :hook
   (prog-mode . global-lsp-bridge-mode))  ;; 仅在编程模式下启用 lsp-bridge
 
+#+END_SRC
+
+* Vide coding
+
+#+BEGIN_SRC emacs-lisp :tangle no
+
+(use-package claude-code
+  :ensure t
+  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
+  :config
+  (setq claude-code-terminal-backend 'eat)
+  (setq claude-code-term-name "xterm-256color")
+  (setq claude-code-program-switches '("--verbose"))
+  (setq claude-code-enable-notifications t)
+  (setq claude-code-notification-function 'claude-code--default-notification)
+
+  ;; 方法一: 通过 claude-code-proxy 的方式设置代理, 接入 OPENAI-compatible 模型
+  ;; (progn
+  ;;   (setenv "ANTHROPIC_BASE_URL" "http://localhost:8082")
+  ;;   (setenv "ANTHROPIC_AUTH_TOKEN" "api-key")
+  ;;   (setq claude-code-program "/usr/local/bin/claude")
+  ;;   )
+
+  ;; 方法二: 使用 kimi Anthropic-compatible API interface
+  ;; kimi 提供了 Anthropic-compatible API 接口, 参考链接 https://platform.moonshot.ai/docs/guide/agent-support.en-US#install-cline
+  ;; kimi 存在充值与限速问题, 参考链接 https://platform.moonshot.cn/docs/pricing/limits#%E9%99%90%E9%80%9F%E6%A6%82%E5%BF%B5%E8%A7%A3%E9%87%8A
+  ;; 可以关注 LLM-Red-Team/kimi-cc 项目中的讨论, 例如 https://github.com/LLM-Red-Team/kimi-cc/issues/35
+  (progn
+    (setenv "ANTHROPIC_BASE_URL" "https://api.moonshot.cn/anthropic/")
+    (setenv "ANTHROPIC_AUTH_TOKEN" "sk-xxx")
+    (setq claude-code-program "/usr/local/bin/claude")
+    )
+  )
 #+END_SRC
 
 * UI
