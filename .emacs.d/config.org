@@ -123,13 +123,15 @@
 
   (tool-bar-mode -1)                               ;禁用工具栏
   (menu-bar-mode -1)                               ;禁用菜单栏
-  ;(when (display-graphic-p) ((scroll-bar-mode -1)));禁用滚动条
   (tooltip-mode -1)                                ;禁用tooltips
+  (scroll-bar-mode -1)
+
   (auto-compression-mode 1)                        ;打开压缩文件时自动解压缩
   (global-hl-line-mode 1)                          ;高亮当前行
   (show-paren-mode t)                              ;显示括号匹配
   (global-subword-mode 1)                          ;Word移动支持 FooBar 的格式
   (electric-pair-mode -1)                          ;关闭内置补全,使用smartparens
+
   (setq pixel-scroll-precision-mode t)
   (setq window-resize-pixelwise nil)
   (setq history-length 300)
@@ -137,11 +139,12 @@
   (setq create-lockfiles nil)                      ; No backup files
   (setq make-backup-files nil)                     ; No backup files
   (setq backup-inhibited t)                        ; No backup files
+
   (setq pixel-scroll-precision-mode t)
   (setq pixel-scroll-precision-use-momentum nil)
   (setq ring-bell-function 'ignore)
   (setq read-answer-short t)
-  (setq recentf-max-saved-items 300) ; default is 20
+  (setq recentf-max-saved-items 300)
   (setq recentf-max-menu-items 15)
   (setq recentf-auto-cleanup (if (daemonp) 300 'never))
   (setq remote-file-name-inhibit-delete-by-moving-to-trash t)
@@ -159,26 +162,29 @@
   (setq isearch-allow-scroll t)                    ;isearch搜索时是可以滚动屏幕的
   (setq enable-recursive-minibuffers t)            ;minibuffer 递归调用命令
   (setq history-delete-duplicates t)               ;删除minibuffer的重复历史
-  (setq minibuffer-message-timeout 1)              ;显示消息超时的时间
+  ;(setq minibuffer-message-timeout 1)              ;显示消息超时的时间
   (setq show-paren-style 'parentheses)             ;括号匹配显示但不是烦人的跳到另一个括号。
   (setq blink-matching-paren nil)                  ;当插入右括号时不显示匹配的左括号
   (setq message-log-max t)                         ;设置message记录全部消息, 而不用截去
   (setq x-stretch-cursor t)                        ;光标在 TAB 字符上会显示为一个大方块
   (setq print-escape-newlines t)                   ;显示字符窗中的换行符为 \n
-  (setq tramp-default-method "ssh")                ;设置传送文件默认的方法
-  (setq x-alt-keysym 'meta)                        ;Map Alt key to Meta
+  ;(setq tramp-default-method "ssh")                ;设置传送文件默认的方法
+  ;(setq x-alt-keysym 'meta)                        ;Map Alt key to Meta
   (setq confirm-kill-emacs 'y-or-n-p)              ;Yes-y, No-n
   (setq confirm-kill-processes nil)                ;Automatically kill all active processes when closing Emacs
-  (setq ad-redefinition-action 'accept)            ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
+  ;(setq ad-redefinition-action 'accept)            ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
   (setq ring-bell-function 'ignore)                ;Do not noise
-  (setq use-dialog-box nil)                        ;never pop dialog
-  (setq use-file-dialog nil)
+  ;(setq use-dialog-box nil)                        ;never pop dialog
+  ;(setq use-file-dialog nil)
   (setq inhibit-startup-screen t)                  ;inhibit start screen
-  (setq initial-scratch-message "")                ;关闭启动空白buffer, 这个buffer会干扰session恢复
-  (setq default-major-mode 'text-mode)             ;设置默认地主模式为TEXT模式
+  ;(setq initial-scratch-message "")                ;关闭启动空白buffer, 这个buffer会干扰session恢复
+  ;(setq default-major-mode 'text-mode)             ;设置默认地主模式为TEXT模式
   (setq mouse-yank-at-point t)                     ;粘贴于光标处,而不是鼠标指针处
   (setq x-select-enable-clipboard t)               ;支持emacs和外部程序的粘贴
-  (setq frame-resize-pixelwise t)                  ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
+  ;(setq frame-resize-pixelwise t)                  ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
+  (setq inhibit-startup-message t)
+  (setq initial-major-mode 'fundamental-mode)
+  (setq-default frame-title-format '("  %f" (:eval (if (buffer-modified-p) "  ✍️")))) 
   (setq-default cursor-type 'bar)                  ;设置光标样式。
   (setq-default x-stretch-cursor t)                ;光标和字符宽度一致（如 TAB)
   (setq-default comment-style 'indent)             ;设定自动缩进的注释风格
@@ -188,10 +194,9 @@
   (setq-default create-lockfiles nil)              ;Do not create lock files
   (setq-default history-length 500)                ;Set history-length longer
 
-  ;; Better Compilation
-  (setq-default compilation-always-kill t)      ; kill compilation process before starting another
-  (setq-default compilation-ask-about-save nil) ; save all buffers on `compile'
-  (setq-default compilation-scroll-output t)
+  ;(setq-default compilation-always-kill t)      ; kill compilation process before starting another
+  ;(setq-default compilation-ask-about-save nil) ; save all buffers on `compile'
+  ;(setq-default compilation-scroll-output t)
 
   ;; 滚动行为优化
   (progn
@@ -207,23 +212,23 @@
     (setq hscroll-step 1
           hscroll-margin 1))
 
-  ;; 进一步优化GC触发阈值
-  (setq gc-cons-threshold most-positive-fixnum)
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (setq gc-cons-threshold (* 10 1000 1000)) ;提高到10MB，平衡性能和内存使用
-              (run-with-idle-timer 2 t #'garbage-collect))) ;减少到2秒的空闲时间
+  ;;;; 进一步优化GC触发阈值
+  ;;(setq gc-cons-threshold most-positive-fixnum)
+  ;;(add-hook 'emacs-startup-hook
+  ;;          (lambda ()
+  ;;            (setq gc-cons-threshold (* 10 1000 1000)) ;提高到10MB，平衡性能和内存使用
+  ;;            (run-with-idle-timer 2 t #'garbage-collect))) ;减少到2秒的空闲时间
 
-  ;; 在minibuffer活动时禁用GC
-  (add-hook 'minibuffer-setup-hook (lambda () (setq gc-cons-threshold most-positive-fixnum)))
-  (add-hook 'minibuffer-exit-hook (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
+  ;;;; 在minibuffer活动时禁用GC
+  ;;(add-hook 'minibuffer-setup-hook (lambda () (setq gc-cons-threshold most-positive-fixnum)))
+  ;;(add-hook 'minibuffer-exit-hook (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
 
-  ;; 本地编译优化
-  (when (and (fboundp 'native-comp-available-p)
-             (native-comp-available-p))
-    (setq native-comp-async-report-warnings-errors nil
-          native-comp-deferred-compilation t
-          native-comp-async-jobs-number (max 1 (floor (/ (num-processors) 2)))))
+  ;;;; 本地编译优化
+  ;;(when (and (fboundp 'native-comp-available-p)
+  ;;           (native-comp-available-p))
+  ;;  (setq native-comp-async-report-warnings-errors nil
+  ;;        native-comp-deferred-compilation t
+  ;;        native-comp-async-jobs-number (max 1 (floor (/ (num-processors) 2)))))
 
   (progn
     ;; 长行处理
@@ -232,12 +237,12 @@
                   bidi-paragraph-direction 'left-to-right)
     (setq bidi-inhibit-bpa t))
 
-  ;; IO性能优化
-  (progn
-    (setq process-adaptive-read-buffering nil)
-    (setq read-process-output-max (* 2 1024 1024)) ;增加到2MB以提高LSP性能
-    (setq auto-window-vscroll nil)
-    (setq fast-but-imprecise-scrolling nil))
+  ;;;; IO性能优化
+  ;;(progn
+  ;;  (setq process-adaptive-read-buffering nil)
+  ;;  (setq read-process-output-max (* 2 1024 1024)) ;增加到2MB以提高LSP性能
+  ;;  (setq auto-window-vscroll nil)
+  ;;  (setq fast-but-imprecise-scrolling nil))
 
   ;; **全局优化行号显示**
   (setq display-line-numbers-grow-only t) ;; 避免滚动时行号重绘卡顿
@@ -658,37 +663,61 @@ buffer is not visiting a file."
 * Version Control
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+
+;;; -*- lexical-binding: t; -*-
 ;; https://emacs-china.org/t/vc-mode-magit/29277/3
+;; https://github.com/ltylty/.emacs.d/blob/main/lisp/mavc.el
 (use-package vc :defer t
+  :custom
+  (vc-handled-backends '(Git))
   :config
-  ;; 让所有 vc 相关 buffer 始终显示在右侧分窗
-  ;; *vc-diff*、*vc-change-log* 等常见 vc buffer
-  ;; *VC-log*（提交日志）
-  ;; COMMIT_EDITMSG（提交信息编辑窗口）
-  ;; 提交历史显示在当前窗口
-  (add-to-list 'display-buffer-alist
-               '("\\*vc-change-log\\*\\|\\*VC-log\\*"
-                 (display-buffer-same-window)))
-  ;; 其他 vc 相关 buffer 显示在右侧分窗(50%)
-  (add-to-list 'display-buffer-alist
-               '("\\*vc-\\|\\*VC-\\|\\*cvs\\|COMMIT_EDITMSG"
-                 (display-buffer-in-side-window)
-                 (side . right)
-                 (window-width . 0.5)
-                 (slot . 0)))
+  (defun vc-dir-current-should-skip-p ()
+    "判断当前行是否需要跳过"
+    (when vc-ewoc
+      (let* ((node (ewoc-locate vc-ewoc))
+             (data (ewoc-data node)))
+        (when data
+          (or (vc-dir-fileinfo->directory data)
+              (eq (vc-dir-fileinfo->state data) 'up-to-date))))))
+
+  (defun vc-dir-move-and-diff (move-fn wrap-pos)
+    "移动到下一个文件并显示 diff"
+    (let ((start-node (and vc-ewoc (ewoc-locate vc-ewoc)))
+          (wrapped nil))
+      (catch 'done
+        (while t
+          (let ((prev-node (and vc-ewoc (ewoc-locate vc-ewoc))))
+            (funcall move-fn 1)
+            (let ((cur-node (and vc-ewoc (ewoc-locate vc-ewoc))))
+              ;; 到达边界无法继续时，回环到另一端
+              (when (and (eq cur-node prev-node) (not wrapped))
+                (setq wrapped t)
+                (goto-char wrap-pos)
+                (funcall move-fn 1)
+                (setq cur-node (and vc-ewoc (ewoc-locate vc-ewoc))))
+              ;; 已遍历一圈回到起始节点
+              (when (eq cur-node start-node)
+                (message "No edited files found")
+                (throw 'done nil))
+              (unless (vc-dir-current-should-skip-p)
+                (throw 'done nil))
+              ;; 回环后仍无法移动
+              (when (eq cur-node prev-node)
+                (message "No edited files found")
+                (throw 'done nil)))))))
+    (save-selected-window
+      (vc-diff)))
 
   (defun vc-dir-next-and-diff ()
-    "移动到下一行并显示当前文件的 diff，同时保持光标在列表。"
+    "向后移动"
     (interactive)
-    (vc-dir-next-line 1)
-    (save-selected-window
-      (vc-diff)))
+    (vc-dir-move-and-diff #'vc-dir-next-line (point-min)))
+
   (defun vc-dir-prev-and-diff ()
-    "移动到前一行并显示当前文件的 diff，同时保持光标在列表。"
+    "向前移动"
     (interactive)
-    (vc-dir-previous-line 1)
-    (save-selected-window
-      (vc-diff)))
+    (vc-dir-move-and-diff #'vc-dir-previous-line (point-max)))
+
   (defun vc-dir-quick-commit-all ()
     "标记所有已跟踪且修改过的文件并进入提交界面"
     (interactive)
@@ -699,6 +728,23 @@ buffer is not visiting a file."
       (if files
           (vc-next-action nil)
         (message "No files to commit"))))
+
+   ;; 让所有 vc 相关 buffer 始终显示在右侧分窗
+   ;; *vc-diff*、*vc-change-log* 等常见 vc buffer
+   ;; *VC-log*（提交日志）
+   ;; COMMIT_EDITMSG（提交信息编辑窗口）
+   ;; 提交历史显示在当前窗口
+   (add-to-list 'display-buffer-alist
+                '("\\*vc-change-log\\*\\|\\*VC-log\\*"
+                  (display-buffer-same-window)))
+   ;; 其他 vc 相关 buffer 显示在右侧分窗(50%)
+   (add-to-list 'display-buffer-alist
+                '("\\*vc-\\|\\*VC-\\|\\*cvs\\|COMMIT_EDITMSG"
+                  (display-buffer-in-side-window)
+                  (side . right)
+                  (window-width . 0.5)
+                  (slot . 0)))
+
   (with-eval-after-load 'vc-dir
     (define-key vc-dir-mode-map "e" 'vc-ediff)
     (define-key vc-dir-mode-map "d" 'vc-diff)
@@ -707,7 +753,7 @@ buffer is not visiting a file."
     (define-key vc-dir-mode-map (kbd "<tab>") 'vc-dir-next-and-diff)
     (define-key vc-dir-mode-map (kbd "<backtab>") 'vc-dir-prev-and-diff)
     (define-key vc-dir-mode-map "F" 'vc-pull)))
-(use-package consult-vc-modified-files :ensure t :defer t)
+
 #+END_SRC
 * Evil-Mode
 
@@ -716,8 +762,7 @@ buffer is not visiting a file."
 (defun x/config-evil-leader ()
   (evil-leader/set-leader "<SPC>")
   (evil-leader/set-key
-
-    ;; Quick Move
+    ;; Move
     ","  'avy-goto-line
     "."  'avy-goto-char-2
 
@@ -744,8 +789,6 @@ buffer is not visiting a file."
 
     ;; dired
     "d" '(lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
-    ;;"dc" '(lambda () (interactive) (eaf-open-in-file-manager (file-name-directory (buffer-file-name))))
-    ;;"ds" '(lambda () (interactive) (eaf-open-in-file-manager "~/src"))
 
     ;; file
     "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
@@ -760,14 +803,33 @@ buffer is not visiting a file."
     "F"  'my/all-available-fonts
 
     ;; version control
-    "g"  'vc-dir
+    "gg" 'magit-status
+    "gL" 'magit-log-buffer-file
+    "gp" 'magit-blob-previous
+    "gn" 'magit-blob-next
+
+    ;; help
+    "hk" 'describe-key
+    "hf" 'describe-function
+    "hv" 'describe-variable
+    "hm" 'describe-mode
+    "hp" 'describe-package
+    "h?" 'which-key-show-major-mode
+
+    ;; quit
+    "qr" 'restart-emacs
+
+    ;; Open
+    "oo" #'(lambda () (interactive) (browse-url default-directory))
+    "of" #'(lambda () (interactive) (browse-url buffer-file-name))
 
     ;; project
     ;;"pf" 'projectile-find-file
+    "pk" #'(lambda () (interactive) (project-kill-buffers) (tab-close))
+    "pv" 'project-vc-dir
     "pf" 'ffip
     "pb" 'projectile-switch-to-buffer
     "pp" 'projectile-switch-project
-    "pk" 'projectile-kill-buffers
 
     ;; search
     "sI" 'imenu
@@ -781,6 +843,10 @@ buffer is not visiting a file."
     ;; Tab
     "tn" 'sort-tab-next
     "tp" 'sort-tab-previous
+
+    ;;vc
+    "ve" 'vc-ediff
+    "vL" 'vc-print-root-log
 
     ;; window && frame
     "ww" 'other-window
@@ -796,6 +862,9 @@ buffer is not visiting a file."
     ))
 
 (use-package undo-fu :straight t :ensure t)
+(use-package evil-textobj-line :ensure t :after evil)
+(use-package evil-surround :ensure t :after evil :config (global-evil-surround-mode))
+(use-package evil-visualstar :ensure t :after evil :config (global-evil-visualstar-mode))
 (use-package evil
   ;; :bind (("<escape>" . keyboard-escape-quit))
   :init
@@ -1508,8 +1577,9 @@ buffer is not visiting a file."
   (use-package highlight-parentheses
     :diminish
     :hook ((prog-mode . highlight-parentheses-mode)
-  		 (org-mode . highlight-parentheses-mode)) ;; 在代码和 Org 模式启用
-    :custom (hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
+  	     (org-mode . highlight-parentheses-mode)) ;; 在代码和 Org 模式启用
+    ;;:custom (hl-paren-colors '("DarkOrange" "DeepSkyBlue" "DarkRed")))
+    :custom (highlight-parentheses-colors '("green" "yellow" "purple" "orange" "red")))
 
   ;; 显示匹配括号
   (use-package paren
