@@ -825,66 +825,68 @@ buffer is not visiting a file."
 #+END_SRC
 
 * Treesit
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package treesit-fold :straight (treesit-fol :type git :host github :repo "emacs-tree-sitter/treesit-fold") :config)
+;; ---- 树语法折叠 ----
+(use-package treesit-fold
+  :straight (treesit-fold :type git :host github :repo "emacs-tree-sitter/treesit-fold")
+  :config)
 
-  ;; cargo install tree-sitter-cli
-  ;; M-x 执行 M-x treesit-auto-install-all 来安装所有的 treesit modules。
-  ;; 如果要重新安装(升级) grammer, 需要先删除 dylib 文件或 tree-sitter 目录, 重启 emacs 后再执行 M-x treesit-auto-install-all. 
-  (use-package treesit-auto
-    :demand t
-    :config
-    (setq treesit-auto-install 'prompt)
-    (global-treesit-auto-mode)
-    :init
-    ;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
-    (setq treesit-font-lock-level 4))
+;; ---- 树语法自动安装与管理 ----
+;; 注意：首次运行需通过 M-x treesit-auto-install-all 安装所有语法模块
+;; 重新安装（升级）语法需先删除对应 .dylib/.so 文件或 tree-sitter 目录
+(use-package treesit-auto
+  :demand t
+  :init
+  (setq treesit-font-lock-level 4)       ; 高亮力度，与 VSCode 一致
+  :config
+  (setq treesit-auto-install 'prompt)
+  (global-treesit-auto-mode))
 
-  (defun treesit-show-parser-used-at-point ()
-    "Shows treesit parser used at point."
-    (interactive)
-    (if (and (fboundp 'treesit-available-p)
-  	       (treesit-available-p))
-        (message (format "%s" (treesit-language-at (point))))
-      (message "treesit is not available")))
+;; ---- 查看当前点使用的 tree-sitter 语法 ----
+(defun treesit-show-parser-used-at-point ()
+  "显示当前位置使用的 tree-sitter 解析器。"
+  (interactive)
+  (if (and (fboundp 'treesit-available-p)
+           (treesit-available-p))
+      (message "%s" (treesit-language-at (point)))
+    (message "tree-sitter 不可用")))
 
-  (setq major-mode-remap-alist
-        '((c-mode          . c-ts-mode)
-          (c++-mode        . c++-ts-mode)
-          (cmake-mode      . cmake-ts-mode)
-          (conf-toml-mode  . toml-ts-mode)
-          (css-mode        . css-ts-mode)
-          (js-mode         . js-ts-mode)
-          (js-json-mode    . json-ts-mode)
-          (python-mode     . python-ts-mode)
-          (sh-mode         . bash-ts-mode)
-          (typescript-mode . typescript-ts-mode)
-          (rust-mode       . rust-ts-mode)
-          (java-mode       . java-ts-mode)
-          (clojure-mode    . clojure-ts-mode)
-          ;; (markdown-mode   . markdown-ts-mode)
-          ))
+;; ---- 将传统 mode 映射到 tree-sitter 版 mode ----
+(setq major-mode-remap-alist
+      '((c-mode          . c-ts-mode)
+        (c++-mode        . c++-ts-mode)
+        (cmake-mode      . cmake-ts-mode)
+        (conf-toml-mode  . toml-ts-mode)
+        (css-mode        . css-ts-mode)
+        (js-mode         . js-ts-mode)
+        (js-json-mode    . json-ts-mode)
+        (python-mode     . python-ts-mode)
+        (sh-mode         . bash-ts-mode)
+        (typescript-mode . typescript-ts-mode)
+        (rust-mode       . rust-ts-mode)
+        (java-mode       . java-ts-mode)
+        (clojure-mode    . clojure-ts-mode)
+        ;; (markdown-mode   . markdown-ts-mode)  ; 暂时注释
+        ))
 
-  ;; (add-hook 'markdown-ts-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
-  (add-hook 'markdown-mode-hook #'(lambda () (treesit-parser-create 'markdown)))
-  (add-hook 'zig-mode-hook #'(lambda () (treesit-parser-create 'zig)))
-  (add-hook 'emacs-lisp-mode-hook #'(lambda () (treesit-parser-create 'elisp)))
-  (add-hook 'json-mode-hook #'(lambda () (treesit-parser-create 'json)))
-  (add-hook 'go-mode-hook #'(lambda () (treesit-parser-create 'go)))
-  (add-hook 'java-mode-hook #'(lambda () (treesit-parser-create 'java)))
-  (add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
-  (add-hook 'clojure-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
-  (add-hook 'clojure-ts-mode-hook #'(lambda () (treesit-parser-create 'clojure)))
-  (add-hook 'php-mode-hook #'(lambda () (treesit-parser-create 'php)))
-  (add-hook 'php-ts-mode-hook #'(lambda () (treesit-parser-create 'php)))
-  (add-hook 'java-ts-mode-hook #'(lambda () (treesit-parser-create 'java)))
-  (add-hook 'haskell-mode-hook #'(lambda () (treesit-parser-create 'haskell)))
-  (add-hook 'kotlin-mode-hook #'(lambda () (treesit-parser-create 'kotlin)))
-  (add-hook 'ruby-mode-hook #'(lambda () (treesit-parser-create 'ruby)))
-
+;; ---- 为特定模式手动添加 tree-sitter 解析器 ----
+;; 以下模式不在 treesit-auto 默认覆盖范围或需要额外创建解析器
+(dolist (mode-hook '((markdown-mode-hook  . markdown)
+                     (zig-mode-hook       . zig)
+                     (emacs-lisp-mode-hook. elisp)
+                     (json-mode-hook      . json)
+                     (go-mode-hook        . go)
+                     (java-ts-mode-hook   . java)
+                     (clojure-mode-hook   . clojure)
+                     (clojure-ts-mode-hook. clojure)
+                     (php-mode-hook       . php)
+                     (php-ts-mode-hook    . php)
+                     (haskell-mode-hook   . haskell)
+                     (kotlin-mode-hook    . kotlin)
+                     (ruby-mode-hook      . ruby)))
+  (add-hook (car mode-hook)
+            (lambda () (treesit-parser-create (cdr mode-hook)))))
 #+END_SRC
-
 * Programming
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1341,67 +1343,62 @@ buffer is not visiting a file."
 #+END_SRC
 
 * Platform
-
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-  ;; 在 Finder 中打开当前文件。
+;; ---- macOS 配置 ----
+(when (bound-and-true-p *sys/mac*)
+
+  ;; 在 Finder 中显示当前文件
   (use-package reveal-in-osx-finder
     :when *sys/mac*
     :commands (reveal-in-osx-finder))
 
-  ;; macos
-  (when *sys/mac*
+  ;; 修饰键映射：s- = Super, S- = Shift, H- = Hyper
+  ;; command 用作 Meta，option 用作 Super，fn 用作 Hyper
+  (setq mac-command-modifier 'meta
+        mac-option-modifier  'super
+        ns-function-modifier 'hyper)
 
-    ;; s- 表示 Super，S- 表示 Shift, H- 表示 Hyper:
-    ;; command 作为 Meta 键。
-    (setq mac-command-modifier 'meta)
+  ;; 系统剪贴板集成
+  (defun copy-from-osx ()
+    "从 macOS 剪贴板获取文本。"
+    (shell-command-to-string "pbpaste"))
 
-    ;; option 作为 Super 键。
-    (setq mac-option-modifier 'super)
+  (defun paste-to-osx (text &optional push)
+    "将 TEXT 写入 macOS 剪贴板。"
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
 
-    ;; fn 作为 Hyper 键。
-    (setq ns-function-modifier 'hyper)
+  (setq interprogram-cut-function   'paste-to-osx
+        interprogram-paste-function 'copy-from-osx)
 
-    ;; Copy/Paste
-    (defun copy-from-osx ()
-      (shell-command-to-string "pbpaste"))
+  ;; 将删除的文件移到废纸篓
+  (setq delete-by-moving-to-trash t
+        trash-directory "~/.Trash/emacs")
 
-    (defun paste-to-osx (text &optional push)
-      (let ((process-connection-type nil))
-        (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-          (process-send-string proc text)
-          (process-send-eof proc))))
+  ;; 覆盖内置的 system-move-file-to-trash，使用 'trash' 命令（需 brew install trash）
+  ;; 如果希望保留内置行为，可将此函数重命名或改用 advice 包裹
+  (defun system-move-file-to-trash (file)
+    "使用外部 'trash' 命令将 FILE 移动到系统废纸篓。"
+    (call-process (executable-find "trash") nil 0 nil file))
 
-    (setq interprogram-cut-function 'paste-to-osx)
-    (setq interprogram-paste-function 'copy-from-osx)
+  (message "Welcome to macOS, have a nice day!"))
 
-    ;; Move to Trash
-    (setq delete-by-moving-to-trash t)
-    (setq trash-directory "~/.Trash/emacs")
-    (defun system-move-file-to-trash (file)
-      "Use \"trash\" to move FILE to the system trash.
-                When using Homebrew, install it using \"brew install trash\"."
-      (call-process (executable-find "trash")
-                    nil 0 nil
-                    file))
-
-    ;; Done
-    (message "Wellcome To Mac OS X, Have A Nice Day!!!"))
-
-
-  ;; linux
-  (when *sys/linux*
-    (defun yank-to-x-clipboard ()
-      (interactive)
-      (if (region-active-p)
-          (progn
-            (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
-            (message "Yanked region to clipboard!")
-            (deactivate-mark))
-        (message "No region active; can't yank to clipboard!"))))
+;; ---- Linux 配置 ----
+(when (bound-and-true-p *sys/linux*)
+  (defun yank-to-x-clipboard ()
+    "将当前选中的区域复制到 X 剪贴板（需安装 xsel）。"
+    (interactive)
+    (if (region-active-p)
+        (progn
+          (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+          (message "Yanked region to clipboard!")
+          (deactivate-mark))
+      (message "No region active; can't yank to clipboard!"))))
 
 #+END_SRC
-
 * Evil And KeyBindings
 #+BEGIN_SRC emacs-lisp :tangle yes
 
