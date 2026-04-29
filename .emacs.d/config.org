@@ -121,143 +121,63 @@
 
 #+begin_src emacs-lisp :tangle yes
 
-  (tool-bar-mode -1)                               ;禁用工具栏
-  (menu-bar-mode -1)                               ;禁用菜单栏
-  (tooltip-mode -1)                                ;禁用tooltips
-  (scroll-bar-mode -1)
+;; UI 精简（减少干扰）
+(tool-bar-mode -1)     ; 禁用工具栏
+(add-hook 'after-init-hook (lambda () (tool-bar-mode -1)))
+(menu-bar-mode -1)     ; 禁用菜单栏
+(scroll-bar-mode -1)   ; 禁用滚动条
+(tooltip-mode -1)      ; 禁用 tooltips
+(global-hl-line-mode 1); 高亮当前行
+(show-paren-mode 1)    ; 括号匹配高亮
+(electric-pair-mode -1); 关闭内置自动补全（交由 smartparens）
 
-  (auto-compression-mode 1)                        ;打开压缩文件时自动解压缩
-  (global-hl-line-mode 1)                          ;高亮当前行
-  (show-paren-mode t)                              ;显示括号匹配
-  (global-subword-mode 1)                          ;Word移动支持 FooBar 的格式
-  (electric-pair-mode -1)                          ;关闭内置补全,使用smartparens
+;; 行为优化（交互与历史）
+(setq create-lockfiles nil           ; 不创建 lock 文件
+      make-backup-files nil          ; 不生成备份文件
+      backup-inhibited t             ; 禁用备份
+      read-answer-short t            ; y/n 替代 yes/no
+      echo-keystrokes 0.1            ; 更快显示按键提示
+      kill-ring-max 1024             ; 扩大剪切板历史
+      mark-ring-max 1024             ; 扩大 mark 历史
+      enable-recursive-minibuffers t ; minibuffer 允许递归
+      history-delete-duplicates t    ; 历史去重
+      confirm-kill-emacs 'y-or-n-p   ; 退出确认简化
+      confirm-kill-processes nil     ; 退出时自动结束进程
+      ring-bell-function 'ignore     ; 静音
+      mouse-yank-at-point t          ; 在光标处粘贴
+      x-select-enable-clipboard t    ; 与系统剪贴板互通
+      inhibit-startup-message t)     ; 关闭启动画面
 
-  (setq pixel-scroll-precision-mode t)
-  (setq window-resize-pixelwise nil)
-  (setq history-length 300)
-  (setq kill-do-not-save-duplicates t)
-  (setq create-lockfiles nil)                      ; No backup files
-  (setq make-backup-files nil)                     ; No backup files
-  (setq backup-inhibited t)                        ; No backup files
+;; 默认行为（编辑体验）
+(setq-default cursor-type 'bar                ; 光标为竖线
+              comment-style 'indent           ; 注释自动缩进
+              require-final-newline nil       ; 末尾不强制换行
+              auto-revert-mode 1              ; 自动刷新 buffer
+              history-length 500              ; 历史长度
+              frame-title-format              ; 标题显示文件+修改标记
+              '(" %f" (:eval (if (buffer-modified-p) " ✍️"))))
 
-  (setq pixel-scroll-precision-mode t)
-  (setq pixel-scroll-precision-use-momentum nil)
-  (setq ring-bell-function 'ignore)
-  (setq read-answer-short t)
-  (setq recentf-max-saved-items 300)
-  (setq recentf-max-menu-items 15)
-  (setq recentf-auto-cleanup (if (daemonp) 300 'never))
-  (setq remote-file-name-inhibit-delete-by-moving-to-trash t)
-  (setq remote-file-name-inhibit-auto-save t)
-  (setq resize-mini-windows 'grow-only)
-  (setq ring-bell-function #'ignore)
-  (setq scroll-conservatively 8)
-  (setq scroll-margin 5)
-  (setq savehist-save-minibuffer-history t)
-  (setq echo-keystrokes 0.1)                       ;加快快捷键提示的速度
-  (setq kill-ring-max 1024)                        ;用一个很大的 kill ring. 这样防止我不小心删掉重要的东西
-  (setq mark-ring-max 1024)                        ;设置的mark ring容量
-  (setq eval-expression-print-length nil)          ;设置执行表达式的长度没有限制
-  (setq eval-expression-print-level nil)           ;设置执行表达式的深度没有限制
-  (setq isearch-allow-scroll t)                    ;isearch搜索时是可以滚动屏幕的
-  (setq enable-recursive-minibuffers t)            ;minibuffer 递归调用命令
-  (setq history-delete-duplicates t)               ;删除minibuffer的重复历史
-  ;(setq minibuffer-message-timeout 1)              ;显示消息超时的时间
-  (setq show-paren-style 'parentheses)             ;括号匹配显示但不是烦人的跳到另一个括号。
-  (setq blink-matching-paren nil)                  ;当插入右括号时不显示匹配的左括号
-  (setq message-log-max t)                         ;设置message记录全部消息, 而不用截去
-  (setq x-stretch-cursor t)                        ;光标在 TAB 字符上会显示为一个大方块
-  (setq print-escape-newlines t)                   ;显示字符窗中的换行符为 \n
-  ;(setq tramp-default-method "ssh")                ;设置传送文件默认的方法
-  ;(setq x-alt-keysym 'meta)                        ;Map Alt key to Meta
-  (setq confirm-kill-emacs 'y-or-n-p)              ;Yes-y, No-n
-  (setq confirm-kill-processes nil)                ;Automatically kill all active processes when closing Emacs
-  ;(setq ad-redefinition-action 'accept)            ;ad-handle-definition warnings are generated when functions are redefined with `defadvice',
-  (setq ring-bell-function 'ignore)                ;Do not noise
-  ;(setq use-dialog-box nil)                        ;never pop dialog
-  ;(setq use-file-dialog nil)
-  (setq inhibit-startup-screen t)                  ;inhibit start screen
-  ;(setq initial-scratch-message "")                ;关闭启动空白buffer, 这个buffer会干扰session恢复
-  ;(setq default-major-mode 'text-mode)             ;设置默认地主模式为TEXT模式
-  (setq mouse-yank-at-point t)                     ;粘贴于光标处,而不是鼠标指针处
-  (setq x-select-enable-clipboard t)               ;支持emacs和外部程序的粘贴
-  ;(setq frame-resize-pixelwise t)                  ;设置缩放的模式,避免Mac平台最大化窗口以后右边和下边有空隙
-  (setq inhibit-startup-message t)
-  (setq initial-major-mode 'fundamental-mode)
-  (setq-default frame-title-format '("  %f" (:eval (if (buffer-modified-p) "  ✍️")))) 
-  (setq-default cursor-type 'bar)                  ;设置光标样式。
-  (setq-default x-stretch-cursor t)                ;光标和字符宽度一致（如 TAB)
-  (setq-default comment-style 'indent)             ;设定自动缩进的注释风格
-  (setq-default require-final-newline nil)         ;不自动添加换行符到末尾, 有些情况会出现错误
-  (setq-default auto-revert-mode 1)                ;自动更新buffer
-  (setq-default void-text-area-pointer nil)        ;禁止显示鼠标指针
-  (setq-default create-lockfiles nil)              ;Do not create lock files
-  (setq-default history-length 500)                ;Set history-length longer
+;; 滚动优化（流畅度优先）
+(setq scroll-step 1
+      scroll-margin 3
+      scroll-conservatively 101        ; 避免跳跃滚动
+      mouse-wheel-scroll-amount '(1 ((shift) . 1))
+      mouse-wheel-progressive-speed nil
+      hscroll-step 1
+      hscroll-margin 1)
 
-  ;(setq-default compilation-always-kill t)      ; kill compilation process before starting another
-  ;(setq-default compilation-ask-about-save nil) ; save all buffers on `compile'
-  ;(setq-default compilation-scroll-output t)
+;; 大文件优化（避免卡顿）; 自动处理超长行
+(when (fboundp 'global-so-long-mode) (global-so-long-mode))               
+(setq-default bidi-display-reordering nil
+              bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)             ; 禁用双向文本算法（提速）
 
-  ;; 滚动行为优化
-  (progn
-    ;; 垂直滚动
-    (setq scroll-step 1
-          scroll-margin 3
-          scroll-conservatively 101
-          scroll-up-aggressively 0.01
-          scroll-down-aggressively 0.01
-          mouse-wheel-scroll-amount '(1 ((shift) . 1))
-          mouse-wheel-progressive-speed nil)
-    ;; 水平滚动
-    (setq hscroll-step 1
-          hscroll-margin 1))
+;; 行号策略（按模式开启）
+(setq display-line-numbers-grow-only t) ; 避免行号重绘抖动
+(dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
+  (add-hook hook #'display-line-numbers-mode))
 
-  ;;;; 进一步优化GC触发阈值
-  ;;(setq gc-cons-threshold most-positive-fixnum)
-  ;;(add-hook 'emacs-startup-hook
-  ;;          (lambda ()
-  ;;            (setq gc-cons-threshold (* 10 1000 1000)) ;提高到10MB，平衡性能和内存使用
-  ;;            (run-with-idle-timer 2 t #'garbage-collect))) ;减少到2秒的空闲时间
-
-  ;;;; 在minibuffer活动时禁用GC
-  ;;(add-hook 'minibuffer-setup-hook (lambda () (setq gc-cons-threshold most-positive-fixnum)))
-  ;;(add-hook 'minibuffer-exit-hook (lambda () (setq gc-cons-threshold (* 2 1000 1000))))
-
-  ;;;; 本地编译优化
-  ;;(when (and (fboundp 'native-comp-available-p)
-  ;;           (native-comp-available-p))
-  ;;  (setq native-comp-async-report-warnings-errors nil
-  ;;        native-comp-deferred-compilation t
-  ;;        native-comp-async-jobs-number (max 1 (floor (/ (num-processors) 2)))))
-
-  (progn
-    ;; 长行处理
-    (when (fboundp 'global-so-long-mode) (global-so-long-mode))
-    (setq-default bidi-display-reordering nil
-                  bidi-paragraph-direction 'left-to-right)
-    (setq bidi-inhibit-bpa t))
-
-  ;;;; IO性能优化
-  ;;(progn
-  ;;  (setq process-adaptive-read-buffering nil)
-  ;;  (setq read-process-output-max (* 2 1024 1024)) ;增加到2MB以提高LSP性能
-  ;;  (setq auto-window-vscroll nil)
-  ;;  (setq fast-but-imprecise-scrolling nil))
-
-  ;; **全局优化行号显示**
-  (setq display-line-numbers-grow-only t) ;; 避免滚动时行号重绘卡顿
-  ;; (setq display-line-numbers-type 'relative) ;; 使用相对行号（可选）
-
-  ;; **所有编程模式启用行号**
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-
-  ;; **额外启用行号的模式**
-  (add-hook 'text-mode-hook 'display-line-numbers-mode)
-  (add-hook 'conf-mode-hook 'display-line-numbers-mode)
-
-  ;; **不想显示行号的模式**
-  (dolist (hook '(org-mode-hook shell-mode-hook eshell-mode-hook term-mode-hook vterm-mode-hook))
-    (add-hook hook (lambda () (display-line-numbers-mode -1))))
+(setq initial-scratch-message (concat "浩哥，enjoy coding *^____^* emacs startup in " (emacs-init-time)))
 
 #+end_src
 
@@ -502,12 +422,12 @@
 (use-package polymode :defer t)
 (use-package comment-dwim-2 :commands (comment-dwim-2))
 (use-package posframe :commands (posframe-show posframe-hide posframe-delete-all))
+
 (use-package markdown-mode :mode ("\\.md\\'" . markdown-mode) :commands markdown-mode)
-(use-package protobuf-mode :hook (after-init . protobuf-mode))
-(use-package json-mode :hook (after-init . json-mode))
-(use-package sh-script :hook (after-init . sh-mode))
-(use-package yaml-mode :hook (after-init . yaml-mode))
-;;(use-package plantuml-mode :hook (after-init . plantuml-mode))
+(use-package protobuf-mode :mode ("\\.proto\\'" . protobuf-mode))
+(use-package json-mode :mode ("\\.json\\'" . json-mode))
+(use-package yaml-mode :mode ("\\.ya?ml\\'" . yaml-mode))
+(use-package sh-script :mode ("\\.sh\\'" . sh-mode))
 (use-package dockerfile-mode :commands dockerfile-mode)
 (use-package discover-my-major)
 (use-package which-key
@@ -667,6 +587,7 @@ buffer is not visiting a file."
 ;;; -*- lexical-binding: t; -*-
 ;; https://emacs-china.org/t/vc-mode-magit/29277/3
 ;; https://github.com/ltylty/.emacs.d/blob/main/lisp/mavc.el
+(use-package magit :ensure t :defer t)
 (use-package vc :defer t
   :custom
   (vc-handled-backends '(Git))
@@ -762,9 +683,10 @@ buffer is not visiting a file."
 (defun x/config-evil-leader ()
   (evil-leader/set-leader "<SPC>")
   (evil-leader/set-key
-    ;; Move
-    ","  'avy-goto-line
-    "."  'avy-goto-char-2
+
+    ;; TODO
+    ;","  'x
+    ;"."  'x
 
     ;; AI
 
@@ -776,6 +698,7 @@ buffer is not visiting a file."
     "bz" 'bury-buffer                         ;;; 隐藏当前buffer
     "bZ" 'unbury-buffer                       ;;; 反隐藏当前buffer
     "bK" 'kill-other-window-buffer            ;;; 关闭其他窗口的buffer
+    "bx" #'(lambda () (interactive) (switch-to-buffer "*scratch*"))
 
     ;; code
     "cf" 'format-function-parameters          ;;; 参数列转行
@@ -816,6 +739,10 @@ buffer is not visiting a file."
     "hp" 'describe-package
     "h?" 'which-key-show-major-mode
 
+    ;; Jump
+    "jj" 'avy-goto-word-1
+    "jl" 'avy-goto-line
+
     ;; quit
     "qr" 'restart-emacs
 
@@ -849,8 +776,16 @@ buffer is not visiting a file."
     "vL" 'vc-print-root-log
 
     ;; window && frame
-    "ww" 'other-window
     "wf" 'other-frame
+    "wd" 'evil-window-delete
+    "ww" 'evil-window-next
+    "wm" 'delete-other-windows
+    "wh" 'evil-window-left
+    "wj" 'evil-window-down
+    "wk" 'evil-window-up
+    "wl" 'evil-window-right
+    "w>" #'(lambda () (interactive) (evil-window-increase-width 40))
+    "w<" #'(lambda () (interactive) (evil-window-decrease-width 40))
 
     ;; fold
     "zz" 'treesit-fold-open
@@ -1629,19 +1564,19 @@ buffer is not visiting a file."
   ;;                      (projects . 5)))
   ;;   (dashboard-setup-startup-hook))
 
-  ;;(use-package sort-tab
-  ;;  :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
-  ;;  :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
-  ;;  :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
-  ;;  :init
-  ;;  ;; 延迟启用，避免阻塞启动
-  ;;  (run-with-idle-timer 1 nil #'sort-tab-mode)
-  ;;  :config
-  ;;  ;; 其他自定义配置
-  ;;  (setq sort-tab-name-max-length 20      ; 标签最大长度
-  ;;        sort-tab-hide-tab-function nil   ; 不隐藏标签
-  ;;        sort-tab-cycle-navigation t))    ; 启用循环导航
-  ;;
+  (use-package sort-tab
+    :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
+    :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
+    :commands (sort-tab-mode sort-tab-next sort-tab-previous) ;; 延迟加载
+    :init
+    ;; 延迟启用，避免阻塞启动
+    (run-with-idle-timer 1 nil #'sort-tab-mode)
+    :config
+    ;; 其他自定义配置
+    (setq sort-tab-name-max-length 20      ; 标签最大长度
+          sort-tab-hide-tab-function nil   ; 不隐藏标签
+          sort-tab-cycle-navigation t))    ; 启用循环导航
+  
   (use-package lazycat-theme
     :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
     ;;(lazycat-theme-load-dark)
