@@ -339,61 +339,6 @@
   (kill-new (buffer-name))
   (message "Copying '%s' to clipboard" (buffer-name)))
 
-(defun resize-window (width delta)
-  "Resize the current window's size.  If WIDTH is non-nil, resize width by some DELTA."
-  (if (> (count-windows) 1)
-      (window-resize nil delta width)
-    (error "You need more than 1 window to execute this function!")))
-
-;; Setup shorcuts for window resize width and height
-(defun window-width-increase ()
-  (interactive)
-  (resize-window t 5))
-
-(defun window-width-decrease ()
-  (interactive)
-  (resize-window t -5))
-
-(defun window-height-increase ()
-  (interactive)
-  (resize-window nil 5))
-
-(defun window-height-decrease ()
-  (interactive)
-  (resize-window nil -5))
-
-(defun where-am-i ()
-  "An interactive function showing function `buffer-file-name' or `buffer-name'."
-  (interactive)
-  (message (kill-new (if (buffer-file-name) (buffer-file-name) (buffer-name)))))
-
-(defun watch-other-window-up ()
-  "在其他窗口向上滚动一页。"
-  (interactive)
-  (other-window 1)
-  (scroll-up-command)
-  (other-window -1))
-
-(defun watch-other-window-down ()
-  "在其他窗口向下滚动一页。"
-  (interactive)
-  (other-window 1)
-  (scroll-down-command)
-  (other-window -1))
-
-(defun watch-other-window-up-line ()
-  "在其他窗口向上滚动一行。"
-  (interactive)
-  (other-window 1)
-  (scroll-up-line)
-  (other-window -1))
-
-(defun watch-other-window-down-line ()
-  "在其他窗口向下滚动一行。"
-  (interactive)
-  (other-window 1)
-  (scroll-down-line)
-  (other-window -1))
 #+END_SRC
 
 * Fundermental Plugins
@@ -664,189 +609,9 @@ buffer is not visiting a file."
                   (display-buffer-in-side-window)
                   (side . right)
                   (window-width . 0.5)
-                  (slot . 0)))
-
-  (with-eval-after-load 'vc-dir
-    (define-key vc-dir-mode-map "e" 'vc-ediff)
-    (define-key vc-dir-mode-map "d" 'vc-diff)
-    (define-key vc-dir-mode-map "k" 'vc-revert)
-    (define-key vc-dir-mode-map "c" 'vc-dir-quick-commit-all)
-    (define-key vc-dir-mode-map (kbd "<tab>") 'vc-dir-next-and-diff)
-    (define-key vc-dir-mode-map (kbd "<backtab>") 'vc-dir-prev-and-diff)
-    (define-key vc-dir-mode-map "F" 'vc-pull)))
+                  (slot . 0))))
 
 #+END_SRC
-* Evil-Mode
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-(defun x/config-evil-leader ()
-  (evil-leader/set-leader "<SPC>")
-  (evil-leader/set-key
-
-    ;; TODO
-    ;","  'x
-    ;"."  'x
-
-    ;; AI
-
-    ;; buffer
-    "bb" 'switch-to-buffer
-    "bo" 'switch-to-buffer-other-window
-    "bn" '+copy-current-buffer-name
-    "bv" 'revert-buffer
-    "bz" 'bury-buffer                         ;;; 隐藏当前buffer
-    "bZ" 'unbury-buffer                       ;;; 反隐藏当前buffer
-    "bK" 'kill-other-window-buffer            ;;; 关闭其他窗口的buffer
-    "bx" #'(lambda () (interactive) (switch-to-buffer "*scratch*"))
-
-    ;; code
-    "cf" 'format-function-parameters          ;;; 参数列转行
-    "cc" 'comment-dwim
-    "ca" 'align-regexp
-    "cd" 'delete-trailing-whitespace
-    "cl" 'toggle-truncate-lines
-    "cm" 'delete-trailing-M
-    "c:" 'eval-expression
-    "cs" 'my-org-screenshot
-
-    ;; dired
-    "d" '(lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
-
-    ;; file
-    "fe" '(lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
-    "fi" '(lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
-    "ff" 'find-file
-    "fO" 'find-file-other-frame
-    "fo" 'find-file-other-window
-    "fd" '+delete-current-file
-    "fn" '+copy-current-filename
-    "fr" '+rename-current-file
-    ;;"F" 'recentf-open-files
-    "F"  'my/all-available-fonts
-
-    ;; version control
-    "gg" 'magit-status
-    "gL" 'magit-log-buffer-file
-    "gp" 'magit-blob-previous
-    "gn" 'magit-blob-next
-
-    ;; help
-    "hk" 'describe-key
-    "hf" 'describe-function
-    "hv" 'describe-variable
-    "hm" 'describe-mode
-    "hp" 'describe-package
-    "h?" 'which-key-show-major-mode
-
-    ;; Jump
-    "jj" 'avy-goto-word-1
-    "jl" 'avy-goto-line
-
-    ;; quit
-    "qr" 'restart-emacs
-
-    ;; Open
-    "oo" #'(lambda () (interactive) (browse-url default-directory))
-    "of" #'(lambda () (interactive) (browse-url buffer-file-name))
-
-    ;; project
-    ;;"pf" 'projectile-find-file
-    "pk" #'(lambda () (interactive) (project-kill-buffers) (tab-close))
-    "pv" 'project-vc-dir
-    "pf" 'ffip
-    "pb" 'projectile-switch-to-buffer
-    "pp" 'projectile-switch-project
-
-    ;; search
-    "sI" 'imenu
-    "sr" 'counsel-rg
-    "sy" 'counsel-yank-pop
-    "sb" 'counsel-ibuffer
-    "si" 'color-rg-search-input
-    "ss" 'color-rg-search-symbol-in-project
-    "sp" 'color-rg-search-project
-
-    ;; Tab
-    "tn" 'sort-tab-next
-    "tp" 'sort-tab-previous
-
-    ;;vc
-    "ve" 'vc-ediff
-    "vL" 'vc-print-root-log
-
-    ;; window && frame
-    "wf" 'other-frame
-    "wd" 'evil-window-delete
-    "ww" 'evil-window-next
-    "wm" 'delete-other-windows
-    "wh" 'evil-window-left
-    "wj" 'evil-window-down
-    "wk" 'evil-window-up
-    "wl" 'evil-window-right
-    "w>" #'(lambda () (interactive) (evil-window-increase-width 40))
-    "w<" #'(lambda () (interactive) (evil-window-decrease-width 40))
-
-    ;; fold
-    "zz" 'treesit-fold-open
-    "zZ" 'treesit-fold-open-recursively
-    "zc" 'treesit-fold-close
-    "zC" 'treesit-fold-close-all
-    "za" 'treesit-fold-open-all
-    "zt" 'treesit-fold-toggle
-    ))
-
-(use-package undo-fu :straight t :ensure t)
-(use-package evil-textobj-line :ensure t :after evil)
-(use-package evil-surround :ensure t :after evil :config (global-evil-surround-mode))
-(use-package evil-visualstar :ensure t :after evil :config (global-evil-visualstar-mode))
-(use-package evil
-  ;; :bind (("<escape>" . keyboard-escape-quit))
-  :init
-  ;; allows for using cgn
-  ;; (setq evil-search-module 'evil-search)
-  (setq evil-want-keybinding nil)
-  ;; no vim insert bindings
-  (setq evil-undo-system 'undo-fu)
-  (setq evil-disable-insert-state-bindings t)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-esc-delay 0)
-  :config
-  (evil-mode 1))
-
-(use-package evil-leader
-  :init
-  (progn
-    (global-evil-leader-mode)
-    (setq evil-leader/in-all-states 1)
-    (x/config-evil-leader)))
-
-;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
-;; You may delete this setup to use Evil NORMAL state always.
-(dolist (p '((minibuffer-inactive-mode . emacs)
-             (color-rg-mode . emacs)
-             (comint-mode . emacs)
-             ;(vc-dir-git-mode . normal)
-             ;(vc-dir-mode . normal)
-             (dired-mode . normal)
-             (fundamental-mode . normal)
-             (grep-mode . emacs)
-             (Info-mode . emacs)
-             (sdcv-mode . emacs)
-             (dashboard-mode . normal)
-             (log-edit-mode . emacs)
-             (vc-log-edit-mode . emacs)
-             (help-mode . emacs)
-             (xref--xref-buffer-mode . emacs)
-             (compilation-mode . emacs)
-             (speedbar-mode . emacs)
-             (ivy-occur-mode . emacs)
-             (ivy-occur-grep-mode . normal)
-             (messages-buffer-mode . normal)))
-  (evil-set-initial-state (car p) (cdr p)))
-
-#+END_SRC
-
 * Org-Mode
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1545,25 +1310,6 @@ buffer is not visiting a file."
     :when (display-graphic-p)
     :commands all-the-icons-install-fonts)
 
-  ;; (use-package dashboard
-  ;;   :hook (after-init . dashboard-mode)
-  ;;   :config
-  ;;   ;; Icon in graphic mode
-  ;;   (when (display-graphic-p)
-  ;;     (setq
-  ;;      dashboard-set-heading-icons t
-  ;;      dashboard-set-file-icons t))
-
-  ;;   (setq
-  ;;    ;;dashboard-center-content t
-  ;;    dashboard-banner-logo-title " 浩哥专属 Emacs:-) "
-  ;;    dashboard-startup-banner (expand-file-name "icon.png" user-emacs-directory)
-  ;;    dashboard-items '((recents . 5)
-  ;;                      (bookmarks . 5)
-  ;;                      (agenda . 5)
-  ;;                      (projects . 5)))
-  ;;   (dashboard-setup-startup-hook))
-
   (use-package sort-tab
     :if (display-graphic-p)  ;; 仅在 GUI 模式下启用
     :straight (sort-tab :type git :host github :repo "manateelazycat/sort-tab")
@@ -1656,174 +1402,266 @@ buffer is not visiting a file."
 
 #+END_SRC
 
-* Key-Bindings
-
+* Evil And KeyBindings
 #+BEGIN_SRC emacs-lisp :tangle yes
 
-;; Global KeyBindings:  C-h b/k 找到快捷键bind -> ReMap it
-;; x-mode KeyBindings   C-h b/k 找到快捷键: M: comand, S: option, C: Control
+;; ============================================================
+;; Evil-Mode & Key-Bindings (Unified with general.el)
+;; ============================================================
 
-;; 卸载全局快捷键
-(let ((keys '(
-              "C-x C-f"
-              "C-q"
-              "C-6"
-              "C-z"
-              "C-<wheel-down>"
-              "C-<wheel-up>"
-              "C-M-<wheel-down>"
-              "C-M-<wheel-up>"
-              "s-T"
-              "s-W"
-              "s-z"
-              "M-h"
-              "M-."
-              "M-,"
-              "M-]"
-              "s-c"
-              "s-x"
-              "s-v"
-              "s-k"
-              "s-w"
-              "s-,"
-              "s-."
-              "s--"
-              "s-+"
-              "<mouse-2>"
-              )))
+;; ---- 卸载不需要的默认快捷键 ----
+(let ((keys '("C-x C-f" "C-q" "C-6" "C-z"
+              "C-<wheel-down>" "C-<wheel-up>"
+              "C-M-<wheel-down>" "C-M-<wheel-up>"
+              "s-T" "s-W" "s-z"
+              "M-h" "M-." "M-," "M-]"
+              "s-c" "s-x" "s-v" "s-k" "s-w"
+              "s-," "s-." "s--" "s-+"
+              "<mouse-2>")))
   (dolist (key keys)
     (global-unset-key (kbd key))))
 
-;; 定义窗口管理快捷键
-(defun set-control-w-shortcuts ()
-  "设置以 C-w 为前缀的窗口管理快捷键。"
-  (define-prefix-command 'my-window-map)
-  (global-set-key (kbd "C-w") 'my-window-map)
-  ;; 窗口大小调整
-  (define-key my-window-map (kbd "=")  'window-width-increase)  ; 增加窗口宽度
-  (define-key my-window-map (kbd "-")  'window-width-decrease)  ; 减少窗口宽度
-  (define-key my-window-map (kbd "9")  'window-height-increase)  ; 增加窗口高度
-  (define-key my-window-map (kbd "0")  'window-height-decrease)  ; 减少窗口高度
-  ;; 窗口导航
-  (define-key my-window-map (kbd "h")  'windmove-left)          ; 左移窗口
-  (define-key my-window-map (kbd "j")  'windmove-down)          ; 下移窗口
-  (define-key my-window-map (kbd "k")  'windmove-up)            ; 上移窗口
-  (define-key my-window-map (kbd "l")  'windmove-right)         ; 右移窗口
-  ;; 窗口分割与关闭
-  (define-key my-window-map (kbd "v")  'split-window-right)     ; 垂直分割
-  (define-key my-window-map (kbd "b")  'split-window-below)     ; 水平分割
-  (define-key my-window-map (kbd "d")  'delete-window)          ; 关闭当前窗口
-  (define-key my-window-map (kbd "D")  'delete-other-windows)   ; 关闭其他窗口
-  (define-key my-window-map (kbd "B")  'kill-buffer-and-window) ; 关闭窗口并杀死缓冲区
-  (define-key my-window-map (kbd "o")  'delete-other-windows))  ; 切换到单一窗口
-
-;; 应用窗口管理快捷键
-(set-control-w-shortcuts)
-
-;; 在 dired 模式中绑定快捷键
+;; ---- dired 特殊模式绑定 ----
 (define-key dired-mode-map (kbd "e") 'wdired-change-to-wdired-mode)
 
-;; 在 evil 模式下卸载和绑定快捷键
-(with-eval-after-load 'evil
-  ;; 卸载 evil 模式的快捷键
-  (dolist (map '(evil-motion-state-map
-                 evil-insert-state-map
-                 evil-emacs-state-map
-                 evil-window-map))
-    (define-key (eval map) "\C-]" nil)
-    (define-key (eval map) "\C-t" nil)
-    (define-key (eval map) "\C-w" nil)
-    (define-key (eval map) "\M-]" nil))
-  ;; 重新绑定窗口管理快捷键
-  (set-control-w-shortcuts)
+;; ---- Evil Leader 配置（SPC 前缀体系） ----
+(defun x/config-evil-leader ()
+  (evil-leader/set-leader "<SPC>")
+  (evil-leader/set-key
+    ;; TODO
+    ;","  'x
+    ;"."  'x
 
-  ;; 定义智能 q 键行为
-  (defun smart-q ()
-    "在只读缓冲区中关闭窗口，否则录制宏。"
-    (interactive)
-    (if buffer-read-only
-        (if (= 1 (count-windows))
-            (bury-buffer)
-          (delete-window))
-      (call-interactively 'evil-record-macro)))
+    ;; AI
 
-  ;; 绑定 smart-q 到 q 键
-  (define-key evil-normal-state-map (kbd "q") 'smart-q)
-  ;; 卸载其他快捷键
-  (define-key evil-motion-state-map (kbd "SPC") nil)
-  (define-key evil-motion-state-map (kbd "RET") nil)
-  (define-key evil-motion-state-map (kbd "TAB") nil)
-  (define-key evil-normal-state-map (kbd "C-t") nil)
-  (define-key evil-normal-state-map (kbd "C-]") nil)
-  ;; 绑定 swiper 到 / 键
-  (define-key evil-normal-state-map (kbd "/")  'swiper)
-  (define-key evil-motion-state-map (kbd "C-6") nil))
+    ;; buffer
+    "bb" 'switch-to-buffer
+    "bo" 'switch-to-buffer-other-window
+    "bn" '+copy-current-buffer-name
+    "bv" 'revert-buffer
+    "bz" 'bury-buffer
+    "bZ" 'unbury-buffer
+    "bK" 'kill-other-window-buffer
+    "bx" (lambda () (interactive) (switch-to-buffer "*scratch*"))
 
-;; 在 org 模式下卸载快捷键
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "M-h") nil)
-  (define-key org-mode-map (kbd "C-,") nil))
+    ;; code
+    "cf" 'format-function-parameters
+    "cc" 'comment-dwim
+    "ca" 'align-regexp
+    "cd" 'delete-trailing-whitespace
+    "cl" 'toggle-truncate-lines
+    "cm" 'delete-trailing-M
+    "c:" 'eval-expression
+    "cs" 'my-org-screenshot
 
-;; 全局快捷键绑定
-(global-set-key (kbd "C-x k")   'sort-tab-close-current-tab)  ; 关闭当前缓冲区
-(global-set-key (kbd "<f5>")    'emacs-session-save)          ; 保存 Emacs 会话
-(global-set-key (kbd "C-,")     'goto-last-change)            ; 跳转到最后修改的位置
-(global-set-key (kbd "C-4")     'insert-changelog-date)       ; 插入变更日志日期
-(global-set-key (kbd "C-5")     'insert-standard-date)        ; 插入标准日期
-(global-set-key (kbd "<f6>") #'org-download-screenshot)
+    ;; dired
+    "d" (lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
 
+    ;; file
+    "ff" 'find-file
+    "fo" 'find-file-other-window
+    "fO" 'find-file-other-frame
+    "fd" '+delete-current-file
+    "fn" '+copy-current-filename
+    "fr" '+rename-current-file
+    "fe" (lambda () (interactive) (find-file (expand-file-name "config.org" user-emacs-directory)))
+    "fi" (lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory)))
+    "fF" 'my/all-available-fonts
 
-;; Projectile 快捷键
-(global-set-key (kbd "C-c p f") 'projectile-find-file)        ; 查找文件
-(global-set-key (kbd "C-c p b") 'projectile-switch-to-buffer) ; 切换缓冲区
-(global-set-key (kbd "C-c p p") 'projectile-switch-project)   ; 切换项目
+    ;; version control
+    "gs" 'magit-status
+    "gL" 'magit-log-buffer-file
+    "gp" 'magit-blob-previous
+    "gn" 'magit-blob-next
 
-;; Google 翻译
-(global-set-key (kbd "C-c d t") #'google-translate-smooth-translate)
+    ;; help
+    "hk" 'describe-key
+    "hf" 'describe-function
+    "hv" 'describe-variable
+    "hm" 'describe-mode
+    "hp" 'describe-package
+    "h?" 'which-key-show-major-mode
 
-;; Sort-tab 快捷键
-(global-set-key (kbd "M-j")     'sort-tab-select-prev-tab)    ; 选择上一个标签页
-(global-set-key (kbd "M-k")     'sort-tab-select-next-tab)    ; 选择下一个标签页
-(global-set-key (kbd "M-7")     'sort-tab-select-first-tab)   ; 选择第一个标签页
-(global-set-key (kbd "M-8")     'sort-tab-select-last-tab)    ; 选择最后一个标签页
-(global-set-key (kbd "M-m")     'sort-tab-close-current-tab)  ; 关闭当前标签页
-(global-set-key (kbd "s-q")     'sort-tab-close-mode-tabs)    ; 关闭当前模式的标签页
-(global-set-key (kbd "s-Q")     'sort-tab-close-all-tabs)     ; 关闭所有标签页
+    ;; Insert
+    "ic" 'insert-changelog-date
+    "id" 'insert-standard-date
 
-;; Ido 快捷键
-(global-set-key (kbd "C-x C-f") 'ido-find-file)               ; 查找文件
-(global-set-key (kbd "C-x b")   'ido-switch-buffer)           ; 切换缓冲区
-(global-set-key (kbd "C-x i")   'ido-insert-buffer)           ; 插入缓冲区
-(global-set-key (kbd "C-x I")   'ido-insert-file)             ; 插入文件
+    ;; Jump
+    "jj" 'avy-goto-word-1
+    "jl" 'avy-goto-line
 
-;; 滚动快捷键
-(global-set-key (kbd "M-n")     'hold-line-scroll-down)       ; 向下滚动
-(global-set-key (kbd "M-p")     'hold-line-scroll-up)         ; 向上滚动
+    ;; quit
+    "qr" 'restart-emacs
 
-;; 窗口导航快捷键
-(global-set-key (kbd "M-]")     'watch-other-window-up)       ; 向上查看其他窗口
-(global-set-key (kbd "M-[")     'watch-other-window-down)     ; 向下查看其他窗口
-(global-set-key (kbd "M->")     'watch-other-window-up-line)  ; 向上查看其他窗口（行）
-(global-set-key (kbd "M-<")     'watch-other-window-down-line); 向下查看其他窗口（行）
+    ;; Open
+    "oo" (lambda () (interactive) (browse-url default-directory))
+    "of" (lambda () (interactive)
+           (when buffer-file-name (browse-url buffer-file-name)))
 
-;; 搜索和 Git 快捷键
-(global-set-key (kbd "C-M-s")   'color-rg-search-input)       ; 彩色搜索
-(global-set-key (kbd "C-M-;")   'vc-dir)                      ; 打开 VC 状态
+    ;; project
+    "pp" 'projectile-switch-project
+    "pf" 'ffip
+    "pb" 'projectile-switch-to-buffer
+    "pv" 'project-vc-dir
+    "pk" (lambda () (interactive) (project-kill-buffers) (tab-close))
 
-;; LSP Bridge 快捷键
-(global-set-key (kbd "C-]")     'lsp-bridge-find-def)         ; 查找定义
-(global-set-key (kbd "C-t")     'lsp-bridge-find-def-return)  ; 返回到定义
-(global-set-key (kbd "M-]")     'lsp-bridge-find-impl)        ; 查找实现
-(global-set-key (kbd "M-.")     'lsp-bridge-find-references)  ; 查找引用
-(global-set-key (kbd "M-,")     'lsp-bridge-code-action)      ; 代码操作
-(global-set-key (kbd "C-9")     'lsp-bridge-popup-documentation) ; 弹出文档
-(global-set-key (kbd "C-0")     'lsp-bridge-rename)           ; 重命名
+    ;; search
+    "ss" 'color-rg-search-symbol-in-project
+    "sp" 'color-rg-search-project
+    "si" 'color-rg-search-input
+    "sr" 'counsel-rg
+    "sI" 'imenu
+    "sy" 'counsel-yank-pop
+    "sb" 'counsel-ibuffer
 
-;; LSP Bridge 诊断快捷键
-(global-set-key (kbd "M-s-j")   'lsp-bridge-diagnostic-jump-next) ; 跳转到下一个错误
-(global-set-key (kbd "M-s-k")   'lsp-bridge-diagnostic-jump-prev) ; 跳转到上一个错误
-(global-set-key (kbd "M-s-l")   'lsp-bridge-diagnostic-ignore)    ; 忽略当前错误
-(global-set-key (kbd "M-s-n")   'lsp-bridge-popup-documentation-scroll-up)  ; 向下滚动文档
-(global-set-key (kbd "M-s-p")   'lsp-bridge-popup-documentation-scroll-down); 向上滚动文档
+    ;; Tab
+    "tn" 'sort-tab-next
+    "tp" 'sort-tab-previous
+
+    ;;vc
+    "ve" 'vc-ediff
+    "vL" 'vc-print-root-log
+
+    ;; window && frame
+    "ww" 'evil-window-next
+    "wf" 'other-frame
+    "wd" 'evil-window-delete
+    "wm" 'delete-other-windows
+    "wv" 'split-window-right
+    "wb" 'split-window-below
+    "wh" 'evil-window-left
+    "wj" 'evil-window-down
+    "wk" 'evil-window-up
+    "wl" 'evil-window-right
+    "w>" (lambda () (interactive) (evil-window-increase-width 40))
+    "w<" (lambda () (interactive) (evil-window-decrease-width 40))
+    "w0" (lambda () (interactive) (evil-window-increase-height 40))
+    "w9" (lambda () (interactive) (evil-window-decrease-height 40))
+
+    ;; fold
+    "zz" 'treesit-fold-open
+    "zZ" 'treesit-fold-open-recursively
+    "zc" 'treesit-fold-close
+    "zC" 'treesit-fold-close-all
+    "za" 'treesit-fold-open-all
+    "zt" 'treesit-fold-toggle
+    ))
+
+;; ---- Evil 核心与插件 ----
+(use-package undo-fu :straight t :ensure t)
+
+(use-package evil
+  :init
+  (setq evil-want-keybinding nil
+        evil-undo-system 'undo-fu
+        evil-disable-insert-state-bindings t
+        evil-want-C-u-scroll t
+        evil-esc-delay 0)
+  :config
+  (evil-mode 1))
+
+(use-package evil-textobj-line :ensure t :after evil)
+(use-package evil-surround :ensure t :after evil :config (global-evil-surround-mode))
+(use-package evil-visualstar :ensure t :after evil :config (global-evil-visualstar-mode))
+(use-package evil-org
+  :after org
+  :hook (org-mode . evil-org-mode)
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys)
+  (evil-org-set-key-theme '(navigation insert shift todo heading)))
+
+(use-package evil-leader
+  :after evil
+  :init
+  (global-evil-leader-mode)
+  (setq evil-leader/in-all-states 1)
+  :config
+  (x/config-evil-leader))
+
+;; ---- Major mode 初始 evil 状态 ----
+(dolist (p '((minibuffer-inactive-mode . emacs)
+             (color-rg-mode . emacs)
+             (comint-mode . emacs)
+             ;;(vc-dir-git-mode . normal)
+             ;;(vc-dir-mode . normal)
+             (dired-mode . normal)
+             (fundamental-mode . normal)
+             (grep-mode . emacs)
+             (Info-mode . emacs)
+             (sdcv-mode . emacs)
+             (dashboard-mode . normal)
+             (log-edit-mode . emacs)
+             (vc-log-edit-mode . emacs)
+             (help-mode . emacs)
+             (xref--xref-buffer-mode . emacs)
+             (compilation-mode . emacs)
+             (speedbar-mode . emacs)
+             (ivy-occur-mode . emacs)
+             (ivy-occur-grep-mode . normal)
+             (messages-buffer-mode . normal)))
+  (evil-set-initial-state (car p) (cdr p)))
+
+;; ---- general.el 统一管理全局与 Evil 状态快捷键 ----
+(use-package general
+  :straight t
+  :after evil
+  :config
+  ;; Evil normal/visual/motion 下的绑定（覆盖默认）
+  (general-define-key
+   :states '(normal visual motion)
+   :keymaps 'override
+   ;; 用 swiper 替换 vim 的 / 搜索
+   "/"   'swiper
+   "?"   'swiper-backward
+
+   ;; LSP 功能键（只在 normal/visual/motion 下生效）
+   "C-]"   'lsp-bridge-find-def
+   "C-t"   'lsp-bridge-find-def-return
+   "M-]"   'lsp-bridge-find-impl
+   "M-."   'lsp-bridge-find-references
+   "M-,"   'lsp-bridge-code-action
+   "C-9"   'lsp-bridge-popup-documentation
+   "C-0"   'lsp-bridge-rename
+
+   ;; LSP 诊断键
+   "M-s-j" 'lsp-bridge-diagnostic-jump-next
+   "M-s-k" 'lsp-bridge-diagnostic-jump-prev
+   "M-s-l" 'lsp-bridge-diagnostic-ignore
+   "M-s-n" 'lsp-bridge-popup-documentation-scroll-up
+   "M-s-p" 'lsp-bridge-popup-documentation-scroll-down)
+
+  ;; vc-dir 模式快捷键（延迟到 vc 包加载后绑定）
+  (general-define-key
+   :keymaps 'vc-dir-mode-map
+   :package 'vc
+   "e"        'vc-ediff
+   "d"        'vc-diff
+   "k"        'vc-revert
+   "c"        'vc-dir-quick-commit-all
+   "F"        'vc-pull
+   "<tab>"    'vc-dir-next-and-diff
+   "<backtab>" 'vc-dir-prev-and-diff)
+  
+  ;; 全局快捷键（所有状态生效）
+  (general-define-key
+   :states '(normal visual insert emacs motion)
+   :keymaps 'global
+   ;; Projectile
+   "C-c p p" 'projectile-switch-project
+   "C-c p f" 'projectile-find-file
+
+   ;; Sort-tab
+   "M-j"   'sort-tab-select-prev-tab
+   "M-k"   'sort-tab-select-next-tab
+   "M-7"   'sort-tab-select-first-tab
+   "M-8"   'sort-tab-select-last-tab
+   "M-m"   'sort-tab-close-current-tab
+   "s-q"   'sort-tab-close-mode-tabs
+   "s-Q"   'sort-tab-close-all-tabs
+
+   ;; 滚动
+   "M-n"   'hold-line-scroll-down
+   "M-p"   'hold-line-scroll-up))
 
 #+END_SRC
