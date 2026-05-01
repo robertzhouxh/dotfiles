@@ -30,7 +30,6 @@ rime
 .emacs.d/\.mc-lists.el
 .emacs.d/ac-comphist*
 .emacs.d/network-security*
-.emacs.d/eshell/
 .emacs.d/recentf
 .emacs.d/themes/
 .emacs.d/transient/
@@ -41,15 +40,11 @@ rime
 .emacs.d/eln-cache
 .emacs.d/custom.el  
 .emacs.d/straight
-.emacs.d/nox
 .emacs.d/squirrel*
 .emacs.d/rime*
 .emacs.d/.org-*
-.emacs.d/eaf
-.emacs.d/blink*
 rime-settings*
 .emacs.d/projects
-.emacs.d/nov*
 .emacs.d/tree-sitter*
 
 
