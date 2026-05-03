@@ -368,7 +368,6 @@
 (use-package comment-dwim-2 :commands (comment-dwim-2))
 (use-package posframe :commands (posframe-show posframe-hide posframe-delete-all))
 
-(use-package markdown-mode :mode ("\\.md\\'" . markdown-mode) :commands markdown-mode)
 (use-package protobuf-mode :mode ("\\.proto\\'" . protobuf-mode))
 (use-package json-mode :mode ("\\.json\\'" . json-mode))
 (use-package yaml-mode :mode ("\\.ya?ml\\'" . yaml-mode))
@@ -826,66 +825,50 @@ buffer is not visiting a file."
 
 * Treesit
 #+BEGIN_SRC emacs-lisp :tangle yes
-;; ---- 树语法折叠 ----
+;; ============================================================
+;; Tree-sitter 增强配置（Emacs 29+）
+;; ============================================================
+
+;; 1. 语法折叠
 (use-package treesit-fold
   :straight (treesit-fold :type git :host github :repo "emacs-tree-sitter/treesit-fold")
-  :config)
+  :hook (prog-mode . treesit-fold-mode))
 
-;; ---- 树语法自动安装与管理 ----
-;; 注意：首次运行需通过 M-x treesit-auto-install-all 安装所有语法模块
-;; 重新安装（升级）语法需先删除对应 .dylib/.so 文件或 tree-sitter 目录
+;; 2. 自动安装与管理语法解析器
 (use-package treesit-auto
   :demand t
-  :init
-  (setq treesit-font-lock-level 4)       ; 高亮力度，与 VSCode 一致
+  :custom (treesit-font-lock-level 4)
   :config
   (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))
 
-;; ---- 查看当前点使用的 tree-sitter 语法 ----
-(defun treesit-show-parser-used-at-point ()
-  "显示当前位置使用的 tree-sitter 解析器。"
+;; 3. 查看当前解析器（便捷函数）
+(defun treesit-show-parser ()
+  "显示当前位置的 tree-sitter 语法解析器。"
   (interactive)
-  (if (and (fboundp 'treesit-available-p)
-           (treesit-available-p))
-      (message "%s" (treesit-language-at (point)))
-    (message "tree-sitter 不可用")))
+  (if (treesit-available-p)
+      (message "%s" (or (treesit-language-at (point)) "无解析器"))
+    (message "Tree-sitter 不可用")))
 
-;; ---- 将传统 mode 映射到 tree-sitter 版 mode ----
+;; 4. 映射传统 mode 到 ts-mode（内置函数安全，Emacs 29+ 已提供大部分）
+;; (use-package markdown-mode :mode ("\\.md\\'" . markdown-mode) :commands markdown-mode)
+;; emacs 31 才会内置语法解析服务器
+;;   brew install vale
+;;   curl -sfL https://install.goreleaser.com/github.com/ValeLint/vale.sh | sh
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode))
 (setq major-mode-remap-alist
-      '((c-mode          . c-ts-mode)
-        (c++-mode        . c++-ts-mode)
-        (cmake-mode      . cmake-ts-mode)
-        (conf-toml-mode  . toml-ts-mode)
-        (css-mode        . css-ts-mode)
-        (js-mode         . js-ts-mode)
-        (js-json-mode    . json-ts-mode)
-        (python-mode     . python-ts-mode)
-        (sh-mode         . bash-ts-mode)
+      '((c-mode . c-ts-mode)
+        (c++-mode . c++-ts-mode)
+        (python-mode . python-ts-mode)
+        (js-mode . js-ts-mode)
         (typescript-mode . typescript-ts-mode)
-        (rust-mode       . rust-ts-mode)
-        (java-mode       . java-ts-mode)
-        (clojure-mode    . clojure-ts-mode)
-        ;; (markdown-mode   . markdown-ts-mode)  ; 暂时注释
-        ))
+        (rust-mode . rust-ts-mode)
+        (java-mode . java-ts-mode)
+        (go-mode . go-ts-mode)
+        (sh-mode . bash-ts-mode)
+        (css-mode . css-ts-mode)
+        (json-mode . json-ts-mode)))
 
-;; ---- 为特定模式手动添加 tree-sitter 解析器 ----
-;; 以下模式不在 treesit-auto 默认覆盖范围或需要额外创建解析器
-(dolist (mode-hook '((markdown-mode-hook  . markdown)
-                     (zig-mode-hook       . zig)
-                     (emacs-lisp-mode-hook. elisp)
-                     (json-mode-hook      . json)
-                     (go-mode-hook        . go)
-                     (java-ts-mode-hook   . java)
-                     (clojure-mode-hook   . clojure)
-                     (clojure-ts-mode-hook. clojure)
-                     (php-mode-hook       . php)
-                     (php-ts-mode-hook    . php)
-                     (haskell-mode-hook   . haskell)
-                     (kotlin-mode-hook    . kotlin)
-                     (ruby-mode-hook      . ruby)))
-  (add-hook (car mode-hook)
-            (lambda () (treesit-parser-create (cdr mode-hook)))))
 #+END_SRC
 * Programming
 

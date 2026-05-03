@@ -72,11 +72,3 @@ emacs-rime 会用到这个lib
  
 ```
 
-## 其他 
-
-1. 截图软件： sudo apt install flameshot
-2. 恢复到原始桌面配置： $dconf reset -f /org/gnome/
-3. Ctrl 与 Caps 键位交换: Gnome Tweaks -> Choose Keyboard -> Additional Layout Options -> Ctrl Position -> Swap...
-4. 按键全局使用 Emacs 模式： Gnome Tweaks -> Keyboard&Mouse -> Emacs Input 打开
-5. debian/ubuntu 安装Nvidia显卡驱动后触摸板手势失灵
-6. texlive
