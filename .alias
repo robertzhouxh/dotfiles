@@ -55,6 +55,12 @@ alias open-battery='open /System/Library/PreferencePanes/EnergySaver.prefPane'
 # 查看当前 macOS 版本和硬件型号
 alias macinfo='system_profiler SPSoftwareDataType SPHardwareDataType'
 
+# Vibe coding
+# 启动一个不再问我权限的 Claude Code，同时把自动压缩点提前到 400k
+alias c='CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000 claude --dangerously-skip-permissions'
+
+alias vpn='ssh vpn'
+
 # Normalize `open` across Linux, macOS, and Windows.
 if [ ! $(uname -s) = 'Darwin' ]; then
 	if grep -q Microsoft /proc/version; then
