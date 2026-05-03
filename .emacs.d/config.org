@@ -120,13 +120,22 @@
 * Generic Settings
 
 #+begin_src emacs-lisp :tangle yes
+;; UI 精简（GUI 环境才执行）
+(use-package emacs
+  :init
+  (when (display-graphic-p)
+    (when (fboundp 'tool-bar-mode)
+      (tool-bar-mode -1))
 
-;; UI 精简（减少干扰）
-(tool-bar-mode -1)     ; 禁用工具栏
-(add-hook 'after-init-hook (lambda () (tool-bar-mode -1)))
-(menu-bar-mode -1)     ; 禁用菜单栏
-(scroll-bar-mode -1)   ; 禁用滚动条
-(tooltip-mode -1)      ; 禁用 tooltips
+    (when (fboundp 'menu-bar-mode)
+      (menu-bar-mode -1))
+
+    (when (fboundp 'scroll-bar-mode)
+      (scroll-bar-mode -1))
+
+    (when (fboundp 'tooltip-mode)
+      (tooltip-mode -1))))
+
 (global-hl-line-mode 1); 高亮当前行
 (show-paren-mode 1)    ; 括号匹配高亮
 (electric-pair-mode -1); 关闭内置自动补全（交由 smartparens）
