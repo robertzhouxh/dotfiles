@@ -902,7 +902,8 @@ buffer is not visiting a file."
         ("FIXME" . error)
         ("HACK" . warning)
         ("NOTE" . warning)
-        ("HERE" . compilation-info))
+        ;;("HERE" . compilation-info)
+        )
       "Alist of keywords to highlight and their face."
       :group '+highlight-keywords
       :type '(alist :key-type (string :tag "Keyword")
