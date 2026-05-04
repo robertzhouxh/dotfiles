@@ -442,40 +442,62 @@ buffer is not visiting a file."
   (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
   (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
 
+(when (eq system-type 'darwin)
+  (when (executable-find "gls")
+    (setq insert-directory-program "gls")))
+
+(setq dired-use-ls-dired t)
+
 (use-package dired
   :straight (:type built-in)
   :bind
   (("C-x C-j" . dired-jump))
+
   :custom
-  ;; Always delete and copy recursively
-  (dired-listing-switches "-lah")
+  ;; Dired 显示
+  (dired-listing-switches "-alh --group-directories-first")
+
+  ;; 递归操作
   (dired-recursive-deletes 'always)
   (dired-recursive-copies 'always)
-  ;; Auto refresh Dired, but be quiet about it
+
+  ;; 智能目标目录
+  (dired-dwim-target t)
+
+  ;; 删除进垃圾桶
+  (delete-by-moving-to-trash t)
+
+  ;; 优先加载新文件
+  (load-prefer-newer t)
+
+  ;; 自动刷新
   (global-auto-revert-non-file-buffers t)
   (auto-revert-verbose nil)
-  ;; Quickly copy/move file in Dired
-  (dired-dwim-target t)
-  ;; Move files to trash when deleting
-  (delete-by-moving-to-trash t)
-  ;; Load the newest version of a file
-  (load-prefer-newer t)
-  ;; Detect external file changes and auto refresh file
   (auto-revert-use-notify nil)
-  (auto-revert-interval 3) ; Auto revert every 3 sec
-  :config
-  ;; Enable global auto-revert
-  (global-auto-revert-mode t)
-  ;; Reuse same dired buffer, to prevent numerous buffers while navigating in dired
-  (put 'dired-find-alternate-file 'disabled nil)
-  :hook
-  (dired-mode . (lambda ()
-                  (local-set-key (kbd "<mouse-2>") #'dired-find-alternate-file)
-                  (local-set-key (kbd "RET") #'dired-find-alternate-file)
-                  (local-set-key (kbd "^")
-                                 (lambda () (interactive) (find-alternate-file ".."))))))
-(use-package disk-usage :commands (disk-usage))
+  (auto-revert-interval 3)
 
+  :config
+  ;; 自动刷新
+  (global-auto-revert-mode 1)
+
+  ;; 单 buffer 导航
+  (put 'dired-find-alternate-file 'disabled nil)
+
+  ;; Evil 风格按键
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal dired-mode-map
+      (kbd "h") #'dired-up-directory
+      (kbd "l") #'dired-find-alternate-file
+      (kbd "RET") #'dired-find-alternate-file
+      (kbd "-") #'dired-up-directory
+      (kbd "q") #'quit-window)))
+
+(use-package dired-x
+  :straight (:type built-in)
+  :after dired)
+
+(use-package disk-usage
+  :commands disk-usage)
 #+END_SRC
 
 * Project
@@ -1539,8 +1561,6 @@ buffer is not visiting a file."
     ))
 
 ;; ---- Evil 核心与插件 ----
-(use-package undo-fu :straight t :ensure t)
-
 (use-package evil
   :init
   (setq evil-want-keybinding nil
@@ -1551,6 +1571,7 @@ buffer is not visiting a file."
   :config
   (evil-mode 1))
 
+(use-package undo-fu :straight t :ensure t)
 (use-package evil-textobj-line :ensure t :after evil)
 (use-package evil-surround :ensure t :after evil :config (global-evil-surround-mode))
 (use-package evil-visualstar :ensure t :after evil :config (global-evil-visualstar-mode))
