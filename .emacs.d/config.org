@@ -1263,9 +1263,7 @@ buffer is not visiting a file."
 * Vide coding
 
 #+BEGIN_SRC emacs-lisp :tangle no
-
 (use-package claude-code
-  :ensure t
   :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
   :config
   (setq claude-code-terminal-backend 'eat)
@@ -1274,23 +1272,19 @@ buffer is not visiting a file."
   (setq claude-code-enable-notifications t)
   (setq claude-code-notification-function 'claude-code--default-notification)
 
-  ;; 方法一: 通过 claude-code-proxy 的方式设置代理, 接入 OPENAI-compatible 模型
+  ;; kimi 接口（密钥从环境变量 KIMI_API_KEY 读取；取消注释即可使用）
   ;; (progn
-  ;;   (setenv "ANTHROPIC_BASE_URL" "http://localhost:8082")
-  ;;   (setenv "ANTHROPIC_AUTH_TOKEN" "api-key")
+  ;;   (setenv "ANTHROPIC_BASE_URL" "https://api.moonshot.cn/anthropic/")
+  ;;   (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "KIMI_API_KEY"))
   ;;   (setq claude-code-program "/usr/local/bin/claude")
   ;;   )
-
-  ;; 方法二: 使用 kimi Anthropic-compatible API interface
-  ;; kimi 提供了 Anthropic-compatible API 接口, 参考链接 https://platform.moonshot.ai/docs/guide/agent-support.en-US#install-cline
-  ;; kimi 存在充值与限速问题, 参考链接 https://platform.moonshot.cn/docs/pricing/limits#%E9%99%90%E9%80%9F%E6%A6%82%E5%BF%B5%E8%A7%A3%E9%87%8A
-  ;; 可以关注 LLM-Red-Team/kimi-cc 项目中的讨论, 例如 https://github.com/LLM-Red-Team/kimi-cc/issues/35
+  
+  ;; DeepSeek-V4 pro —— 密钥从环境变量 DEEPSEEK_API_KEY 读取
   (progn
-    (setenv "ANTHROPIC_BASE_URL" "https://api.moonshot.cn/anthropic/")
-    (setenv "ANTHROPIC_AUTH_TOKEN" "sk-xxx")
-    (setq claude-code-program "/usr/local/bin/claude")
-    )
-  )
+    (setenv "ANTHROPIC_BASE_URL" "https://api.deepseek.com/anthropic")
+    (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "DEEPSEEK_API_KEY"))
+    (setenv "ANTHROPIC_MODEL" "deepseek-v4-pro[1m]")
+    (setq claude-code-program "/usr/local/bin/claude")))
 #+END_SRC
 
 * UI
