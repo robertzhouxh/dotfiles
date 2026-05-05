@@ -1262,23 +1262,35 @@ buffer is not visiting a file."
 
 * Vide coding
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package inheritenv :straight (:type git :host github :repo "purcell/inheritenv"))
+(use-package eat
+ :straight (:type git
+   :host codeberg
+   :repo "akib/emacs-eat"
+   :files ("*.el" ("term" "term/*.el") "*.texi"
+     "*.ti" ("terminfo/e" "terminfo/e/*")
+     ("terminfo/65" "terminfo/65/*")
+     ("integration" "integration/*")
+     (:exclude ".dir-locals.el" "*-tests.el"))))
 (use-package claude-code
-  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
-  :config
-  (setq claude-code-terminal-backend 'eat)
-  (setq claude-code-term-name "xterm-256color")
-  (setq claude-code-program-switches '("--verbose"))
-  (setq claude-code-enable-notifications t)
-  (setq claude-code-notification-function 'claude-code--default-notification)
+ ;:vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
+ :straight (:type git :host github :repo "stevemolitor/claude-code.el" 
+            :branch "main" :depth 1 :files ("*.el" (:exclude "images/*")))
+ :config
+ (setq claude-code-terminal-backend 'eat)
+ (setq claude-code-term-name "xterm-256color")
+ (setq claude-code-program-switches '("--verbose"))
+ (setq claude-code-enable-notifications t)
+ (setq claude-code-notification-function 'claude-code--default-notification)
 
-  ;; kimi 接口（密钥从环境变量 KIMI_API_KEY 读取；取消注释即可使用）
-  ;; (progn
-  ;;   (setenv "ANTHROPIC_BASE_URL" "https://api.moonshot.cn/anthropic/")
-  ;;   (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "KIMI_API_KEY"))
-  ;;   (setq claude-code-program "/usr/local/bin/claude")
-  ;;   )
-  
+ ;; kimi 接口（密钥从环境变量 KIMI_API_KEY 读取；取消注释即可使用）
+ ;; (progn
+   ;;   (setenv "ANTHROPIC_BASE_URL" "https://api.moonshot.cn/anthropic/")
+   ;;   (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "KIMI_API_KEY"))
+   ;;   (setq claude-code-program "/usr/local/bin/claude")
+   ;;   )
+
   ;; DeepSeek-V4 pro —— 密钥从环境变量 DEEPSEEK_API_KEY 读取
   (progn
     (setenv "ANTHROPIC_BASE_URL" "https://api.deepseek.com/anthropic")
