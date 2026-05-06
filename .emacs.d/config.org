@@ -140,6 +140,10 @@
 (show-paren-mode 1)    ; 括号匹配高亮
 (electric-pair-mode -1); 关闭内置自动补全（交由 smartparens）
 
+;(minibuffer-depth-indicate-mode 1)   ; 显示递归层数
+;(setq max-mini-window-height 0.5)    ; 防止错误消息刷屏
+;(set-face-attribute 'minibuffer-prompt nil :weight 'bold) ; 提示文字更醒目
+
 ;; 行为优化（交互与历史）
 (setq create-lockfiles nil           ; 不创建 lock 文件
       make-backup-files nil          ; 不生成备份文件
@@ -393,11 +397,9 @@
 (use-package polymode :defer t)
 (use-package comment-dwim-2 :commands (comment-dwim-2))
 (use-package posframe :commands (posframe-show posframe-hide posframe-delete-all))
-
-(use-package protobuf-mode :mode ("\\.proto\\'" . protobuf-mode))
-(use-package json-mode :mode ("\\.json\\'" . json-mode))
 (use-package yaml-mode :mode ("\\.ya?ml\\'" . yaml-mode))
-(use-package sh-script :mode ("\\.sh\\'" . sh-mode))
+(use-package json-mode :mode ("\\.json\\'" . json-mode))
+(use-package protobuf-mode :mode ("\\.proto\\'" . protobuf-mode))
 (use-package dockerfile-mode :commands dockerfile-mode)
 (use-package discover-my-major)
 (use-package which-key
@@ -1226,90 +1228,43 @@ buffer is not visiting a file."
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
-(with-eval-after-load 'lsp-bridge
-  (setq lsp-bridge-python-command
-        (expand-file-name "~/.asdf/shims/python3")))
-
 ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
 ;; 你可以手动检查 tree-sitter 语法是否正确安装：
 ;; M-x treesit-inspect-node-at-point
 ;; commands 延时加载
+;; ============================================================
+;; LSP Bridge
+(global-eldoc-mode -1)
 (use-package lsp-bridge
-  :straight (lsp-bridge
-             :type git
-             :host github
-             :repo "manateelazycat/lsp-bridge"
-             :files ("*"))
-  :commands (global-lsp-bridge-mode lsp-bridge-mode)
+  :straight '(lsp-bridge :type git :host github :repo "manateelazycat/lsp-bridge"
+            :files (:defaults "*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
+            :build (:not compile))
   :custom
-  (acm-enable-codeium nil)
-  (acm-enable-tabnine nil)
-  (acm-enable-yas nil)
-  (acm-enable-quick-access t)
-  (acm-enable-icon t)                         ;; 显示补全图标
-  (lsp-bridge-enable-inlay-hint t)            ;; 启用类型提示
-  (lsp-bridge-enable-hover-diagnostic t)      ;; 悬停显示错误
-  (lsp-bridge-enable-auto-format-code nil)    ;; 关闭自动格式化
-  (lsp-bridge-python-command "python3")       ;; 指定 Python 解释器
-  (lsp-bridge-python-lsp-server "pyright")    ;; 默认使用 Pyright
-  :bind
-  (("C-]" . lsp-bridge-find-def)
-   ("C-t" . lsp-bridge-find-def-return)
-   ("M-]" . lsp-bridge-find-impl)
-   ("M-i" . lsp-bridge-popup-documentation)
-   ("C-M-." . lsp-bridge-peek)
-   :map lsp-bridge-ref-mode-map
-   ("n" . lsp-bridge-ref-jump-next-keyword)
-   ("p" . lsp-bridge-ref-jump-prev-keyword)
-   ("M-n" . lsp-bridge-ref-jump-next-file)
-   ("M-p" . lsp-bridge-ref-jump-prev-file)
-   ("C-x C-q" . lsp-bridge-ref-switch-to-edit-mode)
-   :map lsp-bridge-ref-mode-edit-map
-   ("C-x C-q" . lsp-bridge-ref-apply-changed)
-   ("C-x C-s" . lsp-bridge-ref-apply-changed)
-   ("C-c C-k" . lsp-bridge-ref-quit)
-   ("M-n" . lsp-bridge-ref-jump-next-file)
-   ("M-p" . lsp-bridge-ref-jump-prev-file)
-   :map acm-mode-map
-   ("C-n" . acm-select-next)
-   ("C-p" . acm-select-prev)
-   ("TAB" . acm-complete)
-   ("<tab>" . acm-complete)
-   ("RET" . acm-complete))  ;; 回车键用于补全
-  :hook
-  (prog-mode . global-lsp-bridge-mode))  ;; 仅在编程模式下启用 lsp-bridge
+  (lsp-bridge-enable-hover-diagnostic t)
+  (lsp-bridge-popup-documentation-delay 0.5)
+  (lsp-bridge-enable-signature-help t)
+  (lsp-bridge-enable-list-diagnostic t)
+
+  ;; UI
+  (lsp-bridge-enable-inlay-hint t)
+  (lsp-bridge-enable-auto-format-code nil)
+  (lsp-bridge-python-command (expand-file-name "~/.asdf/shims/python3"))
+  (lsp-bridge-python-lsp-server "pyright")
+  :init
+  (global-lsp-bridge-mode))
 
 #+END_SRC
 
 * Vide coding
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(setq package-install-upgrade-built-in t)
-
-;; Tramp >= 2.8.1.4
-(use-package tramp
-  :straight t
-  :init
-  ;; 强制从 GNU ELPA 升级（straight 会自动处理）
-  (setq straight-built-in-prefer-elpa t))
-
-;; tramp-rpc
-(use-package tramp-rpc
-  :after tramp
-  :straight (tramp-rpc :type git :host github :repo "ArthurHeymans/emacs-tramp-rpc" :files ("lisp/*.el"))
-  :config
-  ;; 强制使用 GitHub Release 的预编译二进制，而不是尝试从源码编译
-  (setq tramp-rpc-deploy-git-build-policy 'release))
-
-(use-package tramp-rpc
-  :after tramp
-  :straight
-  (tramp-rpc
-   :type git
-   :host github
-   :repo "ArthurHeymans/emacs-tramp-rpc"
-   :files ("lisp/*.el"))
-  :config (setq tramp-rpc-deploy-prefer-build t))
+;; M-x package-install RET tramp RET
+;(use-package tramp-rpc
+;  :after tramp
+;  :straight (tramp-rpc :type git :host github :repo "ArthurHeymans/emacs-tramp-rpc" :files ("lisp/*.el"))
+;  :config
+;  ;; 强制使用 GitHub Release 的预编译二进制文件，避免编译失败
+;  (setq tramp-rpc-deploy-git-build-policy 'release))
 
 (use-package inheritenv :straight (:type git :host github :repo "purcell/inheritenv"))
 (use-package eat
@@ -1403,19 +1358,15 @@ buffer is not visiting a file."
   
   (use-package lazycat-theme
     :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-    ;;(lazycat-theme-load-dark)
-    )
+    :config
+    (lazycat-theme-load-dark))
+  
   (use-package awesome-tray
     :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
     :hook (after-init . awesome-tray-mode)
     :custom
     (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-    (awesome-tray-info-padding-right 1)
-    :config
-    (awesome-tray-mode 1))
-
-  (add-hook 'after-init-hook (lambda () (lazycat-theme-load-dark)))
-
+    (awesome-tray-info-padding-right 1))
 #+END_SRC
 
 * Platform
@@ -1578,6 +1529,7 @@ buffer is not visiting a file."
    :keymaps 'override
    ;; buffers
    "bb" 'switch-to-buffer
+   "bd" 'kill-current-buffer
    "bo" 'switch-to-buffer-other-window
    "bn" '+copy-current-buffer-name
    "bv" 'revert-buffer
