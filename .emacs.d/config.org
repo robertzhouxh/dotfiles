@@ -367,10 +367,20 @@
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
+;; shell 环境同步（macOS + GUI Emacs 必备）
 (use-package exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :init (setq exec-path-from-shell-arguments '("-l"))
   :config
-  (setq exec-path-from-shell-variables '("PATH" "GOROOT" "GOPATH" "DEEPSEEK_API_KEY" "OPENROUTER_API_KEY"))
+  (dolist (var '("GOROOT"
+               "GOPATH"
+               "GOROOT_BOOTSTRAP"
+               "DEEPSEEK_API_KEY"
+               "OPENROUTER_API_KEY"
+               ))   
+  (add-to-list 'exec-path-from-shell-variables var))
   (exec-path-from-shell-initialize))
+
 
 (use-package f :defer t)
 (use-package polymode :defer t)
@@ -1209,6 +1219,10 @@ buffer is not visiting a file."
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
+(with-eval-after-load 'lsp-bridge
+  (setq lsp-bridge-python-command
+        (expand-file-name "~/.asdf/shims/python3")))
+
 ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
 ;; 你可以手动检查 tree-sitter 语法是否正确安装：
 ;; M-x treesit-inspect-node-at-point
@@ -1681,10 +1695,8 @@ buffer is not visiting a file."
    "C-c p p" 'projectile-switch-project
    "C-c p f" 'projectile-find-file
 
-   ;; "M-j"   'sort-tab-select-prev-tab
-   ;; "M-k"   'sort-tab-select-next-tab
-   "M-j"   'sort-tab-next
-   "M-k"   'sort-tab-previous
+   "M-j"   'sort-tab-select-prev-tab
+   "M-k"   'sort-tab-select-next-tab
    "M-7"   'sort-tab-select-first-tab
    "M-8"   'sort-tab-select-last-tab
    "M-m"   'sort-tab-close-current-tab
