@@ -348,6 +348,13 @@
   (kill-new (buffer-name))
   (message "Copying '%s' to clipboard" (buffer-name)))
 
+;; rpc: 提示输入远程文件/目录
+(defun my/rpc-dired ()
+  "使用 rpc: 方法打开远程目录（交互式输入）。"
+  (interactive)
+  (let ((default-directory "/rpc:"))
+    (call-interactively 'dired)))
+
 #+END_SRC
 
 * Fundermental Plugins
@@ -1277,6 +1284,33 @@ buffer is not visiting a file."
 * Vide coding
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+(setq package-install-upgrade-built-in t)
+
+;; Tramp >= 2.8.1.4
+(use-package tramp
+  :straight t
+  :init
+  ;; 强制从 GNU ELPA 升级（straight 会自动处理）
+  (setq straight-built-in-prefer-elpa t))
+
+;; tramp-rpc
+(use-package tramp-rpc
+  :after tramp
+  :straight (tramp-rpc :type git :host github :repo "ArthurHeymans/emacs-tramp-rpc" :files ("lisp/*.el"))
+  :config
+  ;; 强制使用 GitHub Release 的预编译二进制，而不是尝试从源码编译
+  (setq tramp-rpc-deploy-git-build-policy 'release))
+
+(use-package tramp-rpc
+  :after tramp
+  :straight
+  (tramp-rpc
+   :type git
+   :host github
+   :repo "ArthurHeymans/emacs-tramp-rpc"
+   :files ("lisp/*.el"))
+  :config (setq tramp-rpc-deploy-prefer-build t))
+
 (use-package inheritenv :straight (:type git :host github :repo "purcell/inheritenv"))
 (use-package eat
  :straight (:type git
@@ -1600,6 +1634,9 @@ buffer is not visiting a file."
 
    ;; quit
    "qr" 'restart-emacs
+   
+   ;; 绑定到 "r" 键（可随其他全局快捷键一起设置）
+   "r" #'my/rpc-dired
 
    ;; open
    "oo" (lambda () (interactive) (browse-url default-directory))
