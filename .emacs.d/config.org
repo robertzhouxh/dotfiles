@@ -737,7 +737,8 @@ buffer is not visiting a file."
     ;; 代码块左侧添加行号。
     (add-to-list 'org-latex-engraved-options '("numbers" . "left"))
     ;; 代码块主题。
-    (setq org-latex-engraved-theme 'lazycat-dark))
+    ;; (setq org-latex-engraved-theme 'lazycat-dark)
+    )
 
   (defun my/export-pdf (backend)
     (progn
@@ -846,7 +847,7 @@ buffer is not visiting a file."
 ;;; -*- lexical-binding: t; -*-
 ;; https://emacs-china.org/t/vc-mode-magit/29277/3
 ;; https://github.com/ltylty/.emacs.d/blob/main/lisp/mavc.el
-(use-package magit :ensure t :defer t)
+;; (use-package magit :ensure t :defer t)
 (use-package vc :defer t
   :custom
   (vc-handled-backends '(Git))
@@ -1356,17 +1357,29 @@ buffer is not visiting a file."
           sort-tab-hide-tab-function nil   ; 不隐藏标签
           sort-tab-cycle-navigation t))    ; 启用循环导航
   
-  (use-package lazycat-theme
-    :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-    :config
-    (lazycat-theme-load-dark))
+  ;;(use-package lazycat-theme
+  ;;  :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+  ;;  :config
+  ;;  (lazycat-theme-load-dark))
+  ;;(use-package awesome-tray
+  ;;  :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+  ;;  :hook (after-init . awesome-tray-mode)
+  ;;  :custom
+  ;;  (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+  ;;  (awesome-tray-info-padding-right 1))
+
+  (load-theme 'tango-dark)
+  ;; tweek
+  ;; prefer green on black(or gray)
+  ;; blue is the color of the wisdom(conosuba)
+  (set-face-attribute 'mode-line nil
+                      :foreground "green"
+                      :background "DarkBlue")
   
-  (use-package awesome-tray
-    :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
-    :hook (after-init . awesome-tray-mode)
-    :custom
-    (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-    (awesome-tray-info-padding-right 1))
+  (set-face-attribute 'default nil
+                      :foreground "green"
+                      :background "#252525")
+
 #+END_SRC
 
 * Platform
