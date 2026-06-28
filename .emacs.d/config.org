@@ -136,7 +136,7 @@
     (when (fboundp 'tooltip-mode)
       (tooltip-mode -1))))
 
-(global-hl-line-mode 1); 高亮当前行
+;;(global-hl-line-mode 1); 高亮当前行
 (show-paren-mode 1)    ; 括号匹配高亮
 (electric-pair-mode -1); 关闭内置自动补全（交由 smartparens）
 
@@ -1233,6 +1233,9 @@ buffer is not visiting a file."
 ;; 你可以手动检查 tree-sitter 语法是否正确安装：
 ;; M-x treesit-inspect-node-at-point
 ;; commands 延时加载
+;;
+;; go install github.com/errata-ai/vale-ls@latest
+;;
 ;; ============================================================
 ;; LSP Bridge
 (global-eldoc-mode -1)
@@ -1249,7 +1252,8 @@ buffer is not visiting a file."
   ;; UI
   (lsp-bridge-enable-inlay-hint t)
   (lsp-bridge-enable-auto-format-code nil)
-  (lsp-bridge-python-command (expand-file-name "~/.asdf/shims/python3"))
+  ;;(lsp-bridge-python-command (expand-file-name "~/.asdf/shims/python3"))
+  (lsp-bridge-python-command (expand-file-name "~/miniconda3/bin/python3"))
   (lsp-bridge-python-lsp-server "pyright")
   :init
   (global-lsp-bridge-mode))
@@ -1357,28 +1361,27 @@ buffer is not visiting a file."
           sort-tab-hide-tab-function nil   ; 不隐藏标签
           sort-tab-cycle-navigation t))    ; 启用循环导航
   
-  ;;(use-package lazycat-theme
-  ;;  :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
-  ;;  :config
-  ;;  (lazycat-theme-load-dark))
-  ;;(use-package awesome-tray
-  ;;  :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
-  ;;  :hook (after-init . awesome-tray-mode)
-  ;;  :custom
-  ;;  (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
-  ;;  (awesome-tray-info-padding-right 1))
+  (use-package lazycat-theme
+   :straight (lazycat-theme :type git :host github :repo "manateelazycat/lazycat-theme")
+   :config
+   (lazycat-theme-load-dark))
+  (use-package awesome-tray
+   :straight (awesome-tray :type git :host github :repo "manateelazycat/awesome-tray")
+   :hook (after-init . awesome-tray-mode)
+   :custom
+   (awesome-tray-active-modules '("location" "pdf-view-page" "belong" "file-path" "mode-name" "last-command" "battery" "date"))
+   (awesome-tray-info-padding-right 1))
 
-  (load-theme 'tango-dark)
-  ;; tweek
-  ;; prefer green on black(or gray)
-  ;; blue is the color of the wisdom(conosuba)
-  (set-face-attribute 'mode-line nil
-                      :foreground "green"
-                      :background "DarkBlue")
-  
-  (set-face-attribute 'default nil
-                      :foreground "green"
-                      :background "#252525")
+  ;; (load-theme 'tango-dark)
+  ;; ;; tweek
+  ;; ;; prefer green on black(or gray)
+  ;; ;; blue is the color of the wisdom(conosuba)
+  ;; (set-face-attribute 'mode-line nil
+  ;;                     :foreground "green"
+  ;;                     :background "DarkBlue")
+  ;; (set-face-attribute 'default nil
+  ;;                     :foreground "green"
+  ;;                     :background "#252525")
 
 #+END_SRC
 
@@ -1469,16 +1472,15 @@ buffer is not visiting a file."
 (dolist (p '((minibuffer-inactive-mode . emacs)
              (color-rg-mode . emacs)
              (comint-mode . emacs)
-             ;;(vc-dir-git-mode . normal)
-             ;;(vc-dir-mode . normal)
-             (dired-mode . normal)
+             (vc-dir-git-mode . emacs)
+             (vc-dir-mode . emacs)
+             (vc-log-edit-mode . emacs)
+             (dired-mode . emacs)
              (fundamental-mode . normal)
              (grep-mode . emacs)
              (Info-mode . emacs)
              (sdcv-mode . emacs)
-             (dashboard-mode . normal)
              (log-edit-mode . emacs)
-             (vc-log-edit-mode . emacs)
              (help-mode . emacs)
              (xref--xref-buffer-mode . emacs)
              (compilation-mode . emacs)

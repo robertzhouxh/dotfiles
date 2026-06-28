@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 [[ -o interactive ]] || return
-[[ -f "$HOME/.env" ]] && source "$HOME/.env"
+[[ -f "$HOME/.envv" ]] && source "$HOME/.envv"
 [[ -f "$HOME/.alias" ]] && source "$HOME/.alias"
 
 # Starship
