@@ -821,11 +821,21 @@ buffer is not visiting a file."
     (message "Tree-sitter 不可用")))
 
 ;; 4. 映射传统 mode 到 ts-mode（内置函数安全，Emacs 29+ 已提供大部分）
-;; (use-package markdown-mode :mode ("\\.md\\'" . markdown-mode) :commands markdown-mode)
+;;(use-package markdown-mode :mode ("\\.md\\'" . markdown-mode) :commands markdown-mode)
 ;; emacs 31 才会内置语法解析服务器
-;;   brew install vale
-;;   curl -sfL https://install.goreleaser.com/github.com/ValeLint/vale.sh | sh
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode))
+(use-package kirigami
+  :ensure t
+  :init
+  (kirigami-global-mode 1)
+  :config
+  ;; 3. (可选) 为 Evil 模式绑定快捷键
+  (with-eval-after-load 'evil
+    ;; 在 Normal 状态下，用 <tab> 键来切换折叠
+    (evil-define-key 'normal 'global (kbd "<tab>") #'kirigami-toggle-fold)
+    ;; 用 S-<tab> (Shift+Tab) 来折叠/展开所有内容
+    (evil-define-key 'normal 'global (kbd "<S-tab>") #'kirigami-close-folds)))
+
 (setq major-mode-remap-alist
       '((c-mode . c-ts-mode)
         (c++-mode . c++-ts-mode)
@@ -1229,13 +1239,14 @@ buffer is not visiting a file."
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
+;; https://github.com/manateelazycat/lsp-bridge/blob/master/README.zh-CN.md
 ;; 然后选择你要的语言，比如 c, c++, python, rust，等待安装完成。
 ;; 你可以手动检查 tree-sitter 语法是否正确安装：
 ;; M-x treesit-inspect-node-at-point
 ;; commands 延时加载
 ;;
-;; go install github.com/errata-ai/vale-ls@latest
-;;
+;; ;;emacs 31 才会内置语法解析服务器
+;; ;;brew install marksman
 ;; ============================================================
 ;; LSP Bridge
 (global-eldoc-mode -1)
@@ -1255,6 +1266,7 @@ buffer is not visiting a file."
   ;;(lsp-bridge-python-command (expand-file-name "~/.asdf/shims/python3"))
   (lsp-bridge-python-command (expand-file-name "~/miniconda3/bin/python3"))
   (lsp-bridge-python-lsp-server "pyright")
+  (lsp-bridge-markdown-lsp-server "marksman")
   :init
   (global-lsp-bridge-mode))
 
@@ -1475,7 +1487,7 @@ buffer is not visiting a file."
              (vc-dir-git-mode . emacs)
              (vc-dir-mode . emacs)
              (vc-log-edit-mode . emacs)
-             (dired-mode . emacs)
+             (dired-mode . normal)
              (fundamental-mode . normal)
              (grep-mode . emacs)
              (Info-mode . emacs)
