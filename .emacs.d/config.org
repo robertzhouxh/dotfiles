@@ -1127,46 +1127,43 @@ buffer is not visiting a file."
 + 默认字号, 需要是偶数才能实现中英文等宽等高,eg: height 180
 + fc-list | grep "LxgwWenKai\|Iosevka"
   
-** 字体配置
+** 字体配置(用等宽字体)
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-
 (defun available-font (font-list)
   "Get the first available font from FONT-LIST."
   (catch 'font
     (dolist (font font-list)
-      (if (member font (font-family-list))
-          (throw 'font font)))))
+      (when (member font (font-family-list))
+        (throw 'font font)))))
 
-(setq my/ef (available-font '("JetBrainsMono Nerd Font" "JetBrainsMono" "Monaco" "Iosevka Comfy" "Cascadia Code")))
-(setq my/cf (available-font '("LXGW WenKai Mono" "Sarasa Mono SC" "Microsoft YaHei Mono")))
+;; 【改动】将 Sarasa Mono SC 放在英文和中文列表的最前面
+(setq my/ef (available-font '("Sarasa Mono SC"       ; 新增等宽
+                               "JetBrainsMono Nerd Font"
+                               "JetBrainsMono"
+                               "Monaco"
+                               "Iosevka Comfy"
+                               "Cascadia Code")))
 
-(defun load-font-setup()
-  (cond ((eq window-system 'pgtk)
-         (set-face-attribute 'default nil :height 180 :family "WenQuanYi Micro Hei Mono"))
-        (t
-         (let ((emacs-font-size 18)
-               (chinese-font-name  my/cf)
-               english-font-name)
-           (cond
-            ((featurep 'cocoa)
-             (setq english-font-name my/ef))
-            ((string-equal system-type "gnu/linux")
-             (setq english-font-name my/ef)))
+(setq my/cf (available-font '("Sarasa Mono SC"       ; 新增新增等宽
+                               "等距更纱黑体 SC"      ; 备选中文名称
+                               "LXGW WenKai Mono"
+                               "Microsoft YaHei Mono")))
 
-           (set-face-attribute 'default nil :height 180 :family (eval english-font-name))
-           (set-face-attribute 'default nil :height 180 :family (eval chinese-font-name))
-
-           (when (display-grayscale-p)
-             (set-frame-font (format "%s-%s" (eval english-font-name) (eval emacs-font-size)))
-             (set-fontset-font (frame-parameter nil 'font) 'unicode (eval english-font-name))
-
-             (dolist (charset '(kana han symbol cjk-misc bopomofo))
-               (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family (eval chinese-font-name))))
-             )))))
+(defun load-font-setup ()
+  "Set up English and Chinese fonts for the current frame."
+  (when (display-graphic-p)
+    (let ((english-font (or my/ef "Monaco"))
+          (chinese-font (or my/cf "PingFang SC"))
+          (font-size 180))
+      ;; 默认字体设为英文字体（如果 Sarasa 可用，它就是英文首选）
+      (set-face-attribute 'default nil :family english-font :height font-size)
+      ;; 为中文字符集指定中文字体（如果 Sarasa 可用，它也作为中文首选）
+      (dolist (charset '(kana han symbol cjk-misc bopomofo))
+        (set-fontset-font (frame-parameter nil 'font) charset
+                          (font-spec :family chinese-font :height font-size))))))
 
 (add-hook 'after-init-hook 'load-font-setup)
-
 #+END_SRC
 
 * Rime
