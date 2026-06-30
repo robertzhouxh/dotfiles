@@ -57,7 +57,11 @@
         (sh-mode . bash-ts-mode)
         (css-mode . css-ts-mode)
         (json-mode . json-ts-mode)))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode))
+;; Emacs 31 内置 markdown-ts-mode，但 31.0.90 缺少 autoload cookie，手动 require
+(when (version<= "31" emacs-version)
+  (require 'markdown-ts-mode nil t)
+  (when (fboundp 'markdown-ts-mode)
+    (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode))))
 
 ;; ---- 高亮关键字 ----
 (use-package symbol-overlay

@@ -15,13 +15,19 @@
 (use-package general
   :after evil
   :config
-  ;; Evil normal/visual/motion 下的基础绑定
+  ;; ============================================================
+  ;; Evil normal/visual/motion 状态绑定
   (general-define-key
    :states '(normal visual motion)
    :keymaps 'override
    "/"   'swiper
    "?"   'swiper-backward
 
+   ;; Project
+   "C-c p p" 'projectile-switch-project
+   "C-c p f" 'projectile-find-file
+
+   ;; LSP
    "C-]"   'lsp-bridge-find-def
    "C-t"   'lsp-bridge-find-def-return
    "M-]"   'lsp-bridge-find-impl
@@ -29,14 +35,29 @@
    "M-,"   'lsp-bridge-code-action
    "C-9"   'lsp-bridge-popup-documentation
    "C-0"   'lsp-bridge-rename
-
    "M-s-j" 'lsp-bridge-diagnostic-jump-next
    "M-s-k" 'lsp-bridge-diagnostic-jump-prev
    "M-s-l" 'lsp-bridge-diagnostic-ignore
    "M-s-n" 'lsp-bridge-popup-documentation-scroll-up
    "M-s-p" 'lsp-bridge-popup-documentation-scroll-down)
 
-  ;; SPC 作为 Evil Leader
+  ;; ============================================================
+  ;; emacs/insert 状态绑定（Dired、term 等 emacs state 的 mode 需要）
+  (general-define-key
+   :states '(emacs insert)
+   :keymaps 'override
+   ;; Project
+   "C-c p p" 'projectile-switch-project
+   "C-c p f" 'projectile-find-file
+
+   ;; LSP
+   "C-]"   'lsp-bridge-find-def
+   "C-t"   'lsp-bridge-find-def-return
+   "C-9"   'lsp-bridge-popup-documentation
+   "C-0"   'lsp-bridge-rename)
+
+  ;; ============================================================
+  ;; SPC 作为 Evil Leader (仅在 normal/visual/motion 生效)
   (general-define-key
    :states '(normal visual motion)
    :prefix "SPC"
