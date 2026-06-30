@@ -31,7 +31,7 @@
              (vc-dir-git-mode . emacs)
              (vc-dir-mode . emacs)
              (vc-log-edit-mode . emacs)
-             (dired-mode . normal)
+             (dired-mode . emacs)
              (fundamental-mode . normal)
              (grep-mode . emacs)
              (Info-mode . emacs)
