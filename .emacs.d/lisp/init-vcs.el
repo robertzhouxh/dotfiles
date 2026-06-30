@@ -1,0 +1,77 @@
+;;; init-vcs.el --- 版本控制配置 -*- lexical-binding: t; -*-
+
+(use-package vc
+  :ensure nil
+  :defer t
+  :custom
+  (vc-handled-backends '(Git))
+  :config
+  (defun vc-dir-current-should-skip-p ()
+    "判断当前行是否需要跳过。"
+    (when vc-ewoc
+      (let* ((node (ewoc-locate vc-ewoc))
+             (data (ewoc-data node)))
+        (when data
+          (or (vc-dir-fileinfo->directory data)
+              (eq (vc-dir-fileinfo->state data) 'up-to-date))))))
+
+  (defun vc-dir-move-and-diff (move-fn wrap-pos)
+    "移动到下一个文件并显示 diff。"
+    (let ((start-node (and vc-ewoc (ewoc-locate vc-ewoc)))
+          (wrapped nil))
+      (catch 'done
+        (while t
+          (let ((prev-node (and vc-ewoc (ewoc-locate vc-ewoc))))
+            (funcall move-fn 1)
+            (let ((cur-node (and vc-ewoc (ewoc-locate vc-ewoc))))
+              (when (and (eq cur-node prev-node) (not wrapped))
+                (setq wrapped t)
+                (goto-char wrap-pos)
+                (funcall move-fn 1)
+                (setq cur-node (and vc-ewoc (ewoc-locate vc-ewoc))))
+              (when (eq cur-node start-node)
+                (message "No edited files found")
+                (throw 'done nil))
+              (unless (vc-dir-current-should-skip-p)
+                (throw 'done nil))
+              (when (eq cur-node prev-node)
+                (message "No edited files found")
+                (throw 'done nil)))))))
+    (save-selected-window
+      (vc-diff)))
+
+  (defun vc-dir-next-and-diff ()
+    "移动到下一个修改文件并 diff。"
+    (interactive)
+    (vc-dir-move-and-diff #'vc-dir-next-line (point-min)))
+
+  (defun vc-dir-prev-and-diff ()
+    "移动到上一个修改文件并 diff。"
+    (interactive)
+    (vc-dir-move-and-diff #'vc-dir-previous-line (point-max)))
+
+  (defun vc-dir-quick-commit-all ()
+    "标记所有修改的文件并提交。"
+    (interactive)
+    (vc-dir-unmark-all-files 1)
+    (dolist (state '(edited added removed))
+      (vc-dir-mark-state-files state))
+    (let ((files (vc-dir-marked-files)))
+      (if files
+          (vc-next-action nil)
+        (message "No files to commit"))))
+
+  ;; vc-change-log 显示在当前窗口
+  (add-to-list 'display-buffer-alist
+               '("\\*vc-change-log\\*\\|\\*VC-log\\*"
+                 (display-buffer-same-window)))
+  ;; 其他 vc buffer 显示在右侧
+  (add-to-list 'display-buffer-alist
+               '("\\*vc-\\|\\*VC-\\|\\*cvs\\|COMMIT_EDITMSG"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (window-width . 0.5)
+                 (slot . 0))))
+
+(provide 'init-vcs)
+;;; init-vcs.el ends here
