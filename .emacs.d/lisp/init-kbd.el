@@ -62,6 +62,9 @@
    :states '(normal visual motion)
    :prefix "SPC"
    :keymaps 'override
+
+   "==" 'markdown-table-align
+
    ;; buffers
    "bb" 'switch-to-buffer
    "bd" 'kill-current-buffer
