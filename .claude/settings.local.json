@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npx *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(cat)",
+      "Bash(emacs --batch -l /tmp/test-exact.el)",
+      "Read(//tmp/**)",
+      "Bash(emacs --batch -l /tmp/test-autoload.el)",
+      "Bash(emacs *)"
     ]
   },
   "skillOverrides": {

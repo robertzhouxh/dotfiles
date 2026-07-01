@@ -23,6 +23,7 @@
   (lsp-bridge-enable-auto-format-code nil)
   (lsp-bridge-python-command (expand-file-name "~/miniconda3/bin/python3"))
   (lsp-bridge-python-lsp-server "pyright")
+  (lsp-bridge-markdown-lsp-server "marksman")
   :init
   (global-lsp-bridge-mode))
 
