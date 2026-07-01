@@ -67,6 +67,13 @@ _path_prepend "$HOME/.local/share/bin"
 [ -z "$XDG_STATE_HOME"  ] && export XDG_STATE_HOME="$HOME/.local/state"
 
 # =========================================================
+# asdf version manager (must precede conda in PATH)
+if command -v asdf >/dev/null 2>&1; then
+  export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+  _path_prepend "$ASDF_DATA_DIR/shims"
+fi
+
+# =========================================================
 # Node.js
 _path_prepend "$HOME/.npm-global/bin"
 
@@ -98,10 +105,5 @@ if [ "$(uname -s)" = "Darwin" ] && command -v brew >/dev/null 2>&1; then
     export PKG_CONFIG_PATH="$BREW_PREFIX/opt/openssl@3/lib/pkgconfig"
   fi
 fi
-
-# =========================================================
-# asdf
-export ASDF_DATA_DIR="$HOME/.asdf"
-_path_prepend "$ASDF_DATA_DIR/shims"
 
 unset -f _path_prepend _path_append

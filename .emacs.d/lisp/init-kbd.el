@@ -23,10 +23,6 @@
    "/"   'swiper
    "?"   'swiper-backward
 
-   ;; Project
-   "C-c p p" 'projectile-switch-project
-   "C-c p f" 'projectile-find-file
-
    ;; LSP
    "C-]"   'lsp-bridge-find-def
    "C-t"   'lsp-bridge-find-def-return
@@ -46,15 +42,32 @@
   (general-define-key
    :states '(emacs insert)
    :keymaps 'override
-   ;; Project
-   "C-c p p" 'projectile-switch-project
-   "C-c p f" 'projectile-find-file
 
    ;; LSP
    "C-]"   'lsp-bridge-find-def
    "C-t"   'lsp-bridge-find-def-return
    "C-9"   'lsp-bridge-popup-documentation
    "C-0"   'lsp-bridge-rename)
+  ;; ============================================================
+  ;; 全局跨状态绑定（包括 insert 等）
+  (general-define-key
+   :states '(normal visual insert emacs motion)
+   :keymaps 'global
+
+   "C-c p p" 'projectile-switch-project
+   "C-c p f" 'projectile-find-file
+
+   "M-j"   'sort-tab-select-prev-tab
+   "M-k"   'sort-tab-select-next-tab
+   "M-7"   'sort-tab-select-first-tab
+   "M-8"   'sort-tab-select-last-tab
+   "M-m"   'sort-tab-close-current-tab
+
+   "s-q"   'sort-tab-close-mode-tabs
+   "s-Q"   'sort-tab-close-all-tabs
+
+   "M-n"   'hold-line-scroll-down
+   "M-p"   'hold-line-scroll-up)
 
   ;; ============================================================
   ;; SPC 作为 Evil Leader (仅在 normal/visual/motion 生效)

@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(git *)"
     ]
+  },
+  "skillOverrides": {
+    "webup-statusline": "user-invocable-only"
   }
 }
