@@ -273,8 +273,9 @@ The completion candidates include the Git status of each file."
     ;; Bind g to hide up to date files after refreshing in vc-dir
 
     ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
-    (define-key vc-dir-mode-map (kbd "g")
-                (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date))))
+    ;; (define-key vc-dir-mode-map (kbd "g")
+    ;;             (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date)))
+    )
 
 
   ;; For C-x v ... bindings:
