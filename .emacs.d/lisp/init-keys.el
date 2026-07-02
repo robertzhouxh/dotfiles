@@ -118,6 +118,12 @@
    "gL" 'magit-log-buffer-file
    "gp" 'magit-blob-previous
    "gn" 'magit-blob-next
+   "gv" 'vc-dir
+   "gl" 'vc-print-root-log
+   "ga" 'vc-register
+   "gc" 'vc-next-action
+   "gF" 'vc-pull
+   "gP" 'vc-push
 
    ;; help
    "hk" 'describe-key
@@ -182,5 +188,5 @@
   :config
   (which-key-setup-side-window-right))
 
-(provide 'init-kbd)
+(provide 'init-keys)
 ;;; init-kbd.el ends here

@@ -6,6 +6,60 @@
   :custom
   (vc-handled-backends '(Git))
   :config
+
+  ;; ============================================================
+  ;; vc-dir Magit 风格工作流
+  ;;   s     → stage 当前文件
+  ;;   S     → stage 所有文件
+  ;;   A     → amend 提交
+  ;;   c c   → 提交
+  ;;   h/j/k/l → 导航（同 Dired）
+  ;; ============================================================
+
+  ;; vc-dir 设为 emacs 状态（同 Dired），mode-map 按键直接生效
+  (when (featurep 'evil)
+    (evil-set-initial-state 'vc-dir-mode 'emacs)
+    (add-hook 'vc-dir-mode-hook #'evil-emacs-state))
+
+  ;; ---- 命令实现 ----
+  (defun vc-dir-stage-all ()
+    "Stage (mark) all modified, added, and removed files."
+    (interactive)
+    (vc-dir-unmark-all-files 1)
+    (dolist (state '(edited added removed))
+      (vc-dir-mark-state-files state))
+    (message "All changes staged"))
+
+  (defun vc-dir-amend-commit ()
+    "Amend the last commit, including currently staged changes."
+    (interactive)
+    (let ((files (vc-dir-marked-files)))
+      (if files
+          (vc-modify-change-comment nil)
+        (user-error "No staged files; stage files with s or S first"))))
+
+  ;; ---- 导航 (h/j/k/l 同 Dired) ----
+  (define-key vc-dir-mode-map (kbd "h") #'vc-dir-previous-line)
+  (define-key vc-dir-mode-map (kbd "j") #'vc-dir-next-line)
+  (define-key vc-dir-mode-map (kbd "k") #'vc-dir-previous-line)
+  (define-key vc-dir-mode-map (kbd "l") #'vc-dir-find-file)
+
+  ;; ---- Stage (s = 单个文件, S = 全部) ----
+  (define-key vc-dir-mode-map (kbd "s")  #'vc-dir-mark)
+  (define-key vc-dir-mode-map (kbd "S")  #'vc-dir-stage-all)
+
+  ;; ---- Amend ----
+  (define-key vc-dir-mode-map (kbd "A")  #'vc-dir-amend-commit)
+
+  ;; ---- Commit prefix (c c = commit, c a = amend) ----
+  (defvar vc-dir-commit-prefix-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "c") #'vc-next-action)
+      (define-key map (kbd "a") #'vc-dir-amend-commit)
+      map)
+    "Commit-related keymap under `c` prefix in vc-dir.")
+  (define-key vc-dir-mode-map (kbd "c") vc-dir-commit-prefix-map)
+
   (defun vc-dir-current-should-skip-p ()
     "判断当前行是否需要跳过。"
     (when vc-ewoc

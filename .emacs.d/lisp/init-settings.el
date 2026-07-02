@@ -42,6 +42,11 @@
       inhibit-startup-message t
       initial-scratch-message (concat "浩哥，enjoy coding *^____^* emacs startup in " (emacs-init-time)))
 
+;; Treesitter
+(setq treesit-font-lock-level 4
+      treesit-auto-install-grammar 'always  ; EMACS-31
+      treesit-enabled-modes t)              ; EMACS-31
+
 (setq-default cursor-type 'bar
               comment-style 'indent
               require-final-newline nil
@@ -216,5 +221,5 @@
 
 (use-package discover-my-major)
 
-(provide 'init-editor)
+(provide 'init-settings)
 ;;; init-editor.el ends here

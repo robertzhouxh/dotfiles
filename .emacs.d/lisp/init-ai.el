@@ -32,18 +32,5 @@
   :custom
   (tramp-default-method "ssh"))
 
-;; ---- sudo-edit ----
-(use-package emacs-solo-sudo-edit
-  :ensure nil
-  :defer t
-  :init
-  (defun emacs-solo/sudo-edit (&optional arg)
-    "以 root 权限编辑当前文件。"
-    (interactive "P")
-    (if (or arg (not buffer-file-name))
-        (find-file (concat "/sudo:root@localhost:"
-                           (completing-read "Find file(as root): ")))
-      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
-
-(provide 'init-tools)
+(provide 'init-ai)
 ;;; init-tools.el ends here
