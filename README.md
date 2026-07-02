@@ -1,10 +1,10 @@
 # 初始化
 
 同步 .files 到 home 目录
+
 ```
 rsync -av --include='.*' --exclude='.git' --exclude='.DS_Store' --exclude='*' ./ ~/
 ```
-
 # MacOS 
 ## 工具软件
 ```
