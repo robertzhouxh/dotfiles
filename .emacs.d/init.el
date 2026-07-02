@@ -40,7 +40,7 @@
 (require 'emacs-init-completion)
 (require 'emacs-init-dired)
 (require 'emacs-init-project)
-;;(require 'emacs-init-vcs)
+(require 'emacs-init-vcs)
 (require 'emacs-solo-gh)
 (require 'emacs-init-org)
 (require 'emacs-init-langs)

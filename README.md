@@ -5,6 +5,7 @@
 ```
 rsync -av --include='.*' --exclude='.git' --exclude='.DS_Store' --exclude='*' ./ ~/
 ```
+
 # MacOS 
 ## 工具软件
 ```

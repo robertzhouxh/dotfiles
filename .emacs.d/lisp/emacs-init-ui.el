@@ -33,6 +33,43 @@
   :config
   (setq electric-pair-pairs '((?\" . ?\") (?\{ . ?\}))))
 
+(use-package git-gutter
+  :ensure t
+  :hook ((prog-mode text-mode conf-mode) . git-gutter-mode)
+  :custom
+  ;; 实时刷新（默认仅保存时刷新）
+  (git-gutter:update-interval 0.1)
+
+  ;; Terminal 下显示符号
+  (git-gutter:modified-sign "┃")
+  (git-gutter:added-sign    "┃")
+  (git-gutter:deleted-sign  "▔")
+
+  ;; 不弹出提示
+  (git-gutter:ask-p nil)
+
+  ;; 更安静
+  (git-gutter:hide-gutter nil)
+
+  :config
+  ;; GUI 使用 Fringe，美观很多
+  (when (display-graphic-p)
+    (use-package git-gutter-fringe
+      :ensure t
+      :config
+      (define-fringe-bitmap 'git-gutter-fr:added
+        [224] nil nil '(center repeated))
+      (define-fringe-bitmap 'git-gutter-fr:modified
+        [224] nil nil '(center repeated))
+      (define-fringe-bitmap 'git-gutter-fr:deleted
+        [128 192 224 240] nil nil 'bottom)))
+
+  ;; 更协调的颜色
+  (custom-set-faces
+   '(git-gutter:modified ((t (:inherit warning))))
+   '(git-gutter:added    ((t (:inherit success))))
+   '(git-gutter:deleted  ((t (:inherit error))))))
+
 ;; ---- 图标 ----
 (use-package all-the-icons
   :if my-graphic-p
