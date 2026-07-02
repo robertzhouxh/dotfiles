@@ -1,4 +1,4 @@
-;;; init-evil.el --- Evil 模式配置 -*- lexical-binding: t; -*-
+;;; emacs-init-evil.el --- Evil 模式配置 -*- lexical-binding: t; -*-
 
 (use-package evil
   :init

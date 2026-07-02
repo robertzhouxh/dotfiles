@@ -1,4 +1,4 @@
-;;; init-langs.el --- 编程语言配置 -*- lexical-binding: t; -*-
+;;; emacs-init-langs.el --- 编程语言配置 -*- lexical-binding: t; -*-
 
 (require 'emacs-init-path)
 

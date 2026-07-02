@@ -1,4 +1,4 @@
-;;; init-settings.el --- 编辑行为配置 -*- lexical-binding: t; -*-
+;;; emacs-init-settings.el --- 编辑行为配置 -*- lexical-binding: t; -*-
 
 (require 'emacs-init-path)
 

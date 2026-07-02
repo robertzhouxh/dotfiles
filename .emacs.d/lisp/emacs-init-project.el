@@ -1,4 +1,4 @@
-;;; init-project.el --- 项目管理配置 -*- lexical-binding: t; -*-
+;;; emacs-init-project.el --- 项目管理配置 -*- lexical-binding: t; -*-
 
 (use-package projectile
   :diminish

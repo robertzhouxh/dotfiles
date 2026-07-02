@@ -1,4 +1,4 @@
-;;; init-completion.el --- LSP 与补全配置 -*- lexical-binding: t; -*-
+;;; emacs-init-completion.el --- LSP 与补全配置 -*- lexical-binding: t; -*-
 
 ;; YASnippet
 (use-package yasnippet

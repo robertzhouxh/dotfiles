@@ -1,4 +1,4 @@
-;;; init-org.el --- Org-Mode 配置 -*- lexical-binding: t; -*-
+;;; emacs-init-org.el --- Org-Mode 配置 -*- lexical-binding: t; -*-
 
 (require 'emacs-init-path)
 

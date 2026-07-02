@@ -1,4 +1,4 @@
-;;; init-platform.el --- 平台差异配置 -*- lexical-binding: t; -*-
+;;; emacs-init-platform.el --- 平台差异配置 -*- lexical-binding: t; -*-
 
 (require 'emacs-init-path)
 

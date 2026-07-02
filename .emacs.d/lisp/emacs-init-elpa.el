@@ -1,4 +1,4 @@
-;;; init-elpa.el --- 包管理器引导 -*- lexical-binding: t; -*-
+;;; emacs-init-elpa.el --- 包管理器引导 -*- lexical-binding: t; -*-
 
 (require 'package)
 

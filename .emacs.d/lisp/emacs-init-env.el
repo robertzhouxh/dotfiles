@@ -1,4 +1,4 @@
-;;; init-env.el --- 环境配置 -*- lexical-binding: t; -*-
+;;; emacs-init-env.el --- 环境配置 -*- lexical-binding: t; -*-
 
 (require 'emacs-init-path)
 

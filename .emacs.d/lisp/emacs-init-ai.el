@@ -1,4 +1,4 @@
-;;; init-tools.el --- 工具插件配置 -*- lexical-binding: t; -*-
+;;; emacs-init-tools.el --- 工具插件配置 -*- lexical-binding: t; -*-
 
 ;; ---- 终端 ----
 (use-package inheritenv

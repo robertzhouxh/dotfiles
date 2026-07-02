@@ -1,4 +1,4 @@
-;;; init-path.el --- 路径常量 -*- lexical-binding: t; -*-
+;;; emacs-init-path.el --- 路径常量 -*- lexical-binding: t; -*-
 
 (defconst my-emacs-dir (file-name-as-directory
                          (file-truename user-emacs-directory))

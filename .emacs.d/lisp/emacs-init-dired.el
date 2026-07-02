@@ -1,4 +1,4 @@
-;;; init-dired.el --- Dired 极简配置  -*- lexical-binding: t; -*-
+;;; emacs-init-dired.el --- Dired 极简配置  -*- lexical-binding: t; -*-
 
 ;; 自定义变量（这些可以放在外面，不依赖 Dired 加载）
 (setq dired-dwim-target t

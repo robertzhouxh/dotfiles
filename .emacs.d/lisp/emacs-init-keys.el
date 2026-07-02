@@ -1,4 +1,4 @@
-;;; init-keys.el --- 键位配置 -*- lexical-binding: t; -*-
+;;; emacs-init-keys.el --- 键位配置 -*- lexical-binding: t; -*-
 
 ;; 卸载不需要的默认快捷键
 (let ((keys '("C-q" "C-6" "C-z"
@@ -74,6 +74,8 @@
    "s-q"   'sort-tab-close-mode-tabs
    "s-Q"   'sort-tab-close-all-tabs
 
+   "s-g"   'vc-dir
+
    "M-n"   'hold-line-scroll-down
    "M-p"   'hold-line-scroll-up)
 
@@ -88,6 +90,7 @@
 
    ;; buffers
    "bb" 'switch-to-buffer
+   "bg" 'emacs-solo/switch-git-status-buffer
    "bd" 'kill-current-buffer
    "bo" 'switch-to-buffer-other-window
    "bn" '+copy-current-buffer-name
@@ -122,10 +125,6 @@
    "fF" 'my/all-available-fonts
 
    ;; version control
-   "gs" 'magit-status
-   "gL" 'magit-log-buffer-file
-   "gp" 'magit-blob-previous
-   "gn" 'magit-blob-next
    "gv" 'vc-dir
    "gl" 'vc-print-root-log
    "ga" 'vc-register
