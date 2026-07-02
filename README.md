@@ -5,7 +5,6 @@
 ```
 rsync -av --include='.*' --exclude='.git' --exclude='.DS_Store' --exclude='*' ./ ~/
 ```
-
 # MacOS 
 ## 工具软件
 ```
@@ -102,6 +101,74 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 ```
 
 > 移除 `:style none` 等价于默认无样式，视觉效果不变。
+# Emacs AI 助手 (`emacs-solo-ai`)
+
+`emacs-solo-ai` 集成 Claude Code、Ollama、Gemini、OpenCode 四种 AI 后端到 Emacs 中。
+
+## 全局快捷键
+
+| 快捷键 | 功能 |
+|--------|------|
+| `C-c C-0` | 启动 Claude Code 原生聊天（SDK stream-json 模式） |
+| `C-c C-8` | 启动 Claude TUI（终端交互模式，走订阅配额） |
+| `C-c C-9` | 启动 OpenCode 聊天 |
+
+## Claude Code 原生聊天 (`emacs-solo/claude-chat`)
+
+**两种模式：**
+
+- **`C-c C-0`（SDK 模式）**：使用 `claude --print --input-format stream-json`，走 Agent SDK 配额，渲染工具调用 diff，支持会话恢复
+- **`C-c C-8`（TUI 模式）**：运行普通 `claude` 终端交互，走 Claude Code 订阅配额
+
+**SDK 模式聊天缓冲区快捷键：**
+
+| 快捷键    | 功能                             |
+|-----------|----------------------------------|
+| `RET`     | 发送输入                         |
+| `C-RET`   | 插入换行                         |
+| `C-c C-c` | 中断 Claude 进程（SIGINT）       |
+| `C-c C-i` | 粘贴剪贴板中的 PNG 图片          |
+| `C-c C-k` | 终止 Claude 进程（保留聊天记录） |
+| `C-c C-l` | 清除聊天记录                     |
+| `C-c C-r` | 恢复之前的会话                   |
+| `C-c C-m` | 切换模型                         |
+
+**斜杠命令（在输入框中输入）：**
+
+| 命令          | 功能                                          |
+|---------------|-----------------------------------------------|
+| `/clear`      | 开始新会话                                    |
+| `/model NAME` | 切换模型（如 `/model opus`、`/model sonnet`） |
+| `/resume`     | 恢复历史会话                                  |
+
+**用法特点：**
+
+- 选中文本区域后按 `C-c C-0`，会提示输入问题，将选中内容作为上下文发送
+- 支持从剪贴板粘贴 PNG 图片（`C-c C-i`），插入后显示为 `[image:/tmp/...]` 标记
+- 工具调用（Edit/Write/Bash）会以内联 diff 形式渲染，方便查看代码变更
+
+## Ollama (`emacs-solo/ollama-run-model`)
+
+运行本地 Ollama 模型。自动列出 `ollama list` 中的模型供选择，可选输入 prompt，选中区域可作为查询上下文，在 `ansi-term` 中运行。
+
+## Gemini (`emacs-solo/gemini-chat`)
+
+启动 Google Gemini CLI 交互会话，在 `ansi-term` 中运行，缓冲区分项目命名。
+
+## OpenCode (`emacs-solo/opencode-chat`)
+
+启动 OpenCode AI 助手，支持任务类型选择（general、explore、code-reviewer 等），选中区域可作为上下文发送。
+
+## 自定义变量
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `emacs-solo-claude-executable` | `"claude"` | Claude 可执行文件路径 |
+| `emacs-solo-claude-permission-mode` | `"acceptEdits"` | 权限模式 |
+| `emacs-solo-claude-confirm-before-edit` | `t` | 编辑前是否要求确认 |
+| `emacs-solo-claude-model-choices` | 见源码 | 可选模型列表 |
+| `emacs-solo-claude-diff-max-lines` | `200` | 内联 diff 最大显示行数 |
+
 # 关于版本控制
 
 

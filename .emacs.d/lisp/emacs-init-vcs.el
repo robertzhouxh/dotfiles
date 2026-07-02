@@ -1,5 +1,8 @@
 ;;; emacs-init-vcs.el --- 版本控制配置 (Emacs 31) -*- lexical-binding: t; -*-
 
+(require 'cl-lib)
+(require 'subr-x)
+
 ;; ── Emacs 31 新特性 ────────────────────────────────────────────────────────────
 ;;
 ;; vc-auto-revert-mode: 自动 revert VC 管理文件的外部变更
@@ -13,6 +16,7 @@
    vc-auto-revert-mode               t
    vc-allow-rewriting-published-history t
    vc-dir-auto-hide-up-to-date       t
+   auto-revert-check-vc-info         t
    vc-git-diff-switches    '("--patch-with-stat" "--histogram")
    vc-git-log-switches     '("--stat")
    vc-git-log-edit-summary-target-len 50
@@ -53,23 +57,23 @@
           log-edit-setup-add-author     nil)
   (remove-hook 'log-edit-hook #'log-edit-show-files))
 
-;; ── 核心：刷新 vc-dir ─────────────────────────────────────────────────────────
+;; ── 核心：刷新 VC 状态 ────────────────────────────────────────────────────────
 ;;
-;; vc-file-clearprops 清除缓存 → vc-dir-refresh-files 异步刷新指定文件。
-;; vc-dir-refresh-files 是 Emacs 29+ 公开 API，走 Git dir-status-files。
+;; Emacs 31 `vc-state-refresh' 轻量刷新属性缓存（不清空 working-revision），
+;; `vc-mode-line' 更新所有 opened buffer 的 mode-line 显示，
+;; `vc-dir-resynch-file' 同步更新 vc-dir 条目。
 
 (defun emacs-solo/vc-refresh-after-git-op (files)
-  "清除 FILES 的 VC 缓存，然后刷新所有关联 vc-dir buffer 中的这些文件。"
-  (mapc #'vc-file-clearprops files)
-  (dolist (buf (buffer-list))
-    (when (buffer-live-p buf)
+  "Refresh VC state for FILES after a Git operation.
+Updates the property cache, mode-line of open buffers, and vc-dir entries."
+  (dolist (f files)
+    (when-let* ((backend (vc-backend f)))
+      (vc-state-refresh f backend))
+    (when-let* ((buf (get-file-buffer f)))
       (with-current-buffer buf
-        (when (derived-mode-p 'vc-dir-mode)
-          (let ((relevant (cl-remove-if-not
-                           (lambda (f) (file-in-directory-p f default-directory))
-                           files)))
-            (when relevant
-              (vc-dir-refresh-files relevant))))))))
+        (vc-mode-line f)))
+    (when vc-dir-buffers
+      (vc-dir-resynch-file f))))
 
 ;; ── Stage / Unstage ───────────────────────────────────────────────────────────
 
@@ -257,7 +261,7 @@ FN 接收 files 列表作为唯一参数。"
       (if (null candidates)
           (message "No modified or untracked files.")
         (when-let* ((sel  (completing-read "Git modified: "
-                                           (mapc #'car candidates) nil t))
+                                           (mapcar #'car candidates) nil t))
                     (file (cdr (assoc sel candidates))))
           (find-file (expand-file-name file root)))))))
 

@@ -11,24 +11,12 @@
   (load custom-file nil 'nomessage))
 
 ;; 可选功能开关（在加载对应模块前声明）
-(defcustom emacs-solo-enable-transparency nil
-  "Enable `emacs-solo-transparency'."
-  :type 'boolean :group 'emacs-solo)
-
 (defcustom emacs-solo-enable-highlight-keywords t
   "Enable `emacs-solo-highlight-keywords'."
   :type 'boolean :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-rainbown-delimiters t
   "Enable rainbow-delimiters."
-  :type 'boolean :group 'emacs-solo)
-
-(defcustom emacs-solo-enable-buffer-gutter t
-  "Enable `emacs-solo-gutter'."
-  :type 'boolean :group 'emacs-solo)
-
-(defcustom emacs-solo-enable-dired-gutter t
-  "Enable `emacs-solo-dired-gutter'."
   :type 'boolean :group 'emacs-solo)
 
 (defcustom emacs-solo-ai-scratch-path nil
@@ -51,10 +39,8 @@
 ;; ── 功能模块 ─────────────────────────────────────────────────────────────────
 (require 'emacs-init-completion)
 (require 'emacs-init-dired)
-(require 'emacs-solo-dired-gutter)
 (require 'emacs-init-project)
-(require 'emacs-init-vcs)
-(require 'emacs-solo-gutter)
+;;(require 'emacs-init-vcs)
 (require 'emacs-solo-gh)
 (require 'emacs-init-org)
 (require 'emacs-init-langs)
@@ -71,8 +57,7 @@
 ;; 所有模块加载完后再收紧警告级别，避免第三方包加载期间的 warning 被升级为 error
 (setq warning-minimum-level :error)
 
-;; 暂时关掉
-;; (server-start)
+(server-start)
 
 (provide 'init)
 ;;; init.el ends here
