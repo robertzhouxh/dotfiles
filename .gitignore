@@ -63,3 +63,4 @@ get-pip.py
 *.~undo-tree~
 .emacs.d/init.el
 .gitignore
+.emacs.d/lisp/emacs-init-vcs.el

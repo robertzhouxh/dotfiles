@@ -15,7 +15,6 @@
 ;;; Code From: https://github.com/LionyxML/emacs-solo/blob/main/lisp/emacs-solo-gutter.el
 
 (use-package emacs-solo-gutter
-  :if emacs-solo-enable-buffer-gutter
   :ensure nil
   :no-require t
   :defer t
@@ -196,7 +195,8 @@ refresh and never run `vc-git-root'/git synchronously in the handler."
   (global-set-key (kbd "C-c g g") 'emacs-solo/git-gutter-on)
   (global-set-key (kbd "C-c g n") 'emacs-solo/goto-next-hunk)
 
-  (add-hook 'after-init-hook #'emacs-solo/git-gutter-on))
+  (when emacs-solo-enable-buffer-gutter
+    (add-hook 'after-init-hook #'emacs-solo/git-gutter-on)))
 
 (provide 'emacs-solo-gutter)
 ;;; emacs-solo-gutter.el ends here
