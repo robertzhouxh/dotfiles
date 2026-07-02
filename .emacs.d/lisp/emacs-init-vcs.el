@@ -1,4 +1,6 @@
-;;; init-vcs.el --- 版本控制配置 -*- lexical-binding: t; -*-
+;;; emacs-init-vcs.el --- 版本控制配置 -*- lexical-binding: t; -*-
+;;; Code From: https://github.com/LionyxML/emacs-solo/blob/main/init.el
+
 ;;; │ VC
 (use-package vc
   :ensure nil
@@ -288,4 +290,4 @@ The completion candidates include the Git status of each file."
   (global-set-key (kbd "C-x C-g") 'emacs-solo/switch-git-status-buffer))
 
 (provide 'emacs-init-vcs)
-;;; init-vcs.el ends here
+;;; emacs-init-vcs.el ends here
