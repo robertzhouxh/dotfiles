@@ -1,6 +1,6 @@
 ;;; init-settings.el --- 编辑行为配置 -*- lexical-binding: t; -*-
 
-(require 'init-path)
+(require 'emacs-init-path)
 
 ;; ---- 编码 ----
 (when (not (eq system-type 'windows-nt))
@@ -269,5 +269,5 @@
 
 (use-package discover-my-major)
 
-(provide 'init-settings)
+(provide 'emacs-init-settings)
 ;;; init-settings.el ends here

@@ -1,6 +1,6 @@
 ;;; init-org.el --- Org-Mode 配置 -*- lexical-binding: t; -*-
 
-(require 'init-path)
+(require 'emacs-init-path)
 
 (use-package org-download
   :commands (org-download-enable org-download-screenshot org-download-clipboard)
@@ -151,5 +151,5 @@
                  :image-converter
                  ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))))
 
-(provide 'init-org)
+(provide 'emacs-init-org)
 ;;; init-org.el ends here

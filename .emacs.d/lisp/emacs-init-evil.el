@@ -46,5 +46,5 @@
              (messages-buffer-mode . normal)))
   (evil-set-initial-state (car p) (cdr p)))
 
-(provide 'init-evil)
+(provide 'emacs-init-evil)
 ;;; init-evil.el ends here

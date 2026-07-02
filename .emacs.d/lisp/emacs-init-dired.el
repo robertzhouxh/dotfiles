@@ -46,5 +46,5 @@
     ;; 可选：进入 Dired 时强制切换到 emacs 状态
     (add-hook 'dired-mode-hook #'evil-emacs-state)))
 
-(provide 'init-dired)
+(provide 'emacs-init-dired)
 

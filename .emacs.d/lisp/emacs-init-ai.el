@@ -32,5 +32,5 @@
   :custom
   (tramp-default-method "ssh"))
 
-(provide 'init-ai)
+(provide 'emacs-init-ai)
 ;;; init-tools.el ends here

@@ -1,29 +1,24 @@
 ;;; init-vcs.el --- 版本控制配置 -*- lexical-binding: t; -*-
-
-;;; │ VC ─ 通用配置
+;;; │ VC
 (use-package vc
   :ensure nil
   :defer t
-  :custom
-  (vc-handled-backends '(Git))
-  (vc-follow-symlinks t)
   :config
   (setopt
-   vc-auto-revert-mode t
-   vc-allow-rewriting-published-history t
-   vc-git-diff-switches '("--patch-with-stat" "--histogram")
-   vc-git-log-switches '("--stat")
+   vc-auto-revert-mode t                    ; EMACS-31
+   vc-allow-rewriting-published-history t   ; EMACS-31
+   vc-git-diff-switches '("--patch-with-stat" "--histogram")  ;; add stats to `git diff'
+   vc-git-log-switches '("--stat")                            ;; add stats to `git log'
    vc-git-log-edit-summary-target-len 50
    vc-git-log-edit-summary-max-len 70
    vc-git-print-log-follow t
    vc-git-revision-complete-only-branches nil
-   vc-git-show-stash 0
+   vc-git-show-stash 0                                        ;; do not polute vc-dir with stash lines
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
-   vc-dir-auto-hide-up-to-date t
-   vc-make-backup-files nil)
+   vc-dir-auto-hide-up-to-date   t          ; EMACS-31
+   vc-make-backup-files nil)                                  ;; do not backup version controlled files
 
-  ;; ---- vc-annotate 配色 ----
   (with-eval-after-load 'vc-annotate
     (setopt vc-annotate-color-map
             '((20 . "#c3e88d")
@@ -45,50 +40,42 @@
               (340 . "#6a81ff")
               (360 . "#5c6bd7"))))
 
-  ;; ---- log-edit 提交消息编辑 ----
-  (with-eval-after-load 'log-edit
-    (setopt log-edit-confirm 'changed
-            log-edit-keep-buffer nil
-            log-edit-require-final-newline t
-            log-edit-setup-add-author nil)
-    (remove-hook 'log-edit-hook #'log-edit-show-files))
+  ;; This one is for editing commit messages
+  (require 'log-edit)
+  (setopt log-edit-confirm 'changed
+          log-edit-keep-buffer nil
+          log-edit-require-final-newline t
+          log-edit-setup-add-author nil)
 
-  ;; ---- display-buffer 规则 ----
-  (add-to-list 'display-buffer-alist
-               '("\\*vc-change-log\\*\\|\\*VC-log\\*"
-                 (display-buffer-same-window)))
-  (add-to-list 'display-buffer-alist
-               '("\\*vc-\\|\\*VC-\\|\\*cvs\\|COMMIT_EDITMSG"
-                 (display-buffer-in-side-window)
-                 (side . right)
-                 (window-width . 0.5)
-                 (slot . 0)))
+  ;; Removes the bottom window with modified files list
+  (remove-hook 'log-edit-hook #'log-edit-show-files)
 
-  ;; ---- Git 命令工具 ----
-  (defun emacs-solo/vc-git-command (verb fn)
-    "Execute a Git command with VERB as action and FN as operations."
-    (let* ((fileset (vc-deduce-fileset t))
-           (backend (car fileset))
-           (files (nth 1 fileset)))
-      (if (eq backend 'Git)
-          (progn
-            (funcall fn files)
-            (message ">>> emacs-solo: %s %d file(s)." verb (length files)))
-        (message ">>> emacs-solo: Not in a VC Git buffer."))))
+  (with-eval-after-load 'vc-dir
+    ;; In vc-git and vc-dir for git buffers, make (C-x v) a run git add, u run git
+    ;; reset, and r run git reset and checkout from head.
+    (defun emacs-solo/vc-git-command (verb fn)
+      "Execute a Git command with VERB as action and FN as operations."
+      (let* ((fileset (vc-deduce-fileset t)) ;; Deduce fileset
+             (backend (car fileset))
+             (files (nth 1 fileset)))
+        (if (eq backend 'Git)
+            (progn
+              (funcall fn files)
+              (message ">>> emacs-solo: %s %d file(s)." verb (length files)))
+          (message ">>> emacs-solo: Not in a VC Git buffer."))))
 
-  (defun emacs-solo/vc-git-add (&optional _revision _vc-fileset _comment)
-    "Stage files under point in VC Git buffers."
-    (interactive "P")
-    (emacs-solo/vc-git-command "Staged" 'vc-git-register))
+    (defun emacs-solo/vc-git-add (&optional _revision _vc-fileset _comment)
+      (interactive "P")
+      (emacs-solo/vc-git-command "Staged" 'vc-git-register))
 
-  (defun emacs-solo/vc-git-reset (&optional _revision _vc-fileset _comment)
-    "Unstage files under point in VC Git buffers."
-    (interactive "P")
-    (emacs-solo/vc-git-command "Unstaged"
-                               (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--"))))
+    (defun emacs-solo/vc-git-reset (&optional _revision _vc-fileset _comment)
+      (interactive "P")
+      (emacs-solo/vc-git-command "Unstaged"
+                                 (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--")))))
+
 
   (defun emacs-solo/vc-git-visualize-status ()
-    "Show the Git status of files in the `vc-log' buffer."
+    "Show the Git status of files in the `vc-log` buffer."
     (interactive)
     (let* ((fileset (vc-deduce-fileset t))
            (backend (car fileset)))
@@ -97,17 +84,19 @@
             (with-current-buffer (get-buffer-create output-buffer)
               (read-only-mode -1)
               (erase-buffer)
+              ;; Capture the raw output including colors using 'git status --color=auto'
               (call-process "git" nil output-buffer nil "status" "-v")
               (pop-to-buffer output-buffer)))
         (message ">>> emacs-solo: Not in a VC Git buffer."))))
 
+
   (defun emacs-solo/vc-git-reflog ()
-    "Show git reflog in a new buffer with ANSI colors."
+    "Show git reflog in a new buffer with ANSI colors and custom keybindings."
     (interactive)
-    (let* ((root (vc-root-dir))
+    (let* ((root (vc-root-dir)) ;; Capture VC root before creating buffer
            (buffer (get-buffer-create "*vc-git-reflog*")))
       (with-current-buffer buffer
-        (setq-local vc-git-reflog-root root)
+        (setq-local vc-git-reflog-root root) ;; Store VC root as a buffer-local variable
         (let ((inhibit-read-only t))
           (erase-buffer)
           (vc-git-command buffer nil nil
@@ -116,18 +105,21 @@
                           "--pretty=format:%C(yellow)%h%Creset %C(auto)%d%Creset %Cgreen%gd%Creset %s %Cblue(%cr)%Creset")
           (goto-char (point-min))
           (ansi-color-apply-on-region (point-min) (point-max)))
+
         (let ((map (make-sparse-keymap)))
           (define-key map (kbd "/") #'isearch-forward)
           (define-key map (kbd "p") #'previous-line)
           (define-key map (kbd "n") #'next-line)
           (define-key map (kbd "q") #'kill-buffer-and-window)
+
           (use-local-map map))
+
         (setq buffer-read-only t)
         (setq mode-name "Git-Reflog")
         (setq major-mode 'special-mode))
       (pop-to-buffer buffer)))
 
-  ;; ---- Rebase 命令 ----
+
   (defun emacs-solo/vc-rebase (rev)
     "Rebase current VC branch onto REV."
     (interactive (list (vc-read-revision "Rebase onto: ")))
@@ -166,8 +158,9 @@
     "s" #'emacs-solo/vc-rebase-skip
     "l" #'emacs-solo/vc-git-reflog)
 
+
   (defun emacs-solo/vc-pull-merge-current-branch ()
-    "Pull the from origin for the current branch and display output."
+    "Pull the from origin for the current branch and display output in a buffer."
     (interactive)
     (let* ((branch (vc-git--symbolic-ref "HEAD"))
            (buffer (get-buffer-create "*Git Pull Output*"))
@@ -181,9 +174,11 @@
             (display-buffer buffer))
         (message ">>> emacs-solo: Could not determine current branch."))))
 
+
   (defun emacs-solo/vc-browse-remote (&optional current-line)
     "Open the repository's remote URL in the browser.
-If CURRENT-LINE is non-nil, point to the current branch, file, and line."
+If CURRENT-LINE is non-nil, point to the current branch, file, and line.
+Otherwise, open the repository's main page."
     (interactive "P")
     (let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
            (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
@@ -193,20 +188,23 @@ If CURRENT-LINE is non-nil, point to the current branch, file, and line."
       (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
           (let ((host (match-string 1 remote-url))
                 (path (match-string 2 remote-url)))
+            ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
             (when (string-prefix-p "git@" host)
               (setq host (replace-regexp-in-string "^git@" "" host)))
+            ;; Construct the appropriate URL based on CURRENT-LINE
             (browse-url
              (if current-line
                  (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
                (format "https://%s/%s" host path))))
         (message ">>> emacs-solo: Could not determine repository URL"))))
 
+
   (defun emacs-solo/vc-diff-on-current-hunk ()
     "Open diff jumping to the current hunk."
     (interactive)
     (let ((current-line (line-number-at-pos)))
       (message ">>> emacs-solo: Current line in file %d" current-line)
-      (vc-diff)
+      (vc-diff) ; Generate the diff buffer
       (with-current-buffer "*vc-diff*"
         (goto-char (point-min))
         (let ((found-hunk nil))
@@ -220,13 +218,15 @@ If CURRENT-LINE is non-nil, point to the current branch, file, and line."
                          (<= current-line end-line))
                 (message ">>> emacs-solo: Current line %d is within hunk range %d to %d" current-line start-line end-line)
                 (setq found-hunk t)
-                (goto-char (match-beginning 0)))))
+                (goto-char (match-beginning 0))))) ; Jump to the beginning of the hunk
           (unless found-hunk
             (message ">>> emacs-solo: Current line %d is not within any hunk range." current-line)
             (goto-char (point-min)))))))
 
+
   (defun emacs-solo/switch-git-status-buffer ()
-    "Switch to a buffer visiting a modified or renamed file in the current Git repo."
+    "Switch to a buffer visiting a modified or renamed file in the current Git repo.
+The completion candidates include the Git status of each file."
     (interactive)
     (require 'vc-git)
     (let ((repo-root (vc-git-root default-directory)))
@@ -241,11 +241,13 @@ If CURRENT-LINE is non-nil, point to the current branch, file, and line."
                       (let ((status (substring line 0 2))
                             (path-info (substring line 3)))
                         (cond
+                         ;; Renamed files
                          ((string-prefix-p "R" status)
                           (let* ((paths (split-string path-info " -> " t))
                                  (new-path (cadr paths)))
                             (when new-path
                               (push (cons (format "R %s" new-path) new-path) files))))
+                         ;; Modified or untracked
                          ((or (string-match "M" status)
                               (string-match "\\?\\?" status))
                           (push (cons (format "%s %s" status path-info) path-info) files)))))))))
@@ -259,129 +261,31 @@ If CURRENT-LINE is non-nil, point to the current branch, file, and line."
                   (when file-path
                     (find-file (expand-file-name file-path expanded-root)))))))))))
 
-  ;; ---- C-x v 前缀绑定（函数/变量均已定义完毕） ----
+
+  ;; For *vc-dir* buffer:
+  (with-eval-after-load 'vc-dir
+    (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
+    (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
+    (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+    (define-key vc-dir-mode-map (kbd "R") emacs-solo/vc-rebase-map)
+    ;; Bind g to hide up to date files after refreshing in vc-dir
+
+    ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
+    (define-key vc-dir-mode-map (kbd "g")
+                (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date))))
+
+
+  ;; For C-x v ... bindings:
   (define-key vc-prefix-map (kbd "S") #'emacs-solo/vc-git-add)
   (define-key vc-prefix-map (kbd "U") #'emacs-solo/vc-git-reset)
   (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
   (define-key vc-prefix-map (kbd "R") emacs-solo/vc-rebase-map)
   (define-key vc-prefix-map (kbd "B") #'emacs-solo/vc-browse-remote)
-  (define-key vc-prefix-map (kbd "o") (lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
+  (define-key vc-prefix-map (kbd "o") #'(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
   (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
 
-  ;; ---- 全局快捷键 ----
+  ;; Switch-buffer between modified files
   (global-set-key (kbd "C-x C-g") 'emacs-solo/switch-git-status-buffer))
 
-;;; │ VC-Dir ─ Magit 风格快捷键
-(use-package vc-dir
-  :ensure nil
-  :after vc
-  :hook (vc-dir-mode . evil-emacs-state)
-  :init
-  (when (featurep 'evil)
-    (evil-set-initial-state 'vc-dir-mode 'emacs))
-  :config
-  ;; ---- 导航 (h/j/k/l 同 Dired) ----
-  (define-key vc-dir-mode-map (kbd "h") #'vc-dir-previous-line)
-  (define-key vc-dir-mode-map (kbd "j") #'vc-dir-next-line)
-  (define-key vc-dir-mode-map (kbd "k") #'vc-dir-previous-line)
-  (define-key vc-dir-mode-map (kbd "l") #'vc-dir-find-file)
-
-  ;; ---- Stage ----
-  (define-key vc-dir-mode-map (kbd "s") #'vc-dir-mark)
-  (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
-  (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
-  (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-
-  ;; ---- Rebase prefix ----
-  (define-key vc-dir-mode-map (kbd "R") emacs-solo/vc-rebase-map)
-
-  ;; ---- Amend ----
-  (define-key vc-dir-mode-map (kbd "A") #'vc-dir-amend-commit)
-
-  ;; ---- Refresh + hide up-to-date ----
-  (define-key vc-dir-mode-map (kbd "g")
-              (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date)))
-
-  ;; ---- Commit prefix (c c = commit, c a = amend) ----
-  (defvar vc-dir-commit-prefix-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "c") #'vc-next-action)
-      (define-key map (kbd "a") #'vc-dir-amend-commit)
-      map)
-    "Commit-related keymap under `c` prefix in vc-dir.")
-  (define-key vc-dir-mode-map (kbd "c") vc-dir-commit-prefix-map)
-
-  ;; ---- 命令 ----
-  (defun vc-dir-stage-all ()
-    "Stage (mark) all modified, added, and removed files."
-    (interactive)
-    (vc-dir-unmark-all-files 1)
-    (dolist (state '(edited added removed))
-      (vc-dir-mark-state-files state))
-    (message "All changes staged"))
-
-  (defun vc-dir-amend-commit ()
-    "Amend the last commit, including currently staged changes."
-    (interactive)
-    (let ((files (vc-dir-marked-files)))
-      (if files
-          (vc-modify-change-comment nil)
-        (user-error "No staged files; stage files with s or S first"))))
-
-  (defun vc-dir-current-should-skip-p ()
-    "判断当前行是否需要跳过。"
-    (when vc-ewoc
-      (let* ((node (ewoc-locate vc-ewoc))
-             (data (ewoc-data node)))
-        (when data
-          (or (vc-dir-fileinfo->directory data)
-              (eq (vc-dir-fileinfo->state data) 'up-to-date))))))
-
-  (defun vc-dir-move-and-diff (move-fn wrap-pos)
-    "移动到下一个文件并显示 diff。"
-    (let ((start-node (and vc-ewoc (ewoc-locate vc-ewoc)))
-          (wrapped nil))
-      (catch 'done
-        (while t
-          (let ((prev-node (and vc-ewoc (ewoc-locate vc-ewoc))))
-            (funcall move-fn 1)
-            (let ((cur-node (and vc-ewoc (ewoc-locate vc-ewoc))))
-              (when (and (eq cur-node prev-node) (not wrapped))
-                (setq wrapped t)
-                (goto-char wrap-pos)
-                (funcall move-fn 1)
-                (setq cur-node (and vc-ewoc (ewoc-locate vc-ewoc))))
-              (when (eq cur-node start-node)
-                (message "No edited files found")
-                (throw 'done nil))
-              (unless (vc-dir-current-should-skip-p)
-                (throw 'done nil))
-              (when (eq cur-node prev-node)
-                (message "No edited files found")
-                (throw 'done nil)))))))
-    (save-selected-window
-      (vc-diff)))
-
-  (defun vc-dir-next-and-diff ()
-    "移动到下一个修改文件并 diff。"
-    (interactive)
-    (vc-dir-move-and-diff #'vc-dir-next-line (point-min)))
-
-  (defun vc-dir-prev-and-diff ()
-    "移动到上一个修改文件并 diff。"
-    (interactive)
-    (vc-dir-move-and-diff #'vc-dir-previous-line (point-max)))
-
-  (defun vc-dir-quick-commit-all ()
-    "标记所有修改的文件并提交。"
-    (interactive)
-    (vc-dir-unmark-all-files 1)
-    (dolist (state '(edited added removed))
-      (vc-dir-mark-state-files state))
-    (let ((files (vc-dir-marked-files)))
-      (if files
-          (vc-next-action nil)
-        (message "No files to commit")))))
-
-(provide 'init-vcs)
+(provide 'emacs-init-vcs)
 ;;; init-vcs.el ends here

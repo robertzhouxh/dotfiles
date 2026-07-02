@@ -27,5 +27,5 @@
   :init
   (global-lsp-bridge-mode))
 
-(provide 'init-completion)
+(provide 'emacs-init-completion)
 ;;; init-completion.el ends here

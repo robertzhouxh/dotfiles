@@ -34,5 +34,5 @@
 ;; 统计和 imenu 支持
 (setq use-package-enable-imenu-support t)
 
-(provide 'init-elpa)
+(provide 'emacs-init-elpa)
 ;;; init-elpa.el ends here

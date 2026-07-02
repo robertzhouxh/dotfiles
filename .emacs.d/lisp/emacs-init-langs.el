@@ -1,6 +1,6 @@
 ;;; init-langs.el --- 编程语言配置 -*- lexical-binding: t; -*-
 
-(require 'init-path)
+(require 'emacs-init-path)
 
 ;; ---- 通用 ----
 (use-package yaml-mode :mode ("\\.ya?ml\\'" . yaml-mode))
@@ -130,5 +130,5 @@
     (reftex-mode 1)
     (setq reftex-plug-into-AUCTeX t)))
 
-(provide 'init-langs)
+(provide 'emacs-init-langs)
 ;;; init-langs.el ends here

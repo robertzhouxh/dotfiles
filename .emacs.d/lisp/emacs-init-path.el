@@ -41,5 +41,5 @@
 
 (setenv "EMACS_MODULE_HEADER_ROOT" my-module-header-root)
 
-(provide 'init-path)
+(provide 'emacs-init-path)
 ;;; init-path.el ends here

@@ -1,6 +1,6 @@
 ;;; init-ui.el --- UI 视觉配置 -*- lexical-binding: t; -*-
 
-(require 'init-path)
+(require 'emacs-init-path)
 
 ;; ---- 高亮与括号 ----
 (use-package rainbow-delimiters
@@ -101,5 +101,5 @@
 (when my-sys-mac-p
   (set-fontset-font t 'emoji '("Apple Color Emoji" . "iso10646-1") nil 'prepend))
 
-(provide 'init-ui)
+(provide 'emacs-init-ui)
 ;;; init-ui.el ends here

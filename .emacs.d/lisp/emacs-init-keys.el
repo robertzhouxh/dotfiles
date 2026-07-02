@@ -196,5 +196,5 @@
   :config
   (which-key-setup-side-window-right))
 
-(provide 'init-keys)
+(provide 'emacs-init-keys)
 ;;; init-keys.el ends here

@@ -1,6 +1,6 @@
 ;;; init-rime.el --- Rime 中文输入配置 -*- lexical-binding: t; -*-
 
-(require 'init-path)
+(require 'emacs-init-path)
 
 (use-package rime
   :custom
@@ -39,5 +39,5 @@
               :foreground-color "#dcdccc"
               :internal-border-width 2)))
 
-(provide 'init-rime)
+(provide 'emacs-init-rime)
 ;;; init-rime.el ends here

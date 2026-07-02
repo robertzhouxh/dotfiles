@@ -1,6 +1,6 @@
 ;;; init-platform.el --- 平台差异配置 -*- lexical-binding: t; -*-
 
-(require 'init-path)
+(require 'emacs-init-path)
 
 (when my-sys-mac-p
   (setq delete-by-moving-to-trash t
@@ -13,5 +13,5 @@
 ;;(when my-sys-linux-p
 ;;  )
 
-(provide 'init-platform)
+(provide 'emacs-init-platform)
 ;;; init-platform.el ends here

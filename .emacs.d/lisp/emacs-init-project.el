@@ -46,5 +46,5 @@
   (when (executable-find "fd")
     (setq ffip-use-rust-fd t)))
 
-(provide 'init-project)
+(provide 'emacs-init-project)
 ;;; init-project.el ends here
