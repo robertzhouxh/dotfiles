@@ -69,6 +69,7 @@ This allows using a specific environment or scratch context."
 (require 'emacs-init-keys)
 (require 'emacs-init-settings)
 (require 'emacs-init-ui)
+(require 'emacs-init-font)
 (require 'emacs-solo-transparency)
 
 ;; 功能模块
@@ -84,7 +85,7 @@ This allows using a specific environment or scratch context."
 (require 'emacs-init-langs)
 (require 'emacs-solo-highlight-keywords)
 (require 'emacs-init-evil)
-(require 'emacs-init-ai)
+;;(require 'emacs-init-ai)
 (require 'emacs-solo-ai)
 (require 'emacs-init-rime)
 (require 'emacs-init-platform)
