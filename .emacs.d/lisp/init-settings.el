@@ -1,4 +1,4 @@
-;;; init-editor.el --- 编辑行为配置 -*- lexical-binding: t; -*-
+;;; init-settings.el --- 编辑行为配置 -*- lexical-binding: t; -*-
 
 (require 'init-path)
 
@@ -90,6 +90,54 @@
   (setq indent-tabs-mode nil)
   (setq tab-width 4))
 (add-hook 'prog-mode-hook 'my/use-spaces-setup)
+
+;; ---- 自定义 word 移动 ----
+;; 将 / \ - . 等符号视为词分隔符，比默认 forward-word 更符合编程直觉
+(defconst my-word-separators
+  '(?/ ?\\ ?\( ?\) ?\" ?\' ?- ?. ?, ?: ?\; ?< ?> ?~
+       ?! ?@ ?# ?$ ?% ?^ ?& ?* ?_ ?| ?+ ?= ?\[ ?\] ?{ ?} ?│))
+
+(defun my-char-type (char)
+  (cond
+   ((null char) 'newline)
+   ((= char ?\n) 'newline)
+   ((memq char '(?\  ?\t)) 'space)
+   ((memq char my-word-separators) 'sep)
+   ((eq (char-syntax char) ?w) 'word)
+   (t 'sep)))
+
+(defun my-forward-word ()
+  (interactive "^")
+  (let ((start (point))
+        (type (my-char-type (char-after))))
+    (while (and (not (eobp))
+                (eq (my-char-type (char-after)) type))
+      (forward-char))
+    (while (and (not (eobp))
+                (eq (my-char-type (char-after)) 'space))
+      (forward-char))
+    (when (= (point) start)
+      (forward-char))))
+
+(defun my-backward-word ()
+  (interactive "^")
+  (let ((start (point)))
+    (while (and (not (bobp))
+                (eq (my-char-type (char-before)) 'space))
+      (backward-char))
+    (when (= (point) start)
+      (let ((type (my-char-type (char-before))))
+        (while (and (not (bobp))
+                    (eq (my-char-type (char-before)) type))
+          (backward-char))))))
+
+(defun my-delete-word-forward ()
+  (interactive)
+  (delete-region (point) (save-excursion (my-forward-word) (point))))
+
+(defun my-delete-word-backward ()
+  (interactive)
+  (delete-region (point) (save-excursion (my-backward-word) (point))))
 
 ;; ---- 实用函数 ----
 (defun my/all-available-fonts ()
@@ -222,4 +270,4 @@
 (use-package discover-my-major)
 
 (provide 'init-settings)
-;;; init-editor.el ends here
+;;; init-settings.el ends here

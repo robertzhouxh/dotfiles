@@ -1,4 +1,4 @@
-;;; init-kbd.el --- 键位配置 -*- lexical-binding: t; -*-
+;;; init-keys.el --- 键位配置 -*- lexical-binding: t; -*-
 
 ;; 卸载不需要的默认快捷键
 (let ((keys '("C-q" "C-6" "C-z"
@@ -47,7 +47,15 @@
    "C-]"   'lsp-bridge-find-def
    "C-t"   'lsp-bridge-find-def-return
    "C-9"   'lsp-bridge-popup-documentation
-   "C-0"   'lsp-bridge-rename)
+   "C-0"   'lsp-bridge-rename
+
+   ;; word 移动（自定义边界，不覆盖 Evil normal/visual 的 w/b/e）
+   "M-f"           'my-forward-word
+   "M-b"           'my-backward-word
+   "C-<right>"     'my-forward-word
+   "C-<left>"      'my-backward-word
+   "C-<delete>"    'my-delete-word-forward
+   "C-<backspace>" 'my-delete-word-backward)
   ;; ============================================================
   ;; 全局跨状态绑定（包括 insert 等）
   (general-define-key
@@ -189,4 +197,4 @@
   (which-key-setup-side-window-right))
 
 (provide 'init-keys)
-;;; init-kbd.el ends here
+;;; init-keys.el ends here

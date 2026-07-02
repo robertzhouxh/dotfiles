@@ -23,6 +23,11 @@
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-dired-gutter t
+  "Enable `emacs-solo-dired-gutter'."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-enable-preferred-font t
   "Enable `emacs-solo-enable-preferred-font'."
   :type 'boolean
@@ -49,7 +54,9 @@ This allows using a specific environment or scratch context."
 ;; 基础：路径常量 → 包引导 → 环境
 (require 'init-path)
 (require 'init-elpa)
-(require 'init-env)
+;;(require 'init-env)
+(require 'emacs-solo-exec-path-from-shell)
+(require 'emacs-solo-clipboard)
 
 ;; custom-file 尽早设置（在加载模块之前）
 (setq custom-file (expand-file-name "custom.el" my-cache-dir))
@@ -62,18 +69,27 @@ This allows using a specific environment or scratch context."
 (require 'init-keys)
 (require 'init-settings)
 (require 'init-ui)
+(require 'emacs-solo-transparency)
 
 ;; 功能模块
 (require 'init-completion)
 (require 'init-dired)
+(require 'emacs-solo-dired-gutter)
 (require 'init-project)
-(require 'init-vcs)
+(require 'emacs-solo-project-select)
+;;(require 'init-vcs)
+(require 'emacs-solo-gutter)
+(require 'emacs-solo-gh)
 (require 'init-org)
 (require 'init-langs)
+(require 'emacs-solo-highlight-keywords)
 (require 'init-evil)
 (require 'init-ai)
+(require 'emacs-solo-ai)
 (require 'init-rime)
 (require 'init-platform)
+(require 'emacs-solo-sudo-edit)
+(require 'emacs-solo-temp-sharing)
 
 ;; 关闭第三方包的 lexical-binding 警告
 (setq warning-minimum-level :error)
