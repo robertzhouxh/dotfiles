@@ -61,3 +61,5 @@ get-pip.py
 .emacs.d/smex-items
 .emacs.d/custom.el
 *.~undo-tree~
+.emacs.d/init.el
+.gitignore

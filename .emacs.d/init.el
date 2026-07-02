@@ -85,6 +85,7 @@ This allows using a specific environment or scratch context."
 (require 'emacs-init-langs)
 (require 'emacs-solo-highlight-keywords)
 (require 'emacs-init-evil)
+;; 关闭之前的AI配置
 ;;(require 'emacs-init-ai)
 (require 'emacs-solo-ai)
 (require 'emacs-init-rime)
