@@ -71,6 +71,7 @@
 ;; 所有模块加载完后再收紧警告级别，避免第三方包加载期间的 warning 被升级为 error
 (setq warning-minimum-level :error)
 
+;; 暂时关掉
 ;; (server-start)
 
 (provide 'init)

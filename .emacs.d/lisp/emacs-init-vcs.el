@@ -60,22 +60,22 @@
 
   ;; ── 核心：刷新 vc-dir ─────────────────────────────────────────────────────────
   ;;
-  ;; 先用 vc-file-clearprops 清除缓存，然后 revert 所有关联的 vc-dir buffer。
-  ;; revert 触发 vc-dir-auto-hide-up-to-date（设为 t 时自动隐藏已同步文件）。
+  ;; vc-dir-refresh-files 是 Emacs 29+ 公开 API，走 Git dir-status-files
+  ;; 异步路径，只更新指定文件，比 revert-buffer 更高效精准。
+  ;; 必须先 vc-file-clearprops 清缓存，否则 backend 可能直接读缓存返回旧值。
 
   (defun emacs-solo/vc-refresh-after-git-op (files)
-    "清除 FILES 的 VC 缓存，然后 revert 所有包含这些文件的 vc-dir buffer。"
+    "清除 FILES 的 VC 缓存，然后刷新所有关联 vc-dir buffer 中的这些文件。"
     (mapc #'vc-file-clearprops files)
     (dolist (buf (buffer-list))
       (when (buffer-live-p buf)
         (with-current-buffer buf
           (when (derived-mode-p 'vc-dir-mode)
-            (when (cl-some (lambda (f)
-                             (file-in-directory-p f default-directory))
-                           files)
-              (revert-buffer t t)
-              (when (eq vc-dir-auto-hide-up-to-date t)
-                (vc-dir-hide-up-to-date))))))))
+            (let ((relevant (cl-remove-if-not
+                             (lambda (f) (file-in-directory-p f default-directory))
+                             files)))
+              (when relevant
+                (vc-dir-refresh-files relevant))))))))
 
   ;; ── Stage / Unstage ───────────────────────────────────────────────────────────
 
@@ -83,7 +83,7 @@
     "对当前 fileset 执行 Git 操作 FN，完成后刷新 vc-dir。
 VERB 用于 minibuffer 提示（如 \"Staged\"、\"Unstaged\"）。
 FN 接收 files 列表作为唯一参数。"
-    (let* ((fileset (vc-deduce-fileset nil t))
+    (let* ((fileset (vc-deduce-fileset t))
            (backend (car fileset))
            (files   (nth 1 fileset)))
       (if (eq backend 'Git)
