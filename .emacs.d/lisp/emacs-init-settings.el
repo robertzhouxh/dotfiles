@@ -260,13 +260,6 @@
 (use-package comment-dwim-2
   :commands (comment-dwim-2))
 
-(use-package ediff
-  :commands (ediff ediff-buffers ediff-files ediff-regions-wordwise ediff-directories)
-  :config
-  (setq ediff-keep-variants nil
-        ediff-split-window-function 'split-window-horizontally
-        ediff-window-setup-function #'ediff-setup-windows-plain))
-
 (use-package discover-my-major)
 
 (provide 'emacs-init-settings)
