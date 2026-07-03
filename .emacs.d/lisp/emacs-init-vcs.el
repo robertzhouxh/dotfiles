@@ -2,6 +2,8 @@
 
 ;; ── VC 基础设置 ──────────────────────────────────────────────────────────────
 
+(use-package magit :ensure t :defer t)
+
 (with-eval-after-load 'vc
   (setopt
    vc-handled-backends           '(Git)
