@@ -170,6 +170,77 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 | `emacs-solo-claude-model-choices` | 见源码 | 可选模型列表 |
 | `emacs-solo-claude-diff-max-lines` | `200` | 内联 diff 最大显示行数 |
 
+# CLAUDE.md — AI 编码代理的工作契约
+
+[CLAUDE.md](./CLAUDE.md) 是本仓库的 AI 编码代理指令文件，灵感来自 [jbarbier/CLAUDE.md](https://github.com/jbarbier/CLAUDE.md)。
+
+## 为什么需要它
+
+没有指令的 AI 代理默认输出的是"它见过的一切的平均值"——平庸、提前停手、跳过测试、编造库、对不该问的事情请求许可。`CLAUDE.md` 在会话开始时加载到模型上下文中，充当一份长期契约，覆盖这些默认行为。
+
+> 就像雇一个没有 brief 的承包商 vs 雇一个墙上贴着单页 spec 的承包商。
+
+## 安装（3分钟）
+
+### Claude Code
+
+Claude Code 自动从项目根目录读取 `CLAUDE.md`（全局版本在 `~/.claude/CLAUDE.md`）：
+
+```
+# 在项目目录中
+curl -O https://raw.githubusercontent.com/<your-fork>/CLAUDE.md/main/CLAUDE.md
+# 或者直接手动复制文件
+```
+
+搞定。在该目录下启动 `claude`，规则即刻生效。
+
+### 其他工具（Codex CLI、Cursor、Gemini CLI 等）
+
+大多数其他代理读取 `AGENTS.md` 而非 `CLAUDE.md`。`AGENTS.md` 是新兴的跨工具标准（Codex CLI、Cursor、Gemini CLI、Jules 等均支持），内容完全相同，仅文件名不同。
+
+不要维护两份逐渐偏离的副本——保持单一数据源，其余通过符号链接指向它：
+
+```
+# CLAUDE.md 是真实文件，其余全部指向它
+ln -s CLAUDE.md AGENTS.md      # Codex CLI、Cursor 等 AGENTS.md 标准工具
+ln -s CLAUDE.md GEMINI.md      # Gemini CLI
+```
+
+现在 Claude 读 `CLAUDE.md`，Codex 读 `AGENTS.md`，Gemini 读 `GEMINI.md`，三者是同一份字节。编辑一次，所有代理同步更新。
+
+| 工具 | 读取的文件 | 接线方式 |
+|------|-----------|----------|
+| Claude Code | `CLAUDE.md` | 直接使用 |
+| OpenAI Codex CLI | `AGENTS.md` | `ln -s CLAUDE.md AGENTS.md` |
+| Cursor | `AGENTS.md`（或 `.cursor/rules/`） | `ln -s CLAUDE.md AGENTS.md` |
+| Gemini CLI | `GEMINI.md` | `ln -s CLAUDE.md GEMINI.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` | 复制内容进去 |
+| 其他工具 | 通常是 `AGENTS.md` | `ln -s CLAUDE.md AGENTS.md` |
+
+> 如果你的工具不跟随符号链接，直接复制文件并重命名即可。规则不关心文件叫什么名字。
+
+## 个性化
+
+### 替换名字
+
+文件中会引用作者名字（如 "impress Julien"、"ask Julien"），代理将其视为对话对象。用 `sed` 一键替换：
+
+```
+# macOS
+sed -i '' 's/Julien/YOUR_NAME/g' CLAUDE.md
+
+# Linux
+sed -i 's/Julien/YOUR_NAME/g' CLAUDE.md
+```
+
+### 其他调整
+
+- **`food_vision/classifier.py:47`** — 只是展示代码指向格式的示例，保留即可
+- **LLM 访问规则**（"通过本地 Claude Code 路由，绝不使用外部 API"）——如果你直接调用 Anthropic 或 OpenAI API，删除或反转该段
+- **gstack / skills 引用**——假定安装了 Garry Tan 的 `gstack`；如果没装，"检查技能"规则仍然有效，只是能找到的技能更少
+
+本仓库的 `CLAUDE.md` 已针对个人 dotfiles 项目定制。复制到其他项目时，应替换项目特定的路径、工具链和偏好设置。
+
 # 关于版本控制
 
 
