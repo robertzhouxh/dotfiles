@@ -47,6 +47,7 @@ rime
 rime-settings*
 .emacs.d/projects
 .emacs.d/tree-sitter*
+.emacs.d/agent
 .emacs.d/lisp/*-autoloads.el
 
 
