@@ -1,0 +1,105 @@
+#+TITLE: Emacs LLM 工具使用说明
+#+DATE: 2026-07-09
+
+* 概览
+
+当前 Emacs 配置了三层 AI 交互方式，从轻到重：
+
+| 工具         | 入口                        | 适用场景                         |
+|--------------|-----------------------------|----------------------------------|
+| gptel        | =M-return=                  | 快速问答、查文档、临时请求       |
+| Claude Chat  | =C-c C-0=                   | 项目级对话、文件编辑、会话恢复   |
+| agent-shell  | =C-c C-a=                   | 完整 Claude Code 终端 agent 体验 |
+
+* gptel — 轻量级 LLM 交互
+
+**是什么：** gptel 是一个 Emacs LLM 客户端，核心设计不是聊天 UI，而是「Emacs 里任意文本都能发给模型，回复可以重定向到任意 buffer」。
+
+**后端：** 当前配置了 DeepSeek（=deepseek-chat=），走 OpenAI 兼容 API。
+
+**启动方式：**
+- =M-return= — 弹出 / 收起底部 drawer 窗口（Org 格式的 gptel 聊天 buffer）
+- =M-x gptel= — 手动创建新的 gptel 会话
+
+**在 gptel buffer 内：**
+- =C-c RET= (=gptel-send=) — 发送当前输入给模型
+- =C-c C-k= — 取消当前请求
+- =C-u M-x gptel= — 选择不同后端或模型
+
+**在其他 buffer 中使用（gptel 的核心能力）：**
+1. 选中一段文本（代码、报错、文档）
+2. =M-x gptel-send= — 把选区作为 prompt 发给模型
+3. 回复可以插入到当前 buffer、新 buffer、或 gptel 聊天 buffer
+
+**常用 recipe：**
+- 代码审查：选中函数 → =M-x gptel-send= → 输入 "review this code"
+- 解释报错：选中 error log → =M-x gptel-send= → "what does this error mean"
+- 改写文案：选中文字 → =M-x gptel-send= → "rewrite this more concisely"
+- 翻译：选中文字 → =M-x gptel-send= → "translate to Chinese"
+
+**切换模型：**
+临时切换：=C-u M-x gptel-send=，在 prompt 中选择后端/模型。
+永久切换：在 =*gpt*= buffer 中 =M-x gptel-menu= 或设置 =gptel-model=。
+
+可用模型：
+- =deepseek-chat= — DeepSeek V3，快速便宜（默认）
+- =deepseek-reasoner= — DeepSeek R1，深度推理
+
+* agent-shell — 终端 Agent 集成
+
+**是什么：** agent-shell 把终端里的 agent（Claude Code、Codex、Gemini CLI 等 12 种）包装成 Emacs major mode。每个会话独立 buffer，按「模型名 @ 目录名」命名。
+
+**系统依赖（需手动安装一次）：**
+#+begin_src bash
+brew install claude-code
+npm install -g @zed-industries/claude-agent-acp
+#+end_src
+
+**启动方式：**
+- =C-c C-a= — 一键在当前项目目录启动 Claude Code agent
+- =M-x agent-shell= — 手动选择 provider（Claude Code / Codex / Gemini CLI / ...）
+
+**在 agent-shell buffer 内：**
+- =RET= — 发送输入
+- =C-return= — 插入换行
+- =C-c C-c= — 中断当前操作
+
+**多项目管理：**
+agent-shell 按目录命名 buffer，比如在 =~/dev/dotfiles= 启动 Claude Code 会得到 buffer =Claude Code Agent @ dotfiles=。
+多项目之间用 =M-x switch-to-buffer= 切换即可，支持并发会话。
+
+**与其他 Claude Code 入口的对比：**
+
+| 入口        | 命令          | 方式                  | 特点                       |
+|-------------|---------------|----------------------|----------------------------|
+| agent-shell | =C-c C-a=     | ACP 协议 + 终端 buffer | 完整终端体验，buffer 管理  |
+| Claude Chat | =C-c C-0=     | stream-json + 原生渲染 | diff 高亮、会话恢复、图片粘贴 |
+| TUI Chat    | =C-c C-8=     | ansi-term 终端        | 传统 TUI，订阅配额         |
+| opencode    | =C-c C-9=     | ansi-term 终端        | 多任务类型 agent            |
+
+* 键位速查
+
+| 快捷键        | 功能                           |
+|---------------|--------------------------------|
+| =M-return=    | 弹出/收起 gptel drawer         |
+| =C-c C-a=     | 启动 agent-shell (Claude Code) |
+| =C-c C-0=     | Claude Code 原生聊天           |
+| =C-c C-8=     | Claude Code TUI                |
+| =C-c C-9=     | opencode agent                 |
+
+* 常见问题
+
+**Q: gptel drawer 弹不出来？**
+A: 确认 =DEEPSEEK_API_KEY= 环境变量已设置（=echo $DEEPSEEK_API_KEY= 有输出）。终端 Emacs 需确保 shell 环境变量已同步。
+
+**Q: agent-shell 启动报错 "claude-agent-acp not found"？**
+A: 运行 =npm install -g @zed-industries/claude-agent-acp=，确保 =claude-agent-acp= 在 PATH 中。
+
+**Q: agent-shell 和 Claude Chat 有什么区别？**
+A: Claude Chat (=C-c C-0=) 是 emacs-solo 的原生实现，用 stream-json 协议，有 diff 高亮、会话恢复等 Emacs 原生功能。agent-shell 把终端 Claude Code 包装进 Emacs buffer，体验更接近在终端里直接跑 =claude= 命令。选哪个看习惯。
+
+**Q: 怎么切换模型？**
+A: gptel 中 =C-u M-x gptel-send= 临时选择；或在 =*gpt*= buffer 中 =M-x gptel-menu=。agent-shell 中启动时选 provider（Claude Code 用已配置的模型）。
+
+**Q: gptel 能用其他模型吗？**
+A: 可以。gptel 支持 OpenAI、Anthropic、Gemini、Ollama 等。在 =emacs-init-ai.el= 中参考 DeepSeek 示例添加新后端即可。
