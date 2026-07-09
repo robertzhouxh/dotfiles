@@ -89,11 +89,11 @@ Emacs 中按 `C-\` 激活输入法。
 
 当前配置了三层 AI 交互，按使用频率从高到低：
 
-| 工具 | 快捷键 | 后端 | 场景 |
-|------|--------|------|------|
-| gptel | `M-return` | DeepSeek（OpenAI 兼容） | 快速问答、查文档、选区发送 |
-| Claude Chat | `C-c C-0` | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
-| agent-shell | `C-c C-a` | Claude Code（ACP 协议） | 完整终端 agent、多项目并发 |
+| 工具        | 快捷键     | 后端                          | 场景                           |
+|-------------|------------|-------------------------------|--------------------------------|
+| gptel       | `M-return` | DeepSeek（OpenAI 兼容）       | 快速问答、查文档、选区发送     |
+| Claude Chat | `C-c C-0`  | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
+| agent-shell | `C-c C-a`  | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
 
 配置文件：`.emacs.d/lisp/emacs-init-ai.el`
 
@@ -101,12 +101,12 @@ Emacs 中按 `C-\` 激活输入法。
 
 在任意 buffer 中选中文本，发给模型，回复插入到当前 buffer 或聊天窗口。
 
-| 操作 | 方式 |
-|------|------|
-| 弹出/收起聊天 drawer | `M-return` |
-| 发送输入 | `C-c RET`（在 gptel buffer 内） |
-| 选区发送给模型 | 选中文本 → `M-x gptel-send` → 输入 prompt |
-| 切换模型 | `C-u M-x gptel-send`，或设置 `gptel-model` |
+| 操作                 | 方式                                       |
+|----------------------|--------------------------------------------|
+| 弹出/收起聊天 drawer | `M-return`                                 |
+| 发送输入             | `C-c RET`（在 gptel buffer 内）            |
+| 选区发送给模型       | 选中文本 → `M-x gptel-send` → 输入 prompt  |
+| 切换模型             | `C-u M-x gptel-send`，或设置 `gptel-model` |
 
 可用模型：
 - `deepseek-chat`（默认）— DeepSeek V3，快速便宜
@@ -119,17 +119,17 @@ Emacs 中按 `C-\` 激活输入法。
 **前提：** 手动安装一次系统依赖：
 
 ```bash
-brew install claude-code                    # macOS
+brew install claude-code
 npm install -g @zed-industries/claude-agent-acp
 ```
 
-| 操作 | 方式 |
-|------|------|
-| 启动 Claude Code agent | `C-c C-a` |
-| 手动选择 provider | `M-x agent-shell` |
-| 发送输入 | `RET` |
-| 插入换行 | `C-return` |
-| 中断 | `C-c C-c` |
+| 操作                   | 方式              |
+|------------------------|-------------------|
+| 启动 Claude Code agent | `C-c C-a`         |
+| 手动选择 provider      | `M-x agent-shell` |
+| 发送输入               | `RET`             |
+| 插入换行               | `C-return`        |
+| 中断                   | `C-c C-c`         |
 
 ### Claude Chat 原生模式（`emacs-solo-ai`）
 
@@ -139,30 +139,30 @@ npm install -g @zed-industries/claude-agent-acp
 
 SDK 模式快捷键：
 
-| 键 | 功能 | 键 | 功能 |
-|----|------|-----|------|
-| `RET` | 发送 | `C-c C-i` | 粘贴 PNG 图片 |
-| `C-RET` | 换行 | `C-c C-l` | 清除聊天记录 |
-| `C-c C-c` | 中断进程 | `C-c C-r` | 恢复历史会话 |
-| `C-c C-k` | 终止进程 | `C-c C-m` | 切换模型 |
+| 键        | 功能     | 键        | 功能          |
+|-----------|----------|-----------|---------------|
+| `RET`     | 发送     | `C-c C-i` | 粘贴 PNG 图片 |
+| `C-RET`   | 换行     | `C-c C-l` | 清除聊天记录  |
+| `C-c C-c` | 中断进程 | `C-c C-r` | 恢复历史会话  |
+| `C-c C-k` | 终止进程 | `C-c C-m` | 切换模型      |
 
 斜杠命令（在输入框直接输入）：
 
-| 命令 | 功能 |
-|------|------|
-| `/clear` | 开始新会话 |
-| `/model NAME` | 切换模型 |
-| `/resume` | 恢复历史会话 |
+| 命令          | 功能         |
+|---------------|--------------|
+| `/clear`      | 开始新会话   |
+| `/model NAME` | 切换模型     |
+| `/resume`     | 恢复历史会话 |
 
 ### 键位速查
 
-| 快捷键 | 功能 |
-|--------|------|
-| `M-return` | gptel drawer |
-| `C-c C-a` | agent-shell |
-| `C-c C-0` | Claude Chat（SDK） |
-| `C-c C-8` | Claude TUI |
-| `C-c C-9` | OpenCode |
+| 快捷键     | 功能               |
+|------------|--------------------|
+| `M-return` | gptel drawer       |
+| `C-c C-a`  | agent-shell        |
+| `C-c C-0`  | Claude Chat（SDK） |
+| `C-c C-8`  | Claude TUI         |
+| `C-c C-9`  | OpenCode           |
 
 ### FAQ
 
@@ -173,7 +173,9 @@ SDK 模式快捷键：
 `npm install -g @zed-industries/claude-agent-acp`，确认 `which claude-agent-acp` 有输出。
 
 **agent-shell 和 Claude Chat 怎么选？**
-Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell 是终端包装（体验等同于直接跑 `claude` 命令）。日常开发用 Claude Chat，需要完整终端交互时用 agent-shell。
+Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell 是终端包装（体验等同于直接跑 `claude` 命令）。
+- 日常开发用 Claude Chat
+- 需要完整终端交互时用 agent-shell。
 
 **gptel 如何换模型？**
 在 `emacs-init-ai.el` 中参考 DeepSeek 示例添加 `gptel-make-openai` / `gptel-make-anthropic` / `gptel-make-gemini` 后端。
