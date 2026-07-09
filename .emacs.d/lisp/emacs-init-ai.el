@@ -25,51 +25,6 @@
     (setenv "ANTHROPIC_MODEL" "deepseek-v4-pro[1m]")
     (setq claude-code-program "/usr/local/bin/claude")))
 
-;; ---- gptel（轻量 LLM 交互）----
-;;
-;; 在任意 buffer 选中文本发给模型，回复可重定向到任意 buffer。
-;; 主力后端：DeepSeek（OpenAI 兼容）。
-(use-package gptel
-  :init
-  (defun my/create-drawer-window (buffer-name &optional focus height mode)
-    "Create a bottom drawer window with BUFFER-NAME.
-If FOCUS is non-nil, keep focus in the new window.
-HEIGHT is passed to `split-window-vertically' (negative = lines from bottom).
-When MODE is non-nil, call it as the new buffer's major mode."
-    (split-window-vertically (if height height -10))
-    (other-window 1)
-    (let ((buf (switch-to-buffer buffer-name)))
-      (unless focus (other-window -1))
-      (when mode
-        (with-current-buffer buf (funcall mode)))
-      buf))
-
-  (defun my/toggle-gptel-drawer ()
-    "Toggle a gptel chat buffer as a bottom drawer window."
-    (interactive)
-    (let ((buffer (gptel "*gpt*")))
-      (if (string-equal (buffer-name buffer) (buffer-name (current-buffer)))
-          (delete-window)
-        (my/create-drawer-window (buffer-name buffer) t -20))))
-  :custom
-  (gptel-api-key (string-trim
-                  (shell-command-to-string
-                   "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'")))
-  :config
-  ;; DeepSeek 作为主力后端（OpenAI 兼容）
-  (gptel-make-openai "DeepSeek"
-    :host "api.deepseek.com"
-    :endpoint "/chat/completions"
-    :key (string-trim
-          (shell-command-to-string
-           "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'"))
-    :models '(deepseek-chat deepseek-reasoner))
-  (setq gptel-model 'deepseek-chat
-        gptel-backend (gptel-get-backend "DeepSeek"))
-  :bind (("M-<return>" . my/toggle-gptel-drawer)
-         (:map gptel-mode-map
-          ("C-<tab>" . nil))))
-
 ;; ---- agent-shell（终端 Agent 集成）----
 ;;
 ;; 把 Claude Code / Codex 等终端 agent 包装成 Emacs major mode。

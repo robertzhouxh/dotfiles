@@ -89,28 +89,12 @@ Emacs 中按 `C-\` 激活输入法。
 
 当前配置了三层 AI 交互，按使用频率从高到低：
 
-| 工具        | 快捷键     | 后端                          | 场景                           |
-|-------------|------------|-------------------------------|--------------------------------|
-| gptel       | `M-return` | DeepSeek（OpenAI 兼容）       | 快速问答、查文档、选区发送     |
-| Claude Chat | `C-c C-0`  | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
-| agent-shell | `C-c C-a`  | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
+| 工具        | 快捷键    | 后端                          | 场景                           |
+|-------------|-----------|-------------------------------|--------------------------------|
+| Claude Chat | `C-c C-0` | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
+| agent-shell | `C-c C-a` | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
 
 配置文件：`.emacs.d/lisp/emacs-init-ai.el`
-
-### gptel — 轻量 LLM
-
-在任意 buffer 中选中文本，发给模型，回复插入到当前 buffer 或聊天窗口。
-
-| 操作                 | 方式                                       |
-|----------------------|--------------------------------------------|
-| 弹出/收起聊天 drawer | `M-return`                                 |
-| 发送输入             | `C-c RET`（在 gptel buffer 内）            |
-| 选区发送给模型       | 选中文本 → `M-x gptel-send` → 输入 prompt  |
-| 切换模型             | `C-u M-x gptel-send`，或设置 `gptel-model` |
-
-可用模型：
-- `deepseek-chat`（默认）— DeepSeek V3，快速便宜
-- `deepseek-reasoner` — DeepSeek R1，深度推理
 
 ### agent-shell — 终端 Agent
 
@@ -156,18 +140,14 @@ SDK 模式快捷键：
 
 ### 键位速查
 
-| 快捷键     | 功能               |
-|------------|--------------------|
-| `M-return` | gptel drawer       |
-| `C-c C-a`  | agent-shell        |
-| `C-c C-0`  | Claude Chat（SDK） |
-| `C-c C-8`  | Claude TUI         |
-| `C-c C-9`  | OpenCode           |
+| 快捷键    | 功能               |
+|-----------|--------------------|
+| `C-c C-a` | agent-shell        |
+| `C-c C-0` | Claude Chat（SDK） |
+| `C-c C-8` | Claude TUI         |
+| `C-c C-9` | OpenCode           |
 
 ### FAQ
-
-**gptel drawer 弹不出来？**
-`echo $DEEPSEEK_API_KEY` 确认环境变量已设置。终端 Emacs 未同步 shell 环境时，在 `exec-path-from-shell-variables` 中加 `DEEPSEEK_API_KEY`。
 
 **agent-shell 报 "claude-agent-acp not found"？**
 `npm install -g @zed-industries/claude-agent-acp`，确认 `which claude-agent-acp` 有输出。
@@ -176,9 +156,6 @@ SDK 模式快捷键：
 Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell 是终端包装（体验等同于直接跑 `claude` 命令）。
 - 日常开发用 Claude Chat
 - 需要完整终端交互时用 agent-shell。
-
-**gptel 如何换模型？**
-在 `emacs-init-ai.el` 中参考 DeepSeek 示例添加 `gptel-make-openai` / `gptel-make-anthropic` / `gptel-make-gemini` 后端。
 
 ---
 
