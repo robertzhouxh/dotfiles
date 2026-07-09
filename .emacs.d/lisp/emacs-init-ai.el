@@ -112,23 +112,6 @@ MODE is a major mode function to activate in the buffer."
                                    . (:description "DeepSeek V4 Pro")))))
   (setq gptel-model (intern "deepseek-v4-pro[1m]"))
 
-  (defun skye/gptel-strip-trailing-hashes (beg end)
-    "Strip trailing '###' that DeepSeek appends to responses."
-    (save-excursion
-      (goto-char end)
-      ;; Skip trailing whitespace and newlines
-      (skip-chars-backward " \t\n\r")
-      ;; If we find # characters at the end of the meaningful content
-      (when (and (> (point) beg)
-                 (eq (char-before) ?#))
-        (skip-chars-backward "#")
-        ;; Also eat the preceding newline if present
-        (when (and (> (point) beg)
-                   (eq (char-before) ?\n))
-          (backward-char 1))
-        (delete-region (point) end))))
-  (add-hook 'gptel-post-response-functions #'skye/gptel-strip-trailing-hashes)
-
   (defun skye/toggle-gptel-drawer ()
     "Toggle the gptel chat drawer at the bottom of the frame.
 When opening and a region is active, include it as context."
@@ -150,10 +133,8 @@ When opening and a region is active, include it as context."
 
   (global-set-key (kbd "<M-return>") #'skye/toggle-gptel-drawer))
 
-;; ---- Emacs 自带 tramp ----
 (use-package tramp
   :ensure nil
-  :defer t
   :custom
   (tramp-default-method "ssh"))
 
