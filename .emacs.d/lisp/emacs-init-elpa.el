@@ -16,6 +16,15 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
+;; MELPA 每天重建，缓存超过 24 小时自动刷新，避免 stale URL 报错
+(let ((stamp (expand-file-name "archive-contents-timestamp" package-user-dir)))
+  (when (or (not (file-exists-p stamp))
+            (> (- (float-time) (float-time (file-attribute-modification-time
+                                            (file-attributes stamp))))
+               (* 24 60 60)))
+    (package-refresh-contents)
+    (write-region "" nil stamp nil 'quiet)))
+
 ;; 如果 use-package 尚未安装，从 ELPA 安装
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
