@@ -168,6 +168,9 @@ C-c C-a 启动 agent-shell → 自动进入 emacs state
 | `j` / `k` | normal | 逐行滚动 agent 输出                               |
 | `C-z`     | normal | 回到 emacs state,必要的时候 Enter                 |
 | `Escape`  | emacs  | 进入 normal state（用于 j/k 滚动阅读）            |
+| `C-w h/l` | 全部   | 切换左/右窗口                                     |
+| `C-w w`   | 全部   | 循环切换窗口                                       |
+| `C-w o`   | 全部   | 仅保留当前窗口                                     |
 
 配置位置：`.emacs.d/lisp/emacs-init-evil.el:27-60`
 
