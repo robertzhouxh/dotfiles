@@ -116,7 +116,7 @@ MODE is a major mode function to activate in the buffer."
     "Strip trailing '###' that DeepSeek appends to responses."
     (save-excursion
       (goto-char end)
-      (when (re-search-backward "\n?#+[ \t]*$" beg t)
+      (when (re-search-backward "\n?#+[ \t]*\n?\\'" beg t)
         (delete-region (match-beginning 0) (match-end 0)))))
   (add-hook 'gptel-post-response-functions #'skye/gptel-strip-trailing-hashes)
 
