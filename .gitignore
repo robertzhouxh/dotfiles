@@ -64,4 +64,5 @@ get-pip.py
 *.~undo-tree~
 *.elc
 .emacs.d/init.el
+.claude/settings.local.json
 .gitignore
