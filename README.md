@@ -37,6 +37,7 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 
 - [homebrew-emacs-plus](https://github.com/d12frosted/homebrew-emacs-plus)
 - [build-emacs-for-macos](https://github.com/jimeh/build-emacs-for-macos)
+- [手动编译安装](https://codeberg.org/mclear-tools/build-emacs-macos)
 
 > 安装后执行 `./emacs.sh` 完成部署，启动 Emacs 即可。
 
