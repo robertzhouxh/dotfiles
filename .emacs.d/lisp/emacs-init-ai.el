@@ -95,6 +95,7 @@ MODE is a major mode function to activate in the buffer."
 (use-package gptel
   :ensure t
   :vc (:url "https://github.com/karthink/gptel" :rev :newest)
+  :demand t
   :bind (:map gptel-mode-map
           ("C-<return>" . gptel-send))
   :config
