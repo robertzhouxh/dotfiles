@@ -14,16 +14,10 @@
   :config
   (setq claude-code-terminal-backend 'eat
         claude-code-term-name "xterm-256color"
+        claude-code-program "/usr/local/bin/claude"
         claude-code-program-switches '("--verbose")
         claude-code-enable-notifications t
-        claude-code-notification-function 'claude-code--default-notification)
-
-  ;; DeepSeek-V4 pro
-  (progn
-    (setenv "ANTHROPIC_BASE_URL" "https://api.deepseek.com/anthropic")
-    (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "DEEPSEEK_API_KEY"))
-    (setenv "ANTHROPIC_MODEL" "deepseek-v4-pro[1m]")
-    (setq claude-code-program "/usr/local/bin/claude")))
+        claude-code-notification-function 'claude-code--default-notification))
 
 ;; ---- agent-shell（终端 Agent 集成）----
 ;;
@@ -38,7 +32,13 @@
 (use-package agent-shell
   :ensure nil
   :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
+  :init
+  ;; DeepSeek-V4 pro — 设在 :init 保证 claude-agent-acp 子进程启动前生效
+  (setenv "ANTHROPIC_BASE_URL" "https://api.deepseek.com/anthropic")
+  (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "DEEPSEEK_API_KEY"))
+  (setenv "ANTHROPIC_MODEL" "deepseek-v4-pro[1m]")
   :custom
+  (agent-shell-preferred-agent-config 'claude-code)
   (agent-shell-anthropic-authentication
    (agent-shell-anthropic-make-authentication
     :api-key (string-trim
@@ -46,6 +46,19 @@
                "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'"))))
   (agent-shell-anthropic-claude-acp-command
    '("claude-agent-acp" "--dangerously-skip-permissions"))
+  (agent-shell-tool-use-expand-by-default t)
+  ;; vibe-coding: 自动批准只读操作，write/execute 仍需确认
+  (agent-shell-permission-responder-function
+   (lambda (permission)
+     (when-let* (((equal (map-elt (map-elt permission :tool-call) :kind)
+                         "read"))
+                 (choice (seq-find
+                          (lambda (option)
+                            (equal (map-elt option :kind) "allow_once"))
+                          (map-elt permission :options))))
+       (funcall (map-elt permission :respond)
+                (map-elt choice :option-id))
+       t)))
   :bind (("C-c C-a" . agent-shell-anthropic-start-claude-code)
          ("C-c C-1" . agent-shell-anthropic-start-claude-code)
          (:map agent-shell-mode-map
