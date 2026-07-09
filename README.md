@@ -147,6 +147,29 @@ SDK 模式快捷键：
 | `C-c C-8` | Claude TUI         |
 | `C-c C-9` | OpenCode           |
 
+### Evil 模式与 AI 工具协作（vibe-coding 校准）
+
+所有 AI 终端模式（agent-shell、eat、term、Claude Chat）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。
+
+vibe-coding 工作流：
+
+```
+C-c C-a 启动 agent-shell → 自动进入 emacs state
+  → 打字、RET 发送、n/p 导航 agent 输出，一切正常
+  → 想用 j/k 滚动输出时，按 Escape 进入 normal state
+  → 想继续打字时，按 C-z 回到 emacs state
+```
+
+| 键      | 状态      | 行为                                       |
+|----------|-----------|--------------------------------------------|
+| `n`      | emacs     | agent-shell-next-item（在 prompt 处则插入 n） |
+| `p`      | emacs     | agent-shell-previous-item（在 prompt 处则插入 p） |
+| `j` / `k` | normal    | 逐行滚动 agent 输出                         |
+| `C-z`    | normal    | 回到 emacs state                           |
+| `Escape` | emacs     | 进入 normal state（用于 j/k 滚动阅读）       |
+
+配置位置：`.emacs.d/lisp/emacs-init-evil.el:27-60`
+
 ### FAQ
 
 **agent-shell 报 "claude-agent-acp not found"？**
