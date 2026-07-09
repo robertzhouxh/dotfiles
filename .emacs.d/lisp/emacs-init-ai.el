@@ -47,8 +47,14 @@
   (agent-shell-anthropic-claude-acp-command
    '("claude-agent-acp" "--dangerously-skip-permissions"))
   :bind (("C-c C-a" . agent-shell-anthropic-start-claude-code)
+         ("C-c C-1" . agent-shell-anthropic-start-claude-code)
          (:map agent-shell-mode-map
           ("C-<tab>" . nil))))
+
+;; 释放 markdown-mode 中 C-c C-a 前缀（deprecated keys，规范键是 C-c C-l 等）
+;; 否则 markdown buffer 中 C-c C-a 被拦截，无法启动 agent-shell
+(with-eval-after-load 'markdown-mode
+  (define-key markdown-mode-map (kbd "C-c C-a") nil))
 
 ;; ---- Emacs 自带 tramp ----
 (use-package tramp

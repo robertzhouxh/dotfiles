@@ -107,13 +107,13 @@ brew install claude-code
 npm install -g @zed-industries/claude-agent-acp
 ```
 
-| 操作                   | 方式              |
-|------------------------|-------------------|
-| 启动 Claude Code agent | `C-c C-a`         |
-| 手动选择 provider      | `M-x agent-shell` |
-| 发送输入               | `RET`             |
-| 插入换行               | `C-return`        |
-| 中断                   | `C-c C-c`         |
+| 操作                   | 方式                      |
+|------------------------|---------------------------|
+| 启动 Claude Code agent | `C-c C-a` / `C-c C-1`    |
+| 手动选择 provider      | `M-x agent-shell`         |
+| 发送输入               | `RET`                     |
+| 插入换行               | `C-return`                |
+| 中断                   | `C-c C-c`                 |
 
 ### Claude Chat 原生模式（`emacs-solo-ai`）
 
@@ -142,7 +142,8 @@ SDK 模式快捷键：
 
 | 快捷键    | 功能               |
 |-----------|--------------------|
-| `C-c C-a` | agent-shell        |
+| `C-c C-a` | agent-shell（首选）|
+| `C-c C-1` | agent-shell（备选）|
 | `C-c C-0` | Claude Chat（SDK） |
 | `C-c C-8` | Claude TUI         |
 | `C-c C-9` | OpenCode           |
@@ -171,6 +172,10 @@ C-c C-a 启动 agent-shell → 自动进入 emacs state
 配置位置：`.emacs.d/lisp/emacs-init-evil.el:27-60`
 
 ### FAQ
+
+**`C-c C-a` 没启动 agent-shell（进入了 markdown / org 命令）？**
+`C-c C-a` 在 markdown-mode 和 org-mode 中有内置绑定（markdown 的废弃 prefix keys、org-attach）。
+markdown 的冲突已修复（移除了废弃的 `C-c C-a *` 前缀）。org-mode 中 `C-c C-a` 仍为 `org-attach`，请使用 `C-c C-1` 启动 agent-shell。
 
 **agent-shell 报 "claude-agent-acp not found"？**
 `npm install -g @zed-industries/claude-agent-acp`，确认 `which claude-agent-acp` 有输出。
