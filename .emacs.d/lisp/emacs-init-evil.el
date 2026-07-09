@@ -43,8 +43,21 @@
              (speedbar-mode . emacs)
              (ivy-occur-mode . emacs)
              (ivy-occur-grep-mode . normal)
-             (messages-buffer-mode . normal)))
+             (messages-buffer-mode . normal)
+             ;; AI / terminal modes — 必须 emacs state，否则快捷键与 Evil 冲突
+             (agent-shell-mode . emacs)
+             (eat-mode . emacs)
+             (term-mode . emacs)
+             (emacs-solo-claude-mode . emacs)))
   (evil-set-initial-state (car p) (cdr p)))
+
+;; vibe-coding：agent-shell / AI 终端模式在 emacs state 启动
+;; 如果手动切到 normal state（用于 j/k 滚动），按 C-z 即可回到 emacs state
+;; eat / term 由底层终端处理 Escape，Evil 不会拦截，无需额外配置
+(with-eval-after-load 'evil
+  ;; C-z 回到 emacs state（原生的 C-z 被 global-unset-key 移除了，
+  ;; 但在 normal state 下 C-z 返回到 emacs state 是刚需）
+  (define-key evil-normal-state-map (kbd "C-z") #'evil-emacs-state))
 
 (provide 'emacs-init-evil)
 ;;; init-evil.el ends here
