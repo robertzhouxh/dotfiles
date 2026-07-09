@@ -47,8 +47,11 @@
 (require 'emacs-solo-highlight-keywords)
 (require 'emacs-init-evil)
 
-;; ── 其他工具 ─────────────────────────────────────────────────────────────────
+;; ── AI / LLM ─────────────────────────────────────────────────────────────────
 (require 'emacs-solo-ai)
+(require 'emacs-init-llm)
+
+;; ── 其他工具 ─────────────────────────────────────────────────────────────────
 (require 'emacs-init-rime)
 (require 'emacs-init-platform)
 (require 'emacs-solo-sudo-edit)
