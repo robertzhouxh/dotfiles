@@ -109,10 +109,17 @@ MODE is a major mode function to activate in the buffer."
   (defun skye/toggle-gptel-drawer ()
     "Toggle the gptel chat drawer at the bottom of the frame."
     (interactive)
-    (let ((buffer (gptel "*gptel*")))
-      (if (string-equal (buffer-name buffer) (buffer-name (current-buffer)))
-          (delete-window)
-        (create-drawer-window (buffer-name buffer) t -20))))
+    (let* ((buf (gptel "*gptel*"))
+           (win (get-buffer-window buf)))
+      (if win
+          ;; Already visible — close it. If it's the selected window,
+          ;; delete-window is enough; otherwise just delete that window.
+          (if (eq win (selected-window))
+              (unless (one-window-p)
+                (delete-window))
+            (delete-window win))
+        ;; Not visible — open as bottom drawer.
+        (create-drawer-window (buffer-name buf) t -20))))
 
   :bind ("<M-return>" . skye/toggle-gptel-drawer))
 
