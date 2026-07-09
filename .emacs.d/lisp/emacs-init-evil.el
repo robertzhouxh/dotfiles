@@ -58,7 +58,12 @@
 (with-eval-after-load 'evil
   ;; C-z 回到 emacs state（原生的 C-z 被 global-unset-key 移除了，
   ;; 但在 normal state 下 C-z 返回到 emacs state 是刚需）
-  (define-key evil-normal-state-map (kbd "C-z") #'evil-emacs-state))
+  (define-key evil-normal-state-map (kbd "C-z") #'evil-emacs-state)
+
+  ;; C-w 窗口导航全局生效（normal/motion/visual 已有 evil-window-map，
+  ;; 这里补齐 emacs 和 insert 状态）
+  (define-key evil-emacs-state-map (kbd "C-w") evil-window-map)
+  (define-key evil-insert-state-map (kbd "C-w") evil-window-map))
 
 (provide 'emacs-init-evil)
 ;;; init-evil.el ends here
