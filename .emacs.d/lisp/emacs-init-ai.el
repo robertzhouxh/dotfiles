@@ -108,9 +108,17 @@ MODE is a major mode function to activate in the buffer."
                               (shell-command-to-string
                                "sh -c '. ~/.config/secrets/env && echo $DEEPSEEK_API_KEY'"))
                         :stream t
-                        :models `((,(intern "deepseek-v4-pro[1m]")
+                        :models `((,(intern "deepseek-v4-pro")
                                    . (:description "DeepSeek V4 Pro")))))
   (setq gptel-model (intern "deepseek-v4-pro[1m]"))
+
+  (defun skye/gptel-strip-trailing-hashes (beg end)
+    "Strip trailing '###' that DeepSeek appends to responses."
+    (save-excursion
+      (goto-char end)
+      (when (re-search-backward "\n?#+[ \t]*$" beg t)
+        (delete-region (match-beginning 0) (match-end 0)))))
+  (add-hook 'gptel-post-response-functions #'skye/gptel-strip-trailing-hashes)
 
   (defun skye/toggle-gptel-drawer ()
     "Toggle the gptel chat drawer at the bottom of the frame.
