@@ -47,6 +47,10 @@
   (agent-shell-anthropic-claude-acp-command
    '("claude-agent-acp" "--dangerously-skip-permissions"))
   (agent-shell-tool-use-expand-by-default t)
+  ;; 收紧行间距：Sarasa Mono SC 是 CJK 字体，行高偏大，
+  ;; buffer 内默认 face 缩小 5% 让行间距更紧凑，不影响可读性
+  :hook (agent-shell-mode . (lambda ()
+                              (face-remap-add-relative 'default :height 0.95)))
   ;; vibe-coding: 自动批准只读操作，write/execute 仍需确认
   (agent-shell-permission-responder-function
    (lambda (permission)
