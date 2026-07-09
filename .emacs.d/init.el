@@ -48,8 +48,8 @@
 (require 'emacs-init-evil)
 
 ;; ── AI / LLM ─────────────────────────────────────────────────────────────────
+(require 'emacs-init-ai)
 (require 'emacs-solo-ai)
-(require 'emacs-init-llm)
 
 ;; ── 其他工具 ─────────────────────────────────────────────────────────────────
 (require 'emacs-init-rime)
