@@ -58,6 +58,11 @@
         (css-mode . css-ts-mode)
         (json-mode . json-ts-mode)))
 
+;;(use-package markdown-ts-mode
+;;  :if (>= emacs-major-version 31)
+;;  :ensure nil
+;;  :mode ("\\.md\\'" "\\.mdx\\'" "\\.markdown\\'")
+;;  :init (load-library "markdown-ts-mode"))
 (use-package markdown-mode
   :mode ("\\.md\\'" . markdown-mode)
   :commands markdown-mode)

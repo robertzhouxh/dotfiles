@@ -3,9 +3,12 @@
 #[╭─user───❯](bold blue) $username
 #[┣─system─❯](bold yellow) $hostname
 #[┣─project❯](bold red) $directory$rust$git_branch$git_status$package$golang$terraform$docker_context$python$docker_context$nodejs
-#[╰─cmd────❯](bold green) 
+#[╰─cmd────❯](bold green)
 #"""
 #format = '$all'
+
+# Increase timeout for slow asdf shims (default is 500ms)
+command_timeout = 5000
 
 [localip]
 ssh_only = false
@@ -23,7 +26,7 @@ show_always = true
 ssh_only = false
 format = 'on [$hostname](bold yellow) '
 trim_at = "."
-disabled = false
+disabled = true
 
 # Replace the "❯" symbol in the prompt with "➜"
 ## [character]                            # The name of the module we are configuring is "character"

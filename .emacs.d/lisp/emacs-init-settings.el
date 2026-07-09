@@ -22,7 +22,11 @@
     (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
     (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
     (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-    (when (fboundp 'tooltip-mode) (tooltip-mode -1))))
+    (when (fboundp 'tooltip-mode) (tooltip-mode -1))
+    ;; 如果 tool-bar 被某些包重新启用，改为文字模式使其仅占 1 行
+    (setq tool-bar-style 'text)
+    ;; 防止新建 frame 时 tool-bar 重新出现
+    (push '(tool-bar-lines . 0) default-frame-alist)))
 
 ;; ---- 编辑行为 ----
 (setq create-lockfiles nil
@@ -79,8 +83,12 @@
 ;; 括号匹配
 (show-paren-mode 1)
 
-;; 自动刷新
-(setq-default auto-revert-mode 1)
+;; 自动刷新磁盘变化的文件
+(setq auto-revert-verbose nil          ; 不在 minibuffer 打印提示
+      auto-revert-use-notify t         ; 使用文件系统通知，不用轮询
+      auto-revert-avoid-polling t      ; macOS 上非图形 Emacs 也用 notify
+      global-auto-revert-non-file-buffers t)  ; Dired 等也自动刷新
+(global-auto-revert-mode 1)
 
 ;; 补全风格
 (setq completion-styles '(basic substring))
