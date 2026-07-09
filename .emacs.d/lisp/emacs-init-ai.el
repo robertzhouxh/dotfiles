@@ -51,18 +51,19 @@
   ;; buffer 内默认 face 缩小 5% 让行间距更紧凑，不影响可读性
   :hook (agent-shell-mode . (lambda ()
                               (face-remap-add-relative 'default :height 0.95)))
+  :config
   ;; vibe-coding: 自动批准只读操作，write/execute 仍需确认
-  (agent-shell-permission-responder-function
-   (lambda (permission)
-     (when-let* (((equal (map-elt (map-elt permission :tool-call) :kind)
-                         "read"))
-                 (choice (seq-find
-                          (lambda (option)
-                            (equal (map-elt option :kind) "allow_once"))
-                          (map-elt permission :options))))
-       (funcall (map-elt permission :respond)
-                (map-elt choice :option-id))
-       t)))
+  (setq agent-shell-permission-responder-function
+        (lambda (permission)
+          (when-let* (((equal (map-elt (map-elt permission :tool-call) :kind)
+                              "read"))
+                      (choice (seq-find
+                               (lambda (option)
+                                 (equal (map-elt option :kind) "allow_once"))
+                               (map-elt permission :options))))
+            (funcall (map-elt permission :respond)
+                     (map-elt choice :option-id))
+            t)))
   :bind (("C-c C-a" . agent-shell-anthropic-start-claude-code)
          ("C-c C-1" . agent-shell-anthropic-start-claude-code)
          (:map agent-shell-mode-map
