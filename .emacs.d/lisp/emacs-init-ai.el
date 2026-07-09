@@ -95,6 +95,8 @@ MODE is a major mode function to activate in the buffer."
 (use-package gptel
   :ensure t
   :vc (:url "https://github.com/karthink/gptel" :rev :newest)
+  :bind (:map gptel-mode-map
+          ("C-<return>" . gptel-send))
   :config
   (setq gptel-backend (gptel-make-openai "DeepSeek"
                         :host "api.deepseek.com"
