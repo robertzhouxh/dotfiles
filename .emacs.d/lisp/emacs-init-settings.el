@@ -85,8 +85,8 @@
 
 ;; 自动刷新磁盘变化的文件
 (setq auto-revert-verbose nil          ; 不在 minibuffer 打印提示
-      auto-revert-use-notify t         ; 使用文件系统通知，不用轮询
-      auto-revert-avoid-polling t      ; macOS 上非图形 Emacs 也用 notify
+      auto-revert-use-notify t         ; 使用文件系统通知，优先低延迟刷新
+      auto-revert-interval 3           ; 通知不可用时回退到轮询（秒）
       global-auto-revert-non-file-buffers t)  ; Dired 等也自动刷新
 (global-auto-revert-mode 1)
 
