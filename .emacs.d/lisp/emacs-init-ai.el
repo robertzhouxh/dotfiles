@@ -9,15 +9,15 @@
   :commands eat)
 
 ;; ---- Claude Code ----
-(use-package claude-code
-  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
-  :config
-  (setq claude-code-terminal-backend 'eat
-        claude-code-term-name "xterm-256color"
-        claude-code-program "/usr/local/bin/claude"
-        claude-code-program-switches '("--verbose")
-        claude-code-enable-notifications t
-        claude-code-notification-function 'claude-code--default-notification))
+;; (use-package claude-code
+;;   :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
+;;   :config
+;;   (setq claude-code-terminal-backend 'eat
+;;         claude-code-term-name "xterm-256color"
+;;         claude-code-program "/usr/local/bin/claude"
+;;         claude-code-program-switches '("--verbose")
+;;         claude-code-enable-notifications t
+;;         claude-code-notification-function 'claude-code--default-notification))
 
 ;; ---- agent-shell（终端 Agent 集成）----
 ;;
@@ -52,11 +52,11 @@
   :hook (agent-shell-mode . (lambda ()
                               (face-remap-add-relative 'default :height 0.95)))
   :config
-  ;; vibe-coding: 自动批准只读操作，write/execute 仍需确认
+  ;; vibe-coding: 自动批准 read/write，execute 仍需确认
   (setq agent-shell-permission-responder-function
         (lambda (permission)
-          (when-let* (((equal (map-elt (map-elt permission :tool-call) :kind)
-                              "read"))
+          (when-let* ((kind (map-elt (map-elt permission :tool-call) :kind))
+                      ((member kind '("read" "write" "edit")))
                       (choice (seq-find
                                (lambda (option)
                                  (equal (map-elt option :kind) "allow_once"))
@@ -73,6 +73,48 @@
 ;; 否则 markdown buffer 中 C-c C-a 被拦截，无法启动 agent-shell
 (with-eval-after-load 'markdown-mode
   (define-key markdown-mode-map (kbd "C-c C-a") nil))
+
+;; ---- Drawer 窗口工具 ----
+(defun create-drawer-window (buffer-name &optional focus height mode)
+  "Create a bottom drawer window displaying BUFFER-NAME.
+If FOCUS is non-nil, move point into the drawer.
+HEIGHT is the window height (negative = lines from bottom, default -10).
+MODE is a major mode function to activate in the buffer."
+  (split-window-vertically (if height height -10))
+  (other-window 1)
+  (let ((buf (switch-to-buffer buffer-name)))
+    (if (not focus) (other-window -1))
+    (with-current-buffer buf
+      (if mode (funcall mode)))
+    buf))
+
+;; ---- gptel（LLM 聊天抽屉）----
+;;
+;; M-RET 弹出/关闭底部 drawer，DeepSeek 后端，Emacs 原生体验。
+;; 系统依赖：无需额外安装，API key 从 shell 环境变量读取。
+(use-package gptel
+  :ensure t
+  :vc (:url "https://github.com/karthink/gptel" :rev :newest)
+  :config
+  (setq gptel-backend (gptel-make-openai "DeepSeek"
+                        :host "api.deepseek.com"
+                        :key (string-trim
+                              (shell-command-to-string
+                               "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'"))
+                        :stream t
+                        :models '((deepseek-v4-pro[1m]
+                                   . (:description "DeepSeek V4 Pro")))))
+  (setq gptel-model 'deepseek-v4-pro[1m])
+
+  (defun skye/toggle-gptel-drawer ()
+    "Toggle the gptel chat drawer at the bottom of the frame."
+    (interactive)
+    (let ((buffer (gptel "*gptel*")))
+      (if (string-equal (buffer-name buffer) (buffer-name (current-buffer)))
+          (delete-window)
+        (create-drawer-window (buffer-name buffer) t -20))))
+
+  :bind ("<M-return>" . skye/toggle-gptel-drawer))
 
 ;; ---- Emacs 自带 tramp ----
 (use-package tramp

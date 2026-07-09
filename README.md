@@ -88,12 +88,13 @@ Emacs 中按 `C-\` 激活输入法。
 
 ## Emacs AI / LLM 工具
 
-当前配置了三层 AI 交互，按使用频率从高到低：
+当前配置了三层 AI 交互：
 
-| 工具        | 快捷键    | 后端                          | 场景                           |
-|-------------|-----------|-------------------------------|--------------------------------|
-| Claude Chat | `C-c C-0` | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
-| agent-shell | `C-c C-a` | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
+| 工具        | 快捷键     | 后端                          | 场景                           |
+|-------------|------------|-------------------------------|--------------------------------|
+| Claude Chat | `C-c C-0`  | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
+| agent-shell | `C-c C-a`  | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
+| gptel       | `M-RET`    | DeepSeek V4（OpenAI 兼容）    | 底部抽屉式 LLM 聊天            |
 
 配置文件：`.emacs.d/lisp/emacs-init-ai.el`
 
@@ -148,10 +149,11 @@ SDK 模式快捷键：
 | `C-c C-0` | Claude Chat（SDK） |
 | `C-c C-8` | Claude TUI         |
 | `C-c C-9` | OpenCode           |
+| `M-RET`   | gptel 抽屉         |
 
 ### Evil 模式与 AI 工具协作（vibe-coding 校准）
 
-所有 AI 终端模式（agent-shell、eat、term、Claude Chat）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。
+所有 AI 终端模式（agent-shell、eat、term、Claude Chat、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。
 
 vibe-coding 工作流：
 
@@ -162,13 +164,13 @@ C-c C-a 启动 agent-shell → 自动进入 emacs state
   → 想继续打字时，按 C-z 回到 emacs state
 ```
 
-| 键      | 状态      | 行为                                       |
-|----------|-----------|--------------------------------------------|
-| `n`      | emacs     | agent-shell-next-item（在 prompt 处则插入 n） |
-| `p`      | emacs     | agent-shell-previous-item（在 prompt 处则插入 p） |
-| `j` / `k` | normal    | 逐行滚动 agent 输出                         |
-| `C-z`    | normal    | 回到 emacs state                           |
-| `Escape` | emacs     | 进入 normal state（用于 j/k 滚动阅读）       |
+| 键        | 状态   | 行为                                              |
+|-----------|--------|---------------------------------------------------|
+| `n`       | emacs  | agent-shell-next-item（在 prompt 处则插入 n）     |
+| `p`       | emacs  | agent-shell-previous-item（在 prompt 处则插入 p） |
+| `j` / `k` | normal | 逐行滚动 agent 输出                               |
+| `C-z`     | normal | 回到 emacs state,必要的时候 Enter                 |
+| `Escape`  | emacs  | 进入 normal state（用于 j/k 滚动阅读）            |
 
 配置位置：`.emacs.d/lisp/emacs-init-evil.el:27-60`
 
@@ -185,6 +187,19 @@ markdown 的冲突已修复（移除了废弃的 `C-c C-a *` 前缀）。org-mod
 Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell 是终端包装（体验等同于直接跑 `claude` 命令）。
 - 日常开发用 Claude Chat
 - 需要完整终端交互时用 agent-shell。
+
+### gptel — 底部抽屉式 LLM 聊天
+
+`M-RET` 弹出/关闭 `*gptel*` 抽屉，DeepSeek V4 后端（OpenAI 兼容协议）。适合随手问问题、快速代码片段生成、翻译等轻量对话。
+
+快捷键（gptel buffer 内）：
+
+| 键        | 功能     |
+|-----------|----------|
+| `C-c RET` | 发送输入 |
+| `M-RET`   | 关闭抽屉 |
+
+Evil 协作：gptel buffer 默认 emacs state，`Escape` 切 normal 用 j/k 滚动，`C-z` 回 emacs state，与 agent-shell 行为一致。
 
 ---
 

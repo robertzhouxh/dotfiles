@@ -48,7 +48,8 @@
              (agent-shell-mode . emacs)
              (eat-mode . emacs)
              (term-mode . emacs)
-             (emacs-solo-claude-mode . emacs)))
+             (emacs-solo-claude-mode . emacs)
+             (gptel-mode . emacs)))
   (evil-set-initial-state (car p) (cdr p)))
 
 ;; vibe-coding：agent-shell / AI 终端模式在 emacs state 启动
