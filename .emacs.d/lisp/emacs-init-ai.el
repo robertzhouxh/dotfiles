@@ -35,7 +35,10 @@
   :init
   ;; DeepSeek-V4 pro — 设在 :init 保证 claude-agent-acp 子进程启动前生效
   (setenv "ANTHROPIC_BASE_URL" "https://api.deepseek.com/anthropic")
-  (setenv "ANTHROPIC_AUTH_TOKEN" (getenv "DEEPSEEK_API_KEY"))
+  (setenv "ANTHROPIC_AUTH_TOKEN"
+          (string-trim
+           (shell-command-to-string
+            "sh -c '. ~/.config/secrets/env && echo $DEEPSEEK_API_KEY'")))
   (setenv "ANTHROPIC_MODEL" "deepseek-v4-pro[1m]")
   :custom
   (agent-shell-preferred-agent-config 'claude-code)
@@ -43,7 +46,7 @@
    (agent-shell-anthropic-make-authentication
     :api-key (string-trim
               (shell-command-to-string
-               "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'"))))
+               "sh -c '. ~/.config/secrets/env && echo $DEEPSEEK_API_KEY'"))))
   (agent-shell-anthropic-claude-acp-command
    '("claude-agent-acp" "--dangerously-skip-permissions"))
   (agent-shell-tool-use-expand-by-default t)
@@ -103,7 +106,7 @@ MODE is a major mode function to activate in the buffer."
                         :host "api.deepseek.com"
                         :key (string-trim
                               (shell-command-to-string
-                               "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'"))
+                               "sh -c '. ~/.config/secrets/env && echo $DEEPSEEK_API_KEY'"))
                         :stream t
                         :models `((,(intern "deepseek-v4-pro[1m]")
                                    . (:description "DeepSeek V4 Pro")))))
