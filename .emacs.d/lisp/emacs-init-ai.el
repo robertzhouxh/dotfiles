@@ -102,14 +102,18 @@ MODE is a major mode function to activate in the buffer."
                               (shell-command-to-string
                                "$SHELL --login -c 'echo $DEEPSEEK_API_KEY'"))
                         :stream t
-                        :models '((deepseek-v4-pro[1m]
+                        :models `((,(intern "deepseek-v4-pro[1m]")
                                    . (:description "DeepSeek V4 Pro")))))
-  (setq gptel-model 'deepseek-v4-pro[1m])
+  (setq gptel-model (intern "deepseek-v4-pro[1m]"))
 
   (defun skye/toggle-gptel-drawer ()
-    "Toggle the gptel chat drawer at the bottom of the frame."
+    "Toggle the gptel chat drawer at the bottom of the frame.
+When opening and a region is active, include it as context."
     (interactive)
-    (let* ((buf (gptel "*gptel*"))
+    (let* ((region-text (when (use-region-p)
+                          (buffer-substring-no-properties
+                           (region-beginning) (region-end))))
+           (buf (gptel "*gptel*" nil region-text))
            (win (get-buffer-window buf)))
       (if win
           ;; Already visible — close it. If it's the selected window,
@@ -121,7 +125,7 @@ MODE is a major mode function to activate in the buffer."
         ;; Not visible — open as bottom drawer.
         (create-drawer-window (buffer-name buf) t -20))))
 
-  :bind ("<M-return>" . skye/toggle-gptel-drawer))
+  (global-set-key (kbd "<M-return>") #'skye/toggle-gptel-drawer))
 
 ;; ---- Emacs 自带 tramp ----
 (use-package tramp
