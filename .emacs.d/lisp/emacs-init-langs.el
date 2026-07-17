@@ -65,7 +65,20 @@
 ;;  :init (load-library "markdown-ts-mode"))
 (use-package markdown-mode
   :mode ("\\.md\\'" . markdown-mode)
-  :commands markdown-mode)
+  :commands markdown-mode
+  :config
+  (defun my/align-all-markdown-tables ()
+    "对齐当前 buffer 中的所有 Markdown 表格。"
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      ;; 搜索每个以 | 开头的行，并检查是否在表格内
+      (while (re-search-forward "^|" nil t)
+        (when (markdown-table-at-point-p)
+          (markdown-table-align)          ; 对齐当前表格
+          (goto-char (markdown-table-end)))))) ; 跳到该表格末尾
+  :bind (:map markdown-mode-map
+              ("C-c C-t" . my/align-all-markdown-tables))) ; 绑定到 C-c C-t
 
 ;; ---- 高亮关键字 ----
 (use-package symbol-overlay

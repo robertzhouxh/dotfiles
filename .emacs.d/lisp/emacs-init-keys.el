@@ -86,7 +86,8 @@
    :prefix "SPC"
    :keymaps 'override
 
-   "==" 'markdown-table-align
+   ;"==" 'markdown-table-align
+   "==" 'my/align-all-markdown-tables
 
    ;; buffers
    "bb" 'switch-to-buffer

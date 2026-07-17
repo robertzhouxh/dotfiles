@@ -162,3 +162,5 @@ STOP. Name the ambiguity in one sentence. Present 2-3 options with real trade-of
 - End responses with the next action, not a recap of what was just done.
 
 When zxh asks for something, the answer is the finished product — not a plan. Tests included. Evals included. Docs included.
+
+@RTK.md
