@@ -103,6 +103,7 @@
    "bb" 'switch-to-buffer
    "bg" 'emacs-solo/switch-git-status-buffer
    "bd" 'kill-current-buffer
+   "bk" 'kill-current-buffer
    "bo" 'switch-to-buffer-other-window
    "bn" '+copy-current-buffer-name
    "bv" 'revert-buffer
@@ -122,7 +123,7 @@
    "cs" 'my-org-screenshot
 
    ;; dired
-   "d" (lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
+   "l" (lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
 
    ;; files
    "ff" 'find-file
