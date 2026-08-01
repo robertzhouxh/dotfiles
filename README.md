@@ -146,7 +146,7 @@ SDK 模式快捷键：
 | `C-c C-0` | Claude Chat（SDK） |
 | `C-c C-8` | Claude TUI         |
 | `C-c C-9` | OpenCode           |
-| `M-RET`   | gptel 抽屉         |
+| `M-RET`   | gptel 改写 / 抽屉  |
 
 ### Evil 模式与 AI 工具协作（vibe-coding 校准）
 
@@ -190,14 +190,16 @@ Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell
 
 ### gptel — 底部抽屉式 LLM 聊天
 
-`M-RET` 弹出/关闭 `*gptel*` 抽屉，DeepSeek V4 后端（OpenAI 兼容协议）。适合随手问问题、快速代码片段生成、翻译等轻量对话。
+`M-RET` 会按上下文执行操作：有活动选区时调用 `gptel-rewrite`，没有选区时弹出/关闭 `*gptel*` 抽屉。后端使用 DeepSeek V4（OpenAI 兼容协议）。
 
-快捷键（gptel buffer 内）：
+改写选区时，在 minibuffer 输入要求并按 `RET` 提交；结果会先以 overlay 预览，可用 `C-c C-a` 接受或 `C-c C-k` 拒绝。
 
-| 键        | 功能     |
-|-----------|----------|
-| `C-c RET` | 发送输入 |
-| `M-RET`   | 关闭抽屉 |
+相关快捷键：
+
+| 作用域       | 键      | 功能                           |
+|--------------|---------|--------------------------------|
+| gptel buffer | `C-RET` | 发送输入                       |
+| 全局         | `M-RET` | 有选区时改写，否则切换聊天抽屉 |
 
 Evil 协作：gptel buffer 默认 emacs state，`Escape` 切 normal 用 j/k 滚动，`C-z` 回 emacs state，与 agent-shell 行为一致。
 
@@ -421,4 +423,29 @@ developer_instructions = """
 
 [features]
 image_generation = false
+```
+
+## RTK
+
+```
+brew install rtk
+
+rtk --version   # Should show "rtk 0.28.2"
+rtk gain        # Should show token savings stats
+
+# 1. Install for your AI tool
+rtk init -g                     # Claude Code / Copilot (default)
+rtk init -g --gemini            # Gemini CLI
+rtk init -g --codex             # Codex (OpenAI)
+rtk init -g --agent cursor      # Cursor
+rtk init -g --agent windsurf    # Windsurf
+rtk init --agent cline          # Cline / Roo Code
+rtk init --agent kilocode       # Kilo Code
+rtk init --agent antigravity    # Google Antigravity
+rtk init -g --agent pi          # Pi
+rtk init --agent hermes         # Hermes
+rtk init -g --agent droid       # Factory Droid
+
+# 2. Restart your AI tool, then test
+git status  # Automatically rewritten to rtk git status
 ```

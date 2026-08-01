@@ -93,7 +93,8 @@ MODE is a major mode function to activate in the buffer."
 
 ;; ---- gptel（LLM 聊天抽屉）----
 ;;
-;; M-RET 弹出/关闭底部 drawer，DeepSeek 后端，Emacs 原生体验。
+;; M-RET 有选区时改写选区，否则弹出/关闭底部 drawer。
+;; DeepSeek 后端，Emacs 原生体验。
 ;; 系统依赖：无需额外安装，API key 从 shell 环境变量读取。
 (use-package gptel
   :ensure t
@@ -131,7 +132,14 @@ When opening and a region is active, include it as context."
         ;; Not visible — open as bottom drawer.
         (create-drawer-window (buffer-name buf) t -20))))
 
-  (global-set-key (kbd "<M-return>") #'skye/toggle-gptel-drawer))
+  (defun skye/gptel-dwim ()
+    "Rewrite the active region, or toggle the gptel chat drawer."
+    (interactive)
+    (if (use-region-p)
+        (call-interactively #'gptel-rewrite)
+      (skye/toggle-gptel-drawer)))
+
+  (global-set-key (kbd "<M-return>") #'skye/gptel-dwim))
 
 (use-package tramp
   :ensure nil

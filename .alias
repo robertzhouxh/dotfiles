@@ -58,6 +58,10 @@ alias macinfo='system_profiler SPSoftwareDataType SPHardwareDataType'
 # Vibe coding
 # 启动一个不再问我权限的 Claude Code，同时把自动压缩点提前到 400k
 alias c='CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000 claude --dangerously-skip-permissions'
+# 长上下文窗口
+alias cxl='codex --profile long-context'
+# 无审批、无沙箱：仅隔离环境
+alias cxy='codex --profile yolo'
 
 alias vpn='ssh vpn'
 
