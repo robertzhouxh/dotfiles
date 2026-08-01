@@ -199,7 +199,10 @@ Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell
 | 作用域       | 键      | 功能                           |
 |--------------|---------|--------------------------------|
 | gptel buffer | `C-RET` | 发送输入                       |
+| gptel buffer | `C-c C-d` | 销毁当前会话与聊天抽屉       |
 | 全局         | `M-RET` | 有选区时改写，否则切换聊天抽屉 |
+
+使用 `C-c C-d` 会先中止正在进行的请求，再关闭窗口并删除当前 `*gptel*` buffer；下次按 `M-RET` 会创建一个全新的会话。
 
 Evil 协作：gptel buffer 默认 emacs state，`Escape` 切 normal 用 j/k 滚动，`C-z` 回 emacs state，与 agent-shell 行为一致。
 

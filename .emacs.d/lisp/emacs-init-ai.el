@@ -139,6 +139,21 @@ When opening and a region is active, include it as context."
         (call-interactively #'gptel-rewrite)
       (skye/toggle-gptel-drawer)))
 
+  (defun skye/destroy-gptel-drawer ()
+    "Abort the current gptel request and destroy its chat drawer."
+    (interactive)
+    (if-let ((buf (get-buffer "*gptel*")))
+        (let ((win (get-buffer-window buf t)))
+          (gptel-abort buf)
+          (when (kill-buffer buf)
+            (when (and (window-live-p win)
+                       (not (one-window-p nil (window-frame win))))
+              (delete-window win))
+            (message "Destroyed gptel drawer")))
+      (message "No gptel drawer to destroy")))
+
+  (define-key gptel-mode-map (kbd "C-c C-d")
+              #'skye/destroy-gptel-drawer)
   (global-set-key (kbd "<M-return>") #'skye/gptel-dwim))
 
 (use-package tramp
