@@ -79,6 +79,9 @@
    "M-n"   'hold-line-scroll-down
    "M-p"   'hold-line-scroll-up)
 
+  (with-eval-after-load 'agent-shell
+    (define-key agent-shell-mode-map (kbd "C-<tab>") nil))
+
   ;; ============================================================
   ;; SPC 作为 Evil Leader (仅在 normal/visual/motion 生效)
   (general-define-key
@@ -88,6 +91,13 @@
 
    ;"==" 'markdown-table-align
    "==" 'my/align-all-markdown-tables
+
+   ;; AI
+   "aa" 'agent-shell-anthropic-start-claude-code
+   "a1" 'agent-shell-anthropic-start-claude-code
+   "ag" 'skye/gptel-dwim
+   "as" 'gptel-send
+   "ad" 'skye/destroy-gptel-drawer
 
    ;; buffers
    "bb" 'switch-to-buffer

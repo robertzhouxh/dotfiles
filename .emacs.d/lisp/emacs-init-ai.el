@@ -32,6 +32,7 @@
 (use-package agent-shell
   :ensure nil
   :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
+  :commands (agent-shell agent-shell-anthropic-start-claude-code)
   :init
   ;; DeepSeek-V4 pro — 设在 :init 保证 claude-agent-acp 子进程启动前生效
   (setenv "ANTHROPIC_BASE_URL" "https://api.deepseek.com/anthropic")
@@ -66,16 +67,7 @@
                                (map-elt permission :options))))
             (funcall (map-elt permission :respond)
                      (map-elt choice :option-id))
-            t)))
-  :bind (("C-c C-a" . agent-shell-anthropic-start-claude-code)
-         ("C-c C-1" . agent-shell-anthropic-start-claude-code)
-         (:map agent-shell-mode-map
-          ("C-<tab>" . nil))))
-
-;; 释放 markdown-mode 中 C-c C-a 前缀（deprecated keys，规范键是 C-c C-l 等）
-;; 否则 markdown buffer 中 C-c C-a 被拦截，无法启动 agent-shell
-(with-eval-after-load 'markdown-mode
-  (define-key markdown-mode-map (kbd "C-c C-a") nil))
+            t))))
 
 ;; ---- Drawer 窗口工具 ----
 (defun create-drawer-window (buffer-name &optional focus height mode)
@@ -100,8 +92,6 @@ MODE is a major mode function to activate in the buffer."
   :ensure t
   :vc (:url "https://github.com/karthink/gptel" :rev :newest)
   :demand t
-  :bind (:map gptel-mode-map
-          ("C-<return>" . gptel-send))
   :config
   (setq gptel-backend (gptel-make-openai "DeepSeek"
                         :host "api.deepseek.com"
@@ -150,11 +140,7 @@ When opening and a region is active, include it as context."
                        (not (one-window-p nil (window-frame win))))
               (delete-window win))
             (message "Destroyed gptel drawer")))
-      (message "No gptel drawer to destroy")))
-
-  (define-key gptel-mode-map (kbd "C-c C-d")
-              #'skye/destroy-gptel-drawer)
-  (global-set-key (kbd "<M-return>") #'skye/gptel-dwim))
+      (message "No gptel drawer to destroy"))))
 
 (use-package tramp
   :ensure nil
