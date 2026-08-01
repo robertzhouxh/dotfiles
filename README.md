@@ -159,7 +159,7 @@ vibe-coding 工作流：
 ```
 SPC a a 启动 agent-shell → 自动进入 emacs state
   → 打字、RET 发送、n/p 导航 agent 输出，一切正常
-  → 想用 j/k 滚动输出时，按 Escape 进入 normal state
+  → 想用 j/k 滚动输出时，按 Escape 或快速按 jj 进入 normal state
   → 想继续打字时，按 C-z 回到 emacs state
 ```
 
@@ -170,6 +170,7 @@ SPC a a 启动 agent-shell → 自动进入 emacs state
 | `j` / `k` | normal | 逐行滚动 agent 输出                               |
 | `C-z`     | normal | 回到 emacs state，必要的时候 Enter                |
 | `Escape`  | emacs  | 进入 normal state（用于 j/k 滚动阅读）            |
+| `j j`     | emacs  | 快速进入 normal state                             |
 | `C-w h/l` | 全部   | 切换左/右窗口                                     |
 | `C-w w`   | 全部   | 循环切换窗口                                       |
 | `C-w o`   | 全部   | 仅保留当前窗口                                     |

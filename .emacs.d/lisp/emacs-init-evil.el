@@ -24,6 +24,22 @@
   (evil-org-agenda-set-keys)
   (evil-org-set-key-theme '(navigation insert shift todo heading)))
 
+(defconst skye/evil-jj-timeout 0.2
+  "Maximum delay in seconds between the two j presses.")
+
+(defun skye/evil-emacs-state-jj ()
+  "Enter Evil normal state when j is pressed twice quickly.
+Insert a single j normally when it is not followed by another j."
+  (interactive)
+  (barf-if-buffer-read-only)
+  (let ((event (read-event nil nil skye/evil-jj-timeout)))
+    (if (eq event ?j)
+        (evil-normal-state)
+      (insert "j")
+      (when event
+        (setq unread-command-events
+              (cons event unread-command-events))))))
+
 ;; 各 mode 的初始 evil 状态
 (dolist (p '((minibuffer-inactive-mode . emacs)
              (color-rg-mode . emacs)
@@ -59,6 +75,9 @@
   ;; C-z 回到 emacs state（原生的 C-z 被 global-unset-key 移除了，
   ;; 但在 normal state 下 C-z 返回到 emacs state 是刚需）
   (define-key evil-normal-state-map (kbd "C-z") #'evil-emacs-state)
+
+  ;; emacs state 下快速按 jj 进入 normal state；其他输入保持原样
+  (define-key evil-emacs-state-map (kbd "j") #'skye/evil-emacs-state-jj)
 
   ;; C-w 窗口导航全局生效（normal/motion/visual 已有 evil-window-map，
   ;; 这里补齐 emacs 和 insert 状态）
