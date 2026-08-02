@@ -45,10 +45,12 @@
     (evil-set-initial-state 'dired-mode 'emacs)
     ;; 进入 Dired 时强制切换到 emacs 状态
     (add-hook 'dired-mode-hook #'evil-emacs-state)
-    ;; 覆盖 evil-emacs-state-map 的 jj-escape 绑定，让 j/k 正常导航
+    ;; 覆盖 evil-emacs-state-map，让 hjkl 导航正常工作
     (evil-define-key 'emacs 'dired-mode-map
+      (kbd "h") #'my/dired-up
       (kbd "j") #'dired-next-line
-      (kbd "k") #'dired-previous-line)))
+      (kbd "k") #'dired-previous-line
+      (kbd "l") #'my/dired-open)))
 
 (provide 'emacs-init-dired)
 
