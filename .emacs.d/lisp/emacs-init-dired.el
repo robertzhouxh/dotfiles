@@ -14,14 +14,17 @@
   "打开文件或目录：目录复用 buffer，文件新开 buffer。"
   (interactive)
   (let ((file (dired-get-filename)))
-    (if (file-directory-p file)
-        (dired-find-alternate-file)
-      (dired-find-file))))
+    (when file
+      (if (file-directory-p file)
+          (dired-find-alternate-file)
+        (dired-find-file)))))
 
 (defun my/dired-up ()
   "返回上级目录，复用当前 buffer。"
   (interactive)
-  (find-alternate-file ".."))
+  (set-buffer-modified-p nil)
+  (find-alternate-file
+   (file-name-directory (directory-file-name (dired-current-directory)))))
 
 ;; ========== 关键：在 Dired 加载后执行绑定 ==========
 (with-eval-after-load 'dired
@@ -46,7 +49,7 @@
     ;; 进入 Dired 时强制切换到 emacs 状态
     (add-hook 'dired-mode-hook #'evil-emacs-state)
     ;; 覆盖 evil-emacs-state-map，让 hjkl 导航正常工作
-    (evil-define-key 'emacs 'dired-mode-map
+    (evil-define-key 'emacs dired-mode-map
       (kbd "h") #'my/dired-up
       (kbd "j") #'dired-next-line
       (kbd "k") #'dired-previous-line
