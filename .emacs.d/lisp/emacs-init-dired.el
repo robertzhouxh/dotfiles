@@ -43,8 +43,12 @@
   ;; 如果使用了 Evil，让 Dired 永远处于 Emacs 状态
   (when (featurep 'evil)
     (evil-set-initial-state 'dired-mode 'emacs)
-    ;; 可选：进入 Dired 时强制切换到 emacs 状态
-    (add-hook 'dired-mode-hook #'evil-emacs-state)))
+    ;; 进入 Dired 时强制切换到 emacs 状态
+    (add-hook 'dired-mode-hook #'evil-emacs-state)
+    ;; 覆盖 evil-emacs-state-map 的 jj-escape 绑定，让 j/k 正常导航
+    (evil-define-key 'emacs 'dired-mode-map
+      (kbd "j") #'dired-next-line
+      (kbd "k") #'dired-previous-line)))
 
 (provide 'emacs-init-dired)
 
