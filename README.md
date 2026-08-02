@@ -146,7 +146,9 @@ SDK 模式快捷键：
 | `C-c C-0` | Claude Chat（SDK） |
 | `C-c C-8` | Claude TUI         |
 | `C-c C-9` | OpenCode           |
-| `SPC a g` | gptel 改写 / 抽屉  |
+| `M-RET`   | gptel 解释抽屉      |
+| `SPC a g` | gptel 解释抽屉      |
+| `SPC a r` | gptel 改写抽屉      |
 | `SPC a s` | 发送 gptel 输入    |
 | `SPC a d` | 销毁 gptel 会话    |
 
@@ -192,19 +194,21 @@ Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell
 
 ### gptel：底部抽屉式 LLM 聊天
 
-`SPC a g` 会按上下文执行操作：有活动选区时调用 `gptel-rewrite`，没有选区时弹出/关闭 `*gptel*` 抽屉。后端使用 DeepSeek V4（OpenAI 兼容协议）。
+gptel 提供两种可独立切换的抽屉。`M-RET` 或 `SPC a g` 使用解释代码的 `*gptel-explain*` 并带入选区；`SPC a r` 使用改写用的 `*gptel-rewrite*`。两者都要求先选中内容。后端使用 DeepSeek V4（OpenAI 兼容协议）。
 
-改写选区时，在 minibuffer 输入要求并按 `RET` 提交；结果会先以 overlay 预览，按 gptel 提示接受或拒绝。
+在抽屉中输入要求后按 `C-RET` 或 `C-<return>` 发送。
 
 相关快捷键：
 
 | 作用域                         | 键        | 功能                           |
 |--------------------------------|-----------|--------------------------------|
+| 全部状态                       | `M-RET`   | 切换解释抽屉（需要选区）       |
 | Evil normal、visual、motion state | `SPC a s` | 发送 gptel 输入                |
-| Evil normal、visual、motion state | `SPC a d` | 销毁当前会话与聊天抽屉         |
-| Evil normal、visual、motion state | `SPC a g` | 有选区时改写，否则切换聊天抽屉 |
+| Evil normal、visual、motion state | `SPC a d` | 销毁与当前上下文匹配的抽屉     |
+| Evil normal、visual、motion state | `SPC a g` | 切换解释抽屉（需要选区）       |
+| Evil normal、visual、motion state | `SPC a r` | 切换改写抽屉（需要选区）       |
 
-使用 `SPC a d` 会先中止正在进行的请求，再关闭窗口并删除当前 `*gptel*` buffer；下次按 `SPC a g` 会创建一个全新的会话。
+使用 `SPC a d` 会先中止正在进行的请求，再关闭窗口并删除与当前上下文匹配的 gptel buffer；下次按 `M-RET` 或 `SPC a g` 会创建一个全新的会话。
 
 Evil 协作：gptel buffer 默认 emacs state，`Escape` 切 normal 用 j/k 滚动，`C-z` 回 emacs state，与 agent-shell 行为一致。
 

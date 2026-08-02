@@ -85,7 +85,7 @@ MODE is a major mode function to activate in the buffer."
 
 ;; ---- gptel（LLM 聊天抽屉）----
 ;;
-;; M-RET 有选区时改写选区，否则弹出/关闭底部 drawer。
+;; M-RET：有选区时切换独立的解释抽屉。
 ;; DeepSeek 后端，Emacs 原生体验。
 ;; 系统依赖：无需额外安装，API key 从 shell 环境变量读取。
 (use-package gptel
@@ -103,44 +103,101 @@ MODE is a major mode function to activate in the buffer."
                                    . (:description "DeepSeek V4 Pro")))))
   (setq gptel-model (intern "deepseek-v4-pro[1m]"))
 
-  (defun skye/toggle-gptel-drawer ()
-    "Toggle the gptel chat drawer at the bottom of the frame.
-When opening and a region is active, include it as context."
-    (interactive)
-    (let* ((region-text (when (use-region-p)
-                          (buffer-substring-no-properties
-                           (region-beginning) (region-end))))
-           (buf (gptel "*gptel*" nil region-text))
+  (defconst skye/gptel-rewrite-drawer-name "*gptel-rewrite*")
+  (defconst skye/gptel-explain-drawer-name "*gptel-explain*")
+
+  (defconst skye/gptel-drawer-names
+    (list skye/gptel-rewrite-drawer-name
+          skye/gptel-explain-drawer-name))
+
+  (defun skye/gptel-selected-context ()
+    "Return the active region, or signal that a region is required."
+    (unless (use-region-p)
+      (user-error "Select text before opening this gptel drawer"))
+    (buffer-substring-no-properties (region-beginning) (region-end)))
+
+  (defun skye/gptel-drawer-spec ()
+    "Return the explanation drawer and the active region context."
+    (list skye/gptel-explain-drawer-name (skye/gptel-selected-context)))
+
+  (defun skye/gptel-current-drawer-name ()
+    "Return the current gptel drawer, or select one from the active context."
+    (when (member (buffer-name) skye/gptel-drawer-names)
+      (buffer-name)))
+
+  (defun skye/show-gptel-drawer (buf)
+    "Show BUF as a bottom drawer, or select its existing window."
+    (if-let* ((win (get-buffer-window buf)))
+        (select-window win)
+      (create-drawer-window (buffer-name buf) t -20)))
+
+  (defun skye/hide-gptel-drawer (buf)
+    "Hide BUF's drawer without deleting the chat buffer."
+    (when-let* ((win (get-buffer-window buf)))
+      (if (one-window-p nil (window-frame win))
+          (quit-window nil win)
+        (delete-window win))))
+
+  (defun skye/toggle-gptel-drawer-named (drawer-name &optional region-text prompt)
+    "Toggle DRAWER-NAME, optionally providing REGION-TEXT and a PROMPT."
+    (let* ((new-buffer (not (get-buffer drawer-name)))
+           (buf (gptel drawer-name nil region-text))
            (win (get-buffer-window buf)))
+      (when (and new-buffer prompt)
+        (with-current-buffer buf
+          (goto-char (point-max))
+          (insert prompt)))
       (if win
-          ;; Already visible — close it. If it's the selected window,
-          ;; delete-window is enough; otherwise just delete that window.
-          (if (eq win (selected-window))
-              (unless (one-window-p)
-                (delete-window))
-            (delete-window win))
-        ;; Not visible — open as bottom drawer.
-        (create-drawer-window (buffer-name buf) t -20))))
+          (skye/hide-gptel-drawer buf)
+        (skye/show-gptel-drawer buf))))
+
+  (defun skye/toggle-gptel-drawer ()
+    "Hide the current drawer, or show an existing drawer, or create an explanation drawer."
+    (interactive)
+    (cond
+     ((member (buffer-name) skye/gptel-drawer-names)
+      (skye/hide-gptel-drawer (current-buffer)))
+     ((when-let* ((buf (or (get-buffer skye/gptel-explain-drawer-name)
+                           (get-buffer skye/gptel-rewrite-drawer-name))))
+        (skye/show-gptel-drawer buf)))
+     (t
+      (pcase-let* ((`(,drawer-name ,region-text) (skye/gptel-drawer-spec)))
+        (skye/toggle-gptel-drawer-named
+         drawer-name region-text "请解释这段代码：\n")))))
+
+  (defun skye/toggle-gptel-rewrite-drawer ()
+    "Toggle the region-backed gptel rewrite drawer."
+    (interactive)
+    (skye/toggle-gptel-drawer-named
+     skye/gptel-rewrite-drawer-name (skye/gptel-selected-context)))
+
+  (defun skye/toggle-gptel-explain-drawer ()
+    "Toggle the region-backed gptel code explanation drawer."
+    (interactive)
+    (skye/toggle-gptel-drawer-named
+     skye/gptel-explain-drawer-name (skye/gptel-selected-context)
+     "请解释这段代码：\n"))
 
   (defun skye/gptel-dwim ()
-    "Rewrite the active region, or toggle the gptel chat drawer."
+    "Toggle the regular or region-backed gptel explanation drawer."
     (interactive)
-    (if (use-region-p)
-        (call-interactively #'gptel-rewrite)
-      (skye/toggle-gptel-drawer)))
+    (skye/toggle-gptel-drawer))
 
   (defun skye/destroy-gptel-drawer ()
-    "Abort the current gptel request and destroy its chat drawer."
+    "Abort the current gptel request and destroy its matching drawer."
     (interactive)
-    (if-let ((buf (get-buffer "*gptel*")))
+    (if-let ((buf (get-buffer (skye/gptel-current-drawer-name))))
         (let ((win (get-buffer-window buf t)))
           (gptel-abort buf)
           (when (kill-buffer buf)
             (when (and (window-live-p win)
                        (not (one-window-p nil (window-frame win))))
               (delete-window win))
-            (message "Destroyed gptel drawer")))
-      (message "No gptel drawer to destroy"))))
+            (message "Destroyed gptel drawer: %s" (buffer-name buf))))
+      (message "No matching gptel drawer to destroy")))
+
+  (define-key gptel-mode-map (kbd "C-RET") #'gptel-send)
+  (define-key gptel-mode-map (kbd "C-<return>") #'gptel-send))
 
 (use-package tramp
   :ensure nil

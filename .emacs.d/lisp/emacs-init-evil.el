@@ -31,14 +31,29 @@
   "Enter Evil normal state when j is pressed twice quickly.
 Insert a single j normally when it is not followed by another j."
   (interactive)
-  (let ((event (read-event nil nil skye/evil-jj-timeout)))
-    (if (eq event ?j)
-        (evil-normal-state)
-      (unless buffer-read-only
-        (insert "j"))
-      (when event
-        (setq unread-command-events
-              (cons event unread-command-events))))))
+  (if (derived-mode-p 'dired-mode)
+      (dired-next-line (prefix-numeric-value current-prefix-arg))
+    (let ((event (read-event nil nil skye/evil-jj-timeout)))
+      (if (eq event ?j)
+          (evil-normal-state)
+        (unless buffer-read-only
+          (insert "j"))
+        (when event
+          (setq unread-command-events
+                (cons event unread-command-events)))))))
+
+(defun skye/configure-dired-evil-keys ()
+  "Keep Dired navigation when Evil enters normal state."
+  (evil-define-key 'normal dired-mode-map
+    (kbd "h") #'my/dired-up
+    (kbd "j") #'dired-next-line
+    (kbd "k") #'dired-previous-line
+    (kbd "l") #'my/dired-open))
+
+(if (featurep 'dired)
+    (skye/configure-dired-evil-keys)
+  (with-eval-after-load 'dired
+    (skye/configure-dired-evil-keys)))
 
 ;; 各 mode 的初始 evil 状态
 (dolist (p '((minibuffer-inactive-mode . emacs)

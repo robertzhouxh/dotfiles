@@ -77,7 +77,8 @@
    "s-g"   'vc-dir
 
    "M-n"   'hold-line-scroll-down
-   "M-p"   'hold-line-scroll-up)
+   "M-p"   'hold-line-scroll-up
+   "M-RET" 'skye/gptel-dwim)
 
   (with-eval-after-load 'agent-shell
     (define-key agent-shell-mode-map (kbd "C-<tab>") nil))
@@ -95,7 +96,8 @@
    ;; AI
    "aa" 'agent-shell-anthropic-start-claude-code
    "a1" 'agent-shell-anthropic-start-claude-code
-   "ag" 'skye/gptel-dwim
+   "ag" 'skye/toggle-gptel-explain-drawer
+   "ar" 'skye/toggle-gptel-rewrite-drawer
    "as" 'gptel-send
    "ad" 'skye/destroy-gptel-drawer
 
