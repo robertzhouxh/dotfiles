@@ -12,9 +12,6 @@
   (dolist (key keys)
     (global-unset-key (kbd key))))
 
-;; 识别光标下的文件路径，供 Evil 的 gf 直接打开。
-(require 'ffap)
-
 (use-package general
   :after evil
   :config
@@ -25,7 +22,6 @@
    :keymaps 'override
    "/"   'swiper
    "?"   'swiper-backward
-   "gf"  #'find-file-at-point
 
    ;; LSP
    "C-]"   'lsp-bridge-find-def
@@ -132,6 +128,7 @@
    "l" (lambda () (interactive) (dired (file-name-directory (or (buffer-file-name) default-directory))))
 
    ;; files
+   "fa" #'find-file-at-point
    "ff" 'find-file
    "fo" 'find-file-other-window
    "fO" 'find-file-other-frame

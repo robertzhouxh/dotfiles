@@ -15,6 +15,9 @@
 (when my-graphic-p
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
+;; 识别光标下的文件路径，供 Evil 的 gf 直接打开。
+(require 'ffap)
+
 ;; ---- Which-key（Emacs 30+ 内置）----
 (use-package which-key
   :ensure nil
