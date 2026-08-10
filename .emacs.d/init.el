@@ -54,6 +54,7 @@
 ;; ── 其他工具 ─────────────────────────────────────────────────────────────────
 (require 'emacs-init-rime)
 (require 'emacs-init-platform)
+(require 'emacs-init-tramp-rpc)
 (require 'emacs-solo-sudo-edit)
 (require 'emacs-solo-temp-sharing)
 

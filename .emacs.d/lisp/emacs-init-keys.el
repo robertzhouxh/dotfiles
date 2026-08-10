@@ -12,6 +12,9 @@
   (dolist (key keys)
     (global-unset-key (kbd key))))
 
+;; 识别光标下的文件路径，供 Evil 的 gf 直接打开。
+(require 'ffap)
+
 (use-package general
   :after evil
   :config
@@ -22,6 +25,7 @@
    :keymaps 'override
    "/"   'swiper
    "?"   'swiper-backward
+   "gf"  #'find-file-at-point
 
    ;; LSP
    "C-]"   'lsp-bridge-find-def
@@ -202,12 +206,6 @@
     (setq mac-command-modifier 'meta
           mac-option-modifier  'super
           ns-function-modifier 'hyper)))
-
-(use-package which-key
-  :diminish
-  :hook (after-init . which-key-mode)
-  :config
-  (which-key-setup-side-window-right))
 
 (provide 'emacs-init-keys)
 ;;; init-keys.el ends here

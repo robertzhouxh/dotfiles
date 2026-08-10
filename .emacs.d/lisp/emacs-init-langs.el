@@ -8,14 +8,23 @@
 (use-package protobuf-mode :mode ("\\.proto\\'" . protobuf-mode))
 (use-package dockerfile-mode :commands dockerfile-mode)
 
-(use-package auto-save
-  :vc (:url "https://github.com/manateelazycat/auto-save" :rev :newest)
-  :hook (after-init . auto-save-enable)
-  :custom
-  (auto-save-silent t)
-  (auto-save-disable-predicates
-   '((lambda () (string-prefix-p "*" (buffer-name)))
-     (lambda () (string-match-p "\\.gpg$" (buffer-file-name))))))
+;; 保留旧配置，方便在体验 super-save 后快速恢复。
+;; (use-package auto-save
+;;   :vc (:url "https://github.com/manateelazycat/auto-save" :rev :newest)
+;;   :hook (after-init . auto-save-enable)
+;;   :custom
+;;   (auto-save-silent t)
+;;   (auto-save-disable-predicates
+;;    '((lambda () (string-prefix-p "*" (buffer-name)))
+;;      (lambda () (string-match-p "\\.gpg$" (buffer-file-name))))))
+
+(use-package super-save
+  :ensure t
+  :config
+  (setq super-save-auto-save-when-idle t
+        super-save-silent t
+        auto-save-default nil)
+  (super-save-mode +1))
 
 ;; ---- Tree-sitter ----
 (use-package treesit-fold

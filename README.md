@@ -39,6 +39,18 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 
 > 安装后执行 `./emacs.sh` 完成部署，启动 Emacs 即可。
 
+### TRAMP-RPC：高速远程文件访问
+
+Emacs 已配置 [TRAMP-RPC](https://github.com/ArthurHeymans/emacs-tramp-rpc)。常规 SSH TRAMP（`/ssh:`）仍是默认方式；需要更快的目录、文件和 Git 操作时，使用 `rpc` 方法：
+
+```text
+/rpc:user@host:/path/to/file
+```
+
+例如，按 `C-x C-f` 后输入 `/rpc:alice@example.com:/srv/app/README.md` 打开远程文件；按 `C-x d` 后输入 `/rpc:alice@example.com:/srv/app/` 打开远程目录。在 Evil normal、visual 或 motion 状态下，`SPC r` 会提示输入 `user@host` 和远端目录，并直接打开对应的 RPC Dired。
+
+首次连接某个远程主机时，TRAMP-RPC 会将服务端二进制部署到远端的 `~/.cache/emacs/tramp-rpc/`。远端需可通过 SSH 访问，并运行受支持的 Linux 或 macOS 架构。若自动部署无法完成，执行 `M-x tramp-rpc-deploy-install-binary`；用 `M-x tramp-rpc-deploy-status` 查看本地缓存和部署状态。
+
 ---
 
 ## Ubuntu

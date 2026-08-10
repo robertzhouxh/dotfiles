@@ -15,6 +15,15 @@
 (when my-graphic-p
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
+;; ---- Which-key（Emacs 30+ 内置）----
+(use-package which-key
+  :ensure nil
+  :config
+  (setq which-key-idle-delay 0.5
+        which-key-popup-type 'side-window
+        which-key-side-window-location 'bottom)
+  (which-key-mode 1))
+
 ;; ---- UI 精简 ----
 (use-package emacs
   :init
