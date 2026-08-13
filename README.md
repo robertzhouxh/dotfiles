@@ -247,6 +247,12 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 
 ---
 
+## Emacs 配置参考
+
+来源：[Stealing from the Best Emacs Configs](https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/)
+
+---
+
 ## CLAUDE
 
 Claude Code 自动读取项目根目录的 `CLAUDE.md`（全局版本在 `~/.claude/CLAUDE.md`）。其他工具的兼容方式：

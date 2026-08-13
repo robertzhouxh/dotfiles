@@ -17,6 +17,7 @@
 
 ;; 识别光标下的文件路径，供 Evil 的 gf 直接打开。
 (require 'ffap)
+(setq ffap-machine-p-known 'reject)
 
 ;; ---- Which-key（Emacs 30+ 内置）----
 (use-package which-key
@@ -55,8 +56,21 @@
       ring-bell-function 'ignore
       mouse-yank-at-point t
       x-select-enable-clipboard t
+      save-interprogram-paste-before-kill t
+      kill-do-not-save-duplicates t
       inhibit-startup-message t
       initial-scratch-message (concat "浩哥，enjoy coding *^____^* emacs startup in " (emacs-init-time)))
+
+;; 跨会话保留常用的 kill ring 项，去掉文本属性以控制历史文件大小。
+(require 'cl-lib)
+(require 'savehist)
+(add-to-list 'savehist-additional-variables 'kill-ring)
+(add-hook 'savehist-save-hook
+          (lambda ()
+            (setq kill-ring
+                  (mapcar #'substring-no-properties
+                          (cl-remove-if-not #'stringp kill-ring)))))
+(savehist-mode 1)
 
 ;; Treesitter
 (setq treesit-font-lock-level 4
@@ -86,6 +100,14 @@
 (setq-default bidi-display-reordering nil
               bidi-paragraph-direction 'left-to-right)
 (setq bidi-inhibit-bpa t)
+(setq redisplay-skip-fontification-on-input t)
+
+;; 保持已有窗口布局在分割、关闭窗口时按比例调整。
+(setq window-combination-resize t)
+
+;; 带 shebang 的脚本保存后自动设为可执行。
+(add-hook 'after-save-hook
+          #'executable-make-buffer-file-executable-if-script-p)
 
 ;; 行号
 (setq display-line-numbers-grow-only t)

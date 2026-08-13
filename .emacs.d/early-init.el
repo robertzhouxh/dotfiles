@@ -27,6 +27,7 @@
 
 ;; LSP 性能
 (setenv "LSP_USE_PLISTS" "true")
+(setq read-process-output-max (* 4 1024 1024))
 
 (provide 'early-init)
 ;;; early-init.el ends here
