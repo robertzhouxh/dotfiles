@@ -1,5 +1,8 @@
 ;;; early-init.el --- 启动早期优化 -*- lexical-binding: t; -*-
 
+;; 让后续 init.el 中的本地模块在 package.el 初始化前即可被定位。
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
 ;; GC 阈值调优：启动时提高，启动后恢复
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)

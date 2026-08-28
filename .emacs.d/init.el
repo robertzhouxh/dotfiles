@@ -1,7 +1,5 @@
 ;;; init.el --- Emacs 配置入口 -*- lexical-binding: t; -*-
 
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
 ;; 路径常量必须最先加载（my-cache-dir 等后面要用）
 (require 'emacs-init-path)
 

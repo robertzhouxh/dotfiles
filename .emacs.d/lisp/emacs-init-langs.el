@@ -33,9 +33,11 @@
 
 (use-package treesit-auto
   :demand t
-  :custom (treesit-font-lock-level 4)
+  :custom
+  (treesit-font-lock-level 4)
+  ;; Emacs 31.1 会处理内置 grammar 的来源；缺失时仍由用户确认下载。
+  (treesit-auto-install 'prompt)
   :config
-  (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))
 
 (defun treesit-show-parser ()

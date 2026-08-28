@@ -72,11 +72,6 @@
                           (cl-remove-if-not #'stringp kill-ring)))))
 (savehist-mode 1)
 
-;; Treesitter
-(setq treesit-font-lock-level 4
-      treesit-auto-install-grammar 'always  ; EMACS-31
-      treesit-enabled-modes t)              ; EMACS-31
-
 (setq-default cursor-type 'bar
               comment-style 'indent
               require-final-newline nil

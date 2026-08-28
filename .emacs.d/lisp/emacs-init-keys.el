@@ -196,6 +196,7 @@
    "wv" 'split-window-right
    "wd" 'delete-window
    "ww" 'other-window
+   "wr" 'window-layout-rotate-clockwise
    "wc" (lambda () (interactive) (delete-window) (delete-other-windows)))
 
   ;; macOS 修饰键：Cmd = Meta
