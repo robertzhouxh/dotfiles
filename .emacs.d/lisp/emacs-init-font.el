@@ -36,7 +36,9 @@
 (add-hook 'after-init-hook 'my/load-font-setup)
 
 ;; ---- macOS Emoji 字体 ----
-(when my-sys-mac-p
+;; set-fontset-font 只在图形会话中可用：-nw / --batch 下它是 void，
+;; 直接调用会导致启动报 "Symbol's function definition is void: set-fontset-font"。
+(when (and my-sys-mac-p my-graphic-p)
   (set-fontset-font t 'emoji '("Apple Color Emoji" . "iso10646-1") nil 'prepend))
 
 (provide 'emacs-init-font)
