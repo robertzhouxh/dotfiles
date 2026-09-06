@@ -77,6 +77,7 @@
 (use-package markdown-mode
   :mode ("\\.md\\'" . markdown-mode)
   :commands markdown-mode
+  :hook (markdown-mode . markdown-toggle-inline-images)
   :config
   (defun my/align-all-markdown-tables ()
     "对齐当前 buffer 中的所有 Markdown 表格。"
