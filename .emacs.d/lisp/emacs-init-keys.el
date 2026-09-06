@@ -1,5 +1,24 @@
 ;;; emacs-init-keys.el --- 键位配置 -*- lexical-binding: t; -*-
 
+;; M-n / M-p 的滚动命令（原本定义在 config.org，重构时漏迁，需与下方绑定同文件存在）
+(defun hold-line-scroll-up ()
+  "Scroll the page with the cursor in the same line"
+  (interactive)
+  ;; move the cursor also
+  (let ((tmp (current-column)))
+    (scroll-up 1)
+    (line-move-to-column tmp)
+    (forward-line 1)))
+
+(defun hold-line-scroll-down ()
+  "Scroll the page with the cursor in the same line"
+  (interactive)
+  ;; move the cursor also
+  (let ((tmp (current-column)))
+    (scroll-down 1)
+    (line-move-to-column tmp)
+    (forward-line -1)))
+
 ;; 卸载不需要的默认快捷键
 (let ((keys '("C-q" "C-6" "C-z"
               "C-<wheel-down>" "C-<wheel-up>"
