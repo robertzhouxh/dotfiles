@@ -49,7 +49,7 @@ rime-settings*
 .emacs.d/tree-sitter*
 .emacs.d/agent
 .emacs.d/lisp/*-autoloads.el
-
+.emacs.d/history
 
 htop
 .tmux
