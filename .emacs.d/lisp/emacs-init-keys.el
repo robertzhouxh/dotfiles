@@ -97,7 +97,17 @@
 
    "M-n"   'hold-line-scroll-down
    "M-p"   'hold-line-scroll-up
-   "M-RET" 'skye/gptel-dwim)
+   "M-RET" 'skye/gptel-dwim
+
+   ;; 括号跳转（定义见 emacs-solo-brackets.el）
+   ;; 与 C-9（lsp-bridge popup）/ C-0（rename）连成一片。
+   ;; C-7/C-8 与 C-w/C-x 是不同的事件（(kbd "C-7") => [67108919]），
+   ;; 不会遮蔽 kill-region / C-x 前缀。
+   ;; 但 tty（emacs -nw）下 C-7/C-8 无法与 C-w/C-x 区分：终端发的是同一个
+   ;; 字节 0x17/0x18，Emacs 读成 C-w/C-x，local-function-key-map 里也没有
+   ;; 0x17->C-7 的转换。所以这两个键只在 GUI 生效；终端里用 M-x 调用。
+   "C-7"   'xah-backward-left-bracket
+   "C-8"   'xah-forward-right-bracket)
 
   (with-eval-after-load 'agent-shell
     (define-key agent-shell-mode-map (kbd "C-<tab>") nil))

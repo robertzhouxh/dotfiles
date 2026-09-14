@@ -29,6 +29,7 @@
 (require 'emacs-solo-clipboard)
 
 ;; ── 编辑器核心 ───────────────────────────────────────────────────────────────
+(require 'emacs-solo-brackets)
 (require 'emacs-init-keys)
 (require 'emacs-init-settings)
 (require 'emacs-init-ui)

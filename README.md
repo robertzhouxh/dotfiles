@@ -253,6 +253,47 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 
 ---
 
+## Emacs 括号跳转（`C-7` / `C-8`）
+
+把光标跳到最近的括号。来源：[Xah Lee: Emacs: Move Cursor to Bracket](http://xahlee.info/emacs/emacs/emacs_navigating_keys_for_brackets.html)
+
+| 键    | 命令                        | 行为                                |
+|-------|-----------------------------|-------------------------------------|
+| `C-7` | `xah-backward-left-bracket` | 跳到上一个左括号，光标停在括号上     |
+| `C-8` | `xah-forward-right-bracket` | 跳到下一个右括号，光标停在括号之后   |
+
+与 `forward-sexp` 的区别：这两个命令不认识语法结构，只做纯文本搜索，所以语法树残缺（正在输入的半截表达式）、非 Lisp 语言、纯文本里都能用。括号表覆盖 ASCII 与 62 组 Unicode 括号（全角、CJK、数学、Dingbats 等）。
+
+**注意事项**
+
+- `C-7` / `C-8` 与 `C-w` / `C-x` 是**不同的事件**（`(kbd "C-7")` 求值为 `[67108919]`），不会遮蔽 `kill-region` 和 `C-x` 前缀。已用差分测试确认：加上这两个绑定后，`C-w`、`C-x`、`C-9`、`C-0`、`M-.`、`M-m`、`M-7`、`M-8` 的解析结果一个字节都没变。
+- **只在 GUI 生效。** 终端（`emacs -nw`）里 `C-7` / `C-8` 与 `C-w` / `C-x` 发的是同一个字节（0x17 / 0x18），Emacs 读成后者，`local-function-key-map` 里也没有 `0x17 -> C-7` 的转换，所以这两个绑定在 tty 下按不出来。终端里用 `M-x xah-forward-right-bracket`。
+- 代价：Evil normal state 下 `C-7` / `C-8` 原本是 `digit-argument`。`digit-argument` 仍可用 `M-0`…`M-9` 和 `C-u`，没有实际损失。
+
+**位置**
+
+| 内容         | 路径                                                |
+|--------------|-----------------------------------------------------|
+| 命令与括号表 | `.emacs.d/lisp/emacs-solo-brackets.el`              |
+| 键位绑定     | `.emacs.d/lisp/emacs-init-keys.el`（`M-RET` 下方）  |
+| 门禁测试     | `.emacs.d/test/emacs-solo-brackets-test.el`         |
+
+---
+
+## 门禁测试
+
+确定性、本地、免费、永不 flaky。无需启动完整 Emacs，直接跑：
+
+```bash
+.emacs.d/test/run-tests.sh     # 当前 23 个用例，约 80ms
+```
+
+覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。
+
+关于"正则精确性"：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而后者**允许输出字符范围**（如 `[(-{]`）。一个跨过非括号字符的范围会让命令静默跳到普通文本上。所以测试逐个码位验证"匹配且仅匹配"目标字符集，而不是只断言"括号能匹配上"。
+
+---
+
 ## CLAUDE
 
 Claude Code 自动读取项目根目录的 `CLAUDE.md`（全局版本在 `~/.claude/CLAUDE.md`）。其他工具的兼容方式：
