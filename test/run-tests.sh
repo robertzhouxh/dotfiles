@@ -288,6 +288,123 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+group "ubuntu.sh 装 starship"
+
+# jammy 源里没有 starship，塞进 apt 清单只会被可用性探测跳过，还让人以为装上了。
+# 它走官方安装脚本这条路（上游只发 tar.gz，没有 .deb / .rpm）。
+assert_not_contains "apt 清单里没有 starship（源里没有这个包）" "$PKG_LISTS" "starship"
+assert_contains "starship 走官方安装脚本" "$(cat ubuntu.sh)" "starship.rs/install.sh"
+
+# 安装逻辑单独抽成了函数，这里从 ubuntu.sh 里原样抠出来在进程内跑：ubuntu.sh 开头
+# 有 uname 闸门，在 macOS 上跑两行就 die，整段逻辑端到端根本测不到。
+STARSHIP_SRC="$(sed -n '/^install_starship()/,/^}/p' ubuntu.sh)"
+if [ -z "$STARSHIP_SRC" ]; then
+  bad "能从 ubuntu.sh 里取到 install_starship" "没匹配到函数定义，它被改名或改写了？"
+else
+  ok "能从 ubuntu.sh 里取到 install_starship"
+
+  # 桩：curl 不联网，只把「安装脚本」写到 -o 指定的路径；那个脚本按 FAKE_INSTALLER_EXIT
+  # 决定成败，成功时往 STUB_BIN 里放一个 starship（模拟装到 /usr/local/bin）。
+  # FAKE_CURL_EXIT 非 0 则连下载都失败，覆盖「拉不到 GitHub」那条路。
+  SHIPBIN="$SANDBOX/shipbin"
+  SHIPLOG="$SANDBOX/ship-curl.log"
+  mkdir -p "$SHIPBIN"
+  cat > "$SHIPBIN/curl" <<'STUB'
+#!/bin/sh
+echo "CURL $*" >> "$STUB_LOG"
+[ "${FAKE_CURL_EXIT:-0}" = "0" ] || exit 22
+out=""
+prev=""
+for a in "$@"; do
+  [ "$prev" = "-o" ] && out="$a"
+  prev="$a"
+done
+[ -n "$out" ] || exit 2
+cat > "$out" <<'INSTALLER'
+#!/bin/sh
+[ "${FAKE_INSTALLER_EXIT:-0}" = "0" ] || exit 1
+printf '#!/bin/sh\necho "starship 1.26.0"\n' > "$STUB_BIN/starship"
+chmod +x "$STUB_BIN/starship"
+INSTALLER
+exit 0
+STUB
+  chmod +x "$SHIPBIN/curl"
+
+  # 把 PATH 收窄到「桩 + 系统目录」：本机若是 brew 装过 starship，不能被它蒙混过关。
+  # URL 指向不可路由的地址，桩万一失效也联不上网。第 4 个参数是「装到哪儿」，
+  # 用来演「脚本成功但没落在 PATH 里」。
+  SHIP_OUT="$SANDBOX/ship-out"
+  ship_run() { # <DRY_RUN> <FAKE_INSTALLER_EXIT> [FAKE_CURL_EXIT] [BIN_DIR] -> 退出码
+    env -i PATH="$SHIPBIN:/usr/bin:/bin" HOME="$SANDBOX" \
+      STUB_LOG="$SHIPLOG" STUB_BIN="${4:-$SHIPBIN}" SUDO="" \
+      STARSHIP_INSTALL_URL="http://127.0.0.1:1/install.sh" \
+      DRY_RUN="$1" FAKE_INSTALLER_EXIT="$2" FAKE_CURL_EXIT="${3:-0}" \
+      /bin/bash -c 'say() { printf "==> %s\n" "$1"; }; warn() { printf "警告：%s\n" "$1"; }
+'"$STARSHIP_SRC"'
+install_starship' >"$SHIP_OUT" 2>&1
+  }
+  # grep -c 无匹配时自己就打印 0 并返回 1，写成 `|| printf 0` 会印出两个 0
+  ship_calls() { local n; n="$(grep -c '^CURL ' "$SHIPLOG" 2>/dev/null)"; printf '%s\n' "${n:-0}"; }
+  ship_reset() { rm -f "$SHIPBIN/starship"; : > "$SHIPLOG"; }
+
+  # 已经装过：跳过，且一个字节都不下载
+  printf '#!/bin/sh\necho "starship 1.26.0"\n' > "$SHIPBIN/starship"
+  chmod +x "$SHIPBIN/starship"
+  : > "$SHIPLOG"
+  ship_run 0 0; rc=$?
+  if [ "$rc" = 0 ] && [ "$(ship_calls)" = "0" ] && grep -q "已装" "$SHIP_OUT"; then
+    ok "starship 已装时跳过，且不联网"
+  else
+    bad "starship 已装时跳过，且不联网" "退出码 $rc，curl 跑了 $(ship_calls) 次：$(head -c 200 "$SHIP_OUT")"
+  fi
+
+  # --dry-run：也不许联网
+  ship_reset
+  ship_run 1 0; rc=$?
+  if [ "$rc" = 0 ] && [ "$(ship_calls)" = "0" ] && grep -q "dry-run" "$SHIP_OUT"; then
+    ok "starship --dry-run 只打印不联网"
+  else
+    bad "starship --dry-run 只打印不联网" "退出码 $rc，curl 跑了 $(ship_calls) 次：$(head -c 200 "$SHIP_OUT")"
+  fi
+
+  # 正常安装：下载一次、执行一次，starship 落到 PATH 里
+  ship_reset
+  ship_run 0 0; rc=$?
+  if [ "$rc" = 0 ] && [ "$(ship_calls)" = "1" ] && [ -x "$SHIPBIN/starship" ]; then
+    ok "starship 没装时下载并安装"
+  else
+    bad "starship 没装时下载并安装" "退出码 $rc，curl $(ship_calls) 次，starship 存在？$([ -x "$SHIPBIN/starship" ] && echo 是 || echo 否)"
+  fi
+
+  # 拉不到（curl 失败）与装不上（脚本非 0）都要返回非 0，交给调用方去 warn
+  ship_reset
+  ship_run 0 0 22; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "下载失败时返回非 0（调用方好去警告）"
+  else
+    bad "下载失败时返回非 0（调用方好去警告）" "却返回了 0"
+  fi
+
+  ship_reset
+  ship_run 0 1; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "安装脚本失败时返回非 0"
+  else
+    bad "安装脚本失败时返回非 0" "却返回了 0"
+  fi
+
+  # 脚本跑成功了、PATH 里却没有 starship（装去了别处）：一样算没装上
+  ship_reset
+  mkdir -p "$SANDBOX/elsewhere"
+  ship_run 0 0 0 "$SANDBOX/elsewhere"; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "脚本成功但 PATH 里没有 starship 时仍算失败"
+  else
+    bad "脚本成功但 PATH 里没有 starship 时仍算失败" "却返回了 0"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 group "vim.sh 行为"
 
 # vim.sh 往 $HERE/.vim 里写东西（插件就装在那儿）。直接对真仓库跑会污染工作区，

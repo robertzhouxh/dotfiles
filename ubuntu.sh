@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ubuntu.sh —— 在 Ubuntu（22.04 及以后）上把本仓库跑起来
 #
-# 做四件事：装开发工具 → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
+# 做五件事：装开发工具 → 装 starship → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
 # 可反复执行，已经满足的步骤会跳过。
 #
 # 用法：
@@ -86,7 +86,8 @@ OPTIONAL_PKGS=(
   # 被删掉的 apt.sh 一直在装它，这里是接着装。装在桌面机上会自起监听，
   # 不想要就别装——它列在可选里，跳过不会影响别的。
   openssh-server
-  # 注：jammy 源里没有 exa（.alias 里的 ls 增强），也没有 starship。
+  # 注：jammy 源里没有 exa（.alias 里的 ls 增强）。starship 也不在源里，
+  # 它不走 apt，见下面第 2 步。
   # jammy 的 zoxide 是 0.4.3，且没有任何 dotfile 会 init 它，装了也是一把闲置的二进制，故不装。
 )
 
@@ -148,13 +149,54 @@ if [ ${#INSTALLABLE[@]} -gt 0 ]; then
 fi
 if [ ${#SKIPPED[@]} -gt 0 ]; then
   warn "当前源里没有，已跳过：${SKIPPED[*]}"
-  warn "（exa 和 starship 不在 Ubuntu 22.04 的 apt 源里，.alias / .bashrc 会优雅降级。）"
+  warn "（exa 不在 Ubuntu 22.04 的 apt 源里，.alias 会优雅降级。starship 也不在源里，走第 2 步。）"
 fi
 
 # 这里刻意不装 Emacs。apt 里是 27.1，配置要 30.1+，装上就是个跑不起来的组合；
 # 见收尾提示与 README「Ubuntu 上的 Emacs」。
 
-# ---- 2. locale ----
+# ---- 2. starship ----
+# jammy 源里没有 starship（macOS 侧由 brew.sh 装），走官方安装脚本。上游只发
+# tar.gz，没有 .deb / .rpm；脚本自己按 uname 认平台（Linux 挑 musl 静态包，不挑
+# glibc），自己 sudo 装到 /usr/local/bin，比我们自己拼 release 资产名稳。
+#
+# 拉不到只警告不中断：这是个提示符，不该让整台机器的初始化卡在这儿。.zshrc /
+# .bashrc 里那段 init 本来就是 command -v 通过才生效，没装就是默认样式。
+#
+# 单独抽成函数是为了能在测试里抠出来跑：ubuntu.sh 开头有 uname 闸门，在 macOS
+# 上跑两行就 die，逻辑埋在主干里就永远测不到。
+STARSHIP_INSTALL_URL="${STARSHIP_INSTALL_URL:-https://starship.rs/install.sh}"
+
+install_starship() {
+  if command -v starship >/dev/null 2>&1; then
+    say "starship 已装（$(starship --version 2>/dev/null | head -n 1)），跳过。"
+    return 0
+  fi
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] 下载 $STARSHIP_INSTALL_URL 并执行 sh -s -- -y，装到 /usr/local/bin"
+    return 0
+  fi
+  say "安装 starship……"
+  local tmp installer_ok=1
+  tmp="$(mktemp)"
+  if curl -fsSL -o "$tmp" "$STARSHIP_INSTALL_URL" && ${SUDO:-} sh "$tmp" -y; then
+    installer_ok=0
+  fi
+  rm -f "$tmp"
+  # 安装脚本自己会报告装到了哪儿，这里复核一遍 PATH：装没装上以实际能用为准。
+  if [ "$installer_ok" = 0 ] && command -v starship >/dev/null 2>&1; then
+    say "starship 装好了：$(command -v starship)"
+    return 0
+  fi
+  return 1
+}
+
+if ! install_starship; then
+  warn "starship 没装上（下载或安装失败），已跳过。提示符退回默认样式，其余不受影响。"
+  warn "手动补装：curl -fsSL $STARSHIP_INSTALL_URL | sh -s -- -y"
+fi
+
+# ---- 3. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
 if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
   say "en_US.UTF-8 已存在，跳过。"
@@ -164,7 +206,7 @@ else
   run $SUDO update-locale LANG=en_US.UTF-8
 fi
 
-# ---- 3. 部署 dotfiles ----
+# ---- 4. 部署 dotfiles ----
 say "部署 dotfiles……"
 if [ "$DRY_RUN" = 1 ]; then
   # shellcheck disable=SC2016  # 这里就是要让 $HERE 在子 shell 里展开，不是当前 shell
@@ -173,7 +215,7 @@ else
   bash "$HERE/deploy.sh" "${DEPLOY_ARGS[@]+"${DEPLOY_ARGS[@]}"}"
 fi
 
-# ---- 4. 登录 shell ----
+# ---- 5. 登录 shell ----
 if [ "$DO_CHSH" = 0 ]; then
   warn "按 --no-chsh 要求跳过，登录 shell 未改。"
 elif ! command -v zsh >/dev/null 2>&1; then
@@ -190,7 +232,7 @@ else
   fi
 fi
 
-# ---- 5. 收尾 ----
+# ---- 6. 收尾 ----
 say ""
 say "完成。下一步："
 printf '  1. exec zsh                    立刻进新 shell（或重新登录）\n'
