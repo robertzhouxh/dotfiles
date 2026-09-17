@@ -53,7 +53,7 @@ group "语法"
 SHELL_FILES=$(
   { git ls-files '*.sh' '.alias' '.bashrc' '.bash_profile' '.envv' '.zshrc' '.zprofile' 2>/dev/null \
       || printf '%s\n' .alias .bashrc .bash_profile .envv .zshrc .zprofile \
-           bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh apt.sh; } | sort -u
+           bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh; } | sort -u
 )
 
 for f in $SHELL_FILES; do
@@ -92,7 +92,7 @@ else
   bad "被跟踪文件里没有写死的 macOS 家目录" "命中：$HITS"
 fi
 
-# apt.sh 里那条 libncurses5-dev 是 22.04 的过渡包，新脚本不能再带。
+# libncurses5-dev 是 22.04 的过渡包，新脚本不能再带（被删掉的 apt.sh 带过它）。
 # 只看包清单，不看注释——注释里正当地提到了这个名字。
 PKG_LISTS="$(sed -n '/^CORE_PKGS=(/,/^)/p;/^OPTIONAL_PKGS=(/,/^)/p' ubuntu.sh | sed 's/#.*//')"
 assert_not_contains "包清单里没有已废弃的 libncurses5-dev" "$PKG_LISTS" "libncurses5-dev"
@@ -662,6 +662,11 @@ assert_contains "ubuntu.sh 会调用 deploy.sh" "$(cat ubuntu.sh)" "deploy.sh"
 # ubuntu.sh 不装 Emacs：apt 里是 27.1，配置要 30.1+，装上就是个跑不起来的组合。
 # 留个 --with-emacs 开关等于留个坑，用户按提示开了它只会得到一屏报错。
 assert_not_contains "ubuntu.sh 没有 --with-emacs 开关" "$(cat ubuntu.sh)" "--with-emacs"
+
+# apt.sh 已被 ubuntu.sh 取代，别再捡回来：它那份包清单在 22.04 上会报错
+# （libncurses5-dev 是过渡包），而且它 clone 的 rupa/z 和 liquidprompt
+# 没有任何 dotfile 会 source，装了也是闲置的。
+assert_ok "apt.sh 已删除（被 ubuntu.sh 取代）" test ! -e apt.sh
 assert_contains "ubuntu.sh 指向 emacs.sh" "$(cat ubuntu.sh)" "./emacs.sh"
 assert_contains "bootstrap.sh 会提到 ubuntu.sh" "$(cat bootstrap.sh)" "ubuntu.sh"
 assert_contains "ubuntu.sh 会生成 en_US.UTF-8" "$(cat ubuntu.sh)" "locale-gen en_US.UTF-8"
