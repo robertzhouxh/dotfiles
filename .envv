@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
 # =========================================================
+# 平台判定
+# .envv 先于 .alias 被加载，这里算好，下游直接读。
+# 已设置则尊重外部值——测试靠这个在 Linux 上验证 macOS 分支。
+if [ -z "${DOTFILES_OS:-}" ]; then
+  case "$(uname -s)" in
+    Darwin) DOTFILES_OS=mac ;;
+    Linux)  DOTFILES_OS=linux ;;
+    *)      DOTFILES_OS=unknown ;;
+  esac
+fi
+export DOTFILES_OS
+
+# =========================================================
 # 基础环境
 if [ -n "$ZSH_VERSION" ]; then
   HISTSIZE=50000
@@ -17,10 +30,31 @@ if [ -n "$BASH_VERSION" ]; then
   shopt -s histappend
   export HISTCONTROL=ignoredups:erasedups
 fi
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export EDITOR='emacsclient -t'
-export VISUAL='emacsclient -c -a emacs'
+# 语言环境：裸 Ubuntu 未生成 en_US.UTF-8 时，写死它会让每个命令都刷
+# "setlocale: LC_ALL: cannot change locale"。探测一次，缺失就退回 C.UTF-8。
+# 父进程通常已导出 LANG/LC_ALL，所以这个探测只在首次进入时付出一次 fork 成本。
+if [ -z "${LANG:-}" ] || [ -z "${LC_ALL:-}" ]; then
+  if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+  else
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+  fi
+fi
+
+# 编辑器：没装 Emacs 时 emacsclient 会让 `git commit`、`crontab -e` 直接失败。
+if command -v emacsclient >/dev/null 2>&1; then
+  export EDITOR='emacsclient -t'
+  export VISUAL='emacsclient -c -a emacs'
+elif command -v vim >/dev/null 2>&1; then
+  export EDITOR='vim'
+  export VISUAL='vim'
+else
+  export EDITOR='vi'
+  export VISUAL='vi'
+fi
+
 [ -t 0 ] && export GPG_TTY="$(tty)"
 
 # =========================================================
@@ -93,7 +127,7 @@ fi
 
 # =========================================================
 # macOS 工具链
-if [ "$(uname -s)" = "Darwin" ] && command -v brew >/dev/null 2>&1; then
+if [ "$DOTFILES_OS" = "mac" ] && command -v brew >/dev/null 2>&1; then
   BREW_PREFIX="$(brew --prefix)"
   if [ -d "$BREW_PREFIX/opt/openjdk" ]; then
     export JAVA_HOME="$BREW_PREFIX/opt/openjdk"

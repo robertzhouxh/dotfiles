@@ -4,17 +4,43 @@
 
 ## 快速开始
 
+### 全新 Ubuntu（连 git 都没有）
+
 ```bash
-# 同步配置文件到 $HOME（仅同步 dotfiles，跳过 .git .DS_Store）
-rsync -av --include='.*' --exclude='.git' --exclude='.DS_Store' --exclude='*' ./ ~/
-
-# 安装 macOS 工具链
-./brew.sh
-
-# 部署 vim 和 Emacs
-./vim.sh
-./emacs.sh
+curl -fsSL https://raw.githubusercontent.com/robertzhouxh/dotfiles/main/bootstrap.sh | bash
+cd ~/dotfiles && ./ubuntu.sh
 ```
+
+`bootstrap.sh` 只用系统自带的 apt / curl 把「能 clone 仓库」这一步打通；`ubuntu.sh` 接着装开发工具、生成 locale、部署 dotfiles、把登录 shell 切到 zsh。两者都可反复执行。
+
+想先看看会动什么，两个脚本都支持 `--dry-run`：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/robertzhouxh/dotfiles/main/bootstrap.sh | bash -s -- --dry-run
+./ubuntu.sh --dry-run
+```
+
+### 已有仓库的机器
+
+```bash
+./deploy.sh              # 部署 dotfiles（覆盖前自动备份）
+./deploy.sh --link       # 改用符号链接，之后 git pull 即生效
+./deploy.sh --dry-run    # 先看看会动哪些文件
+```
+
+macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim / Emacs。
+
+> `.vim` 和 `.emacs.d` 不走 `deploy.sh`——它们建符号链接而不是复制，见 `vim.sh` / `emacs.sh`。
+
+### 门禁测试
+
+```bash
+test/run-tests.sh        # 87 个用例，约 1.1 秒，无网络无 sudo
+```
+
+覆盖：所有 shell 文件的语法、`.alias` / `.envv` 在 mac 与 linux 两个平台下的真实行为、`.zprofile` 的 brew 探测、`deploy.sh` 的复制/链接/幂等/备份、`bootstrap.sh` 的管道执行。平台分支靠注入 `DOTFILES_OS` 来验证，所以两个平台都能在本机跑。
+
+`test/install-hooks.sh` 会把 pre-commit hook 装上，之后每次 commit 自动跑。
 
 ---
 
@@ -54,6 +80,38 @@ Emacs 已配置 [TRAMP-RPC](https://github.com/ArthurHeymans/emacs-tramp-rpc)。
 ---
 
 ## Ubuntu
+
+### ubuntu.sh 装了什么
+
+- **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
+- **可选**：vim、ripgrep、fzf、tree、htop、btop、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find
+
+可选包装不上只提示不中断。上面每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
+
+Ubuntu 22.04 的源里**没有 exa，也没有 starship**，`.alias` 和 `.bashrc` 会优雅降级。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
+
+### Ubuntu 上的 Emacs
+
+**apt 里的 Emacs 是 27.1，跑不了本仓库的配置。** `.emacs.d/lisp/emacs-solo-clipboard.el:6` 声明 `Package-Requires: ((emacs "30.1"))`，配置本身也大量依赖 29+ 的 API。要装 Emacs 30 有两条路：
+
+```bash
+# 路线一：PPA（省事，版本取决于 PPA 维护者）
+sudo add-apt-repository ppa:kelleyk/emacs
+sudo apt update && sudo apt install emacs30
+
+# 路线二：自己编译（可控，但耗时）
+sudo apt install -y libgtk-3-dev libgif-dev libxpm-dev libjpeg-dev libtiff-dev
+git clone --depth=1 --branch emacs-30 https://git.savannah.gnu.org/git/emacs.git ~/src/emacs
+cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-tree-sitter && make -j"$(nproc)"
+```
+
+装好后再跑 `./emacs.sh`。首次启动会从 MELPA 全量拉包，国内建议先挂代理或换镜像源（见 `.emacs.d/lisp/emacs-init-elpa.el`）。
+
+其余依赖：
+
+- **字体**：配置优先找「Sarasa Mono SC」（更纱黑体）。装 `fonts-jetbrains-mono` 和更纱黑体才不会有字体回退的割裂感。
+- **librime**：README 里给的是 macOS 二进制包，Linux 上要自己编译，产物放 `~/.emacs.d/librime/dist/`。
+- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。Linux 的 fcitx5-rime 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el:26`），需要手动把配置放过去。
 
 ### 中文输入法
 

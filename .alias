@@ -1,5 +1,31 @@
 #!/usr/bin/env bash
 
+# =========================================================
+# 平台判定
+# 脚本内所有平台分支都读这个变量，不要各自去调 uname。
+# 已设置则尊重外部值——测试靠这个在 Linux 上验证 macOS 分支。
+if [ -z "${DOTFILES_OS:-}" ]; then
+  case "$(uname -s)" in
+    Darwin) DOTFILES_OS=mac ;;
+    Linux)  DOTFILES_OS=linux ;;
+    *)      DOTFILES_OS=unknown ;;
+  esac
+fi
+export DOTFILES_OS
+
+# =========================================================
+# 跨平台
+
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias books="cd ~/Books/books"
+
+# 公网出口 IP。macOS 上 `ip` 命令不存在，可以安全占用；Linux 上 `ip` 是系统命令，
+# 占用它会毁掉 `ip addr` / `ip route`，所以只在 mac 分支里定义 `ip`。
+alias myip="dig +short myip.opendns.com @resolver1.opendns.com"
+
 # `ls` 增强
 if command -v exa &>/dev/null; then
     alias e="exa --icons --git"
@@ -18,43 +44,6 @@ if command -v exa &>/dev/null; then
     alias lta=eta
 fi
 
-alias ..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
-alias .....="cd ../../../.."
-alias books="cd ~/Books/books"
-
-# 网络工具
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias localip="ipconfig getifaddr en0"
-alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
-alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
-alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
-
-
-# 锁屏（等同 Control + Command + Q）
-alias afk='osascript -e "tell application \"System Events\" to keystroke \"q\" using {control down, command down}"'
-
-# 浅/深色模式切换
-alias darkmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
-
-# Wi-Fi 开关（可能需要改接口名 en0 -> en1）
-alias wifi-on='networksetup -setairportpower en0 on'
-alias wifi-off='networksetup -setairportpower en0 off'
-
-# 显示/隐藏隐藏文件（立即生效）
-alias show-hidden='defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder'
-alias hide-hidden='defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder'
-
-# 快速打开系统偏好设置面板
-alias open-wifi='open /System/Library/PreferencePanes/Network.prefPane'
-alias open-bluetooth='open /System/Library/PreferencePanes/Bluetooth.prefPane'
-alias open-display='open /System/Library/PreferencePanes/Displays.prefPane'
-alias open-battery='open /System/Library/PreferencePanes/EnergySaver.prefPane'
-
-# 查看当前 macOS 版本和硬件型号
-alias macinfo='system_profiler SPSoftwareDataType SPHardwareDataType'
-
 # Vibe coding
 # 启动一个不再问我权限的 Claude Code，同时把自动压缩点提前到 400k
 alias c='CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000 claude --dangerously-skip-permissions'
@@ -66,13 +55,15 @@ alias cxy='codex --profile yolo'
 alias vpn='ssh vpn'
 
 # Normalize `open` across Linux, macOS, and Windows.
-if [ ! $(uname -s) = 'Darwin' ]; then
-	if grep -q Microsoft /proc/version; then
-		# Ubuntu on Windows using the Linux subsystem
-		alias open='explorer.exe';
-	else
-		alias open='xdg-open';
-	fi
+if [ "$DOTFILES_OS" = mac ]; then
+    : # macOS 自带 open
+elif [ "$DOTFILES_OS" = linux ]; then
+    if [ -r /proc/version ] && grep -q Microsoft /proc/version; then
+        # Ubuntu on Windows using the Linux subsystem
+        alias open='explorer.exe'
+    else
+        alias open='xdg-open'
+    fi
 fi
 
 # `o` with no arguments opens the current directory, otherwise opens the given location
@@ -83,3 +74,54 @@ function o() {
 		open "$@";
 	fi;
 }
+
+# =========================================================
+# macOS 独占
+# 这一整块在 Linux 上无意义：osascript / networksetup / defaults / system_profiler
+# 都不存在，调用即失败。用 if 包住而不是让它们静默躺着，顺便让测试能验证。
+if [ "$DOTFILES_OS" = mac ]; then
+
+    # 占用 `ip`（macOS 无此命令）
+    alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+
+    # 网络工具
+    alias localip="ipconfig getifaddr en0"
+    alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
+    alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
+    alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+
+    # 锁屏（等同 Control + Command + Q）
+    alias afk='osascript -e "tell application \"System Events\" to keystroke \"q\" using {control down, command down}"'
+
+    # 浅/深色模式切换
+    alias darkmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
+
+    # Wi-Fi 开关（可能需要改接口名 en0 -> en1）
+    alias wifi-on='networksetup -setairportpower en0 on'
+    alias wifi-off='networksetup -setairportpower en0 off'
+
+    # 显示/隐藏隐藏文件（立即生效）
+    alias show-hidden='defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder'
+    alias hide-hidden='defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder'
+
+    # 快速打开系统偏好设置面板
+    alias open-wifi='open /System/Library/PreferencePanes/Network.prefPane'
+    alias open-bluetooth='open /System/Library/PreferencePanes/Bluetooth.prefPane'
+    alias open-display='open /System/Library/PreferencePanes/Displays.prefPane'
+    alias open-battery='open /System/Library/PreferencePanes/EnergySaver.prefPane'
+
+    # 查看当前 macOS 版本和硬件型号
+    alias macinfo='system_profiler SPSoftwareDataType SPHardwareDataType'
+fi
+
+# =========================================================
+# Linux 独占
+if [ "$DOTFILES_OS" = linux ]; then
+
+    # 本机内网 IP（macOS 上 en0 的对应物）
+    alias localip="hostname -I | awk '{print \$1}'"
+
+    # systemd-resolved 是 Ubuntu 22.04 的默认解析器
+    alias flush="resolvectl flush-caches"
+    alias flushdns='sudo resolvectl flush-caches'
+fi
