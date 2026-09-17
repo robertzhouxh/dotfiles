@@ -13,7 +13,7 @@ cd ~/dotfiles && ./ubuntu.sh
 
 `bootstrap.sh` 只用系统自带的 apt / curl 把「能 clone 仓库」这一步打通；`ubuntu.sh` 接着装开发工具、生成 locale、部署 dotfiles、把登录 shell 切到 zsh。两者都可反复执行。
 
-这一轮**不装 Emacs**：apt 里只有 27.1，而本仓库配置要 30.1+，装上也是个跑不起来的组合。Emacs 由你自己按下面的「[Ubuntu 上的 Emacs](#ubuntu-上的-emacs)」装，装好后跑 `./emacs.sh`——它会先验证版本再链接。
+这一轮**不装 Emacs**：apt 里只有 27.1，配置要 30.1+。按下面的「[Ubuntu 上的 Emacs](#ubuntu-上的-emacs)」自己装，装好再跑 `./emacs.sh`。
 
 想先看看会动什么，两个脚本都支持 `--dry-run`：
 
@@ -45,21 +45,7 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 
 `~/.vimrc` 和 `~/.vim` 都链到仓库；插件装在 `~/.vim/plugged`，也就是仓库的 `.vim/plugged`（已 gitignore），跟着仓库走。`~/.vim` 原本若是真实目录，会先备份成 `~/.vim.YYYYMMDD`。想指到别的 vim 二进制上用 `VIM=/path/to/vim ./vim.sh`。
 
-> 注意：`~/.vim` 是指向仓库 `.vim` 的符号链接，所以 `~/.vim/autoload/plug.vim` 和仓库里的那个是**同一个文件**。`vim.sh` 只认仓库内那一条路径，并且会把已经坏掉（自指成环，vim 报 `E117: Unknown function: plug#begin`）的 `plug.vim` 清掉重下。
-
-### 门禁测试
-
-```bash
-test/run-tests.sh        # 148 个用例，本机约 1 秒（无网络无 sudo）
-```
-
-覆盖：所有 shell 文件的语法、`.alias` / `.envv` 在 mac 与 linux 两个平台下的真实行为、`.zprofile` 的 brew 探测、`deploy.sh` 的复制/链接/幂等/备份、`vim.sh` 的链接/幂等/自指符号链接自愈（curl 和 vim 都换成桩，不联网也不起编辑器）、`bootstrap.sh` 的管道执行、`emacs.sh` 的版本闸门（用一个假 emacs 喂各种版本号）、各脚本 `--help` 的完整性与不泄漏代码。平台分支靠注入 `DOTFILES_OS` 来验证，所以两个平台都能在本机跑。
-
-Emacs 版本足够时，它会顺带跑一遍 `.emacs.d/test/run-tests.sh`；版本不够或没装 Emacs 就跳过并说明原因，不会让门禁红掉。
-
-`test/install-hooks.sh` 会把 pre-commit hook 装上，之后每次 commit 自动跑。
-
----
+> `~/.vim` 是符号链接，所以 `~/.vim/autoload/plug.vim` 和仓库里那个是**同一个文件**。`vim.sh` 只认仓库内那一条路径，会把已经坏掉（自指成环，vim 报 `E117: Unknown function: plug#begin`）的 `plug.vim` 清掉重下。
 
 ## macOS
 
@@ -80,21 +66,21 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 - [homebrew-emacs-plus](https://github.com/d12frosted/homebrew-emacs-plus)
 - [build-emacs-for-macos](https://codeberg.org/mclear-tools/build-emacs-macos)
 
-> 安装后执行 `./emacs.sh` 完成部署，启动 Emacs 即可。
+> 装完执行 `./emacs.sh` 完成部署，启动 Emacs 即可。
 >
-> `emacs.sh` 会先验证版本——本仓库配置要 **30.1+**（`.emacs.d/lisp/` 下 8 个 `emacs-solo-*.el` 都声明了 `Package-Requires: ((emacs "30.1"))`）。版本不够就直接拒绝并说明，不会先把 `~/.emacs.d` 链过去再让你面对一屏加载错误。确实想拿旧版试试加 `--force`。想指到别的二进制上用 `EMACS=/path/to/emacs ./emacs.sh`。
+> `emacs.sh` 先验证版本——本仓库配置要 **30.1+**（`.emacs.d/lisp/` 下的 `emacs-solo-*.el` 都声明 `Package-Requires: ((emacs "30.1"))`）。版本不够直接拒绝并说明，不会先把 `~/.emacs.d` 链好再让你面对一屏加载错误。确实想拿旧版试加 `--force`；想指到别的二进制上用 `EMACS=/path/to/emacs ./emacs.sh`。
 
 ### TRAMP-RPC：高速远程文件访问
 
-Emacs 已配置 [TRAMP-RPC](https://github.com/ArthurHeymans/emacs-tramp-rpc)。常规 SSH TRAMP（`/ssh:`）仍是默认方式；需要更快的目录、文件和 Git 操作时，使用 `rpc` 方法：
+已配置 [TRAMP-RPC](https://github.com/ArthurHeymans/emacs-tramp-rpc)。常规 SSH TRAMP（`/ssh:`）仍是默认方式；需要更快的目录、文件和 Git 操作时走 `rpc` 方法：
 
 ```text
 /rpc:user@host:/path/to/file
 ```
 
-例如，按 `C-x C-f` 后输入 `/rpc:alice@example.com:/srv/app/README.md` 打开远程文件；按 `C-x d` 后输入 `/rpc:alice@example.com:/srv/app/` 打开远程目录。在 Evil normal、visual 或 motion 状态下，`SPC r` 会提示输入 `user@host` 和远端目录，并直接打开对应的 RPC Dired。
+按 `C-x C-f` 输入 `/rpc:alice@example.com:/srv/app/README.md` 开远程文件；`C-x d` 输入 `/rpc:alice@example.com:/srv/app/` 开远程目录。Evil normal、visual 或 motion state 下按 `SPC r`，会提示 `user@host` 和远端目录并直接打开对应的 RPC Dired。
 
-首次连接某个远程主机时，TRAMP-RPC 会将服务端二进制部署到远端的 `~/.cache/emacs/tramp-rpc/`。远端需可通过 SSH 访问，并运行受支持的 Linux 或 macOS 架构。若自动部署无法完成，执行 `M-x tramp-rpc-deploy-install-binary`；用 `M-x tramp-rpc-deploy-status` 查看本地缓存和部署状态。
+首次连某台远程主机时，TRAMP-RPC 把服务端二进制部署到远端 `~/.cache/emacs/tramp-rpc/`。远端要能 SSH 上去，且是受支持的 Linux 或 macOS 架构。自动部署失败时执行 `M-x tramp-rpc-deploy-install-binary`；`M-x tramp-rpc-deploy-status` 看本地缓存和部署状态。
 
 ---
 
@@ -103,7 +89,7 @@ Emacs 已配置 [TRAMP-RPC](https://github.com/ArthurHeymans/emacs-tramp-rpc)。
 ### ubuntu.sh 装了什么
 
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
-- **可选**：vim、ripgrep、fzf、tree、htop、btop、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find
+- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find
 
 可选包装不上只提示不中断。上面每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
@@ -111,26 +97,21 @@ Ubuntu 22.04 的源里**没有 exa，也没有 starship**，`.alias` 和 `.bashr
 
 ### Ubuntu 上的 Emacs
 
-**apt 里的 Emacs 是 27.1，跑不了本仓库的配置。** `.emacs.d/lisp/emacs-solo-clipboard.el:6` 声明 `Package-Requires: ((emacs "30.1"))`，配置本身也大量依赖 29+ 的 API。要装 Emacs 30 有两条路：
+**apt 里的 Emacs 是 27.1，跑不了本仓库的配置。** `.emacs.d/lisp/` 下的 `emacs-solo-*.el` 包头都写着 `Package-Requires: ((emacs "30.1"))`，配置本身也大量依赖 29+ 的 API。只能自己编译 30：
 
 ```bash
-# 路线一：PPA（省事，版本取决于 PPA 维护者）
-sudo add-apt-repository ppa:kelleyk/emacs
-sudo apt update && sudo apt install emacs30
-
-# 路线二：自己编译（可控，但耗时）
 sudo apt install -y libgtk-3-dev libgif-dev libxpm-dev libjpeg-dev libtiff-dev
 git clone --depth=1 --branch emacs-30 https://git.savannah.gnu.org/git/emacs.git ~/src/emacs
 cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-tree-sitter && make -j"$(nproc)"
 ```
 
-装好后再跑 `./emacs.sh`——它会读 `emacs -Q --version` 核对确实 ≥ 30.1，过了才链 `~/.emacs.d`；没过就直接拒绝并告诉你差多少（`--force` 可强行越过）。首次启动会从 MELPA 全量拉包，国内建议先挂代理或换镜像源（见 `.emacs.d/lisp/emacs-init-elpa.el`）。
+装好后再跑 `./emacs.sh`，走的是上面同一个版本闸门（≥ 30.1 才链 `~/.emacs.d`）。首次启动会从 MELPA 全量拉包，国内建议先挂代理或换镜像源（见 `.emacs.d/lisp/emacs-init-elpa.el`）。
 
 其余依赖：
 
 - **字体**：配置优先找「Sarasa Mono SC」（更纱黑体）。装 `fonts-jetbrains-mono` 和更纱黑体才不会有字体回退的割裂感。
 - **librime**：README 里给的是 macOS 二进制包，Linux 上要自己编译，产物放 `~/.emacs.d/librime/dist/`。
-- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。Linux 的 fcitx5-rime 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el:26`），需要手动把配置放过去。
+- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。Linux 的 fcitx5-rime 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`），需要手动把配置放过去。
 
 ### 中文输入法
 
@@ -148,6 +129,7 @@ sudo apt install fcitx5 \
 ---
 
 ## Emacs 输入法设置
+
 ### 鼠须管 + 雾凇词库（macOS）
 
 ```bash
@@ -174,7 +156,7 @@ Emacs 中按 `C-\` 激活输入法。
 
 ## Emacs AI / LLM 工具
 
-当前配置了三层 AI 交互：
+三层 AI 交互，配置在 `.emacs.d/lisp/emacs-init-ai.el`：
 
 | 工具        | 快捷键     | 后端                          | 场景                           |
 |-------------|------------|-------------------------------|--------------------------------|
@@ -182,13 +164,11 @@ Emacs 中按 `C-\` 激活输入法。
 | agent-shell | `SPC a a`  | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
 | gptel       | `SPC a g`  | DeepSeek V4（OpenAI 兼容）    | 底部抽屉式 LLM 聊天            |
 
-配置文件：`.emacs.d/lisp/emacs-init-ai.el`
-
 ### agent-shell：终端 Agent
 
 把 Claude Code、Codex、Gemini CLI 等终端 agent 包装成 Emacs buffer。每个会话按 `模型名 @ 目录名` 命名，多项目间 `M-x switch-to-buffer` 切换。
 
-**前提：** 手动安装一次系统依赖：
+前提是手动装一次系统依赖：
 
 ```bash
 brew install claude-code
@@ -205,9 +185,7 @@ npm install -g @zed-industries/claude-agent-acp
 
 ### Claude Chat 原生模式（`emacs-solo-ai`）
 
-`C-c C-0` 启动 SDK 模式（stream-json 协议，diff 高亮、会话恢复、图片粘贴）。
-`C-c C-8` 启动 TUI 模式（传统终端交互，走订阅配额）。
-`C-c C-9` 启动 opencode agent（多任务类型）。
+`C-c C-0` SDK 模式（stream-json 协议，diff 高亮、会话恢复、图片粘贴）；`C-c C-8` TUI 模式（传统终端交互，走订阅配额）；`C-c C-9` opencode agent（多任务类型）。
 
 SDK 模式快捷键：
 
@@ -218,41 +196,11 @@ SDK 模式快捷键：
 | `C-c C-c` | 中断进程 | `C-c C-r` | 恢复历史会话  |
 | `C-c C-k` | 终止进程 | `C-c C-m` | 切换模型      |
 
-斜杠命令（在输入框直接输入）：
-
-| 命令          | 功能         |
-|---------------|--------------|
-| `/clear`      | 开始新会话   |
-| `/model NAME` | 切换模型     |
-| `/resume`     | 恢复历史会话 |
-
-### 键位速查
-
-| 快捷键    | 功能               |
-|-----------|--------------------|
-| `SPC a a` | agent-shell（首选）|
-| `SPC a 1` | agent-shell（备选）|
-| `C-c C-0` | Claude Chat（SDK） |
-| `C-c C-8` | Claude TUI         |
-| `C-c C-9` | OpenCode           |
-| `M-RET`   | gptel 解释抽屉      |
-| `SPC a g` | gptel 解释抽屉      |
-| `SPC a r` | gptel 改写抽屉      |
-| `SPC a s` | 发送 gptel 输入    |
-| `SPC a d` | 销毁 gptel 会话    |
+输入框里可直接敲斜杠命令：`/clear` 开始新会话、`/model NAME` 切换模型、`/resume` 恢复历史会话。
 
 ### Evil 模式与 AI 工具协作（vibe-coding 校准）
 
-所有 AI 终端模式（agent-shell、eat、term、Claude Chat、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。
-
-vibe-coding 工作流：
-
-```
-SPC a a 启动 agent-shell → 自动进入 emacs state
-  → 打字、RET 发送、n/p 导航 agent 输出，一切正常
-  → 想用 j/k 滚动输出时，按 Escape 或快速按 jj 进入 normal state
-  → 想继续打字时，按 C-z 回到 emacs state
-```
+所有 AI 终端模式（agent-shell、eat、term、Claude Chat、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。流程是：`SPC a a` 起 agent-shell 后正常打字、`RET` 发送、`n/p` 导航输出；想用 `j/k` 滚动输出就按 `Escape` 或快速 `jj` 进 normal state；想继续打字按 `C-z` 回 emacs state。
 
 | 键        | 状态   | 行为                                              |
 |-----------|--------|---------------------------------------------------|
@@ -266,40 +214,19 @@ SPC a a 启动 agent-shell → 自动进入 emacs state
 | `C-w w`   | 全部   | 循环切换窗口                                       |
 | `C-w o`   | 全部   | 仅保留当前窗口                                     |
 
-配置位置：`.emacs.d/lisp/emacs-init-evil.el:27-60`
+配置位置：`.emacs.d/lisp/emacs-init-evil.el`（`skye/evil-emacs-state-jj` 与 emacs-state 钩子）
 
 ### FAQ
 
-**怎么启动 agent-shell？**
-在 Evil normal、visual 或 motion state 中按 `SPC a a`；`SPC a 1` 是同一命令的备用键位。
+**怎么启动 agent-shell？** Evil normal、visual 或 motion state 下按 `SPC a a`；`SPC a 1` 是同一命令的备用键位。
 
-**agent-shell 报 "claude-agent-acp not found"？**
-`npm install -g @zed-industries/claude-agent-acp`，确认 `which claude-agent-acp` 有输出。
+**报 "claude-agent-acp not found"？** 跑 `npm install -g @zed-industries/claude-agent-acp`，确认 `which claude-agent-acp` 有输出。
 
-**agent-shell 和 Claude Chat 怎么选？**
-Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），agent-shell 是终端包装（体验等同于直接跑 `claude` 命令）。
-- 日常开发用 Claude Chat
-- 需要完整终端交互时用 agent-shell。
+**agent-shell 和 Claude Chat 怎么选？** Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），日常开发用它；agent-shell 是终端包装，体验等同于直接跑 `claude`，需要完整终端交互时用它。
 
 ### gptel：底部抽屉式 LLM 聊天
 
-gptel 提供两种可独立切换的抽屉。`M-RET` 或 `SPC a g` 使用解释代码的 `*gptel-explain*` 并带入选区；`SPC a r` 使用改写用的 `*gptel-rewrite*`。两者都要求先选中内容。后端使用 DeepSeek V4（OpenAI 兼容协议）。
-
-在抽屉中输入要求后按 `C-RET` 或 `C-<return>` 发送。
-
-相关快捷键：
-
-| 作用域                         | 键        | 功能                           |
-|--------------------------------|-----------|--------------------------------|
-| 全部状态                       | `M-RET`   | 切换解释抽屉（需要选区）       |
-| Evil normal、visual、motion state | `SPC a s` | 发送 gptel 输入                |
-| Evil normal、visual、motion state | `SPC a d` | 销毁与当前上下文匹配的抽屉     |
-| Evil normal、visual、motion state | `SPC a g` | 切换解释抽屉（需要选区）       |
-| Evil normal、visual、motion state | `SPC a r` | 切换改写抽屉（需要选区）       |
-
-使用 `SPC a d` 会先中止正在进行的请求，再关闭窗口并删除与当前上下文匹配的 gptel buffer；下次按 `M-RET` 或 `SPC a g` 会创建一个全新的会话。
-
-Evil 协作：gptel buffer 默认 emacs state，`Escape` 切 normal 用 j/k 滚动，`C-z` 回 emacs state，与 agent-shell 行为一致。
+两个可独立切换的抽屉：`M-RET` / `SPC a g` 是解释代码的 `*gptel-explain*`，`SPC a r` 是改写用的 `*gptel-rewrite*`，两者都要先选中内容，后端 DeepSeek V4（OpenAI 兼容协议）。抽屉里输入要求后按 `C-RET` 发送；`SPC a s` 发送、`SPC a d` 销毁抽屉（Evil normal、visual、motion state 下可用，`M-RET` 全状态可用）。`SPC a d` 会先中止进行中的请求，再关窗删掉匹配当前上下文的 buffer，下次按 `M-RET` 或 `SPC a g` 是全新会话。
 
 ---
 
@@ -343,7 +270,7 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 
 **注意事项**
 
-- `C-7` / `C-8` 与 `C-w` / `C-x` 是**不同的事件**（`(kbd "C-7")` 求值为 `[67108919]`），不会遮蔽 `kill-region` 和 `C-x` 前缀。已用差分测试确认：加上这两个绑定后，`C-w`、`C-x`、`C-9`、`C-0`、`M-.`、`M-m`、`M-7`、`M-8` 的解析结果一个字节都没变。
+- `C-7` / `C-8` 与 `C-w` / `C-x` 是**不同的事件**（`(kbd "C-7")` 求值为 `[67108919]`），不遮蔽 `kill-region` 和 `C-x` 前缀。差分测试确认过：加上这两个绑定后，`C-w`、`C-x`、`C-9`、`C-0`、`M-.`、`M-m`、`M-7`、`M-8` 的解析结果一个字节没变。
 - **只在 GUI 生效。** 终端（`emacs -nw`）里 `C-7` / `C-8` 与 `C-w` / `C-x` 发的是同一个字节（0x17 / 0x18），Emacs 读成后者，`local-function-key-map` 里也没有 `0x17 -> C-7` 的转换，所以这两个绑定在 tty 下按不出来。终端里用 `M-x xah-forward-right-bracket`。
 - 代价：Evil normal state 下 `C-7` / `C-8` 原本是 `digit-argument`。`digit-argument` 仍可用 `M-0`…`M-9` 和 `C-u`，没有实际损失。
 
@@ -359,32 +286,35 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 
 ## 门禁测试
 
-确定性、本地、免费、永不 flaky。无需启动完整 Emacs，直接跑：
+确定性、本地、免费、永不 flaky。
 
 ```bash
-.emacs.d/test/run-tests.sh     # 当前 23 个用例，约 80ms
+test/run-tests.sh              # shell 侧，150+ 个用例，本机约 3 秒（无网络无 sudo）
+.emacs.d/test/run-tests.sh     # Emacs 侧，20+ 个用例，约 10ms，不启动完整 Emacs
 ```
 
-覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。
+写「150+」而不是确切数字：确切数字会随测试增删过期，以输出末尾的「结果：N 通过，M 失败」为准。
 
-关于"正则精确性"：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而后者**允许输出字符范围**（如 `[(-{]`）。一个跨过非括号字符的范围会让命令静默跳到普通文本上。所以测试逐个码位验证"匹配且仅匹配"目标字符集，而不是只断言"括号能匹配上"。
+`test/install-hooks.sh` 装上 pre-commit hook，之后每次 commit 自动跑 shell 侧。shell 侧会用 `emacs.sh --dry-run` 当版本判据、顺带跑一遍 Emacs 侧；版本不够或没装 Emacs 就跳过并说明原因，不会让门禁红掉。
+
+Emacs 侧覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。其中的「正则精确性」值得一说：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而它**允许输出字符范围**（如 `[(-{]`）——一个跨过非括号字符的范围会让命令静默跳到普通文本上。所以测试逐个码位验证「匹配且仅匹配」目标字符集，而不是只断言「括号能匹配上」。
 
 ---
 
 ## CLAUDE
 
-Claude Code 自动读取项目根目录的 `CLAUDE.md`（全局版本在 `~/.claude/CLAUDE.md`）。其他工具的兼容方式：
+Claude Code 自动读项目根目录的 `CLAUDE.md`（全局版在 `~/.claude/CLAUDE.md`）。本仓库把它拆成两份，内容一一对应：`CLAUDE_EN.md` 是英文版（改名前就叫 `CLAUDE.md`），`CLAUDE_CN.md` 是中文版。两份都针对个人 dotfiles 项目定制，复制到别的项目要替换掉项目特定路径和工具链引用。
+
+其他工具的兼容方式——指向你想要的那份：
 
 ```bash
-ln -s CLAUDE.md AGENTS.md      # Codex CLI、Cursor 等
-ln -s CLAUDE.md GEMINI.md      # Gemini CLI
+ln -s CLAUDE_CN.md AGENTS.md      # Codex CLI、Cursor 等
+ln -s CLAUDE_CN.md GEMINI.md      # Gemini CLI
 ```
-
-本仓库的 `CLAUDE.md` 已针对个人 dotfiles 项目定制。复制到其他项目时需替换项目特定的路径和工具链引用。
 
 ## CODEX
 
-备份相关配置后，按下面的内容更新 Codex。
+先备份相关配置，再按下面的内容更新 Codex。三段字面量（toml 与 markdown）可以直接照抄。
 
 ### `~/.codex/config.toml`
 

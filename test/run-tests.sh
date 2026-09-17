@@ -661,6 +661,43 @@ for s in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh; do
   assert_contains "README 提到 $s" "$(cat README.md)" "$s"
 done
 
+# README 里反引号包住的仓库内路径必须真的存在。三类不算仓库路径，显式放过：
+#   CLAUDE.md  —— 讲的是「软链成这个名字」，仓库里叫 CLAUDE_CN.md / CLAUDE_EN.md
+#   default.toml / plug.vim / var/packages/… —— 都在 $HOME 下，不在本仓库
+README_SKIP='CLAUDE\.md|default\.toml|plug\.vim|var/packages/'
+README_MISSING=""
+for p in $(grep -oE '`[.A-Za-z0-9_/-]+\.(el|sh|md|toml|vim|org|txt)`' README.md | tr -d '`' | sort -u); do
+  printf '%s\n' "$p" | grep -qE "^($README_SKIP)" && continue
+  [ -e "$p" ] || README_MISSING="$README_MISSING $p"
+done
+if [ -z "$README_MISSING" ]; then
+  ok "README 引用的仓库内路径都存在"
+else
+  bad "README 引用的仓库内路径都存在" "指空气了：$README_MISSING"
+fi
+
+# 行号会漂：emacs-solo-clipboard.el 的 Package-Requires 原本在第 6 行，文件头改动之后
+# 变成第 5 行，README 却还指着 6——而「文件存在、行号也在范围内」根本拦不住这种漂移。
+# 所以干脆禁掉这个写法，要指位置就指符号名（函数名、变量名、注释里的键名）。
+README_LINEREF="$(grep -oE '`[.A-Za-z0-9_/-]+\.(el|sh|md|toml|vim|org|txt):[0-9]+' README.md | tr -d '`' | sort -u)"
+if [ -z "$README_LINEREF" ]; then
+  ok "README 不拿行号指位置（行号会漂）"
+else
+  bad "README 不拿行号指位置（行号会漂）" "改用符号名：$(printf '%s ' $README_LINEREF)"
+fi
+
+# README 说「emacs-solo-*.el 都声明 Emacs 30.1」——那就得真的都声明。加了新文件却
+# 忘了写包头，等于悄悄把 emacs.sh 那个版本闸门的依据抽掉了。
+NO_REQ=""
+for f in .emacs.d/lisp/emacs-solo-*.el; do
+  grep -q 'Package-Requires:.*emacs "30.1"' "$f" || NO_REQ="$NO_REQ ${f##*/}"
+done
+if [ -z "$NO_REQ" ]; then
+  ok "emacs-solo-*.el 都声明 Package-Requires Emacs 30.1"
+else
+  bad "emacs-solo-*.el 都声明 Package-Requires Emacs 30.1" "没声明：$NO_REQ"
+fi
+
 assert_contains "ubuntu.sh 会调用 deploy.sh" "$(cat ubuntu.sh)" "deploy.sh"
 
 # ubuntu.sh 不装 Emacs：apt 里是 27.1，配置要 30.1+，装上就是个跑不起来的组合。

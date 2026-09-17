@@ -3,7 +3,7 @@
 #
 # 先验证 Emacs 版本，再动手链接。
 #
-# 为什么非要验证：本仓库的配置要 30.1+。`.emacs.d/lisp/` 下 8 个 emacs-solo-*.el
+# 为什么非要验证：本仓库的配置要 30.1+。`.emacs.d/lisp/` 下的 emacs-solo-*.el
 # 都写了 `Package-Requires: ((emacs "30.1"))`，而 Ubuntu 22.04 的 apt 里只有 27.1。
 # 不查版本就链接，用户得到的是一屏加载错误，而不是一句「你的 Emacs 太旧」。
 #
@@ -97,11 +97,11 @@ else
   cat >&2 <<EOF
 $(printf '\033[1;31m错误：\033[0m') Emacs ${VER} 太旧，本仓库配置需要 ${MIN_VERSION}+。
 
-  .emacs.d/lisp/ 下 8 个文件声明了 Package-Requires: ((emacs "30.1"))，
+  .emacs.d/lisp/ 下的 emacs-solo-*.el 声明了 Package-Requires: ((emacs "30.1"))，
   配置本身也用了 29+ 才有的 API。这个组合跑不起来。
 
   Ubuntu 22.04 的 apt 里只有 27.1，装了也一样。
-  装 30+ 的两条路（PPA / 自己编译）见 README「Ubuntu 上的 Emacs」：
+  怎么装 30+ 见 README「Ubuntu 上的 Emacs」：
 
       grep -A 12 'Ubuntu 上的 Emacs' '$HERE/README.md'
 

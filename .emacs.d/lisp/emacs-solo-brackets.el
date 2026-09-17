@@ -2,6 +2,7 @@
 
 ;; 来源：Xah Lee, "Emacs: Move Cursor to Bracket"
 ;;   http://xahlee.info/emacs/emacs/emacs_navigating_keys_for_brackets.html
+;; Package-Requires: ((emacs "30.1"))
 ;;
 ;; 提供两个命令：向后跳到最近的左括号、向前跳到最近的右括号。与 `forward-sexp'
 ;; 不同，它们不认识语法结构，只做纯文本搜索，因此在语法树残缺（正在输入的
