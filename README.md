@@ -34,13 +34,26 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 
 > `.vim` 和 `.emacs.d` 不走 `deploy.sh`——它们建符号链接而不是复制，见 `vim.sh` / `emacs.sh`。
 
+### vim 配置
+
+```bash
+./vim.sh                  # 链接 .vimrc / .vim → 装 vim-plug → PlugInstall
+./vim.sh --dry-run        # 只打印会做什么，不落地也不联网
+./vim.sh --no-plugins     # 只链接配置，不碰插件（离线时用）
+./vim.sh --update-plug    # 强制重新下载 plug.vim
+```
+
+`~/.vimrc` 和 `~/.vim` 都链到仓库；插件装在 `~/.vim/plugged`，也就是仓库的 `.vim/plugged`（已 gitignore），跟着仓库走。`~/.vim` 原本若是真实目录，会先备份成 `~/.vim.YYYYMMDD`。想指到别的 vim 二进制上用 `VIM=/path/to/vim ./vim.sh`。
+
+> 注意：`~/.vim` 是指向仓库 `.vim` 的符号链接，所以 `~/.vim/autoload/plug.vim` 和仓库里的那个是**同一个文件**。`vim.sh` 只认仓库内那一条路径，并且会把已经坏掉（自指成环，vim 报 `E117: Unknown function: plug#begin`）的 `plug.vim` 清掉重下。
+
 ### 门禁测试
 
 ```bash
-test/run-tests.sh        # 125 个用例，本机约 1 秒（无网络无 sudo）
+test/run-tests.sh        # 148 个用例，本机约 1 秒（无网络无 sudo）
 ```
 
-覆盖：所有 shell 文件的语法、`.alias` / `.envv` 在 mac 与 linux 两个平台下的真实行为、`.zprofile` 的 brew 探测、`deploy.sh` 的复制/链接/幂等/备份、`bootstrap.sh` 的管道执行、`emacs.sh` 的版本闸门（用一个假 emacs 喂各种版本号）、各脚本 `--help` 的完整性与不泄漏代码。平台分支靠注入 `DOTFILES_OS` 来验证，所以两个平台都能在本机跑。
+覆盖：所有 shell 文件的语法、`.alias` / `.envv` 在 mac 与 linux 两个平台下的真实行为、`.zprofile` 的 brew 探测、`deploy.sh` 的复制/链接/幂等/备份、`vim.sh` 的链接/幂等/自指符号链接自愈（curl 和 vim 都换成桩，不联网也不起编辑器）、`bootstrap.sh` 的管道执行、`emacs.sh` 的版本闸门（用一个假 emacs 喂各种版本号）、各脚本 `--help` 的完整性与不泄漏代码。平台分支靠注入 `DOTFILES_OS` 来验证，所以两个平台都能在本机跑。
 
 Emacs 版本足够时，它会顺带跑一遍 `.emacs.d/test/run-tests.sh`；版本不够或没装 Emacs 就跳过并说明原因，不会让门禁红掉。
 

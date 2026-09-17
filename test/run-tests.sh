@@ -7,6 +7,9 @@
 #   - .alias / .envv 在 mac 与 linux 两个平台下的真实行为（靠 DOTFILES_OS 注入）
 #   - .zprofile 的 brew 探测不刷错误
 #   - deploy.sh 的完整行为：dry-run 无副作用、复制、链接、幂等、备份
+#   - vim.sh 的完整行为：链接、幂等、自指符号链接自愈（curl / vim 换成桩）
+#   - emacs.sh 的版本闸门（假 emacs 喂各种版本号）
+#   - 各脚本 --help 的完整性与不泄漏代码
 #   - README 引用的脚本确实存在
 #
 # 用法：test/run-tests.sh
@@ -279,6 +282,184 @@ if [ -z "$BAD_ENTRIES" ]; then
 else
   bad "deploy.sh 的 FILES 清单全部指向仓库内真实文件" "不存在：$BAD_ENTRIES"
 fi
+
+# ---------------------------------------------------------------------------
+group "vim.sh 行为"
+
+# vim.sh 往 $HERE/.vim 里写东西（插件就装在那儿）。直接对真仓库跑会污染工作区，
+# 所以把脚本和 .vimrc 复制成一个临时「仓库」——HERE 由 BASH_SOURCE 推出，自然落在那儿。
+VIMREPO="$SANDBOX/vimrepo"
+mkdir -p "$VIMREPO"
+cp vim.sh .vimrc "$VIMREPO/"
+
+# curl 和 vim 都不许真跑：curl 会联网，vim 会抢终端。
+VIMBIN="$SANDBOX/vimbin"
+mkdir -p "$VIMBIN"
+cat > "$VIMBIN/curl" <<'STUB'
+#!/bin/sh
+echo "CURL $*" >> "$STUB_LOG"
+prev=""
+for a in "$@"; do
+  [ "$prev" = "-o" ] && printf 'FAKE VIM-PLUG\n' > "$a"
+  prev="$a"
+done
+exit 0
+STUB
+cat > "$VIMBIN/vim" <<'STUB'
+#!/bin/sh
+echo "VIM $*" >> "$STUB_LOG"
+exit 0
+STUB
+chmod +x "$VIMBIN/curl" "$VIMBIN/vim"
+
+STUB_LOG="$SANDBOX/vim-stub.log"
+: > "$STUB_LOG"
+
+# run_vim_sh <家目录> [参数...]  ->  vim.sh 的退出码
+run_vim_sh() {
+  local home="$1"; shift
+  mkdir -p "$home"
+  STUB_LOG="$STUB_LOG" VIM=vim PATH="$VIMBIN:$PATH" HOME="$home" \
+    bash "$VIMREPO/vim.sh" "$@" >"$SANDBOX/vim-out" 2>&1
+}
+stub_calls() { grep -c "^$1 " "$STUB_LOG" 2>/dev/null || true; }
+
+# 一个需要 root 的动作都没有，就不该弹密码。针是整词，因为下面还要提这件事。
+assert_not_contains "vim.sh 不索要提权（它用不到）" "$(cat vim.sh)" "sudo"
+
+# --dry-run：一个字不落地，也不联网、不跑 vim
+DRY_HOME="$SANDBOX/vim-dry"
+rm -rf "$DRY_HOME" "$VIMREPO/.vim"; : > "$STUB_LOG"
+mkdir -p "$DRY_HOME"
+run_vim_sh "$DRY_HOME" --dry-run
+if [ "$(find "$DRY_HOME" -mindepth 1 2>/dev/null | wc -l | tr -d ' ')" = "0" ] && [ ! -e "$VIMREPO/.vim" ]; then
+  ok "vim.sh --dry-run 不落地任何文件"
+else
+  bad "vim.sh --dry-run 不落地任何文件" \
+    "残留：$(find "$DRY_HOME" "$VIMREPO/.vim" -mindepth 1 2>/dev/null | tr '\n' ' ')"
+fi
+if [ "$(stub_calls CURL)" = "0" ] && [ "$(stub_calls VIM)" = "0" ]; then
+  ok "vim.sh --dry-run 不联网也不跑 vim"
+else
+  bad "vim.sh --dry-run 不联网也不跑 vim" "curl $(stub_calls CURL) 次，vim $(stub_calls VIM) 次"
+fi
+
+# 首次运行
+FIRST_HOME="$SANDBOX/vim-first"
+rm -rf "$FIRST_HOME" "$VIMREPO/.vim"; : > "$STUB_LOG"
+run_vim_sh "$FIRST_HOME"
+FIRST_RC=$?
+if [ "$FIRST_RC" -eq 0 ] && [ -L "$FIRST_HOME/.vimrc" ] &&
+   [ "$(readlink "$FIRST_HOME/.vimrc")" = "$VIMREPO/.vimrc" ]; then
+  ok ".vimrc 链接到仓库"
+else
+  bad ".vimrc 链接到仓库" "退出码 $FIRST_RC，readlink=$(readlink "$FIRST_HOME/.vimrc" 2>/dev/null)"
+fi
+if [ -L "$FIRST_HOME/.vim" ] && [ "$(readlink "$FIRST_HOME/.vim")" = "$VIMREPO/.vim" ]; then
+  ok ".vim 链接到仓库"
+else
+  bad ".vim 链接到仓库" "readlink=$(readlink "$FIRST_HOME/.vim" 2>/dev/null)"
+fi
+if [ -f "$VIMREPO/.vim/autoload/plug.vim" ] && [ ! -L "$VIMREPO/.vim/autoload/plug.vim" ]; then
+  ok "plug.vim 落成真文件（不是符号链接）"
+else
+  bad "plug.vim 落成真文件（不是符号链接）" "$(ls -la "$VIMREPO/.vim/autoload/" 2>&1)"
+fi
+assert_ok "首次运行会调用 PlugInstall" test "$(stub_calls VIM)" = "1"
+
+# 回归：连跑两次，plug.vim 必须还是那个真文件。
+# 旧版正是在这里翻车——~/.vim/autoload/plug.vim 和仓库 .vim/autoload/plug.vim
+# 因为 ~/.vim 是指向仓库的符号链接而是同一个文件，对这两条路径做 ln 就等于让文件
+# 指向自己，第二次运行后 vim 报 E117: Unknown function: plug#begin。
+: > "$STUB_LOG"
+run_vim_sh "$FIRST_HOME"
+if [ -f "$VIMREPO/.vim/autoload/plug.vim" ] && [ ! -L "$VIMREPO/.vim/autoload/plug.vim" ]; then
+  ok "第二次运行后 plug.vim 仍是真文件（没变成自指环）"
+else
+  bad "第二次运行后 plug.vim 仍是真文件（没变成自指环）" "$(ls -la "$VIMREPO/.vim/autoload/" 2>&1)"
+fi
+assert_ok "plug.vim 已就位时不重新下载" test "$(stub_calls CURL)" = "0"
+assert_ok "重复运行不备份自己建的符号链接" \
+  test "$(find "$FIRST_HOME" -maxdepth 1 -name '.vim*20*' | wc -l | tr -d ' ')" = "0"
+
+# 被旧版坑过、已经留下自指环的机器，跑一次就该好
+rm -f "$VIMREPO/.vim/autoload/plug.vim"
+ln -s "$VIMREPO/.vim/autoload/plug.vim" "$VIMREPO/.vim/autoload/plug.vim"
+: > "$STUB_LOG"
+run_vim_sh "$FIRST_HOME"
+if [ -f "$VIMREPO/.vim/autoload/plug.vim" ] && [ ! -L "$VIMREPO/.vim/autoload/plug.vim" ] &&
+   [ "$(stub_calls CURL)" = "1" ]; then
+  ok "自指的 plug.vim 会被清掉并重新下载"
+else
+  bad "自指的 plug.vim 会被清掉并重新下载" "$(ls -la "$VIMREPO/.vim/autoload/" 2>&1)"
+fi
+
+: > "$STUB_LOG"
+run_vim_sh "$FIRST_HOME" --update-plug
+assert_ok "--update-plug 强制重新下载" test "$(stub_calls CURL)" = "1"
+
+# 既有真实目录必须先备份再覆盖，否则用户配置就这么没了
+BK_HOME="$SANDBOX/vim-bk"
+rm -rf "$BK_HOME"
+mkdir -p "$BK_HOME/.vim"
+printf 'OLD\n' > "$BK_HOME/.vim/marker"
+run_vim_sh "$BK_HOME" --no-plugins
+BK_DIR="$(find "$BK_HOME" -maxdepth 1 -name '.vim.20*' | head -1)"
+if [ -n "$BK_DIR" ] && [ -f "$BK_DIR/marker" ] && [ -L "$BK_HOME/.vim" ]; then
+  ok "既有 .vim 目录先备份再链接"
+else
+  bad "既有 .vim 目录先备份再链接" "备份目录：${BK_DIR:-无}"
+fi
+
+# 目标已经是指向别处的符号链接时，ln 不加 -n 会顺着它建到目录里面去
+NEST_HOME="$SANDBOX/vim-nest"
+rm -rf "$NEST_HOME"
+mkdir -p "$NEST_HOME/elsewhere"
+ln -s "$NEST_HOME/elsewhere" "$NEST_HOME/.vim"
+run_vim_sh "$NEST_HOME" --no-plugins
+NESTED="$(ls -A "$NEST_HOME/elsewhere" 2>/dev/null | wc -l | tr -d ' ')"
+if [ "$NESTED" = "0" ] && [ "$(readlink "$NEST_HOME/.vim")" = "$VIMREPO/.vim" ]; then
+  ok "替换旧符号链接不产生套娃"
+else
+  bad "替换旧符号链接不产生套娃" "elsewhere 里多了 $NESTED 项"
+fi
+
+# deploy.sh 复制过来的 .vimrc 内容与仓库一致，不值得为它堆一个备份
+SAME_HOME="$SANDBOX/vim-same"
+rm -rf "$SAME_HOME"
+mkdir -p "$SAME_HOME"
+cp .vimrc "$SAME_HOME/.vimrc"
+run_vim_sh "$SAME_HOME" --no-plugins
+if [ -L "$SAME_HOME/.vimrc" ] &&
+   [ "$(find "$SAME_HOME" -maxdepth 1 -name '.vimrc.20*' | wc -l | tr -d ' ')" = "0" ]; then
+  ok "内容相同的 .vimrc 不备份，直接换成符号链接"
+else
+  bad "内容相同的 .vimrc 不备份，直接换成符号链接" "$(ls -A "$SAME_HOME" | tr '\n' ' ')"
+fi
+
+NP_HOME="$SANDBOX/vim-np"
+rm -rf "$NP_HOME" "$VIMREPO/.vim"; : > "$STUB_LOG"
+run_vim_sh "$NP_HOME" --no-plugins
+if [ -L "$NP_HOME/.vim" ] && [ "$(stub_calls CURL)" = "0" ] && [ "$(stub_calls VIM)" = "0" ]; then
+  ok "--no-plugins 只链接配置，不下载也不跑 vim"
+else
+  bad "--no-plugins 只链接配置，不下载也不跑 vim" \
+    "curl $(stub_calls CURL) 次，vim $(stub_calls VIM) 次"
+fi
+
+# 找不到 vim：必须说清楚并指向 README，而不是抛一句 command not found
+NONE_HOME="$SANDBOX/vim-none"
+rm -rf "$NONE_HOME"; mkdir -p "$NONE_HOME"
+VIM=definitely-not-a-vim-binary PATH="$VIMBIN:$PATH" HOME="$NONE_HOME" \
+  bash "$VIMREPO/vim.sh" >"$SANDBOX/vim-out" 2>&1
+RC=$?
+if [ "$RC" -ne 0 ] && [ ! -L "$NONE_HOME/.vimrc" ] && [ ! -L "$NONE_HOME/.vim" ]; then
+  ok "找不到 vim 时失败且不建链接"
+else
+  bad "找不到 vim 时失败且不建链接" "退出码 $RC"
+fi
+assert_contains "提示里指明了 README" "$(cat "$SANDBOX/vim-out")" "README"
+
 # ---------------------------------------------------------------------------
 group "emacs.sh 版本闸门"
 
@@ -439,7 +620,7 @@ last_header_line() {
   sed -n '2,/^[^#]/p' "$1" | sed '$d' | sed 's/^# \{0,1\}//' | grep -v '^[[:space:]]*$' | tail -1
 }
 
-for f in bootstrap.sh ubuntu.sh deploy.sh emacs.sh; do
+for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh; do
   HELP="$(bash "$f" --help 2>&1 || true)"
   assert_not_contains "$f --help 只打印注释" "$HELP" "set -euo pipefail"
   assert_not_contains "$f --help 不打印赋值语句" "$HELP" 'HERE="$(cd'
@@ -448,14 +629,14 @@ for f in bootstrap.sh ubuntu.sh deploy.sh emacs.sh; do
 done
 
 # --help 是脚本门面，未知参数必须报错退出，不能当成没看见
-for f in bootstrap.sh ubuntu.sh deploy.sh emacs.sh; do
+for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh; do
   assert_fail "$f 对未知参数报错" bash "$f" --definitely-not-a-flag
 done
 
 # 纯为留白而调用的 say ""，不该打出孤零零一个「==> 」。
 # 三个脚本各抄了一份 say()，抄漏守卫就会漏出来——先查源码里的守卫，
 # 再用真实输出验证一次（emacs.sh 在 macOS 上也能跑 dry-run，可以真跑）。
-for f in ubuntu.sh emacs.sh bootstrap.sh; do
+for f in ubuntu.sh vim.sh emacs.sh bootstrap.sh; do
   assert_contains "$f 的 say() 有空白行守卫" "$(grep -m1 '^say()' "$f")" '[ -z "${1:-}" ]'
 done
 
