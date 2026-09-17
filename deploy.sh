@@ -20,8 +20,9 @@ while [ $# -gt 0 ]; do
     --link)    MODE=link ;;
     --copy)    MODE=copy ;;
     --dry-run|-n) DRY_RUN=1 ;;
+    # 打印到第一行非注释为止，不写死行号：写死的范围会随文件改动越界。
     -h|--help)
-      sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,/^[^#]/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
       exit 0 ;;
     *) echo "未知参数：$1" >&2; exit 2 ;;
   esac

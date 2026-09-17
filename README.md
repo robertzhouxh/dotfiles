@@ -13,6 +13,8 @@ cd ~/dotfiles && ./ubuntu.sh
 
 `bootstrap.sh` 只用系统自带的 apt / curl 把「能 clone 仓库」这一步打通；`ubuntu.sh` 接着装开发工具、生成 locale、部署 dotfiles、把登录 shell 切到 zsh。两者都可反复执行。
 
+这一轮**不装 Emacs**：apt 里只有 27.1，而本仓库配置要 30.1+，装上也是个跑不起来的组合。Emacs 由你自己按下面的「[Ubuntu 上的 Emacs](#ubuntu-上的-emacs)」装，装好后跑 `./emacs.sh`——它会先验证版本再链接。
+
 想先看看会动什么，两个脚本都支持 `--dry-run`：
 
 ```bash
@@ -35,10 +37,12 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 ### 门禁测试
 
 ```bash
-test/run-tests.sh        # 87 个用例，约 1.1 秒，无网络无 sudo
+test/run-tests.sh        # 125 个用例，本机约 1 秒（无网络无 sudo）
 ```
 
-覆盖：所有 shell 文件的语法、`.alias` / `.envv` 在 mac 与 linux 两个平台下的真实行为、`.zprofile` 的 brew 探测、`deploy.sh` 的复制/链接/幂等/备份、`bootstrap.sh` 的管道执行。平台分支靠注入 `DOTFILES_OS` 来验证，所以两个平台都能在本机跑。
+覆盖：所有 shell 文件的语法、`.alias` / `.envv` 在 mac 与 linux 两个平台下的真实行为、`.zprofile` 的 brew 探测、`deploy.sh` 的复制/链接/幂等/备份、`bootstrap.sh` 的管道执行、`emacs.sh` 的版本闸门（用一个假 emacs 喂各种版本号）、各脚本 `--help` 的完整性与不泄漏代码。平台分支靠注入 `DOTFILES_OS` 来验证，所以两个平台都能在本机跑。
+
+Emacs 版本足够时，它会顺带跑一遍 `.emacs.d/test/run-tests.sh`；版本不够或没装 Emacs 就跳过并说明原因，不会让门禁红掉。
 
 `test/install-hooks.sh` 会把 pre-commit hook 装上，之后每次 commit 自动跑。
 
@@ -64,6 +68,8 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 - [build-emacs-for-macos](https://codeberg.org/mclear-tools/build-emacs-macos)
 
 > 安装后执行 `./emacs.sh` 完成部署，启动 Emacs 即可。
+>
+> `emacs.sh` 会先验证版本——本仓库配置要 **30.1+**（`.emacs.d/lisp/` 下 8 个 `emacs-solo-*.el` 都声明了 `Package-Requires: ((emacs "30.1"))`）。版本不够就直接拒绝并说明，不会先把 `~/.emacs.d` 链过去再让你面对一屏加载错误。确实想拿旧版试试加 `--force`。想指到别的二进制上用 `EMACS=/path/to/emacs ./emacs.sh`。
 
 ### TRAMP-RPC：高速远程文件访问
 
@@ -105,7 +111,7 @@ git clone --depth=1 --branch emacs-30 https://git.savannah.gnu.org/git/emacs.git
 cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-tree-sitter && make -j"$(nproc)"
 ```
 
-装好后再跑 `./emacs.sh`。首次启动会从 MELPA 全量拉包，国内建议先挂代理或换镜像源（见 `.emacs.d/lisp/emacs-init-elpa.el`）。
+装好后再跑 `./emacs.sh`——它会读 `emacs -Q --version` 核对确实 ≥ 30.1，过了才链 `~/.emacs.d`；没过就直接拒绝并告诉你差多少（`--force` 可强行越过）。首次启动会从 MELPA 全量拉包，国内建议先挂代理或换镜像源（见 `.emacs.d/lisp/emacs-init-elpa.el`）。
 
 其余依赖：
 

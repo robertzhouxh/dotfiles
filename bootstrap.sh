@@ -49,7 +49,9 @@ DRY_RUN=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run|-n) DRY_RUN=1 ;;
-    -h|--help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    # 打印到第一行非注释为止，不写死行号：写死的范围会随文件改动截断，
+    # 把 DOTFILES_DIR 那行环境变量说明整段漏掉。
+    -h|--help) sed -n '2,/^[^#]/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "未知参数：$1" >&2; exit 2 ;;
   esac
   shift

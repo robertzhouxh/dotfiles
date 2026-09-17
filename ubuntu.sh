@@ -7,27 +7,30 @@
 # 用法：
 #   ./ubuntu.sh                   # 复制方式部署 dotfiles
 #   ./ubuntu.sh --link            # 符号链接方式部署，之后 git pull 即生效
-#   ./ubuntu.sh --with-emacs      # 顺带用 apt 装 Emacs（注意：是 27，本仓库配置要 30+）
 #   ./ubuntu.sh --no-chsh         # 不改登录 shell
 #   ./ubuntu.sh --dry-run         # 只打印会做什么
+#
+# 刻意不装 Emacs：apt 里的是 27.1，而本仓库配置要 30.1+（见 README
+# 「Ubuntu 上的 Emacs」）。装一个确定跑不起来的版本只会误导人，
+# 所以 Emacs 由你自己装，装好后跑 ./emacs.sh —— 它会先验证版本再链接。
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-WITH_EMACS=0
 DO_CHSH=1
 DRY_RUN=0
 DEPLOY_ARGS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --with-emacs) WITH_EMACS=1 ;;
     --no-chsh)    DO_CHSH=0 ;;
     --link)       DEPLOY_ARGS+=(--link) ;;
     --copy)       DEPLOY_ARGS+=(--copy) ;;
     --dry-run|-n) DRY_RUN=1; DEPLOY_ARGS+=(--dry-run) ;;
+    # 打印到第一行非注释为止，不写死行号：写死的范围会随文件改动越界，
+    # 把 set -euo pipefail 和下面的变量赋值漏进帮助信息里。
     -h|--help)
-      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,/^[^#]/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
       exit 0 ;;
     *) echo "未知参数：$1" >&2; exit 2 ;;
   esac
@@ -144,12 +147,8 @@ if [ ${#SKIPPED[@]} -gt 0 ]; then
   warn "（exa 和 starship 不在 Ubuntu 22.04 的 apt 源里，.alias / .bashrc 会优雅降级。）"
 fi
 
-if [ "$WITH_EMACS" = 1 ]; then
-  say "安装 Emacs……"
-  warn "apt 里的是 Emacs 27，而本仓库配置声明需要 30.1+（.emacs.d/lisp/emacs-solo-clipboard.el:6），"
-  warn "直接部署会大面积报错。要真用起来请看 README「Ubuntu 上的 Emacs」一节。"
-  run $SUDO apt-get install -y emacs-nox
-fi
+# 这里刻意不装 Emacs。apt 里是 27.1，配置要 30.1+，装上就是个跑不起来的组合；
+# 见收尾提示与 README「Ubuntu 上的 Emacs」。
 
 # ---- 2. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
@@ -192,8 +191,7 @@ say ""
 say "完成。下一步："
 printf '  1. exec zsh                    立刻进新 shell（或重新登录）\n'
 printf '  2. ./vim.sh                    部署 vim 与插件\n'
-if [ "$WITH_EMACS" = 0 ]; then
-  printf '  3. Emacs 见 README「Ubuntu 上的 Emacs」——apt 只有 27，配置要 30+\n'
-fi
+printf '  3. ./emacs.sh                  装好 Emacs 30+ 之后跑，它会先验证版本\n'
 say ""
 warn ".vim 和 .emacs.d 不在 deploy.sh 的处理范围内（它们需要符号链接，见 vim.sh / emacs.sh）。"
+warn "本脚本不碰 Emacs：apt 里只有 27.1，配置要 30.1+。装法见 README「Ubuntu 上的 Emacs」。"

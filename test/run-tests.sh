@@ -279,6 +279,195 @@ if [ -z "$BAD_ENTRIES" ]; then
 else
   bad "deploy.sh 的 FILES 清单全部指向仓库内真实文件" "不存在：$BAD_ENTRIES"
 fi
+# ---------------------------------------------------------------------------
+group "emacs.sh 版本闸门"
+
+# 假 emacs：只回应 --version。真 emacs 装不上，但版本闸门的逻辑必须能测。
+fake_emacs() { # <版本号> -> 打印可执行文件路径
+  local d="$SANDBOX/emacs-$1"
+  mkdir -p "$d"
+  printf '#!/bin/sh\necho "GNU Emacs %s"\n' "$1" > "$d/emacs"
+  chmod +x "$d/emacs"
+  printf '%s' "$d/emacs"
+}
+
+# run_emacs_sh <家目录> <EMACS 路径或空> [参数...] -> 返回 emacs.sh 的退出码
+run_emacs_sh() {
+  local home="$1" em="$2"; shift 2
+  mkdir -p "$home"
+  if [ -n "$em" ]; then
+    EMACS="$em" HOME="$home" bash "$REPO/emacs.sh" "$@" >"$SANDBOX/emacs-out" 2>&1
+  else
+    # 空 PATH，保证找不到真 emacs
+    env -i PATH=/usr/bin:/bin HOME="$home" bash "$REPO/emacs.sh" "$@" >"$SANDBOX/emacs-out" 2>&1
+  fi
+}
+
+EMACS_LINKED() { [ -L "$1/.emacs.d" ]; }
+
+# 版本比较是纯函数，直接从 emacs.sh 里抠出来在进程内测：比每次 fork 一个 bash
+# 快两个数量级，而且能铺开比端到端用例多得多的边界。抠的是真函数不是副本，
+# 所以这里通过就等于脚本里那段通过。
+EVAL_SRC="$(sed -n '/^version_ge()/,/^}/p' emacs.sh)"
+if [ -z "$EVAL_SRC" ]; then
+  bad "能从 emacs.sh 里取到 version_ge" "没匹配到函数定义，它被改名或改写了？"
+else
+  eval "$EVAL_SRC"
+  # 字符串比较会得出 "9.9" > "30.1"；短的一侧补 0，所以 30.1 == 30.1.0；
+  # 30.0.92 是 30.0 的预发布版，按版本序确实低于 30.1。
+  VERSION_CASES="
+30.1 30.1 pass
+31.1 30.1 pass
+30.2 30.1 pass
+31 30.1 pass
+30.1.0 30.1 pass
+30.1.1 30.1 pass
+30.10 30.1 pass
+30.1 30.0.9 pass
+30.0 30.1 fail
+30.0.92 30.1 fail
+30.0.99 30.1 fail
+29.4 30.1 fail
+27.1 30.1 fail
+9.9 30.1 fail
+3.1 30.1 fail
+30.0 30.0.1 fail
+"
+  VER_BAD=""
+  while read -r ver min want; do
+    [ -z "$ver" ] && continue
+    if version_ge "$ver" "$min"; then got=pass; else got=fail; fi
+    [ "$got" = "$want" ] || VER_BAD="$VER_BAD\n    $ver vs $min：期望 $want，实得 $got"
+  done <<EOF
+$VERSION_CASES
+EOF
+  if [ -z "$VER_BAD" ]; then
+    ok "version_ge 的 16 组版本比较全部正确"
+  else
+    bad "version_ge 的 16 组版本比较全部正确" "$(printf '%b' "$VER_BAD")"
+  fi
+fi
+
+# 端到端只留够证明接线是对的：拦一个（版本不够且绝不能先建链接）、放一个。
+run_emacs_sh "$SANDBOX/em-old" "$(fake_emacs 27.1)"
+if [ $? -eq 0 ]; then
+  bad "Emacs 27.1 被拒绝" "退出码是 0"
+elif EMACS_LINKED "$SANDBOX/em-old"; then
+  bad "Emacs 27.1 被拒绝后不得留下链接" "已建出 $SANDBOX/em-old/.emacs.d"
+else
+  ok "Emacs 27.1 被拒绝且未建链接"
+fi
+
+run_emacs_sh "$SANDBOX/em-new" "$(fake_emacs 31.1)"
+if [ $? -eq 0 ] && EMACS_LINKED "$SANDBOX/em-new"; then
+  ok "Emacs 31.1 放行并建出链接"
+else
+  bad "Emacs 31.1 放行并建出链接" "$(cat "$SANDBOX/emacs-out")"
+fi
+
+# 找不到 emacs：必须说清楚，并指向 README，而不是抛一句 command not found
+run_emacs_sh "$SANDBOX/em-none" ""
+RC=$?
+if [ "$RC" -ne 0 ] && ! EMACS_LINKED "$SANDBOX/em-none"; then
+  ok "找不到 emacs 时失败且不建链接"
+else
+  bad "找不到 emacs 时失败且不建链接" "退出码 $RC"
+fi
+assert_contains "提示里指明了 README 的 Emacs 章节" "$(cat "$SANDBOX/emacs-out")" "README"
+
+# --force：用户明确要求时，旧版本也要放行
+run_emacs_sh "$SANDBOX/em-force" "$(fake_emacs 27.1)" --force
+if [ $? -eq 0 ] && EMACS_LINKED "$SANDBOX/em-force"; then
+  ok "--force 覆盖版本闸门"
+else
+  bad "--force 覆盖版本闸门" "$(cat "$SANDBOX/emacs-out")"
+fi
+
+# dry-run：一个字都不许落地
+run_emacs_sh "$SANDBOX/em-dry" "$(fake_emacs 31.1)" --dry-run
+if EMACS_LINKED "$SANDBOX/em-dry"; then
+  bad "emacs.sh --dry-run 不建链接" "却建出了链接"
+else
+  ok "emacs.sh --dry-run 不建链接"
+fi
+
+# 既有真实目录必须先备份再覆盖，否则用户配置就这么没了
+mkdir -p "$SANDBOX/em-bk/.emacs.d"
+printf 'OLD\n' > "$SANDBOX/em-bk/.emacs.d/marker"
+run_emacs_sh "$SANDBOX/em-bk" "$(fake_emacs 31.1)"
+BK="$(find "$SANDBOX/em-bk" -maxdepth 1 -name '.emacs.d.20*' | head -1)"
+if [ -n "$BK" ] && [ -f "$BK/marker" ] && EMACS_LINKED "$SANDBOX/em-bk"; then
+  ok "既有 .emacs.d 先备份再链接"
+else
+  bad "既有 .emacs.d 先备份再链接" "备份目录：${BK:-无}"
+fi
+
+# 目标已经是指向别处的符号链接时，ln 不加 -n 会顺着它建到目录里面去
+mkdir -p "$SANDBOX/em-nest/elsewhere"
+ln -s "$SANDBOX/em-nest/elsewhere" "$SANDBOX/em-nest/.emacs.d"
+run_emacs_sh "$SANDBOX/em-nest" "$(fake_emacs 31.1)"
+NESTED="$(ls -A "$SANDBOX/em-nest/elsewhere" 2>/dev/null | wc -l | tr -d ' ')"
+if [ "$NESTED" = "0" ] && [ "$(readlink "$SANDBOX/em-nest/.emacs.d")" = "$REPO/.emacs.d" ]; then
+  ok "替换旧符号链接不产生套娃"
+else
+  bad "替换旧符号链接不产生套娃" "elsewhere 里多了 $NESTED 项"
+fi
+
+# emacs.sh 从不调用 sudo，就不该弹密码
+assert_not_contains "emacs.sh 不索要 sudo（它用不到）" "$(cat emacs.sh)" "sudo -v"
+
+# ---------------------------------------------------------------------------
+group "Emacs 配置门禁"
+
+# 用 emacs.sh 自己的判定来决定跑不跑 ERT：口径只有一个，不在测试里另抄一份
+# 版本比较逻辑（抄一份就会有第二份会过期的真相）。
+if bash emacs.sh --dry-run >"$SANDBOX/emacs-check" 2>&1; then
+  assert_ok ".emacs.d 的 ERT 套件" .emacs.d/test/run-tests.sh
+else
+  printf '  \033[33m-\033[0m 跳过 .emacs.d 的 ERT 套件：%s\n' \
+    "$(grep -m1 -E 'Emacs|emacs' "$SANDBOX/emacs-check" | head -c 120)"
+fi
+
+# ---------------------------------------------------------------------------
+group "--help 不得漏出代码"
+
+# 头部最后一行注释的内容。拿它当针，就能发现「写死行号写短了、把末尾截掉」——
+# bootstrap.sh 曾经这样漏掉整段 DOTFILES_DIR 说明，ubuntu.sh 曾经把
+# set -euo pipefail 和 HERE= 赋值漏进帮助信息里。
+# 这里自己从头文件直接取，与被测脚本怎么实现无关，所以脚本改坏了它也照样测得出来。
+last_header_line() {
+  sed -n '2,/^[^#]/p' "$1" | sed '$d' | sed 's/^# \{0,1\}//' | grep -v '^[[:space:]]*$' | tail -1
+}
+
+for f in bootstrap.sh ubuntu.sh deploy.sh emacs.sh; do
+  HELP="$(bash "$f" --help 2>&1 || true)"
+  assert_not_contains "$f --help 只打印注释" "$HELP" "set -euo pipefail"
+  assert_not_contains "$f --help 不打印赋值语句" "$HELP" 'HERE="$(cd'
+  LAST="$(last_header_line "$f")"
+  assert_contains "$f --help 没被截断（含末行）" "$HELP" "$LAST"
+done
+
+# --help 是脚本门面，未知参数必须报错退出，不能当成没看见
+for f in bootstrap.sh ubuntu.sh deploy.sh emacs.sh; do
+  assert_fail "$f 对未知参数报错" bash "$f" --definitely-not-a-flag
+done
+
+# 纯为留白而调用的 say ""，不该打出孤零零一个「==> 」。
+# 三个脚本各抄了一份 say()，抄漏守卫就会漏出来——先查源码里的守卫，
+# 再用真实输出验证一次（emacs.sh 在 macOS 上也能跑 dry-run，可以真跑）。
+for f in ubuntu.sh emacs.sh bootstrap.sh; do
+  assert_contains "$f 的 say() 有空白行守卫" "$(grep -m1 '^say()' "$f")" '[ -z "${1:-}" ]'
+done
+
+# 注意别用 assert_not_contains：$( ) 会把尾换行吃掉，针退化成「==> 」，
+# 于是每一行都命中。要数的是「整行只有提示符」的行数。
+EMACS_DRY="$(bash emacs.sh --dry-run 2>&1 | sed 's/\x1b\[[0-9;]*m//g' || true)"
+NAKED="$(printf '%s\n' "$EMACS_DRY" | grep -cE '^==>[[:space:]]*$' || true)"
+if [ "${NAKED:-1}" = "0" ]; then
+  ok "emacs.sh --dry-run 不留孤零零的 ==="
+else
+  bad "emacs.sh --dry-run 不留孤零零的 ==>" "有 $NAKED 行只有提示符，没有内容"
+fi
 
 # ---------------------------------------------------------------------------
 group "README 与脚本的一致性"
@@ -288,6 +477,11 @@ for s in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh; do
 done
 
 assert_contains "ubuntu.sh 会调用 deploy.sh" "$(cat ubuntu.sh)" "deploy.sh"
+
+# ubuntu.sh 不装 Emacs：apt 里是 27.1，配置要 30.1+，装上就是个跑不起来的组合。
+# 留个 --with-emacs 开关等于留个坑，用户按提示开了它只会得到一屏报错。
+assert_not_contains "ubuntu.sh 没有 --with-emacs 开关" "$(cat ubuntu.sh)" "--with-emacs"
+assert_contains "ubuntu.sh 指向 emacs.sh" "$(cat ubuntu.sh)" "./emacs.sh"
 assert_contains "bootstrap.sh 会提到 ubuntu.sh" "$(cat bootstrap.sh)" "ubuntu.sh"
 assert_contains "ubuntu.sh 会生成 en_US.UTF-8" "$(cat ubuntu.sh)" "locale-gen en_US.UTF-8"
 
