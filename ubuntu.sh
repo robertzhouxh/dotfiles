@@ -82,6 +82,10 @@ OPTIONAL_PKGS=(
   # .zshrc:16-24 / .bashrc:16-24 会去 source autojump 的 profile.d，这是真正接上的那个
   autojump
   btop
+  # 从别处 SSH 进这台机器要用（TRAMP-RPC 也要求远端能 SSH 访问）。
+  # 被删掉的 apt.sh 一直在装它，这里是接着装。装在桌面机上会自起监听，
+  # 不想要就别装——它列在可选里，跳过不会影响别的。
+  openssh-server
   # 注：jammy 源里没有 exa（.alias 里的 ls 增强），也没有 starship。
   # jammy 的 zoxide 是 0.4.3，且没有任何 dotfile 会 init 它，装了也是一把闲置的二进制，故不装。
 )

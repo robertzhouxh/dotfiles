@@ -98,6 +98,10 @@ PKG_LISTS="$(sed -n '/^CORE_PKGS=(/,/^)/p;/^OPTIONAL_PKGS=(/,/^)/p' ubuntu.sh | 
 assert_not_contains "包清单里没有已废弃的 libncurses5-dev" "$PKG_LISTS" "libncurses5-dev"
 assert_contains "包清单里用的是 libncurses-dev" "$PKG_LISTS" "libncurses-dev"
 
+# openssh-server 是 apt.sh 被删掉时唯一没接过来的包，是刻意补回来的：
+# 从别处 SSH 进这台机器要用，TRAMP-RPC 也要求远端能 SSH 访问。
+assert_contains "包清单里有 openssh-server（承接 apt.sh）" "$PKG_LISTS" "openssh-server"
+
 # `"…$var中文"` 是这一族脚本的真实坑：UTF-8 locale 下 bash 把紧跟变量的多字节字符
 # 也算进变量名，于是 `$DEST，` 会去找名叫 `DEST，` 的变量，在 set -u 下直接崩。
 if command -v perl >/dev/null 2>&1; then
