@@ -405,15 +405,17 @@ install_starship' >"$SHIP_OUT" 2>&1
 fi
 
 # ---------------------------------------------------------------------------
-group "ubuntu.sh 装 exa"
+group "ubuntu.sh 装 ls 增强（exa / eza）"
 
-# exa 和 starship 不是一类东西：starship 在 apt 里根本没有，才要官方脚本兜底；
-# exa 在 jammy 的 universe 里（0.10.1-2，核对过 dists/jammy/universe 的 Packages 索引），
-# 直接进包清单就够。门禁挡的是把它挪进核心清单——核心包装不上会 die，而换个源里
-# 没有 exa 的发行版（24.04 只有 eza）不该让整台机器的初始化卡住。
-assert_contains "apt 清单里有 exa（jammy universe 有 0.10.1）" "$PKG_LISTS" "exa"
+# exa / eza 和 starship 不是一类东西：starship 在 apt 里根本没有，才要官方脚本兜底；
+# 这两个都在 universe 里，直接进包清单就够（核对过 dists/jammy 与 dists/noble 的
+# Packages 索引：jammy 只有 exa 0.10.1，noble 只有 eza 0.18.2）。门禁挡的是把它们
+# 挪进核心清单——核心包装不上会 die，而每个发行版必然缺其中一个。
+assert_contains "apt 清单里有 exa（jammy 的 universe）" "$PKG_LISTS" "exa"
+assert_contains "apt 清单里有 eza（noble 的 universe）" "$PKG_LISTS" "eza"
 CORE_LIST="$(sed -n '/^CORE_PKGS=(/,/^)/p' ubuntu.sh | sed 's/#.*//')"
 assert_not_contains "exa 留在可选清单里，不在核心清单" "$CORE_LIST" "exa"
+assert_not_contains "eza 留在可选清单里，不在核心清单" "$CORE_LIST" "eza"
 
 # 这次改动的起点是一句过期的事实断言：README 和 ubuntu.sh 都写着「jammy 源里没有 exa」，
 # 而 22.04 从发布起 universe 里就有它。文档里的断言不会自己变旧了报警，所以让这类
@@ -425,52 +427,205 @@ else
   bad "没有残留「jammy 没有 exa」的旧断言" "命中：$STALE_EXA（先核 dists/jammy/universe 的索引再写）"
 fi
 
-# .alias 里那族 exa 别名用的参数，必须是 exa 0.10.1 认识的。这份表照的是 0.10.1 的
-# src/options/flags.rs；exa 上游已归档、0.10.1 是最后一版，表不会再长，写死是安全的。
-# 它挡的是「在 brew 那版上试过就以为行」：`--git` 由 Cargo.toml 的 default = ["git"]
-# 决定，换一种打包就可能编掉，而 .alias 是两个平台共用的。
-EXA_LONG_OK="--icons --git --all --header --long --tree --level --ignore-glob --color"
-EXA_SHORT_OK="-a -h -l -T -L -I"
+# ---- ls 增强：按行为测，不抠源码 ----
+#
+# 桩 exa / 桩 eza 只回答一个问题：--git 能不能用（STUB_GIT=1 表示能用）。真机上的
+# 差异正好就是这个，三种都在容器里实测过：
+#   jammy 的 exa（apt 装的）     exa --git -d . -> rc=3   ← 整个命令失败，不是少一列
+#   brew 的 exa                  --git -> rc=0
+#   noble 的 eza（apt 装的）      eza --git -d . -> rc=0
+# 所以别名体只断言字符串，不真的执行——执行要真二进制，断言只要桩。
+LSBIN="$SANDBOX/lsbin"
+mkdir -p "$LSBIN"
 
-# 只取 exa 调用本身的参数：` | ` 之后是别的命令（eta 那行结尾的 `less -r` 不是 exa 的）。
-EXA_FLAGS="$(sed -n '/command -v exa/,/^fi/p' .alias \
-  | sed 's/ | .*//' | tr -d "'\"" \
-  | grep -oE 'exa .*' | tr ' ' '\n' | grep -E '^-' | sed 's/=.*//' | sort -u)"
+stub_ls_tool() { # <exa|eza>
+  cat > "$LSBIN/$1" <<'STUB'
+#!/bin/sh
+case "$*" in
+  *--git*) [ "${STUB_GIT:-0}" = "1" ] || exit 3 ;;
+esac
+exit 0
+STUB
+  chmod +x "$LSBIN/$1"
+}
+
+ls_aliases_with() { # <STUB_GIT> <放进 PATH 的命令…> —— 空 PATH 起底，只留传进来的桩
+  local git="$1"; shift
+  rm -f "$LSBIN"/*
+  local c; for c in "$@"; do stub_ls_tool "$c"; done
+  env -i PATH="$LSBIN" HOME="$HOME" DOTFILES_OS=linux STUB_GIT="$git" "${BASH:-/bin/bash}" -c \
+    "source '$REPO/.alias' >/dev/null 2>&1 || printf 'source失败 '; \
+     for a in e ea ee et eta l ls la ll lt lta; do alias \"\$a\" 2>/dev/null || printf '未定义 '; done; printf '\n'"
+}
+
+# 这条是这次最要紧的回归：apt 装的 exa 用不了 --git，别名里就不能带它。
+# 带了不是「不显示 git 状态」，而是 ls / la / ll 一律 rc=3 报错——比没有增强糟得多，
+# 因为 exa 确实是 apt 正常装上的，用户会以为只是换了个 ls。
+JAMMY_LS="$(ls_aliases_with 0 exa)"
+assert_contains     "exa 的 --git 不可用时仍走 exa" "$JAMMY_LS" "exa --icons"
+assert_not_contains "exa 的 --git 不可用时别名里不带 --git（带了整个命令 rc=3）" "$JAMMY_LS" "--git"
+assert_contains     "exa 的 --git 不可用时 --icons 还在" "$JAMMY_LS" "--icons"
+
+BREW_LS="$(ls_aliases_with 1 exa)"
+assert_contains "exa 的 --git 可用时别名里带 --git（brew 那版）" "$BREW_LS" "--icons --git"
+
+EZA_LS="$(ls_aliases_with 1 eza)"
+assert_contains "装了 eza 时走 eza" "$EZA_LS" "eza --icons --git"
+
+BOTH_LS="$(ls_aliases_with 1 exa eza)"
+assert_contains     "两个都在时优先 eza（24.04 之后只剩它）" "$BOTH_LS" "eza --icons --git"
+assert_not_contains "两个都在时不落到 exa" "$BOTH_LS" "exa"
+
+assert_contains "一个都没装时 ls 不被接管，且不定义半个别名" "$(ls_aliases_with 0)" "未定义"
+
+# 别名用的参数必须是 exa 0.10.1 与 eza 0.18.2 都认识的（两个版本的容器里逐个跑过）。
+# exa 上游已归档、eza 里这些选项也早已稳定，表不会再长，写死是安全的。
+# 它挡的是「只在本机那版上试过就以为行」：比如 exa 的参数里塞一个 eza 才有的选项，
+# 或者反过来，只有在对应发行版上才会炸。
+LS_LONG_OK="--icons --git --all --header --long --tree --level --ignore-glob --color"
+LS_SHORT_OK="-a -h -l -T -L -I"
+
+# ` | ` 之后是别的命令（eta 结尾的 `less -r` 不是这两个工具的选项）。
+LS_FLAGS="$(ls_aliases_with 1 eza | sed 's/ | .*//' | tr -d "'\"" \
+  | tr ' ' '\n' | grep -E '^-' | sed 's/=.*//' | sort -u)"
 
 # 抠不到参数就别放行：模式失效时下面那个循环会一个都不检查，静默变绿灯。
-if [ -z "$EXA_FLAGS" ]; then
-  bad "能从 .alias 抠出 exa 别名用的参数" "一个都没抠到，command -v exa 那段被改写了吗？"
+if [ -z "$LS_FLAGS" ]; then
+  bad "能从别名展开里抠出 ls 增强用的参数" "一个都没抠到，别名定义被改写了吗？"
 else
-  EXA_UNKNOWN=""
-  for _tok in $EXA_FLAGS; do
+  LS_UNKNOWN=""
+  for _tok in $LS_FLAGS; do
     case "$_tok" in
       --*)
-        case " $EXA_LONG_OK " in *" $_tok "*) ;; *) EXA_UNKNOWN="$EXA_UNKNOWN $_tok" ;; esac ;;
+        case " $LS_LONG_OK " in *" $_tok "*) ;; *) LS_UNKNOWN="$LS_UNKNOWN $_tok" ;; esac ;;
       -*)
         # -aahl 这种捆在一起的短选项要拆开逐个认
         _rest="${_tok#-}"
         while [ -n "$_rest" ]; do
           _c="-${_rest:0:1}"; _rest="${_rest:1}"
-          case " $EXA_SHORT_OK " in *" $_c "*) ;; *) EXA_UNKNOWN="$EXA_UNKNOWN $_c" ;; esac
+          case " $LS_SHORT_OK " in *" $_c "*) ;; *) LS_UNKNOWN="$LS_UNKNOWN $_c" ;; esac
         done ;;
     esac
   done
-  if [ -z "$EXA_UNKNOWN" ]; then
-    ok "exa 别名用的参数 exa 0.10.1 都认识"
+  if [ -z "$LS_UNKNOWN" ]; then
+    ok "ls 增强用的参数 exa 0.10.1 与 eza 0.18.2 都认识"
   else
-    bad "exa 别名用的参数 exa 0.10.1 都认识" "0.10.1 里没有：$EXA_UNKNOWN"
+    bad "ls 增强用的参数 exa 0.10.1 与 eza 0.18.2 都认识" "两边都对不上：$LS_UNKNOWN"
   fi
 fi
 
-# 没装 exa（新机器，或源里没这个包的发行版）时 .alias 必须安静降级。整段在
-# `command -v exa` 里，所以硬造一个空 PATH：找不到 exa，就不该定义半个别名，
-# 更不该让 source 返回非 0——source 失败会污染每一个新开的 shell。
-NOEXA_DIR="$SANDBOX/noexa-bin"
-mkdir -p "$NOEXA_DIR"
-NOEXA_OUT="$(env -i PATH="$NOEXA_DIR" HOME="$HOME" DOTFILES_OS=linux "${BASH:-/bin/bash}" -c \
-  "source '$REPO/.alias' >/dev/null 2>&1; printf 'rc=%s ' \$?; alias ls 2>/dev/null || printf 'ls未定义'" 2>&1)"
-assert_contains "没装 exa 时 .alias 照样 source 成功" "$NOEXA_OUT" "rc=0"
-assert_contains "没装 exa 时 ls 不被接管" "$NOEXA_OUT" "ls未定义"
+# ---------------------------------------------------------------------------
+group "登录 shell 用 zsh"
+
+# 这一族的共同点：脚本跑在用户机器上、要动系统状态（chsh 还会弹密码），所以两条
+# 都得验——「该改的时候改了」和「不该动的时候别动」。抠出真代码、把 chsh / dscl /
+# getent 换成桩在进程里跑，比对着源码 grep 强。
+SHELLBIN="$SANDBOX/shellbin"
+mkdir -p "$SHELLBIN"
+FAKE_SHELL_FILE="$SANDBOX/current-shell"
+CHSH_LOG="$SANDBOX/chsh.log"
+
+# 假 dscl：只回答登录 shell 是什么
+cat > "$SHELLBIN/dscl" <<'STUB'
+#!/bin/sh
+printf 'UserShell: %s\n' "$(cat "$FAKE_SHELL_FILE")"
+STUB
+
+# 假 chsh：记下被怎么调的；CHSH_WORKS=0 表示「退出码 0 但压根没改」——
+# 真有机器是这样（PAM / 目录服务会把改动吃掉），那正是要能看出来的情况。
+cat > "$SHELLBIN/chsh" <<'STUB'
+#!/bin/sh
+printf '%s\n' "$*" >> "$CHSH_LOG"
+[ "${CHSH_WORKS:-1}" = "1" ] || exit 0
+while [ $# -gt 0 ]; do
+  if [ "$1" = "-s" ]; then printf '%s' "$2" > "$FAKE_SHELL_FILE"; break; fi
+  shift
+done
+exit 0
+STUB
+
+# 假 getent：getent passwd <user> 的第七个字段是登录 shell
+cat > "$SHELLBIN/getent" <<'STUB'
+#!/bin/sh
+printf 'user:x:1000:1000::/home/user:%s\n' "$(cat "$FAKE_SHELL_FILE")"
+STUB
+chmod +x "$SHELLBIN"/*
+
+# ---- macOS：brew.sh ----
+BREW_SHELL_SRC="$(sed -n '/^CURRENT_SHELL="\$(dscl/,/^fi$/p' brew.sh)"
+if [ -z "$BREW_SHELL_SRC" ]; then
+  bad "能从 brew.sh 里取到切换登录 shell 的那段" "没匹配到，它被改名或挪走了？"
+else
+  ok "能从 brew.sh 里取到切换登录 shell 的那段"
+
+  brew_shell_run() { # <当前 shell> -> 打印脚本的输出；chsh 的调用记在 CHSH_LOG
+    printf '%s' "$1" > "$FAKE_SHELL_FILE"
+    : > "$CHSH_LOG"
+    env -i PATH="$SHELLBIN:/usr/bin:/bin" HOME="$HOME" \
+        FAKE_SHELL_FILE="$FAKE_SHELL_FILE" CHSH_LOG="$CHSH_LOG" \
+        "${BASH:-/bin/bash}" -c "cecho() { printf '%s\n' \"\$1\"; }; $BREW_SHELL_SRC" 2>&1
+  }
+
+  OUT="$(brew_shell_run /bin/bash)"
+  assert_contains ".login shell 是 bash 时会切到 /bin/zsh" "$OUT" "/bin/zsh"
+  if [ "$(cat "$FAKE_SHELL_FILE")" = "/bin/zsh" ]; then
+    ok "切完之后登录 shell 真的是 /bin/zsh"
+  else
+    bad "切完之后登录 shell 真的是 /bin/zsh" "实际是 $(cat "$FAKE_SHELL_FILE")"
+  fi
+  assert_contains "确实调用了 chsh -s /bin/zsh" "$(cat "$CHSH_LOG")" "-s /bin/zsh"
+
+  # 已经是 zsh 就不该再动：chsh 会要密码，可反复执行的脚本每次弹出一下没法用
+  OUT="$(brew_shell_run /bin/zsh)"
+  assert_contains "已经是 /bin/zsh 时提示跳过" "$OUT" "已经是"
+  if [ -s "$CHSH_LOG" ]; then
+    bad "已经是 /bin/zsh 时不调用 chsh（每次运行都弹密码没法用）" "却调了：$(cat "$CHSH_LOG")"
+  else
+    ok "已经是 /bin/zsh 时不调用 chsh（每次运行都弹密码没法用）"
+  fi
+fi
+
+# ---- Linux：ubuntu.sh 第 6 段 ----
+# 段号不写死：同一棵工作区里谁都可能往 ubuntu.sh 插步骤，插一次后面全顺移，写死的
+# 号会在别人提交时突然失配。按标题认段——这跟 README 那条「不拿行号指位置」同理。
+UBUNTU_SHELL_SRC="$(sed -n '/^# ---- [0-9][0-9]*\. 登录 shell ----/,/^# ---- [0-9][0-9]*\. /p' ubuntu.sh | sed '$d')"
+if [ -z "$UBUNTU_SHELL_SRC" ]; then
+  bad "能从 ubuntu.sh 里取到「登录 shell」那一段" "没匹配到，段号或标题改了吗？"
+elif ! command -v zsh >/dev/null 2>&1; then
+  printf '  \033[33m-\033[0m 跳过 ubuntu.sh 的登录 shell 测试（本机没有 zsh）\n'
+else
+  ok "能从 ubuntu.sh 里取到「登录 shell」那一段"
+
+  ubuntu_shell_run() { # <当前 shell> <CHSH_WORKS> <DO_CHSH> -> 打印输出
+    printf '%s' "$1" > "$FAKE_SHELL_FILE"
+    : > "$CHSH_LOG"
+    env -i PATH="$SHELLBIN:/usr/bin:/bin" HOME="$HOME" \
+        FAKE_SHELL_FILE="$FAKE_SHELL_FILE" CHSH_LOG="$CHSH_LOG" \
+        CHSH_WORKS="$2" DO_CHSH="$3" DRY_RUN=0 "${BASH:-/bin/bash}" -c \
+        "say() { printf 'SAY %s\n' \"\$1\"; }; warn() { printf 'WARN %s\n' \"\$1\"; }; \
+         run() { \"\$@\"; }; $UBUNTU_SHELL_SRC" 2>&1
+  }
+
+  OUT="$(ubuntu_shell_run /bin/bash 1 1)"
+  assert_contains "ubuntu.sh 把登录 shell 切到 zsh" "$OUT" "SAY 已切到"
+  assert_contains "切完读回来确认，确认到的是 zsh" "$(cat "$FAKE_SHELL_FILE")" "zsh"
+
+  # chsh 退出码 0 却没改成功：必须报警，不能让用户下次登录才发现 .zshrc 没生效
+  OUT="$(ubuntu_shell_run /bin/bash 0 1)"
+  assert_contains "chsh 没生效时报出来（退出码 0 也会骗人）" "$OUT" "WARN"
+  assert_contains "没生效时给出 sudo chsh 的补救办法" "$OUT" "sudo chsh"
+
+  OUT="$(ubuntu_shell_run /bin/zsh 1 1)"
+  assert_contains "已经是 zsh 时提示跳过" "$OUT" "已经是 zsh"
+  if [ -s "$CHSH_LOG" ]; then
+    bad "已经是 zsh 时不调用 chsh" "却调了：$(cat "$CHSH_LOG")"
+  else
+    ok "已经是 zsh 时不调用 chsh"
+  fi
+
+  OUT="$(ubuntu_shell_run /bin/bash 1 0)"
+  assert_not_contains "--no-chsh 时不碰登录 shell" "$OUT" "SAY 已切到"
+fi
 
 # ---------------------------------------------------------------------------
 group "vim.sh 行为"

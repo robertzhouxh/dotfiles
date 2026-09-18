@@ -77,10 +77,15 @@ OPTIONAL_PKGS=(
   # 命令行日常
   vim ripgrep fzf tree htop jq unzip zip xdg-utils net-tools
   fd-find
-  # .alias 里 `command -v exa` 那段 ls 增强。jammy universe 有 exa 0.10.1，
-  # 它的 --icons / --git 都在（上游 feature 默认开着，Debian 打包没关）——
-  # ls / la / ll / lt 那一族别名就是照它写的。装不上只降级，不影响别的。
+  # .alias 里那族 ls 增强。exa 与 eza 二选一，各发行版有哪个装哪个：22.04 的
+  # universe 只有 exa（0.10.1），24.04 起只剩 eza（0.18.2），两个都在可选里，
+  # 探测时自然只会命中其中一个。
+  #
+  # 注意别把 --git 当默认能力：Ubuntu 打包的 exa 是关掉 git feature 编的，传
+  # --git 会让命令直接以 rc=3 失败，不是少显示一列。.alias 因此改成运行时探测，
+  # 这里只管把包装上。
   exa
+  eza
   # dig 等 DNS 工具。不用 dnsutils——那是 bind9-dnsutils 的过渡包。
   bind9-dnsutils
   # .zshrc:16-24 / .bashrc:16-24 会去 source autojump 的 profile.d，这是真正接上的那个
@@ -90,7 +95,7 @@ OPTIONAL_PKGS=(
   # 被删掉的 apt.sh 一直在装它，这里是接着装。装在桌面机上会自起监听，
   # 不想要就别装——它列在可选里，跳过不会影响别的。
   openssh-server
-  # 注：starship 不在源里，它不走 apt，见下面第 2 步。
+  # 注：starship 与 rtk 都不在源里，它们不走 apt，见下面第 2、3 步。
   # jammy 的 zoxide 是 0.4.3，且没有任何 dotfile 会 init 它，装了也是一把闲置的二进制，故不装。
 )
 
@@ -153,7 +158,7 @@ fi
 if [ ${#SKIPPED[@]} -gt 0 ]; then
   warn "当前源里没有，已跳过：${SKIPPED[*]}"
   warn "以上都是可选包，跳过不影响其余步骤。"
-  warn "用到它们的地方自带 command -v 守卫，例如 .alias 里那族 exa 别名：没装就是普通 ls。"
+  warn "用到它们的地方自带 command -v 守卫，例如 .alias 里那族 ls 增强：没装就是普通 ls。"
 fi
 
 # 这里刻意不装 Emacs。apt 里是 27.1，配置要 30.1+，装上就是个跑不起来的组合；
@@ -232,7 +237,18 @@ else
   else
     say "把登录 shell 从 $CURRENT_SHELL 切到 $ZSH_BIN ……"
     run chsh -s "$ZSH_BIN"
-    say "重新登录后生效。想改回去：chsh -s $CURRENT_SHELL"
+    # chsh 可能「成功」却没改：某些机器上 PAM / 目录服务会把改动吃掉，退出码照样是 0。
+    # 这个脚本的可反复执行只保证「跑过」，不保证「成了」，所以读回来确认一次。
+    if [ "$DRY_RUN" = 0 ]; then
+      NOW_SHELL="$(getent passwd "$(id -un)" | cut -d: -f7)"
+      if [ "$NOW_SHELL" = "$ZSH_BIN" ]; then
+        say "已切到 ${ZSH_BIN}，重新登录后生效。想改回去：chsh -s $CURRENT_SHELL"
+      else
+        warn "chsh 退出码是 0，但登录 shell 仍是 ${NOW_SHELL}（期望 ${ZSH_BIN}）。"
+        warn "试试 sudo chsh -s $ZSH_BIN $(id -un)，或直接改 /etc/passwd 里那一行。"
+        warn ".zshrc 要在登录 shell 是 zsh 时才会生效。"
+      fi
+    fi
   fi
 fi
 

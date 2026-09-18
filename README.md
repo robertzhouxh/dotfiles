@@ -55,6 +55,11 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 ./brew.sh
 ```
 
+
+`brew.sh` 会把登录 shell 切成 `/bin/zsh`（macOS 自 Catalina 起自带，本来就在 `/etc/shells` 里）。这一步以前是把默认 shell 改成 brew 装的 bash，跟本仓库整套 zsh 配置是反的：登录 shell 是 bash 时新开的终端读 `.bashrc`，`.zshrc` / `.zprofile` / starship 的 zsh 分支全都不生效。已经是 zsh 就跳过，不会反复弹密码。
+
+改完要**重开终端**（或 `chsh -s /bin/zsh` 后重新登录）才生效。
+
 ### 截图-付费软件
 
 ```bash
@@ -89,14 +94,19 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 ### ubuntu.sh 装了什么
 
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
-- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa
+- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
 
 可选包装不上只提示不中断。上面 apt 装的每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
 starship 已经装过就跳过；拉不到 GitHub 只警告不中断（`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没有就是默认样式）。上游只发 tar.gz，没有 `.deb` / `.rpm`，所以不走 apt。
 
-`exa` 在 universe 里（22.04 是 0.10.1），`.alias` 里那族 `ls` 增强就是照它写的；装不上只是没有增强，`ls` 还是 `ls`。`--icons` 要终端字体带 Nerd Font 图标，否则图标位置显示成方块，换个字体或去掉 `--icons` 即可。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
+`ls` 增强用 `exa` 或 `eza`（`eza` 是 `exa` 的活跃分支，exa 上游 2021 年后归档）：22.04 的 universe 里只有 `exa` 0.10.1，24.04 起只剩 `eza`，两个都列在可选包里，各发行版自然只会命中一个，`.alias` 两个都认、优先 `eza`。装不上只是没有增强，`ls` 还是 `ls`。
+
+**`--git` 在 Ubuntu 的 `exa` 上不能用。** 那个包是关掉 git feature 编的，传了不是「少显示一列」而是整个命令以 `rc=3` 失败（`Options --git ... because 'git' feature was disabled in this build`）。`.alias` 因此改成运行时探测一次再决定加不加，别照着「上游默认开着」写死。`eza` 和 brew 的 `exa` 都支持。
+
+`--icons` 要终端字体带 Nerd Font 图标，否则图标位置显示成方块，换个字体或去掉 `--icons` 即可。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
+
 
 ### Ubuntu 上的 Emacs
 

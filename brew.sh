@@ -64,11 +64,24 @@ brew install gnu-sed
 brew install bash
 brew install bash-completion2
 
-# Switch to using brew-installed bash as default shell
-if ! fgrep -q "${BREW_PREFIX}/bin/bash" /etc/shells; then
-  echo "${BREW_PREFIX}/bin/bash" | sudo tee -a /etc/shells;
-  chsh -s "${BREW_PREFIX}/bin/bash";
-fi;
+# 登录 shell 用 zsh。这里以前把默认 shell 切成 brew 装的 bash，跟本仓库整套配置
+# 是反的：.zshrc / .zprofile / starship 的 zsh 分支都是照 zsh 写的，登录 shell 是
+# bash 的话新开的终端读 .bashrc，那套东西一个都不生效。
+#
+# 用系统的 /bin/zsh（macOS 自 Catalina 起自带，本来就在 /etc/shells 里），不装 brew
+# 的 zsh：brew.sh 只装 zsh 插件（zsh-autosuggestions 等），它们挂在任何 5.8+ 的 zsh
+# 上都能跑，没必要为此多维护一个 zsh 本体。要换 brew 的 zsh，得先把
+# "${BREW_PREFIX}/bin/zsh" 追加进 /etc/shells，chsh 只认那份清单。
+#
+# 读当前值再决定，不无条件 chsh：chsh 会要密码，幂等运行不该每次都弹。
+# dscl 的用户记录名就是那个用户的家目录全路径，$HOME 正好是它。
+CURRENT_SHELL="$(dscl . -read "$HOME" UserShell 2>/dev/null | awk '{print $2}')"
+if [ "$CURRENT_SHELL" = "/bin/zsh" ]; then
+  cecho "登录 shell 已经是 /bin/zsh" $green
+else
+  cecho "把登录 shell 从 ${CURRENT_SHELL:-未知} 切到 /bin/zsh" $yellow
+  chsh -s /bin/zsh
+fi
 
 # Install `wget` with IRI support.
 #brew install wget --with-iri

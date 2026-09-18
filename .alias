@@ -26,13 +26,34 @@ alias books="cd ~/Books/books"
 # 占用它会毁掉 `ip addr` / `ip route`，所以只在 mac 分支里定义 `ip`。
 alias myip="dig +short myip.opendns.com @resolver1.opendns.com"
 
-# `ls` 增强
-if command -v exa &>/dev/null; then
-    alias e="exa --icons --git"
-    alias ea="exa -a --icons --git"
-    alias ee="exa -aahl --icons --git"
-    alias et='exa -T -L 3 -a -I "node_modules|.git|.cache" --icons'
-    alias eta='exa -T -a -I "node_modules|.git|.cache" --color=always --icons | less -r'
+# `ls` 增强：eza 或 exa，装上哪个用哪个。
+#
+# eza 是 exa 的活跃分支（exa 上游 2021 年后归档），命令行与 exa 兼容，所以下面这族
+# 别名两个都能挂。24.04 起 Ubuntu 源里只剩 eza，22.04 只有 exa —— 两个都认，优先 eza。
+if command -v eza &>/dev/null; then
+    _ls_bin=eza
+elif command -v exa &>/dev/null; then
+    _ls_bin=exa
+fi
+
+if [ -n "${_ls_bin:-}" ]; then
+    # `--git` 必须问二进制自己，不能照着「上游默认开着」写死。Ubuntu 的 exa 是关掉
+    # git feature 编的（`--no-default-features`），传 --git 不是「不显示 git 状态」，
+    # 而是整个命令以 rc=3 失败：
+    #   exa: Options --git and --git-ignore can't be used because `git` feature
+    #   was disabled in this build of exa
+    # 一个选项就能让 ls / la / ll 全废，而这个 exa 又确实是 apt 正常装上的（见
+    # ubuntu.sh 的可选包）。brew 装的 exa 和 Ubuntu 的 eza 都支持，探测一次即可。
+    _ls_cols="--icons"
+    if "$_ls_bin" --git -d . >/dev/null 2>&1; then
+        _ls_cols="--icons --git"
+    fi
+
+    alias e="$_ls_bin $_ls_cols"
+    alias ea="$_ls_bin -a $_ls_cols"
+    alias ee="$_ls_bin -aahl $_ls_cols"
+    alias et="$_ls_bin -T -L 3 -a -I \"node_modules|.git|.cache\" --icons"
+    alias eta="$_ls_bin -T -a -I \"node_modules|.git|.cache\" --color=always --icons | less -r"
 
     alias l=e
 
@@ -43,6 +64,7 @@ if command -v exa &>/dev/null; then
     alias lt=et
     alias lta=eta
 fi
+unset _ls_bin _ls_cols
 
 # Vibe coding
 # 启动一个不再问我权限的 Claude Code，同时把自动压缩点提前到 400k
