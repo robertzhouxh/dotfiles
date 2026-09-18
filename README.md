@@ -89,14 +89,14 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 ### ubuntu.sh 装了什么
 
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
-- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find
+- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
 
 可选包装不上只提示不中断。上面 apt 装的每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
 starship 已经装过就跳过；拉不到 GitHub 只警告不中断（`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没有就是默认样式）。上游只发 tar.gz，没有 `.deb` / `.rpm`，所以不走 apt。
 
-Ubuntu 22.04 的源里**没有 exa**，`.alias` 会优雅降级。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
+`exa` 在 universe 里（22.04 是 0.10.1），`.alias` 里那族 `ls` 增强就是照它写的；装不上只是没有增强，`ls` 还是 `ls`。`--icons` 要终端字体带 Nerd Font 图标，否则图标位置显示成方块，换个字体或去掉 `--icons` 即可。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
 
 ### Ubuntu 上的 Emacs
 

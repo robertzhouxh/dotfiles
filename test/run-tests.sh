@@ -405,6 +405,74 @@ install_starship' >"$SHIP_OUT" 2>&1
 fi
 
 # ---------------------------------------------------------------------------
+group "ubuntu.sh 装 exa"
+
+# exa 和 starship 不是一类东西：starship 在 apt 里根本没有，才要官方脚本兜底；
+# exa 在 jammy 的 universe 里（0.10.1-2，核对过 dists/jammy/universe 的 Packages 索引），
+# 直接进包清单就够。门禁挡的是把它挪进核心清单——核心包装不上会 die，而换个源里
+# 没有 exa 的发行版（24.04 只有 eza）不该让整台机器的初始化卡住。
+assert_contains "apt 清单里有 exa（jammy universe 有 0.10.1）" "$PKG_LISTS" "exa"
+CORE_LIST="$(sed -n '/^CORE_PKGS=(/,/^)/p' ubuntu.sh | sed 's/#.*//')"
+assert_not_contains "exa 留在可选清单里，不在核心清单" "$CORE_LIST" "exa"
+
+# 这次改动的起点是一句过期的事实断言：README 和 ubuntu.sh 都写着「jammy 源里没有 exa」，
+# 而 22.04 从发布起 universe 里就有它。文档里的断言不会自己变旧了报警，所以让这类
+# 说法一旦写下就得有人去核索引——命中即失败，改完再放行。
+STALE_EXA="$(grep -lE 'exa 不在|里没有 exa' README.md ubuntu.sh 2>/dev/null | tr '\n' ' ')"
+if [ -z "$STALE_EXA" ]; then
+  ok "没有残留「jammy 没有 exa」的旧断言"
+else
+  bad "没有残留「jammy 没有 exa」的旧断言" "命中：$STALE_EXA（先核 dists/jammy/universe 的索引再写）"
+fi
+
+# .alias 里那族 exa 别名用的参数，必须是 exa 0.10.1 认识的。这份表照的是 0.10.1 的
+# src/options/flags.rs；exa 上游已归档、0.10.1 是最后一版，表不会再长，写死是安全的。
+# 它挡的是「在 brew 那版上试过就以为行」：`--git` 由 Cargo.toml 的 default = ["git"]
+# 决定，换一种打包就可能编掉，而 .alias 是两个平台共用的。
+EXA_LONG_OK="--icons --git --all --header --long --tree --level --ignore-glob --color"
+EXA_SHORT_OK="-a -h -l -T -L -I"
+
+# 只取 exa 调用本身的参数：` | ` 之后是别的命令（eta 那行结尾的 `less -r` 不是 exa 的）。
+EXA_FLAGS="$(sed -n '/command -v exa/,/^fi/p' .alias \
+  | sed 's/ | .*//' | tr -d "'\"" \
+  | grep -oE 'exa .*' | tr ' ' '\n' | grep -E '^-' | sed 's/=.*//' | sort -u)"
+
+# 抠不到参数就别放行：模式失效时下面那个循环会一个都不检查，静默变绿灯。
+if [ -z "$EXA_FLAGS" ]; then
+  bad "能从 .alias 抠出 exa 别名用的参数" "一个都没抠到，command -v exa 那段被改写了吗？"
+else
+  EXA_UNKNOWN=""
+  for _tok in $EXA_FLAGS; do
+    case "$_tok" in
+      --*)
+        case " $EXA_LONG_OK " in *" $_tok "*) ;; *) EXA_UNKNOWN="$EXA_UNKNOWN $_tok" ;; esac ;;
+      -*)
+        # -aahl 这种捆在一起的短选项要拆开逐个认
+        _rest="${_tok#-}"
+        while [ -n "$_rest" ]; do
+          _c="-${_rest:0:1}"; _rest="${_rest:1}"
+          case " $EXA_SHORT_OK " in *" $_c "*) ;; *) EXA_UNKNOWN="$EXA_UNKNOWN $_c" ;; esac
+        done ;;
+    esac
+  done
+  if [ -z "$EXA_UNKNOWN" ]; then
+    ok "exa 别名用的参数 exa 0.10.1 都认识"
+  else
+    bad "exa 别名用的参数 exa 0.10.1 都认识" "0.10.1 里没有：$EXA_UNKNOWN"
+  fi
+fi
+
+# 没装 exa（新机器，或源里没这个包的发行版）时 .alias 必须安静降级。整段在
+# `command -v exa` 里，所以硬造一个空 PATH：找不到 exa，就不该定义半个别名，
+# 更不该让 source 返回非 0——source 失败会污染每一个新开的 shell。
+NOEXA_DIR="$SANDBOX/noexa-bin"
+mkdir -p "$NOEXA_DIR"
+NOEXA_OUT="$(env -i PATH="$NOEXA_DIR" HOME="$HOME" DOTFILES_OS=linux "${BASH:-/bin/bash}" -c \
+  "source '$REPO/.alias' >/dev/null 2>&1; printf 'rc=%s ' \$?; alias ls 2>/dev/null || printf 'ls未定义'" 2>&1)"
+assert_contains "没装 exa 时 .alias 照样 source 成功" "$NOEXA_OUT" "rc=0"
+assert_contains "没装 exa 时 ls 不被接管" "$NOEXA_OUT" "ls未定义"
+
+# ---------------------------------------------------------------------------
 group "vim.sh 行为"
 
 # vim.sh 往 $HERE/.vim 里写东西（插件就装在那儿）。直接对真仓库跑会污染工作区，
