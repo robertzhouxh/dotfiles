@@ -43,9 +43,9 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 ./vim.sh --update-plug    # 强制重新下载 plug.vim
 ```
 
-`~/.vimrc` 和 `~/.vim` 都链到仓库；插件装在 `~/.vim/plugged`，也就是仓库的 `.vim/plugged`（已 gitignore），跟着仓库走。`~/.vim` 原本若是真实目录，会先备份成 `~/.vim.YYYYMMDD`。想指到别的 vim 二进制上用 `VIM=/path/to/vim ./vim.sh`。
+`~/.vimrc` 和 `~/.vim` 都链到仓库；插件装在 `~/.vim/plugged`，也就是仓库的 `.vim/plugged`（`.vim` 整个目录都在 `.gitignore` 里，插件不进版本控制）。`~/.vim` 原本若是真实目录，会先备份成 `~/.vim.YYYYMMDD`。想指到别的 vim 二进制上用 `VIM=/path/to/vim ./vim.sh`。
 
-> `~/.vim` 是符号链接，所以 `~/.vim/autoload/plug.vim` 和仓库里那个是**同一个文件**。`vim.sh` 只认仓库内那一条路径，会把已经坏掉（自指成环，vim 报 `E117: Unknown function: plug#begin`）的 `plug.vim` 清掉重下。
+> `~/.vim` 是符号链接，`~/.vim/autoload/plug.vim` 和仓库里那个是**同一个文件**。`vim.sh` 只认仓库内那一条路径，会清掉已经坏掉的（自指成环，vim 报 `E117: Unknown function: plug#begin`）再重新下载。
 
 ## macOS
 
@@ -55,9 +55,9 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 ./brew.sh
 ```
 
-`brew.sh` 会把登录 shell 切成 `/bin/zsh`（macOS 自 Catalina 起自带，本来就在 `/etc/shells` 里）。这一步以前是把默认 shell 改成 brew 装的 bash，跟本仓库整套 zsh 配置是反的：登录 shell 是 bash 时新开的终端读 `.bashrc`，`.zshrc` / `.zprofile` / starship 的 zsh 分支全都不生效。已经是 zsh 就跳过，不会反复弹密码。
+`brew.sh` 会把登录 shell 切成 `/bin/zsh`（macOS 自 Catalina 起自带，本来就在 `/etc/shells` 里）。整套配置都是照 zsh 写的：登录 shell 是 bash 时新开的终端读 `.bashrc`，`.zshrc` / `.zprofile` / starship 的 zsh 分支全都不生效。已经是 zsh 就跳过，不会反复弹密码。
 
-改完要**重开终端**（或 `chsh -s /bin/zsh` 后重新登录）才生效。
+改完要**重开终端**才生效。
 
 ### 截图-付费软件
 
@@ -84,7 +84,7 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 
 按 `C-x C-f` 输入 `/rpc:alice@example.com:/srv/app/README.md` 开远程文件；`C-x d` 输入 `/rpc:alice@example.com:/srv/app/` 开远程目录。Evil normal、visual 或 motion state 下按 `SPC r`，会提示 `user@host` 和远端目录并直接打开对应的 RPC Dired。
 
-首次连某台远程主机时，TRAMP-RPC 把服务端二进制部署到远端 `~/.cache/emacs/tramp-rpc/`。远端要能 SSH 上去，且是受支持的 Linux 或 macOS 架构。自动部署失败时执行 `M-x tramp-rpc-deploy-install-binary`；`M-x tramp-rpc-deploy-status` 看本地缓存和部署状态。
+首次连某台远程主机时，TRAMP-RPC 惰性部署服务端二进制到远端 `~/.cache/emacs/tramp-rpc/`；远端要能 SSH 上去，且是受支持的 Linux 或 macOS 架构。出问题用 `M-x tramp-rpc-deploy-diagnose` 出诊断、`M-x tramp-rpc-deploy-status` 看本地缓存与部署状态、`M-x tramp-rpc-deploy-clear-cache` 清掉缓存重来。
 
 ---
 
@@ -95,26 +95,26 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
 - **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
-- **rtk**：同样不在 apt 里，走官方安装脚本装到 `~/.local/bin`（`.envv` 会把这个目录加进 PATH），装完不用 sudo、不碰系统目录。它是省 token 的命令代理，用法见下面「RTK」
-- **asdf**：apt 源里同样没有，从上游 release 下 linux 二进制装到 `~/.local/bin`，不用 sudo。上游 0.16 起是 Go 单体二进制，老教程里「`git clone ~/.asdf` 就能用」那套已经不作数。macOS 侧由 `brew.sh` 装。两侧都只把二进制放进 PATH，数据统一在 `ASDF_DATA_DIR`（默认 `~/.asdf`）。用法见下面「asdf」
+- **rtk**：同样不在 apt 里，走官方安装脚本装到 `~/.local/bin`（`.envv` 会把这个目录加进 PATH），不用 sudo、不碰系统目录。它是省 token 的命令代理，用法见下面「RTK」
+- **asdf**：apt 源里同样没有，从上游 release 下 linux 二进制装到 `~/.local/bin`，不用 sudo。macOS 侧由 `brew.sh` 装。用法见下面「asdf」
 
 可选包装不上只提示不中断。上面 apt 装的每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
-starship 已经装过就跳过；拉不到 GitHub 只警告不中断（`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没有就是默认样式）。上游只发 tar.gz，没有 `.deb` / `.rpm`，所以不走 apt。
+非 apt 的三项（starship / rtk / asdf）都是装过就跳过、拉不到 GitHub 只警告不中断。starship 上游只发 tar.gz，没有 `.deb` / `.rpm`，所以走官方脚本；`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没装就退回默认样式。
 
-`rtk` 同理：装过就跳过，拉不到只警告。它的「已装」判据是 `rtk --version` 打得出 `rtk <版本号>`，而不是「有个叫 rtk 的可执行文件」——这个名字被 crates.io 上的 Rust Type Kit 共用，只认名字会把那个异物当成已装，然后永远跳过真正要装的这个。
+`rtk` 的「已装」判据是 `rtk --version` 打得出 `rtk <版本号>`，不是「有个叫 rtk 的可执行文件」——这个名字被 crates.io 上的 Rust Type Kit 共用，只认名字会把那个异物当成已装，然后永远跳过真正要装的这个。
 
-`asdf` 也是装过就跳过、拉不到只警告，另外有两处讲究。**版本钉在 `ubuntu.sh` 的 `ASDF_VERSION`**，不查 GitHub 的 latest：脚本要离线可跑、每次跑结果一致（换版本：`ASDF_VERSION=x.y.z ./ubuntu.sh`）。**先解到临时目录、验过版本对得上再落盘**：落点上已有的 asdf 版本对不上（哪怕只差个 `-rc1` 后缀）就算没装对，会换掉它；装在别处（brew、发行版包、用户自己 clone 的）则原样不动，免得两份互相遮蔽。PATH 侧由 `.envv` 接，闸门是 **shims 目录在不在**，不是 `command -v asdf`——后者在二进制还没进 PATH 的机器上会让整段静默失效。
+`asdf` 的安装有两处讲究。**版本钉在 `ubuntu.sh` 的 `ASDF_VERSION`**，不查 GitHub 的 latest：脚本要离线可跑、每次跑结果一致（换版本：`ASDF_VERSION=x.y.z ./ubuntu.sh`）。**先解到临时目录、验过版本对得上再落盘**：落点上的 asdf 版本对不上（哪怕只差个 `-rc1` 后缀）就当没装对、换掉它；装在别处（brew、发行版包、用户自己 clone 的）则原样不动，免得两份互相遮蔽。PATH 侧由 `.envv` 接，闸门是 **shims 目录在不在**，不是 `command -v asdf`——后者在二进制还没进 PATH 的机器上会让整段静默失效。
 
-`ls` 增强用 `exa` 或 `eza`（`eza` 是 `exa` 的活跃分支，exa 上游 2021 年后归档）：22.04 的 universe 里只有 `exa` 0.10.1，24.04 起只剩 `eza`，两个都列在可选包里，各发行版自然只会命中一个，`.alias` 两个都认、优先 `eza`。装不上只是没有增强，`ls` 还是 `ls`。
+`ls` 增强用 `exa` 或 `eza`（`eza` 是 `exa` 的活跃分支，exa 上游 2021 年后归档）：22.04 的 universe 里只有 `exa` 0.10.1，24.04 起只剩 `eza`，两个都列在可选包里，各发行版自然只命中一个，`.alias` 两个都认、优先 `eza`。装不上只是没有增强，`ls` 还是 `ls`。
 
-**`--git` 在 Ubuntu 的 `exa` 上不能用。** 那个包是关掉 git feature 编的，传了不是「少显示一列」而是整个命令以 `rc=3` 失败（`Options --git ... because 'git' feature was disabled in this build`）。`.alias` 因此改成运行时探测一次再决定加不加，别照着「上游默认开着」写死。`eza` 和 brew 的 `exa` 都支持。
+**`--git` 在 Ubuntu 的 `exa` 上不能用。** 那个包是关掉 git feature 编的，传了不是「少显示一列」而是整个命令以 `rc=3` 失败（`Options --git ... because 'git' feature was disabled in this build`）。`.alias` 因此运行时探测一次再决定加不加，别照着「上游默认开着」写死。`eza` 和 brew 的 `exa` 都支持。
 
 `--icons` 要终端字体带 Nerd Font 图标，否则图标位置显示成方块，换个字体或去掉 `--icons` 即可。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
 
 ### Ubuntu 上的 Emacs
 
-**apt 里的 Emacs 是 27.1，跑不了本仓库的配置。** `.emacs.d/lisp/` 下的 `emacs-solo-*.el` 包头都写着 `Package-Requires: ((emacs "30.1"))`，配置本身也大量依赖 29+ 的 API。只能自己编译 30：
+**apt 里的 Emacs 是 27.1，跑不了本仓库的配置。** `.emacs.d/lisp/` 下的 `emacs-solo-*.el` 包头都写着 `Package-Requires: ((emacs "30.1"))`。只能自己编译 30：
 
 ```bash
 sudo apt install -y libgtk-3-dev libgif-dev libxpm-dev libjpeg-dev libtiff-dev
@@ -122,7 +122,7 @@ git clone --depth=1 --branch emacs-30 https://git.savannah.gnu.org/git/emacs.git
 cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-tree-sitter && make -j"$(nproc)"
 ```
 
-装好后再跑 `./emacs.sh`，走的是上面同一个版本闸门（≥ 30.1 才链 `~/.emacs.d`）。首次启动会从 MELPA 全量拉包，国内建议先挂代理或换镜像源（见 `.emacs.d/lisp/emacs-init-elpa.el`）。
+装好后再跑 `./emacs.sh`（同一个 ≥ 30.1 闸门）。首次启动会从 MELPA 全量拉包，国内建议先挂代理，或把 `.emacs.d/lisp/emacs-init-elpa.el` 里的 `package-archives` 换成能连上的镜像源。
 
 其余依赖：
 
@@ -173,17 +173,17 @@ Emacs 中按 `C-\` 激活输入法。
 
 ## Emacs AI / LLM 工具
 
-三层 AI 交互，配置在 `.emacs.d/lisp/emacs-init-ai.el`：
+三层 AI 交互。agent-shell 与 gptel 配在 `.emacs.d/lisp/emacs-init-ai.el`，Claude Chat 配在 `.emacs.d/lisp/emacs-solo-ai.el`：
 
-| 工具        | 快捷键     | 后端                          | 场景                           |
-|-------------|------------|-------------------------------|--------------------------------|
-| Claude Chat | `C-c C-0`  | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
-| agent-shell | `SPC a a`  | Claude Code（ACP 协议）       | 完整终端 agent、多项目并发     |
-| gptel       | `SPC a g`  | DeepSeek V4（OpenAI 兼容）    | 底部抽屉式 LLM 聊天            |
+| 工具        | 快捷键    | 后端                          | 场景                           |
+|-------------|-----------|-------------------------------|--------------------------------|
+| Claude Chat | `C-c C-0` | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
+| agent-shell | `SPC a a` | Claude Code CLI + DeepSeek V4 | 完整终端 agent、多项目并发     |
+| gptel       | `SPC a g` | DeepSeek V4（OpenAI 兼容）    | 底部抽屉式 LLM 聊天            |
 
 ### agent-shell：终端 Agent
 
-把 Claude Code、Codex、Gemini CLI 等终端 agent 包装成 Emacs buffer。每个会话按 `模型名 @ 目录名` 命名，多项目间 `M-x switch-to-buffer` 切换。
+把 Claude Code、Codex、Gemini CLI 等终端 agent 包装成 Emacs buffer。每个会话按 `Claude Agent @ 项目名` 命名（agent 名 + 项目名，不是模型名），多项目间 `M-x switch-to-buffer` 切换。
 
 前提是手动装一次系统依赖：
 
@@ -192,12 +192,14 @@ brew install claude-code
 npm install -g @zed-industries/claude-agent-acp
 ```
 
+`claude-agent-acp` 子进程继承 `.emacs.d/lisp/emacs-init-ai.el` 里设的 `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL`，所以这里的 Claude Code 实际跑在 DeepSeek 的 Anthropic 兼容端点上。
+
 | 操作                   | 方式                      |
 |------------------------|---------------------------|
 | 启动 Claude Code agent | `SPC a a` / `SPC a 1`    |
 | 手动选择 provider      | `M-x agent-shell`         |
 | 发送输入               | `RET`                     |
-| 插入换行               | `C-return`                |
+| 插入换行               | `S-return`                |
 | 中断                   | `C-c C-c`                 |
 
 ### Claude Chat 原生模式（`emacs-solo-ai`）
@@ -217,15 +219,16 @@ SDK 模式快捷键：
 
 ### Evil 模式与 AI 工具协作（vibe-coding 校准）
 
-所有 AI 终端模式（agent-shell、eat、term、Claude Chat、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。流程是：`SPC a a` 起 agent-shell 后正常打字、`RET` 发送、`n/p` 导航输出；想用 `j/k` 滚动输出就按 `Escape` 或快速 `jj` 进 normal state；想继续打字按 `C-z` 回 emacs state。
+所有 AI 终端模式（agent-shell、eat、term、Claude Chat、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。流程是：`SPC a a` 起 agent-shell 后正常打字、`RET` 发送、`n/p` 导航输出；想用 `j/k` 滚动输出就快速 `jj` 进 normal state；想继续打字按 `C-z` 回 emacs state。
+
+> `Escape` 在这里不是出口：Evil 只把它绑在 insert / replace / normal / visual 状态上，emacs state 下它是 Meta 前缀。要回 normal 用 `jj` 或 `C-z`（Evil 的 toggle 键）。eat / term 例外——Escape 直接送给终端里的程序。
 
 | 键        | 状态   | 行为                                              |
 |-----------|--------|---------------------------------------------------|
 | `n`       | emacs  | agent-shell-next-item（在 prompt 处则插入 n）     |
 | `p`       | emacs  | agent-shell-previous-item（在 prompt 处则插入 p） |
 | `j` / `k` | normal | 逐行滚动 agent 输出                               |
-| `C-z`     | normal | 回到 emacs state，必要的时候 Enter                |
-| `Escape`  | emacs  | 进入 normal state（用于 j/k 滚动阅读）            |
+| `C-z`     | 双向   | normal → emacs state（必要时 Enter）；emacs → normal |
 | `j j`     | emacs  | 快速进入 normal state                             |
 | `C-w h/l` | 全部   | 切换左/右窗口                                     |
 | `C-w w`   | 全部   | 循环切换窗口                                       |
@@ -257,14 +260,14 @@ Emacs 31 中 face `:box` 不再接受 `:style none`（有效值：`released-butt
 Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style none)
 ```
 
-**修复：** 编辑 `var/packages/elpa/lazycat-theme/lazycat-theme.el` L418-422，移除 `:style none`：
+**修复：** 编辑 `var/packages/elpa/lazycat-theme/lazycat-theme.el`，把 `custom-button` 一族 face 的 `:box` 里的 `:style none` 去掉：
 
 ```diff
 -    (custom-button :box '(:line-width 1 :style none))
 +    (custom-button :box '(:line-width 1))
 ```
 
-> 对 `custom-button-unraised`、`custom-button-pressed-unraised`、`custom-button-pressed`、`custom-button-mouse` 做同样修改。视觉效果不变。
+> 本地这份已经改过了，但 ELPA 更新会把文件整个换掉——再看到这个报错就照上面改回来。涉及 `custom-button`、`custom-button-unraised`、`custom-button-pressed-unraised`、`custom-button-pressed`、`custom-button-mouse`。视觉效果不变。
 
 ---
 
@@ -283,7 +286,7 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 | `C-7` | `xah-backward-left-bracket` | 跳到上一个左括号，光标停在括号上     |
 | `C-8` | `xah-forward-right-bracket` | 跳到下一个右括号，光标停在括号之后   |
 
-与 `forward-sexp` 的区别：这两个命令不认识语法结构，只做纯文本搜索，所以语法树残缺（正在输入的半截表达式）、非 Lisp 语言、纯文本里都能用。括号表覆盖 ASCII 与 62 组 Unicode 括号（全角、CJK、数学、Dingbats 等）。
+与 `forward-sexp` 的区别：这两个命令不认识语法结构，只做纯文本搜索，所以语法树残缺（正在输入的半截表达式）、非 Lisp 语言、纯文本里都能用。括号表共 62 组，其中 ASCII 4 组（`()` `[]` `{}` `<>`）、Unicode 58 组（全角、CJK、数学、Dingbats 等）。
 
 **注意事项**
 
@@ -306,25 +309,28 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 确定性、本地、免费、永不 flaky。
 
 ```bash
-test/run-tests.sh              # shell 侧，150+ 个用例，本机约 3 秒（无网络无 sudo）
+test/run-tests.sh              # shell 侧，200+ 个用例，墙钟约 11 秒（无网络无 sudo）
 .emacs.d/test/run-tests.sh     # Emacs 侧，20+ 个用例，约 10ms，不启动完整 Emacs
 ```
 
-写「150+」而不是确切数字：确切数字会随测试增删过期，以输出末尾的「结果：N 通过，M 失败」为准。
+shell 侧那 11 秒几乎都花在反复起子进程上，CPU 时间只有 3 秒左右——不是断言慢。数字都写「N+」而不是确切值：确切值会随测试增删过期，以输出末尾的「结果：N 通过，M 失败」为准。
 
 `test/install-hooks.sh` 装上 pre-commit hook，之后每次 commit 自动跑 shell 侧。shell 侧会用 `emacs.sh --dry-run` 当版本判据、顺带跑一遍 Emacs 侧；版本不够或没装 Emacs 就跳过并说明原因，不会让门禁红掉。
 
-Emacs 侧覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。其中的「正则精确性」值得一说：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而它**允许输出字符范围**（如 `[(-{]`）——一个跨过非括号字符的范围会让命令静默跳到普通文本上。所以测试逐个码位验证「匹配且仅匹配」目标字符集，而不是只断言「括号能匹配上」。
+Emacs 侧覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。其中的「正则精确性」值得一说：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而它**允许输出字符范围**——一旦输出成跨过非括号字符的范围（如 `[(-{]`），命令就会静默跳到普通文本上。当前这张表恰好没触发，但测试按 Unicode 区块划窗口、逐码位双向验证（既不漏匹配也不多匹配），而不是只断言「括号能匹配上」。
 
 ---
 
 ## CLAUDE
 
-Claude Code 自动读项目根目录的 `CLAUDE.md`（全局版在 `~/.claude/CLAUDE.md`）。本仓库把它拆成两份，内容一一对应：`CLAUDE_EN.md` 是英文版（改名前就叫 `CLAUDE.md`），`CLAUDE_CN.md` 是中文版。两份都针对个人 dotfiles 项目定制，复制到别的项目要替换掉项目特定路径和工具链引用。
+Claude Code 只认 `CLAUDE.md` 这个文件名，而本仓库根目录没有这个文件，所以下面两份**都不会被自动加载**。中文版实际是通过全局的 `~/.claude/CLAUDE.md` 生效的：那份内容与 `CLAUDE_CN.md` 相同，但是独立副本而非软链，改一边得手动同步另一边。
 
-其他工具的兼容方式——指向你想要的那份：
+两份内容一一对应：`CLAUDE_EN.md` 是英文版（改名前就叫 `CLAUDE.md`），`CLAUDE_CN.md` 是中文版。都针对个人 dotfiles 项目定制，复制到别的项目要替换掉项目特定路径和工具链引用。
+
+要让某个工具读到这里的一份：
 
 ```bash
+ln -s CLAUDE_CN.md CLAUDE.md      # Claude Code
 ln -s CLAUDE_CN.md AGENTS.md      # Codex CLI、Cursor 等
 ln -s CLAUDE_CN.md GEMINI.md      # Gemini CLI
 ```
@@ -504,3 +510,14 @@ rtk init -g --agent droid       # Factory Droid
 # 2. Restart your AI tool, then test
 git status  # Automatically rewritten to rtk git status
 ```
+
+---
+
+## 不参与自动部署的两批配置
+
+`deploy.sh` 的清单里没有这两批，得手动取用：
+
+- **`cvr-max.yaml` / `cvr-min.yaml`**：Clash Verge Rev 的配置。`max` 是带注释的完整版，`min` 只留通路（7890 + fake-ip DNS + 两条策略组）。节点凭据都是占位符（`密码`、`服务端UID`、`你的密钥`），导入前换成自己的。改完可以无头校验语法：`/Applications/Clash Verge.app/Contents/MacOS/verge-mihomo -t -f cvr-max.yaml`——占位符会让检查提前截断，先填假值再跑。
+- **`squirrel/`**：鼠须管的 RIME 用户配置。`luna_pinyin.custom.yaml` 默认开繁→简转换，并把词典换成 `luna_pinyin.extended`；后者把 `luna_pinyin` 与 `moegirl`（萌娘百科词库）拼成一张表；剩下两个管外观与翻页。拷进 RIME 用户目录（macOS `~/Library/Rime/`、Linux `~/.config/fcitx/rime/`）后重新部署生效。
+
+> 「鼠须管 + 雾凇词库」那套走的是上面的 rime-auto-deploy，与 `squirrel/` 是两套方案。
