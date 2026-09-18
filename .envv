@@ -101,9 +101,17 @@ _path_prepend "$HOME/.local/share/bin"
 [ -z "$XDG_STATE_HOME"  ] && export XDG_STATE_HOME="$HOME/.local/state"
 
 # =========================================================
-# asdf version manager (must precede conda in PATH)
-if command -v asdf >/dev/null 2>&1; then
-  export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+# asdf version manager（必须排在 conda 之前，见 .zshrc 末尾那段）
+#
+# 闸门是 shims 目录，不是 `command -v asdf`：后者把「asdf 命令在不在 PATH 上」
+# 当成了「该不该挂 shims」。二进制还没进 PATH 时（比如按官方文档自己装、落在数据
+# 目录里的那种布局），命令还找不到，整段就被跳过，它名下的语言跟着一起消失。
+# 该不该动 PATH 只取决于 shims 目录在不在。
+#
+# 二进制本身不在这里找：Linux 上 ubuntu.sh 把它装进 ~/.local/bin（上面已挂进
+# PATH），macOS 上 brew.sh 装进 brew 的 bin。
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+if [ -d "$ASDF_DATA_DIR/shims" ]; then
   _path_prepend "$ASDF_DATA_DIR/shims"
 fi
 
@@ -117,8 +125,13 @@ if command -v go >/dev/null 2>&1; then
   export GOPATH="${GOPATH:-$HOME/go}"
   export GOPROXY='https://goproxy.cn,direct'
   _path_prepend "$GOPATH/bin"
-  GOROOT="$(asdf where golang 2>/dev/null)"
-  [ -n "$GOROOT" ] && export GOROOT
+  # asdf 装的 Go 要把 GOROOT 指到那个版本目录。取不到就保持原样：写成
+  # GOROOT="$(asdf where golang)" 会在 asdf 没有 golang 插件时把已有的
+  # （乃至外部导出的）GOROOT 抹成空串，Go 接着报 "cannot find GOROOT"。
+  if command -v asdf >/dev/null 2>&1; then
+    _goroot="$(asdf where golang 2>/dev/null || true)"
+    [ -n "$_goroot" ] && export GOROOT="$_goroot"
+  fi
 fi
 
 # =========================================================
@@ -140,4 +153,5 @@ if [ "$DOTFILES_OS" = "mac" ] && command -v brew >/dev/null 2>&1; then
   fi
 fi
 
+unset _goroot
 unset -f _path_prepend _path_append

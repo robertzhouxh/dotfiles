@@ -191,6 +191,63 @@ assert_ok "LC_ALL 落在一个 UTF-8 locale 上" bash -c \
 
 assert_contains ".envv 定义了 DOTFILES_OS" "$(envv_value DOTFILES_OS)" "$(uname -s | sed 's/Darwin/mac/;s/Linux/linux/')"
 
+# --- asdf：PATH 闸门与 GOROOT ---
+# 沙箱家目录里造出 asdf 的数据目录再 source，验证「挂不挂 shims」的判据。
+envv_path_in() { # <家目录> -> 该 HOME 下 source .envv 后的 PATH
+  env -i PATH=/usr/bin:/bin HOME="$1" bash -c \
+    "source '$REPO/.envv' >/dev/null 2>&1; printf '%s' \"\$PATH\""
+}
+envv_var_in() { # <家目录> <变量名> -> 值
+  env -i PATH=/usr/bin:/bin HOME="$1" bash -c \
+    "source '$REPO/.envv' >/dev/null 2>&1; printf '%s' \"\${$2:-}\""
+}
+
+ASDF_SANDBOX="$(mktemp -d)"
+mkdir -p "$ASDF_SANDBOX/.asdf/shims"
+
+# 回归：闸门曾经是 `command -v asdf`，于是「二进制还没进 PATH」的机器上整段被跳过，
+# 所有 asdf 装的工具跟着一起消失。该不该动 PATH，只取决于 shims 目录在不在。
+assert_contains "shims 目录在就挂进 PATH（不在乎 asdf 命令此刻在不在 PATH 上）" \
+  "$(envv_path_in "$ASDF_SANDBOX")" "$ASDF_SANDBOX/.asdf/shims"
+assert_contains "ASDF_DATA_DIR 默认导出成 \$HOME/.asdf" \
+  "$(envv_var_in "$ASDF_SANDBOX" ASDF_DATA_DIR)" "$ASDF_SANDBOX/.asdf"
+
+# 指到别处时整个块都得跟着走，不能一半认变量一半认写死的 ~/.asdf
+mkdir -p "$ASDF_SANDBOX/custom/shims"
+CUSTOM_PATH="$(env -i PATH=/usr/bin:/bin HOME="$ASDF_SANDBOX" ASDF_DATA_DIR="$ASDF_SANDBOX/custom" \
+  bash -c "source '$REPO/.envv' >/dev/null 2>&1; printf '%s' \"\$PATH\"")"
+assert_contains "ASDF_DATA_DIR 指到别处时挂的是那儿" "$CUSTOM_PATH" "$ASDF_SANDBOX/custom/shims"
+assert_not_contains "…且不会再去挂默认的 ~/.asdf/shims" "$CUSTOM_PATH" "$ASDF_SANDBOX/.asdf/shims"
+
+# 没装 asdf（shims 目录不存在）时不许往 PATH 里塞不存在的路径
+assert_not_contains "shims 目录不存在时不塞进 PATH" \
+  "$(envv_path_in "$(mktemp -d)")" ".asdf/shims"
+
+# 回归：GOROOT 曾经写成 GOROOT="$(asdf where golang)"，asdf 里没有 golang 插件时
+# 就把外部导出的 GOROOT 抹成空串，Go 接着报 "cannot find GOROOT"。
+GO_SANDBOX="$(mktemp -d)"
+mkdir -p "$GO_SANDBOX/bin"
+printf '#!/bin/sh\nexit 0\n' > "$GO_SANDBOX/bin/go"
+printf '#!/bin/sh\nexit 1\n' > "$GO_SANDBOX/bin/asdf"       # `where golang` 什么都不输出
+chmod +x "$GO_SANDBOX/bin/go" "$GO_SANDBOX/bin/asdf"
+GOROOT_HOME_OUT="$(env -i PATH="$GO_SANDBOX/bin:/usr/bin:/bin" HOME="$GO_SANDBOX" GOROOT=/opt/keep-go \
+  bash -c "source '$REPO/.envv' >/dev/null 2>&1; printf '%s' \"\${GOROOT:-}\"")"
+assert_contains "asdf 里没有 golang 时不把已有的 GOROOT 抹掉" "$GOROOT_HOME_OUT" "/opt/keep-go"
+
+# asdf 装了 golang 时反过来要指到它那儿
+printf '#!/bin/sh\n[ "$1" = where ] && { printf "%%s\\n" /opt/asdf-go; exit 0; }\nexit 1\n' > "$GO_SANDBOX/bin/asdf"
+chmod +x "$GO_SANDBOX/bin/asdf"
+GOROOT_ASDF_OUT="$(env -i PATH="$GO_SANDBOX/bin:/usr/bin:/bin" HOME="$GO_SANDBOX" \
+  bash -c "source '$REPO/.envv' >/dev/null 2>&1; printf '%s' \"\${GOROOT:-}\"")"
+assert_contains "asdf 装了 golang 时 GOROOT 指到它那儿" "$GOROOT_ASDF_OUT" "/opt/asdf-go"
+rm -rf "$ASDF_SANDBOX" "$GO_SANDBOX"
+
+# conda init 会把 conda 的 bin 插到最前面，.zshrc 末尾那句要把 shims 顶回去；
+# 它得跟着 ASDF_DATA_DIR 走，不能写死 ~/.asdf。
+assert_contains ".zshrc 重新挂 shims 时跟着 ASDF_DATA_DIR" \
+  "$(cat .zshrc)" '${ASDF_DATA_DIR:-$HOME/.asdf}'
+assert_not_contains ".zshrc 不写死 ~/.asdf/shims" "$(cat .zshrc)" '"$HOME/.asdf/shims:$PATH"'
+
 # ---------------------------------------------------------------------------
 group ".zprofile 平台行为"
 
@@ -627,6 +684,194 @@ else
   assert_not_contains "--no-chsh 时不碰登录 shell" "$OUT" "SAY 已切到"
 fi
 
+# ---------------------------------------------------------------------------
+group "ubuntu.sh 装 asdf"
+
+# asdf 不在 jammy 源里。上游 0.16 起是 Go 写的单体二进制，仓库里已经没有 bin/，
+# 老教程里「git clone 下来就能用」那套不再成立（clone 到的只有源码，要自己编），
+# 所以走官方 release 资产，落点跟 rtk 一样是 ~/.local/bin（.envv 会挂进 PATH）。
+assert_not_contains "apt 清单里没有 asdf（源里没有这个包）" "$PKG_LISTS" "asdf"
+assert_contains "asdf 走官方 release 资产" "$(cat ubuntu.sh)" "asdf-vm/asdf/releases/download"
+assert_contains "brew.sh 装 asdf" "$(cat brew.sh)" "brew install asdf"
+
+ASDF_SRC="$(sed -n '/^install_asdf()/,/^}/p' ubuntu.sh)"
+ASDF_DEFAULTS="$(grep -E '^ASDF_VERSION=|^ASDF_RELEASE_BASE=' ubuntu.sh)"
+# 版本号不在这里另抄一份：从 ubuntu.sh 自己钉的那行取，省得它升级了这边还在验旧值
+ASDF_PIN="$(printf '%s\n' "$ASDF_DEFAULTS" | sed -n 's/^ASDF_VERSION="\${ASDF_VERSION:-\([^}"]*\)}"$/\1/p')"
+if [ -z "$ASDF_SRC" ] || [ -z "$ASDF_PIN" ]; then
+  bad "能从 ubuntu.sh 里取到 install_asdf 与它钉的 ASDF_VERSION" \
+    "没匹配到函数定义或版本默认值，被改名或改写了？"
+else
+  ok "能从 ubuntu.sh 里取到 install_asdf 与它钉的 ASDF_VERSION（$ASDF_PIN）"
+
+  # 装进执行者自己的家目录；套了 sudo 就落到 /root/.local/bin 去了
+  assert_not_contains "install_asdf 不套 sudo（装进执行者自己的家目录）" "$ASDF_SRC" "SUDO"
+
+  ASDFTOOLS="$SANDBOX/asdftools"   # PATH 上的桩目录
+  ASDFHOME="$SANDBOX/asdfhome"
+  ASDFLOG="$SANDBOX/asdf-curl.log"
+  ASDF_OUT="$SANDBOX/asdf-out"
+  mkdir -p "$ASDFTOOLS" "$ASDFHOME"
+
+  # 假 uname：架构映射是被测逻辑的一部分，得能在 mac 上验 linux 那几种
+  cat > "$ASDFTOOLS/uname" <<'STUB'
+#!/bin/sh
+[ "${1:-}" = "-m" ] || exec /usr/bin/uname "$@"
+printf '%s\n' "${FAKE_UNAME_M:-x86_64}"
+STUB
+
+  # 假 curl：不联网，真打一个 tar.gz 出来。被测代码要真解它、真跑包里的 asdf，
+  # 所以包名、成员名、权限位错一个都会在这里露馅，不是拿字符串比对糊过去。
+  # 版本号在打包时展开，于是装出来的 asdf 在任何环境里都报得出自己的版本。
+  #
+  # 报出版本的那行必须跟真二进制一模一样，含 v 前缀。这行是照 v0.20.0 的 darwin 构建
+  # 逐字抄的（`asdf version v0.20.0 (revision 150aaf0)`）；桩子少个 v，被测代码少剥个 v，
+  # 两边一起错就谁也发现不了——真机上却会因为版本永远对不上而每次都重装。
+  cat > "$ASDFTOOLS/curl" <<'STUB'
+#!/bin/sh
+echo "CURL $*" >> "$STUB_LOG"
+[ "${FAKE_CURL_EXIT:-0}" = "0" ] || exit 22
+out=""
+prev=""
+for a in "$@"; do
+  [ "$prev" = "-o" ] && out="$a"
+  prev="$a"
+done
+[ -n "$out" ] || exit 2
+stage="$(mktemp -d)"
+cat > "$stage/asdf" <<INNER
+#!/bin/sh
+echo "asdf version v${FAKE_ASDF_VERSION} (revision unknown)"
+INNER
+chmod +x "$stage/asdf"
+tar -czf "$out" -C "$stage" asdf
+rm -rf "$stage"
+exit 0
+STUB
+  chmod +x "$ASDFTOOLS/uname" "$ASDFTOOLS/curl"
+
+  asdf_run() { # <DRY_RUN> <FAKE_UNAME_M> [FAKE_CURL_EXIT] [FAKE_ASDF_VERSION] -> 退出码
+    # 不传 ASDF_BIN，让函数落到默认的 $HOME/.local/bin：默认路径本身也是被测对象
+    env -i PATH="$ASDFTOOLS:/usr/bin:/bin" HOME="$ASDFHOME" \
+      STUB_LOG="$ASDFLOG" \
+      ASDF_RELEASE_BASE="http://127.0.0.1:1/dl" \
+      DRY_RUN="$1" FAKE_UNAME_M="$2" FAKE_CURL_EXIT="${3:-0}" \
+      FAKE_ASDF_VERSION="${4:-$ASDF_PIN}" \
+      /bin/bash -c 'say() { printf "==> %s\n" "$1"; }; warn() { printf "警告：%s\n" "$1"; }
+'"$ASDF_DEFAULTS"'
+'"$ASDF_SRC"'
+install_asdf' >"$ASDF_OUT" 2>&1
+  }
+  # grep -c 无匹配时自己就打印 0 并返回 1，写成 `|| printf 0` 会印出两个 0
+  asdf_calls() { local n; n="$(grep -c '^CURL ' "$ASDFLOG" 2>/dev/null)"; printf '%s\n' "${n:-0}"; }
+  asdf_reset() { rm -rf "$ASDFHOME/.local" "$ASDFTOOLS/asdf"; : > "$ASDFLOG"; }
+  asdf_fake() { # <放哪儿> <版本号>：造一个会报版本号的假 asdf（v 前缀照真二进制）
+    printf '#!/bin/sh\necho "asdf version v%s (revision unknown)"\n' "$2" > "${1:-$ASDFTOOLS}/asdf"
+    chmod +x "${1:-$ASDFTOOLS}/asdf"
+  }
+
+  # 没装：下载一次、装到默认的 ~/.local/bin，并且真的能跑起来
+  asdf_reset
+  asdf_run 0 x86_64; rc=$?
+  if [ "$rc" = 0 ] && [ "$(asdf_calls)" = "1" ] && [ -x "$ASDFHOME/.local/bin/asdf" ] &&
+     "$ASDFHOME/.local/bin/asdf" --version | grep -q "asdf version v$ASDF_PIN "; then
+    ok "asdf 没装时下载并安装到默认的 ~/.local/bin"
+  else
+    bad "asdf 没装时下载并安装到默认的 ~/.local/bin" \
+      "退出码 $rc，curl $(asdf_calls) 次，落点存在？$([ -x "$ASDFHOME/.local/bin/asdf" ] && echo 是 || echo 否)：$(head -c 200 "$ASDF_OUT")"
+  fi
+
+  # 幂等：落点上已经有对版本的 asdf（新机器上它还没进 PATH），跳过且一个字节都不下
+  asdf_reset
+  mkdir -p "$ASDFHOME/.local/bin"
+  asdf_fake "$ASDFHOME/.local/bin" "$ASDF_PIN"
+  asdf_run 0 x86_64; rc=$?
+  if [ "$rc" = 0 ] && [ "$(asdf_calls)" = "0" ] && grep -q "已装" "$ASDF_OUT"; then
+    ok "落点上已有同版本的 asdf 时跳过，且不联网"
+  else
+    bad "落点上已有同版本的 asdf 时跳过，且不联网" \
+      "退出码 $rc，curl 跑了 $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
+  fi
+
+  # 版本得整段比，不能是子串：$ASDF_PIN-rc1 里含有 $ASDF_PIN，
+  # 用 `case $have in *$ASDF_VERSION*)` 那种子串判定会把预发布版当成目标版，升级永不发生。
+  asdf_reset
+  mkdir -p "$ASDFHOME/.local/bin"
+  asdf_fake "$ASDFHOME/.local/bin" "${ASDF_PIN}-rc1"
+  asdf_run 0 x86_64; rc=$?
+  if [ "$rc" = 0 ] && [ "$(asdf_calls)" = "1" ] &&
+     "$ASDFHOME/.local/bin/asdf" --version | grep -q "asdf version v$ASDF_PIN "; then
+    ok "只差个后缀（${ASDF_PIN}-rc1）也算没装对，照样换成 $ASDF_PIN"
+  else
+    bad "只差个后缀也算没装对，照样换成 $ASDF_PIN" \
+      "退出码 $rc，curl $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
+  fi
+
+  # 装在别处（brew、发行版包、或用户自己 clone 的）：不动它，免得两份 asdf 互相遮蔽
+  asdf_reset
+  asdf_fake "$ASDFTOOLS" "$ASDF_PIN"
+  asdf_run 0 x86_64; rc=$?
+  if [ "$rc" = 0 ] && [ "$(asdf_calls)" = "0" ] && [ ! -e "$ASDFHOME/.local/bin/asdf" ]; then
+    ok "asdf 已在 PATH 上时跳过，且不往 ~/.local/bin 里塞第二份"
+  else
+    bad "asdf 已在 PATH 上时跳过，且不往 ~/.local/bin 里塞第二份" \
+      "退出码 $rc，curl $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
+  fi
+
+  # --dry-run：也不许联网
+  asdf_reset
+  asdf_run 1 x86_64; rc=$?
+  if [ "$rc" = 0 ] && [ "$(asdf_calls)" = "0" ] && grep -q "dry-run" "$ASDF_OUT"; then
+    ok "asdf --dry-run 只打印不联网"
+  else
+    bad "asdf --dry-run 只打印不联网" \
+      "退出码 $rc，curl 跑了 $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
+  fi
+
+  # 资产名里的架构：拼错了这里就红。三种都用 uname -m 的真实取值试。
+  asdf_reset
+  asdf_run 0 x86_64 >/dev/null
+  assert_contains "x86_64 取 linux-amd64 的包" "$(cat "$ASDFLOG")" "asdf-v${ASDF_PIN}-linux-amd64.tar.gz"
+  asdf_reset
+  asdf_run 0 aarch64 >/dev/null
+  assert_contains "aarch64 取 linux-arm64 的包" "$(cat "$ASDFLOG")" "asdf-v${ASDF_PIN}-linux-arm64.tar.gz"
+  asdf_reset
+  asdf_run 0 i686 >/dev/null
+  assert_contains "i686 取 linux-386 的包" "$(cat "$ASDFLOG")" "asdf-v${ASDF_PIN}-linux-386.tar.gz"
+
+  # 上游没有的架构：说清楚是哪个架构，不联网，也不留半成品
+  asdf_reset
+  asdf_run 0 riscv64; rc=$?
+  if [ "$rc" != 0 ] && [ "$(asdf_calls)" = "0" ] && grep -q "riscv64" "$ASDF_OUT"; then
+    ok "上游没有的架构（riscv64）直接跳过，且不联网"
+  else
+    bad "上游没有的架构（riscv64）直接跳过，且不联网" \
+      "退出码 $rc，curl $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
+  fi
+
+  # 拉不到：非 0 交给调用方 warn，且不许在落点上留半成品
+  asdf_reset
+  asdf_run 0 x86_64 22; rc=$?
+  if [ "$rc" != 0 ] && [ ! -e "$ASDFHOME/.local/bin/asdf" ]; then
+    ok "下载失败时返回非 0，且不留下 asdf"
+  else
+    bad "下载失败时返回非 0，且不留下 asdf" \
+      "退出码 $rc，落点存在？$([ -e "$ASDFHOME/.local/bin/asdf" ] && echo 是 || echo 否)"
+  fi
+
+  # 包能解开、但里面的 asdf 版本不对：一样不能落地。原地那份旧版还得原封不动——
+  # 先解到临时目录、验过再 cp 的意义就在这里：宁可保持旧的，也不留个跑不起来的。
+  asdf_reset
+  mkdir -p "$ASDFHOME/.local/bin"
+  asdf_fake "$ASDFHOME/.local/bin" "0.19.0"
+  asdf_run 0 x86_64 0 "0.19.0"; rc=$?
+  if [ "$rc" != 0 ] && "$ASDFHOME/.local/bin/asdf" --version | grep -q "asdf version v0.19.0 "; then
+    ok "下回来的包版本不对就不装，原地那份旧的照旧"
+  else
+    bad "下回来的包版本不对就不装，原地那份旧的照旧" \
+      "退出码 $rc，现在报的是：$("$ASDFHOME/.local/bin/asdf" --version 2>&1 | head -n 1)"
+  fi
+fi
 # ---------------------------------------------------------------------------
 group "vim.sh 行为"
 

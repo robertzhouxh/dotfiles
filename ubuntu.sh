@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ubuntu.sh —— 在 Ubuntu（22.04 及以后）上把本仓库跑起来
 #
-# 做五件事：装开发工具 → 装 starship → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
+# 做六件事：装开发工具 → 装 starship、asdf → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
 # 可反复执行，已经满足的步骤会跳过。
 #
 # 用法：
@@ -205,7 +205,101 @@ if ! install_starship; then
   warn "手动补装：curl -fsSL $STARSHIP_INSTALL_URL | sh -s -- -y"
 fi
 
-# ---- 3. locale ----
+# ---- 3. asdf ----
+# asdf（https://asdf-vm.com）是版本管理器：Erlang / Elixir / Node 这些不该由 apt 管版本的
+# 东西用它装。apt 源里没有它；上游从 0.16 起是 Go 写的单体二进制，仓库里已经没有 bin/，
+# 老教程里「clone 完就能用」的那套不再成立（clone 下来只有源码，要自己 make），所以直接下
+# 官方 release 资产（linux-<arch>.tar.gz）。
+#
+# 装到 ~/.local/bin，跟 rtk 同一个理由：那是 .envv 会 _path_prepend 的目录，不用 sudo，
+# 也不往 /usr/local/bin 写用户级的东西。数据目录仍是 ASDF_DATA_DIR（默认 ~/.asdf），
+# shims 由 .envv 接进 PATH。
+#
+# 版本写死，不查 GitHub 的 latest：脚本要离线可跑、每次跑结果一致。换版本：
+#   ASDF_VERSION=0.21.0 ./ubuntu.sh      落点换地方：ASDF_BIN=/别的/路径/asdf ./ubuntu.sh
+ASDF_VERSION="${ASDF_VERSION:-0.20.0}"
+ASDF_RELEASE_BASE="${ASDF_RELEASE_BASE:-https://github.com/asdf-vm/asdf/releases/download}"
+
+# 单独抽成函数是为了能在测试里抠出来跑：ubuntu.sh 开头有 uname 闸门，在 macOS 上跑两行就 die。
+install_asdf() {
+  local bin="${ASDF_BIN:-$HOME/.local/bin/asdf}" asset url tmpdir rc=0 have got
+
+  # 「装过没有」以这个文件为准，不看 PATH：新机器上 ~/.local/bin 还没进 PATH（.envv 要重新
+  # 登录才生效），只看 PATH 会每次都重下一遍。
+  #
+  # 比的是版本号本身，不是 `case $have in *$ASDF_VERSION*` 那种子串：子串会把 0.20 认成
+  # 已经装过 0.20.0，于是升级永远不发生。
+  # 版本号从 `asdf version v0.20.0 (revision 150aaf0)` 里抠，末尾那个 `#v` 不能省：上游
+  # 打出来的版本号带一个 v 前缀，ASDF_VERSION 不带。不剥前缀就永远比不相等——「装过没有」
+  # 的判据会一直认为没装对，每次跑都重下一遍；下面解包后那道校验同理，会把好包判成版本
+  # 不对，于是永远装不上。（这行输出是拿 v0.20.0 的真二进制核过的，不是照文档猜的。）
+  if [ -x "$bin" ]; then
+    have="$("$bin" --version 2>/dev/null | head -n 1)" || have=""
+    have="${have#asdf version }"; have="${have%% *}"; have="${have#v}"
+    if [ "$have" = "$ASDF_VERSION" ]; then
+      say "asdf 已装（${ASDF_VERSION}），跳过。"
+      return 0
+    fi
+    say "asdf 现有版本是 ${have:-跑不起来}，换成 $ASDF_VERSION ……"
+  elif command -v asdf >/dev/null 2>&1; then
+    # 装在别处（brew、发行版包、或用户自己 clone 的）：不动它，免得装出两份互相遮蔽的 asdf。
+    have="$(asdf --version 2>/dev/null | head -n 1)" || have=""
+    have="${have#asdf version }"; have="${have%% *}"; have="${have#v}"
+    say "asdf 已装（${have:-版本未知}，$(command -v asdf)），跳过。"
+    return 0
+  fi
+
+  # uname -m 到 release 资产名里的架构
+  case "$(uname -m)" in
+    x86_64|amd64)        asset=amd64 ;;
+    aarch64|arm64)       asset=arm64 ;;
+    i386|i486|i586|i686) asset=386 ;;
+    *)
+      warn "asdf 上游没有 $(uname -m) 的 Linux 二进制，跳过。"
+      return 1 ;;
+  esac
+
+  url="$ASDF_RELEASE_BASE/v$ASDF_VERSION/asdf-v$ASDF_VERSION-linux-$asset.tar.gz"
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] 下载 ${url}，把包里的 asdf 装到 ${bin}"
+    return 0
+  fi
+
+  say "安装 asdf ${ASDF_VERSION}（linux-${asset}）……"
+  tmpdir="$(mktemp -d)"
+  curl -fsSL -o "$tmpdir/asdf.tar.gz" "$url" || rc=1
+  # 先解到临时目录、跑通了再落到 PATH 上：宁可不装，也别留一个跑不起来的 asdf 把整个
+  # 版本管理器（以及它名下的所有语言）顶掉。tar 包损坏在这里就会报错，不必再叠一层校验。
+  if [ "$rc" = 0 ]; then
+    tar -xzf "$tmpdir/asdf.tar.gz" -C "$tmpdir" asdf || rc=1
+  fi
+  if [ "$rc" = 0 ]; then
+    chmod 0755 "$tmpdir/asdf" 2>/dev/null || true
+    got="$("$tmpdir/asdf" --version 2>/dev/null | head -n 1)" || got=""
+    got="${got#asdf version }"; got="${got%% *}"; got="${got#v}"
+    if [ "$got" != "$ASDF_VERSION" ]; then
+      warn "下回来的 asdf 跑不起来或版本不对（${got:-跑不起来}），没有安装。"
+      rc=1
+    fi
+  fi
+  if [ "$rc" = 0 ]; then
+    mkdir -p "$(dirname "$bin")"
+    cp "$tmpdir/asdf" "$bin" && chmod 0755 "$bin" || rc=1
+  fi
+  rm -rf "$tmpdir"
+  if [ "$rc" != 0 ]; then
+    return 1
+  fi
+  say "asdf 装好了：${bin}（${ASDF_VERSION}）"
+  return 0
+}
+
+if ! install_asdf; then
+  warn "asdf 没装上（下载或校验失败），已跳过。它不影响其余步骤。"
+  warn "手动装法见 README 的 asdf 一节；重跑本脚本时会自动重试。"
+fi
+
+# ---- 4. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
 if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
   say "en_US.UTF-8 已存在，跳过。"
@@ -215,7 +309,7 @@ else
   run $SUDO update-locale LANG=en_US.UTF-8
 fi
 
-# ---- 4. 部署 dotfiles ----
+# ---- 5. 部署 dotfiles ----
 say "部署 dotfiles……"
 if [ "$DRY_RUN" = 1 ]; then
   # shellcheck disable=SC2016  # 这里就是要让 $HERE 在子 shell 里展开，不是当前 shell
@@ -224,7 +318,7 @@ else
   bash "$HERE/deploy.sh" "${DEPLOY_ARGS[@]+"${DEPLOY_ARGS[@]}"}"
 fi
 
-# ---- 5. 登录 shell ----
+# ---- 6. 登录 shell ----
 if [ "$DO_CHSH" = 0 ]; then
   warn "按 --no-chsh 要求跳过，登录 shell 未改。"
 elif ! command -v zsh >/dev/null 2>&1; then
@@ -252,12 +346,13 @@ else
   fi
 fi
 
-# ---- 6. 收尾 ----
+# ---- 7. 收尾 ----
 say ""
 say "完成。下一步："
 printf '  1. exec zsh                    立刻进新 shell（或重新登录）\n'
 printf '  2. ./vim.sh                    部署 vim 与插件\n'
 printf '  3. ./emacs.sh                  装好 Emacs 30+ 之后跑，它会先验证版本\n'
+printf '  4. asdf plugin add nodejs      用 asdf 装语言运行时（见 README「asdf」）\n'
 say ""
 warn ".vim 和 .emacs.d 不在 deploy.sh 的处理范围内（它们需要符号链接，见 vim.sh / emacs.sh）。"
 warn "本脚本不碰 Emacs：apt 里只有 27.1，配置要 30.1+。装法见 README「Ubuntu 上的 Emacs」。"

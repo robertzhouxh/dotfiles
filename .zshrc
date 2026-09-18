@@ -57,5 +57,9 @@ done
 
 unset _conda_root
 
-# Ensure asdf shims take priority over conda
-[ -d "$HOME/.asdf/shims" ] && export PATH="$HOME/.asdf/shims:$PATH"
+# conda init 会把 conda 的 bin 插到最前面，把 .envv 里挂好的 asdf shims 顶下去，
+# 这里再挂一次。目录跟着 ASDF_DATA_DIR 走，不再写死 ~/.asdf；同一个目录在 PATH 里
+# 出现两次无妨，命中靠前面那个。
+_asdf_shims="${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
+[ -d "$_asdf_shims" ] && export PATH="$_asdf_shims:$PATH"
+unset _asdf_shims

@@ -145,6 +145,10 @@ brew install surge-downloader/tap/surge
 ## rhttps://github.com/ghostty-org/ghostty
 brew install --cask ghostty
 
+# 版本管理器：Erlang / Elixir / Node 这些不该由 brew 管版本的用它装。
+# 只管装，PATH 由 .envv 接（shims 排在 conda 前面）。
+brew install asdf
+
 # for Erlang, Elixir
 brew install autoconf
 brew install fop

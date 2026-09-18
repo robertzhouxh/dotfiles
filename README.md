@@ -96,10 +96,13 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
 - **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
+- **asdf**：apt 源里同样没有，从上游 release 下 linux 二进制装到 `~/.local/bin`，不用 sudo。上游 0.16 起是 Go 单体二进制，老教程里「`git clone ~/.asdf` 就能用」那套已经不作数。macOS 侧由 `brew.sh` 装。两侧都只把二进制放进 PATH，数据统一在 `ASDF_DATA_DIR`（默认 `~/.asdf`）。用法见下面「asdf」
 
 可选包装不上只提示不中断。上面 apt 装的每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
 starship 已经装过就跳过；拉不到 GitHub 只警告不中断（`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没有就是默认样式）。上游只发 tar.gz，没有 `.deb` / `.rpm`，所以不走 apt。
+
+`asdf` 也是装过就跳过、拉不到只警告，另外有两处讲究。**版本钉在 `ubuntu.sh` 的 `ASDF_VERSION`**，不查 GitHub 的 latest：脚本要离线可跑、每次跑结果一致（换版本：`ASDF_VERSION=x.y.z ./ubuntu.sh`）。**先解到临时目录、验过版本对得上再落盘**：落点上已有的 asdf 版本对不上（哪怕只差个 `-rc1` 后缀）就算没装对，会换掉它；装在别处（brew、发行版包、用户自己 clone 的）则原样不动，免得两份互相遮蔽。PATH 侧由 `.envv` 接，闸门是 **shims 目录在不在**，不是 `command -v asdf`——后者在二进制还没进 PATH 的机器上会让整段静默失效。
 
 `ls` 增强用 `exa` 或 `eza`（`eza` 是 `exa` 的活跃分支，exa 上游 2021 年后归档）：22.04 的 universe 里只有 `exa` 0.10.1，24.04 起只剩 `eza`，两个都列在可选包里，各发行版自然只会命中一个，`.alias` 两个都认、优先 `eza`。装不上只是没有增强，`ls` 还是 `ls`。
 
@@ -441,6 +444,33 @@ developer_instructions = """
 [features]
 image_generation = false
 ```
+
+## asdf
+
+语言运行时版本管理器：Node / Erlang / Elixir / Go 这类「同一台机器上要多个版本」的东西由它装，brew 和 apt 只管装 `asdf` 自己。上游是 [asdf-vm/asdf](https://github.com/asdf-vm/asdf)，官方入门 [Getting Started](https://asdf-vm.com/guide/getting-started.html)。
+
+```
+# macOS：brew.sh 已经装了
+brew install asdf
+
+# Ubuntu：ubuntu.sh 已经装好，落在 ~/.local/bin（.envv 会把这个目录加进 PATH）。
+# 手动补装就是下官方 release 的 linux 二进制解出单个 asdf，见 ubuntu.sh 的 install_asdf
+
+asdf --version   # 0.16 起是 Go 重写的单体二进制，「git clone ~/.asdf 就能用」那套已经不作数
+
+# 数据目录默认 ~/.asdf，要挪就设 ASDF_DATA_DIR（.envv 认它；shims 由 .envv 挂进 PATH）
+# 装一个运行时：加插件 → 装版本 → 定版本。-u 写全局，不加写当前目录的 .tool-versions
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf install nodejs latest
+asdf set -u nodejs 22.11.0
+
+asdf list nodejs
+asdf current
+```
+
+`latest` 只是运行时解析用的关键字，落到 `.tool-versions` 里的是解析出的确切版本。`asdf install` 干的是真编译或真下载：Node 有官方预编译包，Erlang / Elixir 要从源码编，第一次会跑很久。装完 shims 自动就位，新开的终端直接 `node -v` 即可。
+
+用 asdf 装 Go 的话 `.envv` 会顺手把 `GOROOT` 指到那个版本目录（`asdf where golang` 取得到才设，取不到保持原样）。
 
 ## RTK
 
