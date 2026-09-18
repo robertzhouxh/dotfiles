@@ -29,7 +29,7 @@ secret: "你的密钥"
 dns:
   enable: true
   ipv6: false
-  listen: 0.0.0.0:1053
+  listen: 127.0.0.1:1053
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   default-nameserver:            # 用于解析 nameserver 中的 DoH 域名
@@ -59,9 +59,9 @@ proxies:
     type: hysteria2
     server: taorobot.top
     port: 443
-    password: zsy3560
+    password: 你的密码
     sni: taorobot.top
-    skip-cert-verify: true
+    skip-cert-verify: false
     udp: true
     up: "200 Mbps"               # 后期可改为数字
     down: "1000 Mbps"            # 后期可改为数字
@@ -105,7 +105,6 @@ proxy-groups:
   - name: "PROXY"                # 手动切换入口
     type: select
     proxies:
-      - 自动优选
       - 故障转移
       - HY2
       - Reality
@@ -161,9 +160,8 @@ rules:
   - MATCH,PROXY                  # 剩余全部走代理
 
 # --------- 性能与安全 ---------
-dialer:
-  disable-keep-alive: false
-  tcp-keep-alive: 30
+disable-keep-alive: false        # 默认即 false，显式写出
+keep-alive-interval: 30          # TCP Keep Alive 间隔（秒），不设置时走底层默认
 
 experimental:
   ignore-resolve-fail: true      # 忽略个别 DNS 解析失败，加速启动
