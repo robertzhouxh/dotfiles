@@ -807,6 +807,22 @@ install_asdf' >"$ASDF_OUT" 2>&1
       "退出码 $rc，curl $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
   fi
 
+  # 版本串的两种形状现实里都在：上游 release 包带 v（`asdf version v0.20.0 (revision 150aaf0)`），
+  # brew 编的那版不带（`asdf version 0.20.0 (revision unknown)`，本机 /opt/homebrew/bin/asdf 核过）。
+  # 剥前缀得是「有就剥、没有就算了」，不能写成必须带 v —— 否则落点上是后一种的时候会被判成
+  # 没装对，每次跑都重下一遍。
+  asdf_reset
+  mkdir -p "$ASDFHOME/.local/bin"
+  printf '#!/bin/sh\necho "asdf version %s (revision unknown)"\n' "$ASDF_PIN" > "$ASDFHOME/.local/bin/asdf"
+  chmod +x "$ASDFHOME/.local/bin/asdf"
+  asdf_run 0 x86_64; rc=$?
+  if [ "$rc" = 0 ] && [ "$(asdf_calls)" = "0" ] && grep -q "已装" "$ASDF_OUT"; then
+    ok "不带 v 的版本串（brew 编的那版）照样认得出，不重装"
+  else
+    bad "不带 v 的版本串（brew 编的那版）照样认得出，不重装" \
+      "退出码 $rc，curl 跑了 $(asdf_calls) 次：$(head -c 200 "$ASDF_OUT")"
+  fi
+
   # 装在别处（brew、发行版包、或用户自己 clone 的）：不动它，免得两份 asdf 互相遮蔽
   asdf_reset
   asdf_fake "$ASDFTOOLS" "$ASDF_PIN"
