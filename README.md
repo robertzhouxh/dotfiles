@@ -55,7 +55,6 @@ macOS 上接着跑 `./brew.sh`，然后 `./vim.sh` 和 `./emacs.sh` 部署 vim /
 ./brew.sh
 ```
 
-
 `brew.sh` 会把登录 shell 切成 `/bin/zsh`（macOS 自 Catalina 起自带，本来就在 `/etc/shells` 里）。这一步以前是把默认 shell 改成 brew 装的 bash，跟本仓库整套 zsh 配置是反的：登录 shell 是 bash 时新开的终端读 `.bashrc`，`.zshrc` / `.zprofile` / starship 的 zsh 分支全都不生效。已经是 zsh 就跳过，不会反复弹密码。
 
 改完要**重开终端**（或 `chsh -s /bin/zsh` 后重新登录）才生效。
@@ -96,11 +95,14 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
 - **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
+- **rtk**：同样不在 apt 里，走官方安装脚本装到 `~/.local/bin`（`.envv` 会把这个目录加进 PATH），装完不用 sudo、不碰系统目录。它是省 token 的命令代理，用法见下面「RTK」
 - **asdf**：apt 源里同样没有，从上游 release 下 linux 二进制装到 `~/.local/bin`，不用 sudo。上游 0.16 起是 Go 单体二进制，老教程里「`git clone ~/.asdf` 就能用」那套已经不作数。macOS 侧由 `brew.sh` 装。两侧都只把二进制放进 PATH，数据统一在 `ASDF_DATA_DIR`（默认 `~/.asdf`）。用法见下面「asdf」
 
 可选包装不上只提示不中断。上面 apt 装的每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
 starship 已经装过就跳过；拉不到 GitHub 只警告不中断（`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没有就是默认样式）。上游只发 tar.gz，没有 `.deb` / `.rpm`，所以不走 apt。
+
+`rtk` 同理：装过就跳过，拉不到只警告。它的「已装」判据是 `rtk --version` 打得出 `rtk <版本号>`，而不是「有个叫 rtk 的可执行文件」——这个名字被 crates.io 上的 Rust Type Kit 共用，只认名字会把那个异物当成已装，然后永远跳过真正要装的这个。
 
 `asdf` 也是装过就跳过、拉不到只警告，另外有两处讲究。**版本钉在 `ubuntu.sh` 的 `ASDF_VERSION`**，不查 GitHub 的 latest：脚本要离线可跑、每次跑结果一致（换版本：`ASDF_VERSION=x.y.z ./ubuntu.sh`）。**先解到临时目录、验过版本对得上再落盘**：落点上已有的 asdf 版本对不上（哪怕只差个 `-rc1` 后缀）就算没装对，会换掉它；装在别处（brew、发行版包、用户自己 clone 的）则原样不动，免得两份互相遮蔽。PATH 侧由 `.envv` 接，闸门是 **shims 目录在不在**，不是 `command -v asdf`——后者在二进制还没进 PATH 的机器上会让整段静默失效。
 
@@ -109,7 +111,6 @@ starship 已经装过就跳过；拉不到 GitHub 只警告不中断（`.zshrc` 
 **`--git` 在 Ubuntu 的 `exa` 上不能用。** 那个包是关掉 git feature 编的，传了不是「少显示一列」而是整个命令以 `rc=3` 失败（`Options --git ... because 'git' feature was disabled in this build`）。`.alias` 因此改成运行时探测一次再决定加不加，别照着「上游默认开着」写死。`eza` 和 brew 的 `exa` 都支持。
 
 `--icons` 要终端字体带 Nerd Font 图标，否则图标位置显示成方块，换个字体或去掉 `--icons` 即可。跳转用 `autojump`（`.zshrc` 会 source 它的 profile.d），没装 `zoxide`（jammy 里是 0.4.3，且没有 dotfile 会 init 它）。
-
 
 ### Ubuntu 上的 Emacs
 
@@ -474,10 +475,17 @@ asdf current
 
 ## RTK
 
+把 `git status` 之类命令的输出压掉 60-90% 再交给 agent 读，给 Claude Code 省 token。上游是 [rtk-ai/rtk](https://github.com/rtk-ai/rtk)。
+
 ```
+# macOS
 brew install rtk
 
-rtk --version   # Should show "rtk 0.28.2"
+# Ubuntu：ubuntu.sh 已经装好，落在 ~/.local/bin（.envv 会把它加进 PATH）。
+# 手动补装同一个官方脚本：
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+
+rtk --version   # Should show "rtk X.Y.Z"（本机核对时是 0.46.0）
 rtk gain        # Should show token savings stats
 
 # 1. Install for your AI tool

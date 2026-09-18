@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ubuntu.sh —— 在 Ubuntu（22.04 及以后）上把本仓库跑起来
 #
-# 做六件事：装开发工具 → 装 starship、asdf → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
+# 做七件事：装开发工具 → 装 starship、rtk、asdf → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
 # 可反复执行，已经满足的步骤会跳过。
 #
 # 用法：
@@ -205,7 +205,79 @@ if ! install_starship; then
   warn "手动补装：curl -fsSL $STARSHIP_INSTALL_URL | sh -s -- -y"
 fi
 
-# ---- 3. asdf ----
+# ---- 3. rtk ----
+# rtk（https://github.com/rtk-ai/rtk）是个命令代理：把 git status 之类命令的输出压掉
+# 60-90% 再交给 agent 读，给 Claude Code 省 token。apt 里没有，也没有官方 deb 源，所以
+# 跟 starship 一样走官方安装脚本——它自己按 uname 挑平台、下 release 里的 tar.gz、核对
+# checksums.txt 里的 SHA-256 才安装，比我们手拼 release 资产名稳。
+#
+# 装到 ~/.local/bin 且刻意不套 sudo，而不是像 starship 那样进 /usr/local/bin：那正是
+# .envv 会 _path_prepend 的目录，装给执行者自己就够；用 sudo 跑会把文件落进 root 的家目录。
+#
+# 拉不到只警告不中断：这是个锦上添花的加速器，缺了不影响 shell、编辑器、git 任何一件事。
+#
+# 单独抽成函数是为了能在测试里抠出来跑：ubuntu.sh 开头有 uname 闸门，在 macOS 上跑两行就 die。
+RTK_INSTALL_URL="${RTK_INSTALL_URL:-https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh}"
+# 默认落点跟官方安装脚本一致，也正好是 .envv 会加进 PATH 的那个目录。
+RTK_BIN_DIR="${RTK_BIN_DIR:-$HOME/.local/bin}"
+
+install_rtk() {
+  local bin="$RTK_BIN_DIR/rtk" cand v found=""
+
+  # 「已装」的判据是 `rtk --version` 打得出 `rtk <版本号>`，不是「有个叫 rtk 的可执行文件」：
+  # 这个名字被两个项目共用（rtk-ai/rtk 与 crates.io 上的 Rust Type Kit），只认名字会把后者
+  # 误判成已装，然后永远跳过真正要装的那个。
+  #
+  # 两个位置都看：RTK_BIN_DIR 与 PATH。新机器上 ~/.local/bin 还没进 PATH（.envv 要重新登录
+  # 才生效），只看 PATH 会每次都重装一遍。
+  for cand in "$bin" "$(command -v rtk 2>/dev/null)"; do
+    [ -n "$cand" ] && [ -x "$cand" ] || continue
+    # 赋值语句不吃 errexit 的豁免：候选二进制跑不起来时，光秃秃的 v="$(...)" 会让整个脚本
+    # 在 set -e 下当场退出。补一个 || v="" 兜住。
+    v="$("$cand" --version 2>/dev/null | head -n 1)" || v=""
+    case "$v" in
+      rtk\ [0-9]*) found="$cand"; break ;;
+    esac
+  done
+
+  if [ -n "$found" ]; then
+    say "rtk 已装（${v}，${found}），跳过。"
+    return 0
+  fi
+
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] 下载 $RTK_INSTALL_URL 并执行 sh，装到 $RTK_BIN_DIR"
+    return 0
+  fi
+
+  say "安装 rtk……"
+  local tmp installer_ok=1
+  tmp="$(mktemp)"
+  # RTK_INSTALL_DIR 指明落点；PATH 里先塞进同一个目录，免得官方脚本装完自查 `command -v rtk`
+  # 时误报「装了但不在 PATH」——那只是 .envv 还没生效，不是真没装。
+  if curl -fsSL -o "$tmp" "$RTK_INSTALL_URL" &&
+     PATH="$RTK_BIN_DIR:$PATH" RTK_INSTALL_DIR="$RTK_BIN_DIR" sh "$tmp"; then
+    installer_ok=0
+  fi
+  rm -f "$tmp"
+
+  # 装没装上以「RTK_BIN_DIR 里的 rtk 能报出版本号」为准，不只看安装脚本的退出码：脚本成功
+  # 但把文件落到别处时，新 shell 里敲 rtk 依然是 command not found。
+  if [ "$installer_ok" = 0 ]; then
+    v="$("$bin" --version 2>/dev/null | head -n 1)" || v=""
+    case "$v" in
+      rtk\ [0-9]*) say "rtk 装好了：${bin}（${v}）"; return 0 ;;
+    esac
+  fi
+  return 1
+}
+
+if ! install_rtk; then
+  warn "rtk 没装上（下载或安装失败），已跳过。少个省 token 的代理，其余不受影响。"
+  warn "手动补装：curl -fsSL $RTK_INSTALL_URL | sh"
+fi
+
+# ---- 4. asdf ----
 # asdf（https://asdf-vm.com）是版本管理器：Erlang / Elixir / Node 这些不该由 apt 管版本的
 # 东西用它装。apt 源里没有它；上游从 0.16 起是 Go 写的单体二进制，仓库里已经没有 bin/，
 # 老教程里「clone 完就能用」的那套不再成立（clone 下来只有源码，要自己 make），所以直接下
@@ -299,7 +371,7 @@ if ! install_asdf; then
   warn "手动装法见 README 的 asdf 一节；重跑本脚本时会自动重试。"
 fi
 
-# ---- 4. locale ----
+# ---- 5. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
 if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
   say "en_US.UTF-8 已存在，跳过。"
@@ -309,7 +381,7 @@ else
   run $SUDO update-locale LANG=en_US.UTF-8
 fi
 
-# ---- 5. 部署 dotfiles ----
+# ---- 6. 部署 dotfiles ----
 say "部署 dotfiles……"
 if [ "$DRY_RUN" = 1 ]; then
   # shellcheck disable=SC2016  # 这里就是要让 $HERE 在子 shell 里展开，不是当前 shell
@@ -318,7 +390,7 @@ else
   bash "$HERE/deploy.sh" "${DEPLOY_ARGS[@]+"${DEPLOY_ARGS[@]}"}"
 fi
 
-# ---- 6. 登录 shell ----
+# ---- 7. 登录 shell ----
 if [ "$DO_CHSH" = 0 ]; then
   warn "按 --no-chsh 要求跳过，登录 shell 未改。"
 elif ! command -v zsh >/dev/null 2>&1; then
@@ -346,13 +418,14 @@ else
   fi
 fi
 
-# ---- 7. 收尾 ----
+# ---- 8. 收尾 ----
 say ""
 say "完成。下一步："
 printf '  1. exec zsh                    立刻进新 shell（或重新登录）\n'
 printf '  2. ./vim.sh                    部署 vim 与插件\n'
 printf '  3. ./emacs.sh                  装好 Emacs 30+ 之后跑，它会先验证版本\n'
-printf '  4. asdf plugin add nodejs      用 asdf 装语言运行时（见 README「asdf」）\n'
+printf '  4. rtk init -g                 把 rtk 接进 Claude Code（见 README「RTK」）\n'
+printf '  5. asdf plugin add nodejs      用 asdf 装语言运行时（见 README「asdf」）\n'
 say ""
 warn ".vim 和 .emacs.d 不在 deploy.sh 的处理范围内（它们需要符号链接，见 vim.sh / emacs.sh）。"
 warn "本脚本不碰 Emacs：apt 里只有 27.1，配置要 30.1+。装法见 README「Ubuntu 上的 Emacs」。"

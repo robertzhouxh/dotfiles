@@ -162,6 +162,12 @@ brew install autojump
 # Starship 是一个定制的跨 Shell 终端提示符
 brew install starship
 
+# rtk 是个命令代理，把 git status 之类命令的输出压掉 60-90% 再交给 agent 读，给 AI 省 token
+# https://github.com/rtk-ai/rtk
+# 装完要 `rtk init -g` 把 PreToolUse hook 接进 Claude Code，见 README「RTK」。
+# （crates.io 上另有个同名的 Rust Type Kit，那个不是它；brew 这个是从 rtk-ai/rtk 编的。）
+brew install rtk
+
 ## exa: A modern replacement for ‘ls’.
 brew install ghq fzf exa
 git config --global ghq.root '~/src'

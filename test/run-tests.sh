@@ -685,6 +685,162 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+group "ubuntu.sh 装 rtk"
+
+# rtk 在 apt 里根本没有（也没有官方 deb 源），塞进包清单只会被可用性探测跳过，
+# 还让人以为装上了。跟 starship 一样走官方安装脚本。
+assert_not_contains "apt 清单里没有 rtk（源里没有这个包）" "$PKG_LISTS" "rtk"
+assert_contains "rtk 走官方安装脚本" "$(cat ubuntu.sh)" "rtk-ai/rtk/refs/heads/master/install.sh"
+assert_contains "brew.sh 装 rtk" "$(cat brew.sh)" "brew install rtk"
+
+# 装到 ~/.local/bin 不是随口挑的：.envv 会把这个目录加进 PATH，两边必须对上，
+# 否则装机脚本报「装好了」，新 shell 里敲 rtk 却是 command not found。
+assert_contains ".envv 把 ~/.local/bin 加进 PATH" "$(cat .envv)" '_path_prepend "$HOME/.local/bin"'
+
+RTK_SRC="$(sed -n '/^install_rtk()/,/^}/p' ubuntu.sh)"
+# 默认落点那行是函数外面的顶层赋值，跟函数一起抠出来喂给子 shell，才能真跑通
+# 「RTK_BIN_DIR 给空 → 装到 ~/.local/bin」这条路，而不是拿字符串比对糊过去。
+RTK_DEFAULT_SRC="$(grep -E '^RTK_BIN_DIR=' ubuntu.sh)"
+if [ -z "$RTK_SRC" ] || [ -z "$RTK_DEFAULT_SRC" ]; then
+  bad "能从 ubuntu.sh 里取到 install_rtk 与 RTK_BIN_DIR" "没匹配到函数定义或默认值赋值，被改名或改写了？"
+else
+  ok "能从 ubuntu.sh 里取到 install_rtk 与 RTK_BIN_DIR"
+
+  # 不用 sudo 是刻意的：要装进执行者自己的 $HOME，套了 sudo 就落到 /root/.local/bin 去了。
+  assert_not_contains "install_rtk 不套 sudo（装进执行者自己的家目录）" "$RTK_SRC" "SUDO"
+
+  # 桩：curl 不联网，只把「安装脚本」写到 -o 指定的路径；那个脚本认 RTK_INSTALL_DIR
+  # （真脚本也认），好验「装到哪儿」；FAKE_INSTALL_DIR 用来演「装到别处」。
+  # FAKE_CURL_EXIT / FAKE_INSTALLER_EXIT 分别覆盖「拉不到」与「装不上」两条路。
+  RTKTOOLS="$SANDBOX/rtktools"   # PATH 上的桩目录
+  RTKBIN="$SANDBOX/rtkbin"       # RTK_BIN_DIR：模拟新机器上还没进 PATH 的 ~/.local/bin
+  RTKHOME="$SANDBOX/rtkhome"
+  RTKLOG="$SANDBOX/rtk-curl.log"
+  RTK_OUT="$SANDBOX/rtk-out"
+  mkdir -p "$RTKTOOLS" "$RTKBIN" "$RTKHOME"
+  cat > "$RTKTOOLS/curl" <<'STUB'
+#!/bin/sh
+echo "CURL $*" >> "$STUB_LOG"
+[ "${FAKE_CURL_EXIT:-0}" = "0" ] || exit 22
+out=""
+prev=""
+for a in "$@"; do
+  [ "$prev" = "-o" ] && out="$a"
+  prev="$a"
+done
+[ -n "$out" ] || exit 2
+cat > "$out" <<'INSTALLER'
+#!/bin/sh
+[ "${FAKE_INSTALLER_EXIT:-0}" = "0" ] || exit 1
+dir="${FAKE_INSTALL_DIR:-$RTK_INSTALL_DIR}"
+mkdir -p "$dir"
+printf '#!/bin/sh\necho "rtk 0.46.0"\n' > "$dir/rtk"
+chmod +x "$dir/rtk"
+INSTALLER
+exit 0
+STUB
+  chmod +x "$RTKTOOLS/curl"
+
+  # PATH 收窄到「桩 + 系统目录」：本机 brew 装的 rtk 不能被它蒙混过去；RTKBIN 刻意不
+  # 在 PATH 上——新机器上 ~/.local/bin 就是这样（.envv 要重新登录才生效）。
+  rtk_run() { # <DRY_RUN> <FAKE_INSTALLER_EXIT> [FAKE_CURL_EXIT] [RTK_BIN_DIR] [FAKE_INSTALL_DIR] -> 退出码
+    # RTK_BIN_DIR 传空串时，函数里的 ${RTK_BIN_DIR:-…} 会落到默认的 ~/.local/bin
+    env -i PATH="$RTKTOOLS:/usr/bin:/bin" HOME="$RTKHOME" \
+      STUB_LOG="$RTKLOG" \
+      RTK_INSTALL_URL="http://127.0.0.1:1/install.sh" \
+      DRY_RUN="$1" FAKE_INSTALLER_EXIT="$2" FAKE_CURL_EXIT="${3:-0}" \
+      RTK_BIN_DIR="$4" FAKE_INSTALL_DIR="${5:-}" \
+      /bin/bash -c 'say() { printf "==> %s\n" "$1"; }; warn() { printf "警告：%s\n" "$1"; }
+'"$RTK_DEFAULT_SRC"'
+'"$RTK_SRC"'
+install_rtk' >"$RTK_OUT" 2>&1
+  }
+  # grep -c 无匹配时自己就打印 0 并返回 1，写成 `|| printf 0` 会印出两个 0
+  rtk_calls() { local n; n="$(grep -c '^CURL ' "$RTKLOG" 2>/dev/null)"; printf '%s\n' "${n:-0}"; }
+  rtk_reset() { rm -f "$RTKBIN/rtk" "$RTKTOOLS/rtk"; rm -rf "$RTKHOME/.local"; : > "$RTKLOG"; }
+  rtk_fake() { printf '#!/bin/sh\necho "%s"\n' "$2" > "${1:-$RTKTOOLS}/rtk"; chmod +x "${1:-$RTKTOOLS}/rtk"; }
+
+  # 没装：下载一次，落到默认的 ~/.local/bin
+  rtk_reset
+  rtk_run 0 0 0 ""; rc=$?
+  if [ "$rc" = 0 ] && [ "$(rtk_calls)" = "1" ] && [ -x "$RTKHOME/.local/bin/rtk" ]; then
+    ok "rtk 没装时下载并安装到默认的 ~/.local/bin"
+  else
+    bad "rtk 没装时下载并安装到默认的 ~/.local/bin" \
+      "退出码 $rc，curl $(rtk_calls) 次，$RTKHOME/.local/bin/rtk 存在？$([ -x "$RTKHOME/.local/bin/rtk" ] && echo 是 || echo 否)：$(head -c 200 "$RTK_OUT")"
+  fi
+
+  # 目标目录里已经有 rtk、但它还没进 PATH（新机器的常态）：跳过，且一个字节都不下载
+  rtk_reset
+  rtk_fake "$RTKBIN" "rtk 0.46.0"
+  rtk_run 0 0 0 "$RTKBIN"; rc=$?
+  if [ "$rc" = 0 ] && [ "$(rtk_calls)" = "0" ] && grep -q "已装" "$RTK_OUT"; then
+    ok "rtk 在 RTK_BIN_DIR 里（还没进 PATH）时跳过，且不联网"
+  else
+    bad "rtk 在 RTK_BIN_DIR 里（还没进 PATH）时跳过，且不联网" "退出码 $rc，curl 跑了 $(rtk_calls) 次：$(head -c 200 "$RTK_OUT")"
+  fi
+
+  # 另一个位置：rtk 在 PATH 上时同样算已装，不再往 RTK_BIN_DIR 里塞第二份
+  rtk_reset
+  rtk_fake "$RTKTOOLS" "rtk 0.46.0"
+  rtk_run 0 0 0 "$RTKBIN"; rc=$?
+  if [ "$rc" = 0 ] && [ "$(rtk_calls)" = "0" ] && grep -q "已装" "$RTK_OUT"; then
+    ok "rtk 在 PATH 上时跳过，且不联网"
+  else
+    bad "rtk 在 PATH 上时跳过，且不联网" "退出码 $rc，curl 跑了 $(rtk_calls) 次：$(head -c 200 "$RTK_OUT")"
+  fi
+
+  # rtk 这名字被两个项目共用（rtk-ai/rtk 与 crates.io 上的 Rust Type Kit）。PATH 上
+  # 那个若是同名异物，`--version` 打不出 `rtk <版本号>`，就不能算已装——否则真正要装
+  # 的那个永远装不上，而脚本还一直报告「已装，跳过」。
+  rtk_reset
+  rtk_fake "$RTKTOOLS" "Rust Type Kit 0.3.0"
+  rtk_run 0 0 0 "$RTKBIN"; rc=$?
+  if [ "$rc" = 0 ] && [ "$(rtk_calls)" = "1" ] && [ -x "$RTKBIN/rtk" ]; then
+    ok "PATH 上的同名异物不算已装，照样装真的"
+  else
+    bad "PATH 上的同名异物不算已装，照样装真的" \
+      "退出码 $rc，curl $(rtk_calls) 次，$RTKBIN/rtk 存在？$([ -x "$RTKBIN/rtk" ] && echo 是 || echo 否)：$(head -c 200 "$RTK_OUT")"
+  fi
+
+  # --dry-run：也不许联网
+  rtk_reset
+  rtk_run 1 0 0 "$RTKBIN"; rc=$?
+  if [ "$rc" = 0 ] && [ "$(rtk_calls)" = "0" ] && grep -q "dry-run" "$RTK_OUT"; then
+    ok "rtk --dry-run 只打印不联网"
+  else
+    bad "rtk --dry-run 只打印不联网" "退出码 $rc，curl 跑了 $(rtk_calls) 次：$(head -c 200 "$RTK_OUT")"
+  fi
+
+  # 拉不到（curl 失败）与装不上（脚本非 0）都要返回非 0，交给调用方去 warn
+  rtk_reset
+  rtk_run 0 0 22 "$RTKBIN"; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "下载失败时返回非 0（调用方好去警告）"
+  else
+    bad "下载失败时返回非 0（调用方好去警告）" "却返回了 0"
+  fi
+
+  rtk_reset
+  rtk_run 0 1 0 "$RTKBIN"; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "安装脚本失败时返回非 0"
+  else
+    bad "安装脚本失败时返回非 0" "却返回了 0"
+  fi
+
+  # 脚本跑成功了、rtk 却没落在 RTK_BIN_DIR：一样算没装上，新 shell 里它是 command not found
+  rtk_reset
+  mkdir -p "$SANDBOX/rtk-elsewhere"
+  rtk_run 0 0 0 "$RTKBIN" "$SANDBOX/rtk-elsewhere"; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "脚本成功但 rtk 没落在 RTK_BIN_DIR 时仍算失败"
+  else
+    bad "脚本成功但 rtk 没落在 RTK_BIN_DIR 时仍算失败" "却返回了 0"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 group "ubuntu.sh 装 asdf"
 
 # asdf 不在 jammy 源里。上游 0.16 起是 Go 写的单体二进制，仓库里已经没有 bin/，
@@ -888,6 +1044,7 @@ install_asdf' >"$ASDF_OUT" 2>&1
       "退出码 $rc，现在报的是：$("$ASDFHOME/.local/bin/asdf" --version 2>&1 | head -n 1)"
   fi
 fi
+
 # ---------------------------------------------------------------------------
 group "vim.sh 行为"
 
