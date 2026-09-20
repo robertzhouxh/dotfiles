@@ -15,6 +15,8 @@ Thumbs.db
 
 .vim
 rime
+
+.emacs.d/session*
 .emacs.d/tramp-rpc
 .emacs.d/amx-items
 .emacs.d/org-roam.db
