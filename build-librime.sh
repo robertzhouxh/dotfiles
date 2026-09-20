@@ -130,15 +130,17 @@ run bash "$RIME_SRC_DIR/install-plugins.sh" hchunhui/librime-lua
 
 # ---- 4. 编译 + 安装 ----
 # 直接调 cmake 而不是 Makefile 的 merged-plugins 目标：那个目标把 prefix 写死成
-# /usr（会覆盖 apt 的 librime.so.1），也不透传 BUILD_TEST。这里显式指 prefix=/usr/local
-# 盖过 apt 版本、BUILD_TEST=OFF 跳过 GTest——librime 的单元测试我们不需要，但
-# CMakeLists 里 BUILD_TEST=ON 时 find_package(GTest REQUIRED) 会拦死缺 gtest 的机器
-#（Ubuntu 的 libgtest-dev 只给源码不给预编译 .a，默认根本编不过）。
+# /usr（会覆盖 apt 的 librime.so.1），也不透传下面这两个开关。
+#   -DBUILD_TEST=OFF     跳过 GTest：librime 单元测试我们不要；libgtest-dev 只给源码
+#                        不给预编译 .a，默认 BUILD_TEST=ON 会 find_package(GTest REQUIRED) 拦死。
+#   -DENABLE_LOGGING=OFF 跳过 glog：jammy 的 libgoogle-glog-dev 是 0.4.0，缺
+#                        google::IsGoogleLoggingInitialized()（0.7.0 才加），setup.cc 编不过。
+#                        日志只是诊断输出，关掉不影响输入法本身。
 say "编译 librime（lua 打成 merged-plugin，装到 /usr/local）……"
 run cmake -S "$RIME_SRC_DIR" -B "$RIME_SRC_DIR/build" \
   -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_MERGED_PLUGINS=ON -DENABLE_EXTERNAL_PLUGINS=OFF \
-  -DBUILD_TEST=OFF
+  -DBUILD_TEST=OFF -DENABLE_LOGGING=OFF
 run cmake --build "$RIME_SRC_DIR/build" -j"$RIME_JOBS"
 run $SUDO cmake --install "$RIME_SRC_DIR/build"
 
