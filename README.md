@@ -128,18 +128,15 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 
 - **字体**：配置优先找「Sarasa Mono SC」（更纱黑体）。装 `fonts-jetbrains-mono` 和更纱黑体才不会有字体回退的割裂感。
 - **librime**：README 里给的是 macOS 二进制包，Linux 上要自己编译，产物放 `~/.emacs.d/librime/dist/`。
-- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。Linux 的 fcitx5-rime 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`），需要手动把配置放过去。
+- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。
+- **Linux 的 fcitx5-rime**: 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`），需要手动把配置放过去。
 
 ### 中文输入法
 
 ```bash
 # 1. 系统设置 → 区域与语言 → 管理已安装的语言，按提示补全语言包
 # 2. 安装 fcitx5 + RIME
-sudo apt install fcitx5 \
-    fcitx5-chinese-addons \
-    fcitx5-frontend-gtk4 fcitx5-frontend-gtk3 fcitx5-frontend-gtk2 \
-    fcitx5-frontend-qt5 \
-    fcitx5-rime
+sudo apt install fcitx5 fcitx5-chinese-addons  fcitx5-frontend-gtk4 fcitx5-frontend-gtk3 fcitx5-frontend-gtk2  fcitx5-frontend-qt5  fcitx5-rime
 # 3. 注销重新登录后生效
 ```
 
@@ -147,7 +144,7 @@ sudo apt install fcitx5 \
 
 ## Emacs 输入法设置
 
-### 鼠须管 + 雾凇词库（macOS）
+### 鼠须管 + 雾凇词库 For MACOS & Ubuntu
 
 ```bash
 git clone --depth=1 https://github.com/Mark24Code/rime-auto-deploy.git --branch latest
@@ -155,11 +152,11 @@ cd rime-auto-deploy
 ./installer.rb
 ```
 
-### librime（Emacs 内嵌输入法依赖）
+### librime（Emacs 内嵌输入法依赖）For MACOS
 
 ```bash
-curl -L -O https://github.com/rime/librime/releases/download/1.9.0/rime-a608767-macOS.tar.bz2
-tar jxvf rime-a608767-macOS.tar.bz2 -C ~/.emacs.d/librime
+curl -L -O https://github.com/rime/librime/releases/download/1.17.0/rime-33e7814-macOS-universal.tar.bz2
+tar jxvf rime-33e7814-macOS-universal.tar.bz2 -C ~/.emacs.d/librime
 
 # 如果 Gatekeeper 阻止加载，临时关闭：
 #   sudo spctl --master-disable

@@ -25,6 +25,9 @@ rime
 .emacs.d/docsets
 .emacs.d/elpa
 .emacs.d/projectile-bookmarks.eld
+.emacs.d/projectile-frecency.eld
+.emacs.d/projects.eld
+.emacs.d/recentf.eld
 .emacs.d/undo-tree-history
 .emacs.d/projectile.cache
 .emacs.d/url
