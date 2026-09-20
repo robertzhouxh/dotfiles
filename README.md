@@ -147,6 +147,19 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 
 Rime 配置用雾凇(rime-ice)，放在 `~/.local/share/fcitx5/rime/`（不在本仓库里）；Emacs 内嵌 rime 走 `~/.config/fcitx/rime/`，两套分开。22.04 上若切到雾凇后候选词为空，是 librime 1.7.3 太旧（见上「Ubuntu 22.04 的 librime 太旧」），跑 `./build-librime.sh` 升级。
 
+#### 22.04 装完 librime 后的收尾
+
+jammy 上 `ubuntu.sh` 会自动调 `./build-librime.sh`（约 15 分钟编译，装到 `/usr/local` 盖过 apt 的 1.7.3）。装完还剩四步收尾，脚本不替你碰会话/GUI：
+
+```bash
+fcitx5 -r                                              # 1. 重启 fcitx5
+rm -rf ~/.local/share/fcitx5/rime/build/*               # 2. 清旧产物，随便打个字触发重新部署
+# 3. Emacs 里 M-x rime-compile-module，再重启 Emacs（模块链的是 1.7.3 的 ABI，要重编）
+cp -r ~/.local/share/fcitx5/rime/* ~/.config/fcitx/rime/  # 4. 给 Emacs 补雾凇（两个用户目录分开，见上）
+```
+
+验证 lua 生效：fcitx5 里输入 `rq` 应出当前日期（雾凇的 lua 触发器）。之后 Ctrl+Space 切到雾凇，打字应出候选。
+
 ---
 
 ## Emacs 输入法设置

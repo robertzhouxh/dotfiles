@@ -482,6 +482,19 @@ if ! setup_fcitx5; then
   warn "手动装法见 README「中文输入法」；装好后重跑本脚本会自动补配置。"
 fi
 
+# ---- 6.5 jammy 的 librime 太旧，从源码升级 ----
+# 雾凇(rime-ice) 的 lua_translator / lua_filter 要 librime ≥ 1.8.5，jammy 源里是 1.7.3，
+# 切到雾凇后候选词整个为空、打不出中文。build-librime.sh 从源码编到 /usr/local 盖过
+# apt 版本（不 purge apt 包、不破坏 fcitx5-rime 的依赖），fcitx5-rime 和 Emacs 内嵌 rime
+# 都受益。只针对 jammy；/usr/local/lib/librime.so.1 存在说明已编过，跳过。编译约 15 分钟。
+RIME_CODENAME="$(. /etc/os-release 2>/dev/null && printf '%s' "${VERSION_CODENAME:-}")"
+if [ "$RIME_CODENAME" = "jammy" ] && [ ! -e /usr/local/lib/librime.so.1 ]; then
+  say "Ubuntu 22.04 的 librime 1.7.3 跑不动雾凇，从源码升级（约 15 分钟）……"
+  if ! run bash "$HERE/build-librime.sh"; then
+    warn "librime 源码编译失败：fcitx5 的雾凇可能打不出中文。手动跑 ./build-librime.sh 看具体报错。"
+  fi
+fi
+
 # ---- 7. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
 if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
