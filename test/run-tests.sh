@@ -1046,6 +1046,115 @@ install_asdf' >"$ASDF_OUT" 2>&1
 fi
 
 # ---------------------------------------------------------------------------
+group "ubuntu.sh 装字体（Sarasa Mono SC）"
+
+# jammy 源里没有 fonts-sarasa-gothic（24.04 才进 Debian/Ubuntu），所以更纱黑体
+# 不走 apt，而是下 GitHub release 自己解（解 .7z 用 p7zip-full，在 apt 清单里）。
+assert_not_contains "apt 清单里没有 fonts-sarasa-gothic（jammy 源里没有）" "$PKG_LISTS" "sarasa"
+assert_contains "apt 清单里有 p7zip-full（解 .7z 用）" "$PKG_LISTS" "p7zip-full"
+assert_contains "字体走 GitHub release 下载" "$(cat ubuntu.sh)" "Sarasa-Gothic/releases/download"
+
+# 安装逻辑单独抽成函数，跟 starship / rtk / asdf 一样抠出来在进程内跑。
+SARASA_SRC="$(sed -n '/^install_sarasa_mono()/,/^}/p' ubuntu.sh)"
+if [ -z "$SARASA_SRC" ]; then
+  bad "能从 ubuntu.sh 里取到 install_sarasa_mono" "没匹配到函数定义，它被改名或改写了？"
+else
+  ok "能从 ubuntu.sh 里取到 install_sarasa_mono"
+
+  FONTBIN="$SANDBOX/fontbin"
+  FONT_HOME="$SANDBOX/fonthome"
+  FONTLOG="$SANDBOX/font-curl.log"
+  FONT_OUT="$SANDBOX/font-out"
+  mkdir -p "$FONTBIN" "$FONT_HOME"
+
+  # fc-list：FAKE_FC_LIST=1 时谎报已装（模拟本机有 Sarasa），否则当没装
+  cat > "$FONTBIN/fc-list" <<'STUB'
+#!/bin/sh
+[ "${FAKE_FC_LIST:-0}" = "1" ] && echo "Sarasa Mono SC:style=Regular"
+exit 0
+STUB
+  # curl：不联网，把假 .7z 写到 -o 指定的路径；FAKE_CURL_EXIT 非 0 则连下载都失败
+  cat > "$FONTBIN/curl" <<'STUB'
+#!/bin/sh
+echo "CURL $*" >> "$STUB_LOG"
+[ "${FAKE_CURL_EXIT:-0}" = "0" ] || exit 22
+out=""; prev=""
+for a in "$@"; do [ "$prev" = "-o" ] && out="$a"; prev="$a"; done
+[ -n "$out" ] || exit 2
+printf 'fake7z' > "$out"
+exit 0
+STUB
+  # 7z：不真解压，往 -o<dir> 里放一个 .ttf；FAKE_7Z_EXIT 非 0 则解压失败
+  cat > "$FONTBIN/7z" <<'STUB'
+#!/bin/sh
+echo "7Z $*" >> "$STUB_LOG"
+[ "${FAKE_7Z_EXIT:-0}" = "0" ] || exit 3
+dir=""
+for a in "$@"; do case "$a" in -o*) dir="${a#-o}";; esac; done
+[ -n "$dir" ] || exit 2
+mkdir -p "$dir"
+printf 'x' > "$dir/SarasaMonoSC-Regular.ttf"
+exit 0
+STUB
+  # fc-cache：刷新字体缓存，桩里就是个成功空操作
+  cat > "$FONTBIN/fc-cache" <<'STUB'
+#!/bin/sh
+echo "FCCACHE $*" >> "$STUB_LOG"
+exit 0
+STUB
+  chmod +x "$FONTBIN/fc-list" "$FONTBIN/curl" "$FONTBIN/7z" "$FONTBIN/fc-cache"
+
+  font_run() { # <DRY_RUN> <FAKE_FC_LIST> <FAKE_CURL_EXIT> [FAKE_7Z_EXIT] -> 退出码
+    env -i PATH="$FONTBIN:/usr/bin:/bin" HOME="$FONT_HOME" \
+      STUB_LOG="$FONTLOG" \
+      SARASA_URL="http://127.0.0.1:1/SarasaMonoSC.7z" \
+      DRY_RUN="$1" FAKE_FC_LIST="$2" FAKE_CURL_EXIT="$3" FAKE_7Z_EXIT="${4:-0}" \
+      /bin/bash -c 'say() { printf "==> %s\n" "$1"; }; warn() { printf "警告：%s\n" "$1"; }
+'"$SARASA_SRC"'
+install_sarasa_mono' >"$FONT_OUT" 2>&1
+  }
+  font_curl_calls() { local n; n="$(grep -c '^CURL ' "$FONTLOG" 2>/dev/null)"; printf '%s\n' "${n:-0}"; }
+  font_reset() { rm -rf "$FONT_HOME/.local"; : > "$FONTLOG"; }
+
+  # 已装：跳过，一个字节都不下载
+  font_reset
+  font_run 0 1 0; rc=$?
+  if [ "$rc" = 0 ] && [ "$(font_curl_calls)" = "0" ] && grep -q "已装" "$FONT_OUT"; then
+    ok "Sarasa 已装时跳过，且不联网"
+  else
+    bad "Sarasa 已装时跳过，且不联网" "退出码 $rc，curl 跑了 $(font_curl_calls) 次：$(head -c 200 "$FONT_OUT")"
+  fi
+
+  # --dry-run：也不许联网
+  font_reset
+  font_run 1 0 0; rc=$?
+  if [ "$rc" = 0 ] && [ "$(font_curl_calls)" = "0" ] && grep -q "dry-run" "$FONT_OUT"; then
+    ok "Sarasa --dry-run 只打印不联网"
+  else
+    bad "Sarasa --dry-run 只打印不联网" "退出码 $rc，curl 跑了 $(font_curl_calls) 次：$(head -c 200 "$FONT_OUT")"
+  fi
+
+  # 没装时：下载、解压、装到 ~/.local/share/fonts 下
+  font_reset
+  font_run 0 0 0; rc=$?
+  if [ "$rc" = 0 ] && [ -f "$FONT_HOME/.local/share/fonts/sarasa-mono-sc/SarasaMonoSC-Regular.ttf" ] && grep -q "装好了" "$FONT_OUT"; then
+    ok "Sarasa 没装时下载并装到 ~/.local/share/fonts"
+  else
+    bad "Sarasa 没装时下载并装到 ~/.local/share/fonts" \
+      "退出码 $rc，ttf 存在？$([ -f "$FONT_HOME/.local/share/fonts/sarasa-mono-sc/SarasaMonoSC-Regular.ttf" ] && echo 是 || echo 否)：$(head -c 200 "$FONT_OUT")"
+  fi
+
+  # 下载失败：返回非 0，交给调用方去 warn
+  font_reset
+  font_run 0 0 22; rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "Sarasa 下载失败时返回非 0（调用方好去警告）"
+  else
+    bad "Sarasa 下载失败时返回非 0（调用方好去警告）" "退出码 $rc，curl $(font_curl_calls) 次"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 group "vim.sh 行为"
 
 # vim.sh 往 $HERE/.vim 里写东西（插件就装在那儿）。直接对真仓库跑会污染工作区，

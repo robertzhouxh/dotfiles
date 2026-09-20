@@ -97,6 +97,9 @@ OPTIONAL_PKGS=(
   openssh-server
   # 注：starship 与 rtk 都不在源里，它们不走 apt，见下面第 2、3 步。
   # jammy 的 zoxide 是 0.4.3，且没有任何 dotfile 会 init 它，装了也是一把闲置的二进制，故不装。
+  # 解 Sarasa Mono SC 的 .7z 用（见「字体」那一步）。更纱黑体 GitHub release 只发
+  # .7z，jammy 源里也没有 fonts-sarasa-gothic（24.04 才进），所以要自己下、自己解。
+  p7zip-full
 )
 
 say "更新软件包索引……"
@@ -371,7 +374,53 @@ if ! install_asdf; then
   warn "手动装法见 README 的 asdf 一节；重跑本脚本时会自动重试。"
 fi
 
-# ---- 5. locale ----
+# ---- 5. 字体 ----
+# Emacs 配置（emacs-init-font.el）的 my/ef、my/cf 都优先 Sarasa Mono SC——它是
+# 等宽字体里 CJK 严格 2:1 的那个，markdown 表格里的中文才能跟 ASCII 对齐。macOS
+# 侧由 brew.sh 装字体，Linux 这边 jammy 源里没有 fonts-sarasa-gothic（24.04 才进
+# Debian/Ubuntu），只能下 GitHub release 自己解。
+#
+# 装到 ~/.local/share/fonts（用户级、不套 sudo），fc-cache 刷新后 fontconfig 即能
+# 解析。拉不到只警告不中断：没这字体只是表格错位，不影响 shell / 编辑器 / git。
+#
+# 单独抽成函数是为了能在测试里抠出来跑（跟 starship / rtk / asdf 同理）。
+SARASA_VERSION="${SARASA_VERSION:-1.0.41}"
+SARASA_URL="${SARASA_URL:-https://github.com/be5invis/Sarasa-Gothic/releases/download/v${SARASA_VERSION}/SarasaMonoSC-TTF-${SARASA_VERSION}.7z}"
+
+install_sarasa_mono() {
+  if command -v fc-list >/dev/null 2>&1 && fc-list 2>/dev/null | grep -qi "Sarasa Mono SC"; then
+    say "Sarasa Mono SC 已装，跳过。"
+    return 0
+  fi
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] 下载 $SARASA_URL 解压到 ~/.local/share/fonts/sarasa-mono-sc 并 fc-cache"
+    return 0
+  fi
+  say "安装 Sarasa Mono SC……"
+  local tmp ok=1
+  tmp="$(mktemp -d)"
+  if command -v 7z >/dev/null 2>&1 \
+     && curl -fsSL -o "$tmp/font.7z" "$SARASA_URL" \
+     && 7z x -y -o"$tmp" "$tmp/font.7z" >/dev/null \
+     && mkdir -p "$HOME/.local/share/fonts/sarasa-mono-sc" \
+     && cp "$tmp"/*.ttf "$HOME/.local/share/fonts/sarasa-mono-sc/" \
+     && fc-cache -f "$HOME/.local/share/fonts" >/dev/null 2>&1; then
+    ok=0
+  fi
+  rm -rf "$tmp"
+  if [ "$ok" = 0 ]; then
+    say "Sarasa Mono SC 装好了，重启 Emacs 后 markdown 表格中文对齐。"
+    return 0
+  fi
+  return 1
+}
+
+if ! install_sarasa_mono; then
+  warn "Sarasa Mono SC 没装上（缺 7z 或下载/解压失败），已跳过。markdown 表格里中文会错位，其余不受影响。"
+  warn "手动补装：apt install p7zip-full，再下 $SARASA_URL 解压到 ~/.local/share/fonts 后 fc-cache -f"
+fi
+
+# ---- 6. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
 if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
   say "en_US.UTF-8 已存在，跳过。"
@@ -381,7 +430,7 @@ else
   run $SUDO update-locale LANG=en_US.UTF-8
 fi
 
-# ---- 6. 部署 dotfiles ----
+# ---- 7. 部署 dotfiles ----
 say "部署 dotfiles……"
 if [ "$DRY_RUN" = 1 ]; then
   # shellcheck disable=SC2016  # 这里就是要让 $HERE 在子 shell 里展开，不是当前 shell
@@ -390,7 +439,7 @@ else
   bash "$HERE/deploy.sh" "${DEPLOY_ARGS[@]+"${DEPLOY_ARGS[@]}"}"
 fi
 
-# ---- 7. 登录 shell ----
+# ---- 8. 登录 shell ----
 if [ "$DO_CHSH" = 0 ]; then
   warn "按 --no-chsh 要求跳过，登录 shell 未改。"
 elif ! command -v zsh >/dev/null 2>&1; then
@@ -418,7 +467,7 @@ else
   fi
 fi
 
-# ---- 8. 收尾 ----
+# ---- 9. 收尾 ----
 say ""
 say "完成。下一步："
 printf '  1. exec zsh                    立刻进新 shell（或重新登录）\n'

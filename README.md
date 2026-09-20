@@ -93,14 +93,15 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 ### ubuntu.sh 装了什么
 
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
-- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza
+- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza、p7zip-full（解更纱黑体的 .7z）
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
 - **rtk**：同样不在 apt 里，走官方安装脚本装到 `~/.local/bin`（`.envv` 会把这个目录加进 PATH），不用 sudo、不碰系统目录。它是省 token 的命令代理，用法见下面「RTK」
 - **asdf**：apt 源里同样没有，从上游 release 下 linux 二进制装到 `~/.local/bin`，不用 sudo。macOS 侧由 `brew.sh` 装。用法见下面「asdf」
+- **字体**：Sarasa Mono SC（等距更纱黑体），从 GitHub release 下 `.7z` 解到 `~/.local/share/fonts`，不用 sudo。CJK 严格 2:1，markdown 表格中文才能跟 ASCII 对齐
 
 可选包装不上只提示不中断。上面 apt 装的每一项都核对过 jammy 的真实索引；btop / ripgrep / fzf / fd-find / autojump 在 universe 里，`ubuntu.sh` 会先确保该组件已启用。
 
-非 apt 的三项（starship / rtk / asdf）都是装过就跳过、拉不到 GitHub 只警告不中断。starship 上游只发 tar.gz，没有 `.deb` / `.rpm`，所以走官方脚本；`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没装就退回默认样式。
+非 apt 的四项（starship / rtk / asdf / 字体）都是装过就跳过、拉不到 GitHub 只警告不中断。starship 上游只发 tar.gz，没有 `.deb` / `.rpm`，所以走官方脚本；`.zshrc` / `.bashrc` 里那段 init 本来就是 `command -v` 通过才生效，没装就退回默认样式。
 
 `rtk` 的「已装」判据是 `rtk --version` 打得出 `rtk <版本号>`，不是「有个叫 rtk 的可执行文件」——这个名字被 crates.io 上的 Rust Type Kit 共用，只认名字会把那个异物当成已装，然后永远跳过真正要装的这个。
 
@@ -126,7 +127,7 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 
 其余依赖：
 
-- **字体**：配置优先找「Sarasa Mono SC」（更纱黑体）。装 `fonts-jetbrains-mono` 和更纱黑体才不会有字体回退的割裂感。
+- **字体**：配置优先找「Sarasa Mono SC」（等距更纱黑体）——它是等宽字体里 CJK 严格 2:1 的那个，markdown 表格的中文才能跟 ASCII 对齐。`ubuntu.sh` 会下 GitHub release 装到 `~/.local/share/fonts`（jammy 源里没有 `fonts-sarasa-gothic`，24.04 才进 Debian/Ubuntu）。
 - **librime**：README 里给的是 macOS 二进制包，Linux 上要自己编译，产物放 `~/.emacs.d/librime/dist/`。
 - **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。
 - **Linux 的 fcitx5-rime**: 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`），需要手动把配置放过去。
