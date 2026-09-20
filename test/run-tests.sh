@@ -53,7 +53,7 @@ group "语法"
 SHELL_FILES=$(
   { git ls-files '*.sh' '.alias' '.bashrc' '.bash_profile' '.envv' '.zshrc' '.zprofile' 2>/dev/null \
       || printf '%s\n' .alias .bashrc .bash_profile .envv .zshrc .zprofile \
-           bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh; } | sort -u
+           bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh build-librime.sh; } | sort -u
 )
 
 for f in $SHELL_FILES; do
@@ -69,7 +69,7 @@ else
   printf '  \033[33m-\033[0m 跳过 zsh 语法检查（本机没有 zsh）\n'
 fi
 
-for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh; do
+for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh build-librime.sh; do
   assert_ok "$f 有可执行位" test -x "$f"
 done
 
@@ -1580,7 +1580,7 @@ last_header_line() {
   sed -n '2,/^[^#]/p' "$1" | sed '$d' | sed 's/^# \{0,1\}//' | grep -v '^[[:space:]]*$' | tail -1
 }
 
-for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh; do
+for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh build-librime.sh; do
   HELP="$(bash "$f" --help 2>&1 || true)"
   assert_not_contains "$f --help 只打印注释" "$HELP" "set -euo pipefail"
   assert_not_contains "$f --help 不打印赋值语句" "$HELP" 'HERE="$(cd'
@@ -1589,14 +1589,14 @@ for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh; do
 done
 
 # --help 是脚本门面，未知参数必须报错退出，不能当成没看见
-for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh; do
+for f in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh build-librime.sh; do
   assert_fail "$f 对未知参数报错" bash "$f" --definitely-not-a-flag
 done
 
 # 纯为留白而调用的 say ""，不该打出孤零零一个「==> 」。
 # 三个脚本各抄了一份 say()，抄漏守卫就会漏出来——先查源码里的守卫，
 # 再用真实输出验证一次（emacs.sh 在 macOS 上也能跑 dry-run，可以真跑）。
-for f in ubuntu.sh vim.sh emacs.sh bootstrap.sh; do
+for f in ubuntu.sh vim.sh emacs.sh bootstrap.sh build-librime.sh; do
   assert_contains "$f 的 say() 有空白行守卫" "$(grep -m1 '^say()' "$f")" '[ -z "${1:-}" ]'
 done
 

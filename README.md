@@ -129,6 +129,7 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 
 - **字体**：配置优先找「Sarasa Mono SC」（等距更纱黑体）——它是等宽字体里 CJK 严格 2:1 的那个，markdown 表格的中文才能跟 ASCII 对齐。`ubuntu.sh` 会下 GitHub release 装到 `~/.local/share/fonts`（jammy 源里没有 `fonts-sarasa-gothic`，24.04 才进 Debian/Ubuntu）。
 - **librime**：Emacs 内嵌 rime 的动态模块要链 librime。Linux 上 `sudo apt install librime-dev` 即可——头文件落到 `/usr/include/`，rime 包 `make lib` 的默认分支（`-lrime`）直接链上，不用设 `rime-librime-root`；只有 macOS 才下载二进制包（见下方「For MACOS」一节）。
+- **Ubuntu 22.04 的 librime 太旧**：`librime-dev` 拿到的 1.7.3 够编译 Emacs 模块，但跑不动雾凇的 `lua_translator` / `lua_filter`（候选词整个为空、打不出中文）。雾凇要求 librime ≥ 1.8.5，22.04 上跑一次 `./build-librime.sh` 从源码编译最新 librime（lua 打成 merged-plugin，装到 `/usr/local` 盖过 apt 版本）；23.04+ 源里已是 1.8.5+，不用这一步。
 - **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。两套 Rime 用户目录是分开的，别混：
   - 系统级 fcitx5-rime：`~/.local/share/fcitx5/rime/`（fcitx5 默认用户目录）。
   - Emacs 内嵌 rime：`~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`）。
@@ -144,7 +145,7 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 # 3. Ctrl+Space 切中英文
 ```
 
-Rime 配置用雾凇(rime-ice)，放在 `~/.local/share/fcitx5/rime/`（不在本仓库里）；Emacs 内嵌 rime 走 `~/.config/fcitx/rime/`，两套分开。
+Rime 配置用雾凇(rime-ice)，放在 `~/.local/share/fcitx5/rime/`（不在本仓库里）；Emacs 内嵌 rime 走 `~/.config/fcitx/rime/`，两套分开。22.04 上若切到雾凇后候选词为空，是 librime 1.7.3 太旧（见上「Ubuntu 22.04 的 librime 太旧」），跑 `./build-librime.sh` 升级。
 
 ---
 
