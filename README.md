@@ -128,7 +128,7 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 其余依赖：
 
 - **字体**：配置优先找「Sarasa Mono SC」（等距更纱黑体）——它是等宽字体里 CJK 严格 2:1 的那个，markdown 表格的中文才能跟 ASCII 对齐。`ubuntu.sh` 会下 GitHub release 装到 `~/.local/share/fonts`（jammy 源里没有 `fonts-sarasa-gothic`，24.04 才进 Debian/Ubuntu）。
-- **librime**：README 里给的是 macOS 二进制包，Linux 上要自己编译，产物放 `~/.emacs.d/librime/dist/`。
+- **librime**：Emacs 内嵌 rime 的动态模块要链 librime。Linux 上 `sudo apt install librime-dev` 即可——头文件落到 `/usr/include/`，rime 包 `make lib` 的默认分支（`-lrime`）直接链上，不用设 `rime-librime-root`；只有 macOS 才下载二进制包（见下方「For MACOS」一节）。
 - **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。
 - **Linux 的 fcitx5-rime**: 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`），需要手动把配置放过去。
 

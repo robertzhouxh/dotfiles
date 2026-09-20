@@ -100,6 +100,11 @@ OPTIONAL_PKGS=(
   # 解 Sarasa Mono SC 的 .7z 用（见「字体」那一步）。更纱黑体 GitHub release 只发
   # .7z，jammy 源里也没有 fonts-sarasa-gothic（24.04 才进），所以要自己下、自己解。
   p7zip-full
+  # Emacs rime 内嵌输入法的动态模块要链 librime 的头文件。fcitx5-rime 只带运行时库
+  # librime1（librime.so.1），不带开发头文件 rime_api.h，这里单独装 librime-dev；
+  # 缺了它 .emacs.d 里 rime 包 make lib 会报 fatal error: rime_api.h: No such file。
+  # 它只依赖已装的 librime1，体积小、无副作用；装不上只提示（Emacs 的 rime 建不出模块）。
+  librime-dev
 )
 
 say "更新软件包索引……"

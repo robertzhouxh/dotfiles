@@ -8,7 +8,8 @@
   (rime-posframe-style 'vertical)
   (rime-show-candidate 'posframe)
   (rime-user-data-dir my-rime-user-data-dir)
-  (rime-librime-root (expand-file-name "librime/dist" user-emacs-directory))
+  ;; 不设 rime-librime-root：Linux 上 librime-dev 的头文件落在 /usr/include/，
+  ;; rime 包 make lib 的默认分支（-lrime）直接链上。只有 macOS 自下载二进制包才需要设。
   :hook
   (emacs-startup . (lambda () (setq default-input-method "rime")))
   :bind
