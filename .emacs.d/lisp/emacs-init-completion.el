@@ -4,7 +4,7 @@
 (use-package yasnippet
   :commands yas-minor-mode
   :config
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  (setq yas-snippet-dirs '("~/.emacs.d/my-snippets"))
   (yas-reload-all))
 
 ;; 关闭内置 eldoc（lsp-bridge 自行处理）
