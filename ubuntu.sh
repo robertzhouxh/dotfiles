@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ubuntu.sh —— 在 Ubuntu（22.04 及以后）上把本仓库跑起来
 #
-# 做七件事：装开发工具 → 装 starship、rtk、asdf → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
+# 做八件事：装开发工具 → 装 starship、rtk、asdf → 装字体、中文输入法 → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
 # 可反复执行，已经满足的步骤会跳过。
 #
 # 用法：
@@ -105,6 +105,14 @@ OPTIONAL_PKGS=(
   # 缺了它 .emacs.d 里 rime 包 make lib 会报 fatal error: rime_api.h: No such file。
   # 它只依赖已装的 librime1，体积小、无副作用；装不上只提示（Emacs 的 rime 建不出模块）。
   librime-dev
+  # 系统级中文输入法：fcitx5 + Rime。GNOME Wayland 默认框架是 ibus，这里只负责把包装上，
+  # 切换框架（环境变量 + 自启）在下面「中文输入法」那一步做。装在无桌面的机器上只是闲置，
+  # 不影响别的；列在可选里，装不上只提示。
+  fcitx5
+  fcitx5-chinese-addons
+  fcitx5-frontend-gtk4 fcitx5-frontend-gtk3 fcitx5-frontend-gtk2 fcitx5-frontend-qt5
+  fcitx5-rime
+  fcitx5-config-qt
 )
 
 say "更新软件包索引……"
@@ -425,7 +433,56 @@ if ! install_sarasa_mono; then
   warn "手动补装：apt install p7zip-full，再下 $SARASA_URL 解压到 ~/.local/share/fonts 后 fc-cache -f"
 fi
 
-# ---- 6. locale ----
+# ---- 6. 中文输入法（fcitx5）----
+# 光装 fcitx5 不够：GNOME Wayland 默认框架是 ibus，不显式把 GTK_IM_MODULE /
+# QT_IM_MODULE / XMODIFIERS 指向 fcitx，应用根本不会用 fcitx5。做法跟 fcitx5 官方
+# Wiki 一致：环境变量照顾 X11 / XWayland 应用，fcitx5 自启照顾原生 Wayland 应用（走
+# 它的 wayland 模块）。写进 ~/.config/environment.d 而不是 /etc/environment 或 ~/.profile：
+# Wayland 会话是 systemd user session，认这个目录；~/.profile 不一定被 source，
+# /etc/environment 又要 sudo 又对所有用户生效，太重。
+#
+# 刻意不碰 im-config：在这类机器上 `im-config -m` 甚至不列 fcitx5（GNOME 把 ibus 的
+# 设置交给了桌面自己管，见 /usr/share/im-config/data/21_ibus.rc 的 DESKTOP_SETUP_IBUS
+# 分支），用它切是绕远路。这里直接写 fcitx5 官方 Wiki 里那三个变量。
+#
+# 做完要注销重登才生效。登进去后还有一步 GUI 脚本替不了——在 fcitx5-configtool 里加
+# 「中州韻 Rime」，见收尾提示。Rime 的雾凇(rime-ice) 配置在 ~/.local/share/fcitx5/rime/
+#（fcitx5 默认用户目录，不在本仓库里）。
+FCITX5_AUTOSTART_SRC="${FCITX5_AUTOSTART_SRC:-/usr/share/applications/org.fcitx.Fcitx5.desktop}"
+
+# 单独抽成函数是为了能在测试里抠出来跑（跟 starship / rtk / asdf / 字体同理）。
+setup_fcitx5() {
+  # fcitx5 没装上就返回非 0，交给调用方去警告
+  command -v fcitx5 >/dev/null 2>&1 || return 1
+
+  local env_file="$HOME/.config/environment.d/im.conf"
+  local autostart_dst="$HOME/.config/autostart/org.fcitx.Fcitx5.desktop"
+
+  # 已经配好就跳过（脚本可反复执行）
+  if [ -f "$env_file" ] && grep -q '^XMODIFIERS=@im=fcitx$' "$env_file" 2>/dev/null \
+     && [ -f "$autostart_dst" ]; then
+    say "fcitx5 已配置（环境变量 + 自启），跳过。"
+    return 0
+  fi
+
+  if [ "$DRY_RUN" = 1 ]; then
+    say "[dry-run] 写 $env_file 指向 fcitx、复制 fcitx5 自启项"
+    return 0
+  fi
+
+  say "配置 fcitx5（环境变量 + 自启）……"
+  mkdir -p "$(dirname "$env_file")" "$HOME/.config/autostart"
+  printf 'GTK_IM_MODULE=fcitx\nQT_IM_MODULE=fcitx\nXMODIFIERS=@im=fcitx\n' > "$env_file"
+  cp -f "$FCITX5_AUTOSTART_SRC" "$autostart_dst" 2>/dev/null || true
+  return 0
+}
+
+if ! setup_fcitx5; then
+  warn "fcitx5 没装上（源里没有或安装失败），跳过中文输入法配置。"
+  warn "手动装法见 README「中文输入法」；装好后重跑本脚本会自动补配置。"
+fi
+
+# ---- 7. locale ----
 # 不做这步，.envv 里写死的 en_US.UTF-8 会让每条命令都刷 setlocale 警告。
 if locale -a 2>/dev/null | grep -qiE '^en_US\.utf-?8$'; then
   say "en_US.UTF-8 已存在，跳过。"
@@ -435,7 +492,7 @@ else
   run $SUDO update-locale LANG=en_US.UTF-8
 fi
 
-# ---- 7. 部署 dotfiles ----
+# ---- 8. 部署 dotfiles ----
 say "部署 dotfiles……"
 if [ "$DRY_RUN" = 1 ]; then
   # shellcheck disable=SC2016  # 这里就是要让 $HERE 在子 shell 里展开，不是当前 shell
@@ -444,7 +501,7 @@ else
   bash "$HERE/deploy.sh" "${DEPLOY_ARGS[@]+"${DEPLOY_ARGS[@]}"}"
 fi
 
-# ---- 8. 登录 shell ----
+# ---- 9. 登录 shell ----
 if [ "$DO_CHSH" = 0 ]; then
   warn "按 --no-chsh 要求跳过，登录 shell 未改。"
 elif ! command -v zsh >/dev/null 2>&1; then
@@ -472,7 +529,7 @@ else
   fi
 fi
 
-# ---- 9. 收尾 ----
+# ---- 10. 收尾 ----
 say ""
 say "完成。下一步："
 printf '  1. exec zsh                    立刻进新 shell（或重新登录）\n'
@@ -483,3 +540,4 @@ printf '  5. asdf plugin add nodejs      用 asdf 装语言运行时（见 READM
 say ""
 warn ".vim 和 .emacs.d 不在 deploy.sh 的处理范围内（它们需要符号链接，见 vim.sh / emacs.sh）。"
 warn "本脚本不碰 Emacs：apt 里只有 27.1，配置要 30.1+。装法见 README「Ubuntu 上的 Emacs」。"
+warn "中文输入法要注销重登后生效；重登后 fcitx5-configtool 里加「中州韻 Rime」（见 README「中文输入法」）。"

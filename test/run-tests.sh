@@ -672,7 +672,9 @@ else
   assert_contains "chsh 没生效时报出来（退出码 0 也会骗人）" "$OUT" "WARN"
   assert_contains "没生效时给出 sudo chsh 的补救办法" "$OUT" "sudo chsh"
 
-  OUT="$(ubuntu_shell_run /bin/zsh 1 1)"
+  # 用 command -v zsh 的真实路径当「当前 shell」，别写死 /bin/zsh：usrmerge 下
+  # command -v 会解析成 /usr/bin/zsh，写死 /bin/zsh 会让脚本误判「还没切」去调 chsh。
+  OUT="$(ubuntu_shell_run "$(command -v zsh)" 1 1)"
   assert_contains "已经是 zsh 时提示跳过" "$OUT" "已经是 zsh"
   if [ -s "$CHSH_LOG" ]; then
     bad "已经是 zsh 时不调用 chsh" "却调了：$(cat "$CHSH_LOG")"
@@ -1151,6 +1153,93 @@ install_sarasa_mono' >"$FONT_OUT" 2>&1
     ok "Sarasa 下载失败时返回非 0（调用方好去警告）"
   else
     bad "Sarasa 下载失败时返回非 0（调用方好去警告）" "退出码 $rc，curl $(font_curl_calls) 次"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+group "ubuntu.sh 配置中文输入法（fcitx5）"
+
+# fcitx5 系列包走 apt（jammy 的 universe 里都有），不单独下 release。configtool 的
+# 包名是 fcitx5-config-qt（可执行文件才叫 fcitx5-configtool，容易搞混）。
+assert_contains "apt 清单里有 fcitx5" "$PKG_LISTS" "fcitx5"
+assert_contains "apt 清单里有 fcitx5-rime" "$PKG_LISTS" "fcitx5-rime"
+assert_contains "apt 清单里有 fcitx5-config-qt（configtool 的包名）" "$PKG_LISTS" "fcitx5-config-qt"
+# 切框架靠环境变量，不靠 im-config（它在这类机器上 `im-config -m` 不列 fcitx5）
+assert_not_contains "不依赖 im-config 切框架" "$(cat ubuntu.sh)" "im-config -n"
+
+# 配置逻辑单独抽成函数，跟 starship / rtk / asdf / 字体一样抠出来在进程内跑。
+FCITX5_SRC="$(sed -n '/^setup_fcitx5()/,/^}/p' ubuntu.sh)"
+if [ -z "$FCITX5_SRC" ]; then
+  bad "能从 ubuntu.sh 里取到 setup_fcitx5" "没匹配到函数定义，它被改名或改写了？"
+else
+  ok "能从 ubuntu.sh 里取到 setup_fcitx5"
+
+  IM_BIN="$SANDBOX/imbin"
+  IM_HOME="$SANDBOX/imhome"
+  IM_DESKTOP="$SANDBOX/fcitx5.desktop"
+  IM_OUT="$SANDBOX/im-out"
+  mkdir -p "$IM_BIN" "$IM_HOME"
+
+  # 桩 fcitx5：只用来通过 command -v 的「装没装」探测，本身不真跑
+  cat > "$IM_BIN/fcitx5" <<'STUB'
+#!/bin/sh
+exit 0
+STUB
+  chmod +x "$IM_BIN/fcitx5"
+  printf 'fake desktop\n' > "$IM_DESKTOP"
+
+  im_run() { # <DRY_RUN> -> 退出码
+    env -i PATH="$IM_BIN:/usr/bin:/bin" HOME="$IM_HOME" \
+      FCITX5_AUTOSTART_SRC="$IM_DESKTOP" DRY_RUN="$1" \
+      /bin/bash -c 'say() { printf "==> %s\n" "$1"; }; warn() { printf "警告：%s\n" "$1"; }
+'"$FCITX5_SRC"'
+setup_fcitx5' >"$IM_OUT" 2>&1
+  }
+  IM_ENV="$IM_HOME/.config/environment.d/im.conf"
+  IM_AUTOSTART="$IM_HOME/.config/autostart/org.fcitx.Fcitx5.desktop"
+  im_reset() { rm -rf "$IM_HOME/.config"; }
+
+  # 没配过：写环境变量 + 复制自启项
+  im_reset
+  im_run 0; rc=$?
+  if [ "$rc" = 0 ] && [ -f "$IM_ENV" ] && [ -f "$IM_AUTOSTART" ] \
+     && grep -qx 'XMODIFIERS=@im=fcitx' "$IM_ENV" \
+     && grep -qx 'GTK_IM_MODULE=fcitx' "$IM_ENV"; then
+    ok "fcitx5 没配过时写环境变量并复制自启项"
+  else
+    bad "fcitx5 没配过时写环境变量并复制自启项" "退出码 $rc：$(head -c 200 "$IM_OUT")"
+  fi
+
+  # 已配过：跳过，且不覆盖用户已经写进去的内容
+  printf '\n# user marker\n' >> "$IM_ENV"
+  im_run 0; rc=$?
+  if [ "$rc" = 0 ] && grep -q "已配置" "$IM_OUT" && grep -q "user marker" "$IM_ENV"; then
+    ok "fcitx5 已配过时跳过且不覆盖"
+  else
+    bad "fcitx5 已配过时跳过且不覆盖" "退出码 $rc：$(head -c 200 "$IM_OUT")"
+  fi
+
+  # --dry-run：只打印，不落盘
+  im_reset
+  im_run 1; rc=$?
+  if [ "$rc" = 0 ] && [ ! -f "$IM_ENV" ] && grep -q "dry-run" "$IM_OUT"; then
+    ok "fcitx5 --dry-run 只打印不落盘"
+  else
+    bad "fcitx5 --dry-run 只打印不落盘" "退出码 $rc，im.conf 存在？$([ -f "$IM_ENV" ] && echo 是 || echo 否)"
+  fi
+
+  # fcitx5 没装上：返回非 0，交给调用方去 warn。PATH 清空，command -v 必然找不到，
+  # 不会被本机真装的 fcitx5 蒙混过关。
+  im_reset
+  env -i PATH="" HOME="$IM_HOME" FCITX5_AUTOSTART_SRC="$IM_DESKTOP" DRY_RUN=0 \
+    /bin/bash -c 'say() { printf "==> %s\n" "$1"; }; warn() { printf "警告：%s\n" "$1"; }
+'"$FCITX5_SRC"'
+setup_fcitx5' >"$IM_OUT" 2>&1
+  rc=$?
+  if [ "$rc" != 0 ]; then
+    ok "fcitx5 没装时返回非 0"
+  else
+    bad "fcitx5 没装时返回非 0" "却返回了 0"
   fi
 fi
 

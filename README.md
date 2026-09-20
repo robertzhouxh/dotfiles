@@ -129,17 +129,22 @@ cd ~/src/emacs && ./autogen.sh && ./configure --with-native-compilation --with-t
 
 - **字体**：配置优先找「Sarasa Mono SC」（等距更纱黑体）——它是等宽字体里 CJK 严格 2:1 的那个，markdown 表格的中文才能跟 ASCII 对齐。`ubuntu.sh` 会下 GitHub release 装到 `~/.local/share/fonts`（jammy 源里没有 `fonts-sarasa-gothic`，24.04 才进 Debian/Ubuntu）。
 - **librime**：Emacs 内嵌 rime 的动态模块要链 librime。Linux 上 `sudo apt install librime-dev` 即可——头文件落到 `/usr/include/`，rime 包 `make lib` 的默认分支（`-lrime`）直接链上，不用设 `rime-librime-root`；只有 macOS 才下载二进制包（见下方「For MACOS」一节）。
-- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。
-- **Linux 的 fcitx5-rime**: 用户目录是 `~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`），需要手动把配置放过去。
+- **Rime 配置**：`rime/` 目录在 `.gitignore` 里，不在版本控制中。两套 Rime 用户目录是分开的，别混：
+  - 系统级 fcitx5-rime：`~/.local/share/fcitx5/rime/`（fcitx5 默认用户目录）。
+  - Emacs 内嵌 rime：`~/.config/fcitx/rime/`（见 `.emacs.d/lisp/emacs-init-path.el` 里的 `my-rime-user-data-dir`）。
+  两处都需要手动把雾凇(rime-ice) 配置放过去。
 
 ### 中文输入法
 
+`ubuntu.sh` 会装 fcitx5 + Rime（`fcitx5-rime` / `fcitx5-config-qt` 都在里面）并配好环境变量与自启。GNOME Wayland 默认框架是 ibus，不显式把 `GTK_IM_MODULE` / `QT_IM_MODULE` / `XMODIFIERS` 指向 fcitx，fcitx5 起不来也接不进应用。装完注销重登，还剩一步 GUI 脚本替不了：
+
 ```bash
-# 1. 系统设置 → 区域与语言 → 管理已安装的语言，按提示补全语言包
-# 2. 安装 fcitx5 + RIME
-sudo apt install fcitx5 fcitx5-chinese-addons  fcitx5-frontend-gtk4 fcitx5-frontend-gtk3 fcitx5-frontend-gtk2  fcitx5-frontend-qt5  fcitx5-rime
-# 3. 注销重新登录后生效
+# 1. 注销重新登录
+# 2. fcitx5-configtool → 输入法 → + → 添加「中州韻 Rime」，去掉多余项
+# 3. Ctrl+Space 切中英文
 ```
+
+Rime 配置用雾凇(rime-ice)，放在 `~/.local/share/fcitx5/rime/`（不在本仓库里）；Emacs 内嵌 rime 走 `~/.config/fcitx/rime/`，两套分开。
 
 ---
 
