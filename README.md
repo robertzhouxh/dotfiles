@@ -254,20 +254,15 @@ SDK 模式快捷键：
 
 ### lazycat-theme：Emacs 31 `:style none` 不兼容
 
-Emacs 31 中 face `:box` 不再接受 `:style none`（有效值：`released-button`、`pressed-button`、`flat-button`、nil），导致 GUI 启动报错：
+Emacs 31 中 face `:box` 不再接受 `:style none`（有效值：`released-button`、`pressed-button`、`flat-button`、nil），`lazycat-theme` 主文件的 `custom-button` 一族 face 用了 `:box '(:line-width 1 :style none)`，导致 GUI 启动报错：
 
 ```
 Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style none)
 ```
 
-**修复：** 编辑 `var/packages/elpa/lazycat-theme/lazycat-theme.el`，把 `custom-button` 一族 face 的 `:box` 里的 `:style none` 去掉：
+**修复（自动）：** `.emacs.d/lisp/emacs-solo-lazycat-theme.el` 里的 `emacs-solo-lazycat-theme-ensure-box-style` 在 `:init`（`require` 前）幂等去掉 `:style none`，`:vc :rev :newest` 每次启动 `git pull` 还原文件后会自动再补。涉及 `custom-button`、`custom-button-unraised`、`custom-button-pressed-unraised`、`custom-button-pressed`、`custom-button-mouse`，视觉效果不变。
 
-```diff
--    (custom-button :box '(:line-width 1 :style none))
-+    (custom-button :box '(:line-width 1))
-```
-
-> 本地这份已经改过了，但 ELPA 更新会把文件整个换掉——再看到这个报错就照上面改回来。涉及 `custom-button`、`custom-button-unraised`、`custom-button-pressed-unraised`、`custom-button-pressed`、`custom-button-mouse`。视觉效果不变。
+补丁必须在 `:init` 跑、不能在 `:config` 跑：主文件的 `lazycat-themes-base-faces` 在 `require` 时读进内存，`:config` 里再改盘就晚了。
 
 ---
 
@@ -318,6 +313,8 @@ shell 侧那 11 秒几乎都花在反复起子进程上，CPU 时间只有 3 秒
 `test/install-hooks.sh` 装上 pre-commit hook，之后每次 commit 自动跑 shell 侧。shell 侧会用 `emacs.sh --dry-run` 当版本判据、顺带跑一遍 Emacs 侧；版本不够或没装 Emacs 就跳过并说明原因，不会让门禁红掉。
 
 Emacs 侧覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。其中的「正则精确性」值得一说：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而它**允许输出字符范围**——一旦输出成跨过非括号字符的范围（如 `[(-{]`），命令就会静默跳到普通文本上。当前这张表恰好没触发，但测试按 Unicode 区块划窗口、逐码位双向验证（既不漏匹配也不多匹配），而不是只断言「括号能匹配上」。
+
+另覆盖 `emacs-solo-lazycat-theme` 的两个启动时幂等补丁：去掉 `:style none`、补 lexical-binding cookie，各验证「改了该改的 / 不误改别的 / 跑两次不变」。
 
 ---
 

@@ -1,6 +1,7 @@
 ;;; emacs-init-ui.el --- UI 视觉配置 -*- lexical-binding: t; -*-
 
 (require 'emacs-init-path)
+(require 'emacs-solo-lazycat-theme)
 
 ;; ---- 高亮与括号 ----
 (use-package rainbow-delimiters
@@ -88,29 +89,14 @@
         sort-tab-cycle-navigation t))
 
 ;; ---- 主题 ----
-;; lazycat-theme 的 dark/light 子文件缺 lexical-binding cookie，加载时弹
-;; `Warning (files): Missing 'lexical-binding' cookie'。上游没修，这里在加载
-;; 前幂等补上（只在首行缺 cookie 时写盘），`:vc :rev :newest' 更新后也不复发。
-(defun emacs-solo-lazycat-theme-ensure-cookie ()
-  "Ensure lazycat-theme's dark/light files carry a lexical-binding cookie."
-  (let ((dir (file-name-directory (locate-library "lazycat-theme"))))
-    (when dir
-      (dolist (f '("lazycat-dark-theme.el" "lazycat-light-theme.el"))
-        (let ((file (expand-file-name f dir)))
-          (when (file-readable-p file)
-            (with-temp-buffer
-              (insert-file-contents file)
-              (goto-char (point-min))
-              (end-of-line)
-              (let ((first-line (buffer-substring-no-properties (point-min) (point))))
-                (when (and (string-prefix-p ";;; " first-line)
-                           (string-match-p "\\.el --- " first-line)
-                           (not (string-match-p "lexical-binding" first-line)))
-                  (insert " -*- lexical-binding: t; -*-")
-                  (write-region (point-min) (point-max) file nil 'quiet))))))))))
-
+;; lazycat-theme 两个上游 bug（cookie 缺失、:style none 不兼容）的启动时幂等补丁
+;; 在 emacs-solo-lazycat-theme.el 里。`:style none' 的补丁必须在 :init（:vc
+;; 之后、require 之前）里跑：主文件的 `defvar lazycat-themes-base-faces' 在
+;; require 时读进内存，`:config' 里再改盘已经来不及了。
 (use-package lazycat-theme
   :vc (:url "https://github.com/manateelazycat/lazycat-theme" :rev :newest)
+  :init
+  (emacs-solo-lazycat-theme-ensure-box-style)
   :config
   (emacs-solo-lazycat-theme-ensure-cookie)
   (lazycat-theme-load-dark))
