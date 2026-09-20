@@ -1617,6 +1617,13 @@ for s in bootstrap.sh ubuntu.sh deploy.sh vim.sh emacs.sh brew.sh; do
   assert_contains "README 提到 $s" "$(cat README.md)" "$s"
 done
 
+# 「装了什么」是 ubuntu.sh 包清单的人肉镜像。只抓这一节核对、不全篇 grep：librime-dev /
+# fcitx5 在别处也出现，全篇 grep 拦不住「装了什么」这一节的漏项（只写那批 CLI 工具、
+# 漏掉可选包的两个大头，正是这里要挡的回归）。
+README_WHAT="$(awk '/^### ubuntu.sh 装了什么$/{f=1;next} f&&/^### /{exit} f' README.md)"
+assert_contains "「装了什么」提到 librime-dev" "$README_WHAT" "librime-dev"
+assert_contains "「装了什么」提到 fcitx5" "$README_WHAT" "fcitx5"
+
 # README 里反引号包住的仓库内路径必须真的存在。三类不算仓库路径，显式放过：
 #   CLAUDE.md  —— 讲的是「软链成这个名字」，仓库里叫 CLAUDE_CN.md / CLAUDE_EN.md
 #   default.toml / plug.vim / var/packages/… —— 都在 $HOME 下，不在本仓库

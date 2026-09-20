@@ -93,7 +93,7 @@ brew install CleanShot    # 截图工具，购买 license: https://cleanshot.com
 ### ubuntu.sh 装了什么
 
 - **核心**：git / curl / wget / rsync / gnupg / zsh / 编译工具链（build-essential、cmake、autoconf、automake、texinfo）以及 Emacs 的构建依赖（libncurses-dev、libgnutls28-dev、libxml2-dev、libjansson-dev 等）
-- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza、p7zip-full（解更纱黑体的 .7z）
+- **可选**：vim、ripgrep、fzf、tree、htop、btop、openssh-server、jq、unzip、zip、xdg-utils、net-tools、bind9-dnsutils、autojump、fd-find、exa 或 eza、p7zip-full（解更纱黑体的 .7z）、librime-dev（Emacs 内嵌 rime 的头文件，见下）、fcitx5 + Rime 全家（输入法框架，见「中文输入法」）
 - **starship**：apt 源里没有，走官方安装脚本装到 `/usr/local/bin`（配置 `starship.toml` 由 `deploy.sh` 放到 `~/.config/`）
 - **rtk**：同样不在 apt 里，走官方安装脚本装到 `~/.local/bin`（`.envv` 会把这个目录加进 PATH），不用 sudo、不碰系统目录。它是省 token 的命令代理，用法见下面「RTK」
 - **asdf**：apt 源里同样没有，从上游 release 下 linux 二进制装到 `~/.local/bin`，不用 sudo。macOS 侧由 `brew.sh` 装。用法见下面「asdf」

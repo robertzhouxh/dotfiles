@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ubuntu.sh —— 在 Ubuntu（22.04 及以后）上把本仓库跑起来
 #
-# 做八件事：装开发工具 → 装 starship、rtk、asdf → 装字体、中文输入法 → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
+# 做的事按顺序：装开发工具 → 装 starship、rtk、asdf → 装字体、中文输入法 → 生成 locale → 部署 dotfiles → 切登录 shell 到 zsh。
 # 可反复执行，已经满足的步骤会跳过。
 #
 # 用法：
