@@ -13,4 +13,5 @@ exec "$EMACS" -Q --batch \
   -L "$HERE" \
   -l "$HERE/emacs-solo-brackets-test.el" \
   -l "$HERE/emacs-solo-lazycat-theme-test.el" \
+  -l "$HERE/emacs-solo-markdown-test.el" \
   -f ert-run-tests-batch-and-exit

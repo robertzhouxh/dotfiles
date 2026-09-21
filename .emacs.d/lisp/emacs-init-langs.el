@@ -69,28 +69,10 @@
         (css-mode . css-ts-mode)
         (json-mode . json-ts-mode)))
 
-;;(use-package markdown-ts-mode
-;;  :if (>= emacs-major-version 31)
-;;  :ensure nil
-;;  :mode ("\\.md\\'" "\\.mdx\\'" "\\.markdown\\'")
-;;  :init (load-library "markdown-ts-mode"))
-(use-package markdown-mode
-  :mode ("\\.md\\'" . markdown-mode)
-  :commands markdown-mode
-  :hook (markdown-mode . markdown-toggle-inline-images)
-  :config
-  (defun my/align-all-markdown-tables ()
-    "对齐当前 buffer 中的所有 Markdown 表格。"
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      ;; 搜索每个以 | 开头的行，并检查是否在表格内
-      (while (re-search-forward "^|" nil t)
-        (when (markdown-table-at-point-p)
-          (markdown-table-align)          ; 对齐当前表格
-          (goto-char (markdown-table-end)))))) ; 跳到该表格末尾
-  :bind (:map markdown-mode-map
-              ("C-c C-t" . my/align-all-markdown-tables))) ; 绑定到 C-c C-t
+;; ---- Markdown ----
+;; 代码块按语言高亮 + 语言标签别名表也在里面，单独成模块是为了能挂门禁测试
+;; （这个文件依赖一堆包，`-Q --batch' 里加载不起来）。
+(require 'emacs-solo-markdown)
 
 ;; ---- 高亮关键字 ----
 (use-package symbol-overlay

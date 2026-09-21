@@ -316,6 +316,26 @@ Eager macro-expansion failure: (error "Invalid face box" :line-width 1 :style no
 
 ---
 
+## Markdown 代码块按语言高亮
+
+`.md` 里的 ```python / ```cpp 块整块一个颜色，关键字、字符串、数字都不亮。
+
+根因：markdown-mode 的 `markdown-fontify-code-blocks-natively` **默认 nil**，而配置从没打开过它。它关着时不会报错——块照常显示、只是整块套一层 `markdown-pre-face`。
+
+修法在 `.emacs.d/lisp/emacs-solo-markdown.el`：顶层 `setq` 打开开关（`defcustom` 不覆盖已有值，所以 markdown-mode 先加载还是后加载都一样），再补一张语言标签 → 主模式的别名表。
+
+别名表只能指**在 `major-mode-remap-alist` 里登记过**的 `-ts-mode`：markdown-mode 的 `markdown--lang-mode-predicate` 会判掉没登记的 ts-mode，连兜底的常规模式也轮不上，直接解析成 nil——比不指还糟。没这张表时 `bash` 被默认项压成 `sh-mode`、`javascript` 落到已废弃的 `javascript-mode`、`ts` / `golang` 解析成 nil。
+
+表中每条还带一个 grammar 名，只有该 grammar 装上了才并进去。别名直指 `-ts-mode` 会绕过 markdown-mode 自己的 grammar 检查，grammar 缺失时不是「没颜色」而是 `treesit-parser-create` 报错、整个 fontify 炸掉。grammar 由 treesit-auto 按文件类型装，`.md` 里的代码块不触发它，而仓库不跟踪 `.emacs.d/tree-sitter/`，所以这道闸必须自己把。
+
+| 内容           | 路径                                            |
+|----------------|-------------------------------------------------|
+| 设置与别名表   | `.emacs.d/lisp/emacs-solo-markdown.el`          |
+| 语言模式登记表 | `.emacs.d/lisp/emacs-init-langs.el`（`major-mode-remap-alist`） |
+| 门禁测试       | `.emacs.d/test/emacs-solo-markdown-test.el`     |
+
+---
+
 ## 门禁测试
 
 确定性、本地、免费、永不 flaky。
@@ -332,6 +352,8 @@ shell 侧那 11 秒几乎都花在反复起子进程上，CPU 时间只有 3 秒
 Emacs 侧覆盖 `emacs-solo-brackets`：括号表结构不变量、正则精确性、命令落点与边界行为、模块与键位接线。其中的「正则精确性」值得一说：`regexp-opt` 对单字符输入会走 `regexp-opt-charset`，而它**允许输出字符范围**——一旦输出成跨过非括号字符的范围（如 `[(-{]`），命令就会静默跳到普通文本上。当前这张表恰好没触发，但测试按 Unicode 区块划窗口、逐码位双向验证（既不漏匹配也不多匹配），而不是只断言「括号能匹配上」。
 
 另覆盖 `emacs-solo-lazycat-theme` 的两个启动时幂等补丁：去掉 `:style none`、补 lexical-binding cookie，各验证「改了该改的 / 不误改别的 / 跑两次不变」。
+
+`emacs-solo-markdown` 那条值得一说：开关关着时**完全不会报错**，块照常显示、只是没颜色，「文件能打开」这类断言抓不到。所以它正面断言块里的关键字拿到了 `font-lock-keyword-face`，再配一条反向断言——把开关摁回 nil 时同一段代码必须拿不到。翻译语言标签那条则从 `.emacs.d/lisp/emacs-init-langs.el` 里 `read` 出 `major-mode-remap-alist` 的真实取值，而不是在测试里另抄一份假表：抄表等于用自己的假设给配置背书。grammar 闸那条本机 grammar 是齐的，「缺失就跳过」那一支跑不到，于是把 `treesit-language-available-p` 桩成全 nil / 全 t 各测一遍（桩之前先断言它对不存在的 grammar 返回 nil，确认桩的不是假想分支）。三条都做过变异验证——关掉开关、删掉 `major-mode-remap-alist` 里的 `bash-ts-mode`、去掉 grammar 闸——每次都确认真的会红。
 
 ---
 
