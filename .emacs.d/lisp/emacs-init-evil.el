@@ -79,7 +79,6 @@ Insert a single j normally when it is not followed by another j."
              (agent-shell-mode . emacs)
              (eat-mode . emacs)
              (term-mode . emacs)
-             (emacs-solo-claude-mode . emacs)
              (gptel-mode . emacs)))
   (evil-set-initial-state (car p) (cdr p)))
 

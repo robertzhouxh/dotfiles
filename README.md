@@ -190,13 +190,14 @@ Emacs 中按 `C-\` 激活输入法。
 
 ## Emacs AI / LLM 工具
 
-三层 AI 交互。agent-shell 与 gptel 配在 `.emacs.d/lisp/emacs-init-ai.el`，Claude Chat 配在 `.emacs.d/lisp/emacs-solo-ai.el`：
+agent-shell 与 gptel 配在 `.emacs.d/lisp/emacs-init-ai.el`，直接启动 CLI 的终端入口配在 `.emacs.d/lisp/emacs-solo-ai.el`：
 
 | 工具        | 快捷键    | 后端                          | 场景                           |
 |-------------|-----------|-------------------------------|--------------------------------|
-| Claude Chat | `C-c C-0` | DeepSeek V4（Anthropic 兼容） | 项目级对话、文件编辑、会话恢复 |
 | agent-shell | `SPC a a` | Claude Code CLI + DeepSeek V4 | 完整终端 agent、多项目并发     |
 | gptel       | `SPC a g` | DeepSeek V4（OpenAI 兼容）    | 底部抽屉式 LLM 聊天            |
+| Claude TUI  | `C-c C-8` | Claude Code CLI             | 直接运行交互式终端界面        |
+| opencode    | `C-c C-9` | opencode CLI                | 终端 agent                    |
 
 ### agent-shell：终端 Agent
 
@@ -219,24 +220,15 @@ npm install -g @zed-industries/claude-agent-acp
 | 插入换行               | `S-return`                |
 | 中断                   | `C-c C-c`                 |
 
-### Claude Chat 原生模式（`emacs-solo-ai`）
+### CLI 终端入口（`emacs-solo-ai`）
 
-`C-c C-0` SDK 模式（stream-json 协议，diff 高亮、会话恢复、图片粘贴）；`C-c C-8` TUI 模式（传统终端交互，走订阅配额）；`C-c C-9` opencode agent（多任务类型）。
+`C-c C-8` 在 `ansi-term` 中直接启动 Claude Code TUI，`C-c C-9` 启动 opencode。同一项目已有活动会话时复用终端。Claude TUI 有选区时可以补充提示词并将选区发送为上下文；Claude CLI 的后端和模型继承当前 Emacs 环境配置。
 
-SDK 模式快捷键：
-
-| 键        | 功能     | 键        | 功能          |
-|-----------|----------|-----------|---------------|
-| `RET`     | 发送     | `C-c C-i` | 粘贴 PNG 图片 |
-| `C-RET`   | 换行     | `C-c C-l` | 清除聊天记录  |
-| `C-c C-c` | 中断进程 | `C-c C-r` | 恢复历史会话  |
-| `C-c C-k` | 终止进程 | `C-c C-m` | 切换模型      |
-
-输入框里可直接敲斜杠命令：`/clear` 开始新会话、`/model NAME` 切换模型、`/resume` 恢复历史会话。
+Ollama 与 Gemini 的终端入口分别通过 `M-x emacs-solo/ollama-run-model` 和 `M-x emacs-solo/gemini-chat` 调用。
 
 ### Evil 模式与 AI 工具协作（vibe-coding 校准）
 
-所有 AI 终端模式（agent-shell、eat、term、Claude Chat、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。流程是：`SPC a a` 起 agent-shell 后正常打字、`RET` 发送、`n/p` 导航输出；想用 `j/k` 滚动输出就快速 `jj` 进 normal state；想继续打字按 `C-z` 回 emacs state。
+所有 AI 终端与聊天模式（agent-shell、eat、term、gptel）启动时自动进入 **emacs state**，不与 Evil 快捷键冲突。流程是：`SPC a a` 起 agent-shell 后正常打字、`RET` 发送、`n/p` 导航输出；想用 `j/k` 滚动输出就快速 `jj` 进 normal state；想继续打字按 `C-z` 回 emacs state。
 
 > `Escape` 在这里不是出口：Evil 只把它绑在 insert / replace / normal / visual 状态上，emacs state 下它是 Meta 前缀。要回 normal 用 `jj` 或 `C-z`（Evil 的 toggle 键）。eat / term 例外——Escape 直接送给终端里的程序。
 
@@ -259,7 +251,7 @@ SDK 模式快捷键：
 
 **报 "claude-agent-acp not found"？** 跑 `npm install -g @zed-industries/claude-agent-acp`，确认 `which claude-agent-acp` 有输出。
 
-**agent-shell 和 Claude Chat 怎么选？** Claude Chat 是 Emacs 原生实现（diff 高亮、会话恢复），日常开发用它；agent-shell 是终端包装，体验等同于直接跑 `claude`，需要完整终端交互时用它。
+**agent-shell 和 Claude TUI 怎么选？** agent-shell 通过 ACP 将 Agent 集成到 Emacs buffer；需要直接使用 Claude Code 的终端界面时，按 `C-c C-8`。
 
 ### gptel：底部抽屉式 LLM 聊天
 
