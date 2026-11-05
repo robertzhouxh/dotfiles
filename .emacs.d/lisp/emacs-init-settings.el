@@ -25,7 +25,7 @@
   :config
   (setq which-key-idle-delay 0.5
         which-key-popup-type 'side-window
-        which-key-side-window-location 'bottom)
+        which-key-side-window-location 'right)
   (which-key-mode 1))
 
 ;; ---- UI 精简 ----
