@@ -99,5 +99,13 @@ Insert a single j normally when it is not followed by another j."
   (define-key evil-emacs-state-map (kbd "C-w") evil-window-map)
   (define-key evil-insert-state-map (kbd "C-w") evil-window-map))
 
+;; jj 进入 normal 后，q 仍使用各 Magit 页面的原生退出命令。
+;; 日志选择页需要执行取消回调，不能统一替换为普通 bury-buffer。
+(with-eval-after-load 'magit
+  (dolist (map (list magit-mode-map magit-log-mode-map
+                     magit-log-select-mode-map magit-cherry-mode-map))
+    (evil-define-key* '(normal motion visual) map
+      (kbd "q") (lookup-key map (kbd "q")))))
+
 (provide 'emacs-init-evil)
 ;;; init-evil.el ends here
